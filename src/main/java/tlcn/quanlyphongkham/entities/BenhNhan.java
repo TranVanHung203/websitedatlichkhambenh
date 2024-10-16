@@ -19,19 +19,21 @@ public class BenhNhan implements Serializable {
     @ManyToOne
     @JoinColumn(name = "nguoi_dung_id")
     private NguoiDung nguoiDung;
-
-    @Column(name = "ten", nullable = false, length = 100)
+    
+    @Column(name = "ten", nullable = false, columnDefinition = "nvarchar(100)")
     private String ten;
+
 
     @Column(name = "ngay_sinh")
     private LocalDate ngaySinh;
 
-    @Column(name = "gioi_tinh", length = 10)
+    @Column(name = "gioi_tinh", length = 10, columnDefinition = "nvarchar(10)")
     private String gioiTinh;
+
 
     @Column(name = "dien_thoai", length = 15)
     private String dienThoai;
 
-    @Column(name = "dia_chi", length = 255)
+    @Column(name = "dia_chi", length = 255,columnDefinition = "nvarchar(100)")
     private String diaChi;
 }

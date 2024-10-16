@@ -27,6 +27,6 @@ public class LichHen implements Serializable {
     @Column(name = "ngay_hen", nullable = false)
     private LocalDateTime ngayHen;
 
-    @Column(name = "trang_thai", length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'Đang chờ'")
+    @Column(name = "trang_thai", length = 20, columnDefinition = "NVARCHAR(20) DEFAULT 'Đang chờ'")
     private String trangThai;
 }

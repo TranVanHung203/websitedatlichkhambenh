@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quên Mật Khẩu</title>
+    <link rel="stylesheet" th:href="@{/css/quenmatkhau.css}"> <!-- Liên kết đến CSS -->
+</head>
+<body>
+    <div class="container">
+        <div class="forgot-password-container">
+            <h2>Quên Mật Khẩu</h2>
+            <p>Nhập email của bạn để nhận liên kết đặt lại mật khẩu.</p>
+            <form th:action="@{/forgot-password}" method="post"> <!-- Thay đổi action nếu cần -->
+                <div class="form-group">
+                    <input type="email" id="email" name="email" placeholder="Nhập email" required>
+                </div>
+                <button type="submit">Gửi Liên Kết Đặt Lại</button>
+            </form>
+            <div class="back-to-login">
+                <a th:href="@{/login}">Quay lại trang đăng nhập</a> <!-- Sử dụng th:href cho liên kết -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>

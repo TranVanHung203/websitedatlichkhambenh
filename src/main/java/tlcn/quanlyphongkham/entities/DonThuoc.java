@@ -23,10 +23,10 @@ public class DonThuoc implements Serializable {
     @JoinColumn(name = "thuoc_id")
     private Thuoc thuoc;
 
-    @Column(name = "liều", nullable = false, length = 100)
+    @Column(name = "liều", nullable = false, length = 100,columnDefinition = "nvarchar(100)")
     private String lieu;
 
-    @Column(name = "tần_suất", nullable = false, length = 50)
+    @Column(name = "tần_suất", nullable = false, length = 50,columnDefinition = "nvarchar(100)")
     private String tanSuat;
 
     @Column(name = "thời_gian", length = 50)

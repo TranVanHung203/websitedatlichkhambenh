@@ -15,6 +15,6 @@ public class ChuyenKhoa implements Serializable {
     @Column(name = "chuyen_khoa_id", length = 36)
     private String chuyenKhoaId;
 
-    @Column(name = "ten", nullable = false, length = 100)
+    @Column(name = "ten", nullable = false, length = 100,columnDefinition = "nvarchar(100)")
     private String ten;
 }

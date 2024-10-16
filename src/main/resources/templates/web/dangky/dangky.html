@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Đăng Ký</title>
+    <link rel="stylesheet" th:href="@{/css/dangky.css}">
+</head>
+<body>
+    <div class="register-container">
+        <h2>Đăng Ký</h2>
+        <form th:action="@{/register}" th:object="${dangKyDTO}" method="post">
+            <div class="form-group">
+                <label for="tenDangNhap">Tên đăng nhập</label>
+                <input type="text" id="tenDangNhap" th:field="*{tenDangNhap}" placeholder="Nhập tên đăng nhập" required>
+            </div>
+            <div class="form-group">
+                <label for="matKhau">Mật khẩu</label>
+                <input type="password" id="matKhau" th:field="*{matKhau}" placeholder="Nhập mật khẩu" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" th:field="*{email}" placeholder="Nhập email" required th:classappend="${error} ? 'input-error' : ''">
+                <span th:if="${error}" style="color: red; font-size: 12px;" th:text="'Email đã được sử dụng'"></span>
+            </div>
+            <div class="form-group">
+                <label for="ten">Họ và Tên</label>
+                <input type="text" id="ten" th:field="*{ten}" placeholder="Nhập họ và tên" required>
+            </div>
+            <div class="form-group">
+                <label for="ngaySinh">Ngày sinh</label>
+                <input type="date" id="ngaySinh" th:field="*{ngaySinh}" required>
+            </div>
+            <div class="form-group">
+                <label for="gioiTinh">Giới tính</label>
+                <select id="gioiTinh" th:field="*{gioiTinh}" required>
+                    <option value="" disabled selected>Chọn giới tính</option>
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
+                    <option value="Khác">Khác</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="dienThoai">Số điện thoại</label>
+                <input type="tel" id="dienThoai" th:field="*{dienThoai}" placeholder="Nhập số điện thoại" required>
+            </div>
+            <div class="form-group">
+                <label for="diaChi">Địa chỉ</label>
+                <input type="text" id="diaChi" th:field="*{diaChi}" placeholder="Nhập địa chỉ" required>
+            </div>
+            <button type="submit">Đăng Ký</button>
+        </form>
+    </div>
+    <script th:src="@{/js/dangky.js}"></script>
+</body>
+</html>

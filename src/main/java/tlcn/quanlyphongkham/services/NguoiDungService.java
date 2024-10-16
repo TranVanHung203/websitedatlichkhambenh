@@ -21,4 +21,22 @@ public class NguoiDungService {
     public NguoiDung saveNguoiDung(NguoiDung nguoiDung) {
         return nguoiDungRepository.save(nguoiDung);
     }
+
+	public NguoiDung findByToken(String token) {
+		return nguoiDungRepository.findByToken(token);
+	}
+
+	public Object findByEmail(String email) {
+		return nguoiDungRepository.findByEmail(email);
+	}
+
+
+
+	
+
+	
+
+	
+
+	
 }

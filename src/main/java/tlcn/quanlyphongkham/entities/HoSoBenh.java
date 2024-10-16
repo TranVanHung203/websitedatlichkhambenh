@@ -24,10 +24,10 @@ public class HoSoBenh implements Serializable {
     @JoinColumn(name = "bac_si_id")
     private BacSi bacSi;
 
-    @Column(name = "chan_doan", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "chan_doan", columnDefinition = "nvarchar(100)", nullable = false)
     private String chanDoan;
 
-    @Column(name = "don_thuoc", columnDefinition = "TEXT")
+    @Column(name = "don_thuoc", columnDefinition = "nvarchar(100)")
     private String donThuoc;
 
     @Column(name = "thoi_gian_tao", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
