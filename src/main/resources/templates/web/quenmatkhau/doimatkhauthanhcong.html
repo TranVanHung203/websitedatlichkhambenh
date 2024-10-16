@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đổi Mật Khẩu Thành Công</title>
+    <link rel="stylesheet" th:href="@{/css/doimatkhauthanhcong.css}"> <!-- Đảm bảo liên kết đến CSS -->
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="checkmark-container">
+                <div class="checkmark">&#10004;</div> <!-- Biểu tượng dấu tích -->
+            </div>
+            <h2>Đổi Mật Khẩu Thành Công</h2>
+            <p>Mật khẩu của bạn đã được đổi thành công.</p>
+            <button th:onclick="|window.location.href='@{/login}'|">Quay lại trang đăng nhập</button> <!-- Liên kết đến trang đăng nhập -->
+        </div>
+    </div>
+</body>
+</html>

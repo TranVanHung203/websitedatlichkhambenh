@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Thành Công</title>
+    <link rel="stylesheet" th:href="@{/css/dangkythanhcong.css}"> <!-- Đảm bảo liên kết đến CSS -->
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="checkmark-container">
+                <div class="checkmark">&#10004;</div> <!-- Biểu tượng dấu tích -->
+            </div>
+            <h2>Đăng Ký Thành Công</h2>
+            <p>Bạn đã đăng ký thành công tài khoản.</p>
+            <button th:onclick="'window.location.href=' + @{/login}">Quay lại trang đăng nhập</button>
+        </div>
+    </div>
+</body>
+</html>

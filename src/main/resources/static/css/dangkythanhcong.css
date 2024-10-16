@@ -1,0 +1,62 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff; /* Màu nền sáng */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Chiều cao toàn màn hình */
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    background-color: #ffffff; /* Màu trắng cho card */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 300px; /* Chiều rộng của card */
+}
+
+.checkmark-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 50px; /* Kích thước biểu tượng dấu tích */
+    color: #66CCFF; /* Màu xanh dương nhạt */
+    margin-bottom: 20px; /* Khoảng cách dưới dấu tích */
+}
+
+h2 {
+    color: #333; /* Màu chữ tiêu đề */
+    margin: 10px 0; /* Khoảng cách trên và dưới tiêu đề */
+}
+
+p {
+    color: #666; /* Màu chữ cho nội dung */
+    margin-bottom: 20px; /* Khoảng cách dưới nội dung */
+}
+
+button {
+    background-color: #66CCFF; /* Màu nền cho nút */
+    color: white; /* Màu chữ cho nút */
+    border: none;
+    border-radius: 5px; /* Bo tròn góc nút */
+    padding: 10px 20px; /* Padding cho nút */
+    cursor: pointer; /* Con trỏ chuột khi di chuột lên nút */
+    font-size: 16px; /* Kích thước chữ cho nút */
+}
+
+button:hover {
+    background-color: #5bb0e8; /* Màu khi hover */
+}
