@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.servlet.http.HttpSession;
 import tlcn.quanlyphongkham.dtos.DangKyDTO;
 import tlcn.quanlyphongkham.entities.BenhNhan;
 import tlcn.quanlyphongkham.entities.NguoiDung;
@@ -27,6 +28,39 @@ public class WebController {
     
     @Autowired
     private EmailService emailService;
+    
+
+    @PostMapping("/login")
+    public String login(@RequestParam("username") String username, 
+                        @RequestParam("password") String password, 
+                        Model model, HttpSession session) {
+        NguoiDung user = nguoiDungService.validateLogin(username, password);
+        if (user != null) {
+            // Lưu thông tin người dùng vào session
+            session.setAttribute("loggedUser", user);
+            return "redirect:/home"; // Chuyển hướng đến trang chủ sau khi đăng nhập thành công
+        } else {
+            model.addAttribute("error", "Tên đăng nhập hoặc mật khẩu không đúng.");
+            return "web/dangnhap/dangnhap"; // Quay lại trang đăng nhập với thông báo lỗi
+        }
+    }
+
+    @GetMapping("/home")
+    public String home(Model model, HttpSession session) {
+        NguoiDung loggedUser = (NguoiDung) session.getAttribute("loggedUser");
+        if (loggedUser != null) {
+            model.addAttribute("tenNguoiDung", loggedUser.getTenDangNhap());
+            return "web/home/home"; // Đường dẫn đến template trang chủ
+        } else {
+            return "redirect:/login"; // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
+        }
+    }
+    
+    
+    
+    
+    
+    
 
     @GetMapping("/register")
     public String showDangKyForm(Model model) {
