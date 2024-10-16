@@ -8,7 +8,7 @@ public class QuanlyphongkhamApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(QuanlyphongkhamApplication.class, args);
-		//a
+
 	}
 
 }
