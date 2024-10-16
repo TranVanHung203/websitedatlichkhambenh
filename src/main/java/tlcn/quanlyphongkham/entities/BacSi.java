@@ -19,7 +19,7 @@ public class BacSi implements Serializable {
     @JoinColumn(name = "nguoi_dung_id")
     private NguoiDung nguoiDung;
 
-    @Column(name = "ten", nullable = false, length = 100)
+    @Column(name = "ten", nullable = false, length = 100,columnDefinition = "nvarchar(100)")
     private String ten;
 
     @ManyToOne
@@ -29,6 +29,6 @@ public class BacSi implements Serializable {
     @Column(name = "dien_thoai", length = 15)
     private String dienThoai;
 
-    @Column(name = "dia_chi", length = 255)
+    @Column(name = "dia_chi", length = 255,columnDefinition = "nvarchar(100)")
     private String diaChi;
 }

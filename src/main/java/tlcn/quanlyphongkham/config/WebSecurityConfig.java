@@ -22,7 +22,7 @@ public class WebSecurityConfig {
     	        				.requestMatchers("/register/**").permitAll()
     	        				.requestMatchers("/user/**").hasAnyAuthority("ADMIN", "USER")
     	        				.requestMatchers("/admin/**").hasAuthority("ADMIN")
-    	        				.anyRequest().authenticated()
+    	        				.anyRequest().permitAll()
     	        )
     	        .formLogin(
     	                form -> form

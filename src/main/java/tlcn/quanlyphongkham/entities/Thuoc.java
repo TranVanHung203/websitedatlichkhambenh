@@ -19,7 +19,7 @@ public class Thuoc implements Serializable {
     @Column(name = "ten", nullable = false, length = 100)
     private String ten;
 
-    @Column(name = "mo_ta", columnDefinition = "TEXT")
+    @Column(name = "mo_ta", columnDefinition = "nvarchar(100)")
     private String moTa;
 
     @Column(name = "gia", nullable = false)

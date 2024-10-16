@@ -25,12 +25,13 @@ public class NguoiDung implements Serializable {
     @Column(name = "email", nullable = false, length = 100)
     private String email;
 
-    @Column(name = "vai_tro", nullable = false, length = 20)
+    @Column(name = "vai_tro", nullable = false, length = 20,columnDefinition = "nvarchar(100)")
     private String vaiTro;
 
-    @Column(name = "thoi_gian_tao")
-    private LocalDateTime thoiGianTao;
-
-    @Column(name = "thoi_gian_cap_nhat")
-    private LocalDateTime thoiGianCapNhat;
+    
+    @Column(name = "active")
+    private String trangthai;
+    
+    @Column(name = "token")
+    private String token;
 }

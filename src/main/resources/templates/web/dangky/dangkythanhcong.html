@@ -14,7 +14,10 @@
             </div>
             <h2>Đăng Ký Thành Công</h2>
             <p>Bạn đã đăng ký thành công tài khoản.</p>
-            <button th:onclick="'window.location.href=' + @{/login}">Quay lại trang đăng nhập</button>
+            <!-- Thay thế th:onclick bằng th:href -->
+            <a th:href="@{/login}">
+                <button>Quay lại trang đăng nhập</button>
+            </a>
         </div>
     </div>
 </body>
