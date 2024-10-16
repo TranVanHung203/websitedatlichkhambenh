@@ -8,7 +8,11 @@ public class QuanlyphongkhamApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(QuanlyphongkhamApplication.class, args);
+<<<<<<< HEAD
 		//test
+=======
+		//a
+>>>>>>> origin/tranvanhung
 	}
 
 }
