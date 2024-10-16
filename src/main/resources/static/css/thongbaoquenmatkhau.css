@@ -1,0 +1,53 @@
+/* thongbao.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    margin: 0;
+    padding: 0;
+}
+
+.notification-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h2 {
+    color: #333;
+}
+
+p {
+    color: #555;
+}
+
+.back-to-login {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.back-to-login:hover {
+    background-color: #0056b3;
+}
+
+/* Kiểu cho thông báo lỗi */
+.error-message {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #ffcccc;
+    background-color: #ffe6e6;
+    color: #d8000c;
+    border-radius: 5px;
+    display: inline-block;
+}
