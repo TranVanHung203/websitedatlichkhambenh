@@ -33,11 +33,14 @@ public class NguoiDungService {
 	
 	public NguoiDung validateLogin(String tenDangNhap, String rawPassword) {
         NguoiDung user = nguoiDungRepository.findByTenDangNhap(tenDangNhap);
+                
         if (user != null) {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            
             if (encoder.matches(rawPassword, user.getMatKhau())) {
+          
                 return user; // Trả về người dùng nếu mật khẩu khớp
-            }
+            }																																								
         }
         return null; // Trả về null nếu không tìm thấy người dùng hoặc mật khẩu sai
     }

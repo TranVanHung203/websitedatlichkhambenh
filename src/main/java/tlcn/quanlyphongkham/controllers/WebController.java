@@ -29,32 +29,32 @@ public class WebController {
     @Autowired
     private EmailService emailService;
     
-
     @PostMapping("/login")
     public String login(@RequestParam("username") String username, 
                         @RequestParam("password") String password, 
                         Model model, HttpSession session) {
+        // Kiểm tra xem username và password có phải là null hoặc rỗng không
+        if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            model.addAttribute("error", "Tên đăng nhập hoặc mật khẩu không được để trống.");
+            return "web/dangnhap/dangnhap"; // Quay lại trang đăng nhập với thông báo lỗi
+        }
+
+        System.out.println("Đang kiểm tra đăng nhập - Username: " + username);
+
         NguoiDung user = nguoiDungService.validateLogin(username, password);
         if (user != null) {
             // Lưu thông tin người dùng vào session
             session.setAttribute("loggedUser", user);
+            System.out.println("Đăng nhập thành công cho người dùng: " + username);
             return "redirect:/home"; // Chuyển hướng đến trang chủ sau khi đăng nhập thành công
         } else {
             model.addAttribute("error", "Tên đăng nhập hoặc mật khẩu không đúng.");
+            System.out.println("Đăng nhập thất bại cho người dùng: " + username);
             return "web/dangnhap/dangnhap"; // Quay lại trang đăng nhập với thông báo lỗi
         }
     }
 
-    @GetMapping("/home")
-    public String home(Model model, HttpSession session) {
-        NguoiDung loggedUser = (NguoiDung) session.getAttribute("loggedUser");
-        if (loggedUser != null) {
-            model.addAttribute("tenNguoiDung", loggedUser.getTenDangNhap());
-            return "web/home/home"; // Đường dẫn đến template trang chủ
-        } else {
-            return "redirect:/login"; // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
-        }
-    }
+   
     
     
     
@@ -209,6 +209,7 @@ public class WebController {
             return "error"; // Trang lỗi nếu token không hợp lệ
         }
     }
+   
 
 
 }

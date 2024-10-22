@@ -1,28 +1,18 @@
 package tlcn.quanlyphongkham.controllers;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
+import jakarta.servlet.http.HttpSession;
+import tlcn.quanlyphongkham.dtos.DangKyDTO;
 import tlcn.quanlyphongkham.entities.NguoiDung;
-import tlcn.quanlyphongkham.services.NguoiDungService;
 
-import java.util.List;
-
-@RestController
-@RequestMapping("/api/nguoidung")
+@Controller
 public class NguoiDungController {
-
-    @Autowired
-    private NguoiDungService nguoiDungService;
-
-    @GetMapping
-    public List<NguoiDung> getAllNguoiDung() {
-        return nguoiDungService.getAllNguoiDung();
-    }
-
-    @PostMapping
-    public NguoiDung createNguoiDung(@RequestBody NguoiDung nguoiDung) {
-        return nguoiDungService.saveNguoiDung(nguoiDung);
+    
+    @GetMapping("/user/editprofile")
+    public String editprofile() {
+        return "benhnhan/editprofile/editprofile";
     }
 }

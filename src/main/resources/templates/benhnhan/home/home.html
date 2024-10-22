@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Website</title>
+    <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+    <link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+    <link th:href="@{/css/home.css}" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Include Header -->
+    <div th:replace="benhnhan/fragments/header :: header"></div>
+
+    <!-- Main Content Section -->
+    <main>
+        <section class="banner">
+            <div class="banner-content">
+                <h1>Chào mừng đến hệ thống khám bệnh!</h1>
+                <p>Trung tâm y tế chất lượng cao</p>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="services">
+            <div class="service">
+                <a th:href="@{/doctor-schedule}">Lịch Khám Bác Sĩ</a>
+            </div>
+            <div class="service">
+                <a th:href="@{/appointment}">Đặt Hẹn Khám</a>
+            </div>
+            <div class="service">
+                <a th:href="@{/knowledge}">Kiến Thức Về Bệnh</a>
+            </div>
+            <div class="service">
+                <a th:href="@{/insurance}">Bảo Lãnh Viện Phí</a>
+            </div>
+            <div class="service">
+                <a th:href="@{/personal-packages}">Gói Khám Cá Nhân</a>
+            </div>
+            <div class="service">
+                <a th:href="@{/company-packages}">Gói Khám Công Ty</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Include Footer -->
+    <div th:replace="benhnhan/fragments/footer :: footer"></div>
+
+</body>
+</html>
