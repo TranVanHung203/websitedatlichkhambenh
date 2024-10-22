@@ -26,9 +26,9 @@ public class WebSecurityConfig {
     	        )
     	        .formLogin(
     	                form -> form
-    	                        .loginPage("/login").loginProcessingUrl("/login")
+    	                        .loginPage("/login").loginProcessingUrl("/perform_login")
     	                        .usernameParameter("username").passwordParameter("password")
-    	                        .defaultSuccessUrl("/user/newfeed", true)
+    	                        .defaultSuccessUrl("/home", true)
     	                        .permitAll()
     	        )
     	        .logout(

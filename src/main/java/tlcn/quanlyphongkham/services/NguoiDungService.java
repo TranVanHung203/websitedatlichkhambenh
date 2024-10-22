@@ -31,18 +31,24 @@ public class NguoiDungService {
 		return nguoiDungRepository.findByEmail(email);
 	}
 	
-	public NguoiDung validateLogin(String tenDangNhap, String rawPassword) {
-        NguoiDung user = nguoiDungRepository.findByTenDangNhap(tenDangNhap);
-        if (user != null) {
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            if (encoder.matches(rawPassword, user.getMatKhau())) {
-                return user; // Trả về người dùng nếu mật khẩu khớp
-            }
-        }
-        return null; // Trả về null nếu không tìm thấy người dùng hoặc mật khẩu sai
-    }
-	
-	
+	public NguoiDung validateLogin(String tenDangNhapOrEmail, String rawPassword) {
+	    NguoiDung user = nguoiDungRepository.findByTenDangNhapOrEmail(tenDangNhapOrEmail, tenDangNhapOrEmail);
+
+	    if (user != null) {
+	        // Kiểm tra trạng thái tài khoản
+	        if (!"ACTIVE".equals(user.getTrangthai())) {
+	            // Trả về null nếu tài khoản chưa kích hoạt
+	            return null;
+	        }
+	        
+	        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+	        if (encoder.matches(rawPassword, user.getMatKhau())) {
+	            return user; // Trả về người dùng nếu mật khẩu khớp
+	        }
+	    }
+	    return null; // Trả về null nếu không tìm thấy người dùng hoặc mật khẩu sai
+	}
+
 	
 	
 	
