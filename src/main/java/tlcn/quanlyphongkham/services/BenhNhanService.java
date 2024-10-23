@@ -14,4 +14,9 @@ public class BenhNhanService {
     public BenhNhan save(BenhNhan benhNhan) {
         return benhNhanRepository.save(benhNhan);
     }
+
+	public BenhNhan findById(String nguoiDungId) {
+		BenhNhan benhNhan = benhNhanRepository.findByNguoiDung_NguoiDungId(nguoiDungId);
+		return benhNhan;
+	}
 }

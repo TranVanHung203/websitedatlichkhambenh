@@ -15,6 +15,7 @@ public interface NguoiDungRepository extends JpaRepository<NguoiDung, String> {
 	
     NguoiDung findByToken(String token);
     NguoiDung findByEmail(String email);
+    NguoiDung findByNguoiDungId(String nguoiDungId);
 
 
 
