@@ -1,0 +1,143 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+}
+
+/* Container Layout */
+.edit-profile-container {
+    display: flex;
+    margin: 20px;
+}
+
+/* Sidebar Styles */
+.edit-profile-sidebar {
+    width: 250px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.edit-profile-sidebar ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column; /* Đưa các mục xuống hàng */
+}
+
+.edit-profile-sidebar ul li {
+    margin-bottom: 15px;
+}
+
+.edit-profile-sidebar ul li a {
+    text-decoration: none;
+    color: #4267B2;
+    font-weight: bold;
+}
+
+.edit-profile-sidebar ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Navigation Styles */
+.edit-profile-nav ul {
+    display: flex;
+    justify-content: space-between;
+    list-style-type: none;
+    background-color: #2a7abd;
+    margin: 0;
+    padding: 10px 20px;
+}
+
+.edit-profile-nav ul li {
+    margin: 0 10px;
+}
+
+.edit-profile-nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.edit-profile-nav ul li a.edit-profile img {
+    vertical-align: middle;
+}
+
+.edit-profile-nav ul li a.logout {
+    background-color: #ff6f61;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* Profile Content Styles */
+.edit-profile-content {
+    flex-grow: 1;
+    background-color: white;
+    margin-left: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.edit-profile-form h3 {
+    margin-top: 20px;
+    color: #4267B2;
+}
+
+/* Edit Form Styles */
+.edit-profile-form label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+}
+
+.edit-profile-form input,
+.edit-profile-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box; /* Đảm bảo tính toán chiều rộng và chiều cao đúng */
+}
+
+/* Canh lề đều giữa các ô trong form */
+.edit-profile-form .edit-form-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Khoảng cách giữa các ô */
+}
+
+/* Các input và select nằm đều nhau và responsive */
+.edit-profile-form .edit-form-section input,
+.edit-profile-form .edit-form-section select {
+    flex: 1 1 calc(50% - 20px); /* Chia 50% chiều rộng và trừ khoảng cách giữa các ô */
+    min-width: 250px; /* Chiều rộng tối thiểu để tránh các ô quá nhỏ */
+}
+
+/* Đảm bảo khoảng cách giữa các trường input và select */
+.edit-profile-form .edit-form-section input[type="date"],
+.edit-profile-form .edit-form-section input[type="text"],
+.edit-profile-form .edit-form-section input[type="email"],
+.edit-profile-form .edit-form-section input[type="password"],
+.edit-profile-form .edit-form-section select {
+    margin-bottom: 15px;
+}
+
+/* Button Styles */
+.save-changes-btn {
+    background-color: #4267B2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.save-changes-btn:hover {
+    background-color: #365899;
+}

@@ -1,0 +1,16 @@
+/* Footer Styles */
+footer {
+    background-color: #2a7abd;
+    color: white;
+}
+
+footer .footer-content {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+
+footer p {
+    margin: 0;
+    font-size: 12px;
+}

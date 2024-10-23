@@ -12,7 +12,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-	@Bean
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
     	        .csrf(csrf -> csrf.disable())
@@ -42,7 +42,6 @@ public class WebSecurityConfig {
     	        )
     	        .build();
     }
-    
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
     	return (web) -> web.ignoring().requestMatchers("/css/**", "/images/**", "/js/**");

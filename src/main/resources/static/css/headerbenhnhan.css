@@ -1,0 +1,79 @@
+/* Header Styles */
+header {
+    background-color: #2a7abd;
+    color: white;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.top-bar .logo img {
+    height: 40px;
+}
+
+.top-bar .contact-info p {
+    margin: 0;
+    font-size: 12px;
+}
+
+nav ul {
+    display: flex;
+    justify-content: space-between;
+    list-style-type: none;
+    background-color: #2a7abd;
+    margin: 0;
+    padding: 10px 20px;
+}
+
+nav ul li {
+    margin: 0 10px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+nav ul li a.edit-profile img {
+    vertical-align: middle;
+}
+
+nav ul li a.logout {
+    background-color: #ff6f61;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+.logo {
+    text-align: center; /* Center the container */
+}
+
+.logo-img {
+    width: 50px; /* Adjust the width */
+    height: auto; /* Maintain aspect ratio */
+    display: inline-block; /* Make it respect text-align */
+    margin-left: 20px; /* Move it slightly to the left */
+}
+.edit-profile {
+    color: white; /* Set the text color to white */
+    display: flex; /* Align the image and text horizontally */
+    align-items: center; /* Center vertically */
+    text-decoration: none; /* Remove underline from the link */
+}
+
+.edit-icon {
+    margin-right: 5px; /* Add space between the icon and the text */
+    color: white;
+}
+
+.edit-text {
+    color: white; /* Ensure the text is white */
+}
+
+
+

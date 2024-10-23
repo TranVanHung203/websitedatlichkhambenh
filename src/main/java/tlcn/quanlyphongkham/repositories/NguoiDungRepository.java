@@ -1,11 +1,23 @@
 package tlcn.quanlyphongkham.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import tlcn.quanlyphongkham.entities.NguoiDung;
 
 public interface NguoiDungRepository extends JpaRepository<NguoiDung, String> {
-    NguoiDung findByTenDangNhap(String tenDangNhap);
+	@Query(value = "SELECT * FROM nguoi_dung WHERE ten_dang_nhap = :tenDangNhap", nativeQuery = true)
+    NguoiDung findByTenDangNhap(@Param("tenDangNhap") String tenDangNhap);
+	
+	
     NguoiDung findByToken(String token);
     NguoiDung findByEmail(String email);
     NguoiDung findByTenDangNhapOrEmail(String tenDangNhap, String email);
+    NguoiDung findByNguoiDungId(String nguoiDungId);
+
+
+
 }

@@ -29,8 +29,6 @@ public class WebController {
     @Autowired
     private EmailService emailService;
     
-
-
     @PostMapping("/login")
     public String login(@RequestParam("tenDangNhapOrEmail") String tenDangNhapOrEmail, 
                         @RequestParam("password") String password, 
@@ -39,31 +37,29 @@ public class WebController {
         // Kiểm tra thông tin đăng nhập
         NguoiDung user = nguoiDungService.validateLogin(tenDangNhapOrEmail, password);
         
+        // Kiểm tra xem username và password có phải là null hoặc rỗng không
+        if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            model.addAttribute("error", "Tên đăng nhập hoặc mật khẩu không được để trống.");
+            return "web/dangnhap/dangnhap"; // Quay lại trang đăng nhập với thông báo lỗi
+        }
+
+        System.out.println("Đang kiểm tra đăng nhập - Username: " + username);
+
+        NguoiDung user = nguoiDungService.validateLogin(username, password);
         if (user != null) {
             // Nếu thông tin đăng nhập đúng, lưu người dùng vào session
             session.setAttribute("loggedUser", user);
+            System.out.println("Đăng nhập thành công cho người dùng: " + username);
             return "redirect:/home"; // Chuyển hướng đến trang chủ sau khi đăng nhập thành công
         } else {
             // Nếu sai tên đăng nhập hoặc mật khẩu, thông báo lỗi
             model.addAttribute("error", "Tên đăng nhập hoặc mật khẩu không đúng.");
-            return "web/dangnhap/dangnhap"; // Trả về trang đăng nhập cùng thông báo lỗi
+            System.out.println("Đăng nhập thất bại cho người dùng: " + username);
+            return "web/dangnhap/dangnhap"; // Quay lại trang đăng nhập với thông báo lỗi
         }
     }
-    
-    @GetMapping("/home")
-    public String home(Model model, HttpSession session) {
-        // Lấy thông tin người dùng từ session
-        NguoiDung loggedUser = (NguoiDung) session.getAttribute("loggedUser");
-        
-        if (loggedUser != null) {
-            // Nếu đã đăng nhập, hiển thị tên người dùng trên trang chủ
-            model.addAttribute("tenNguoiDung", loggedUser.getTenDangNhap());
-            return "web/home/home"; // Đường dẫn đến trang chủ
-        } else {
-            // Nếu chưa đăng nhập, chuyển hướng về trang đăng nhập
-            return "redirect:/login"; 
-        }
-    }
+
+   
     
     
     
@@ -144,4 +140,80 @@ public class WebController {
     public String showSucessRegistrationForm() {
 		 return "web/dangky/dangkythanhcong"; // Đường dẫn đến template đăng ký
 	}
+    @GetMapping("/register/ycxn")
+    public String showNotiXNForm() {
+		 return "web/dangky/yeucauxacthuc"; // Đường dẫn đến template đăng ký
+	}
+    @GetMapping("/forgetpass")
+    public String showForgetPassForm() {
+		 return "web/quenmatkhau/quenmatkhau"; // Đường dẫn đến template đăng ký
+	}
+    
+    
+    
+    
+    @PostMapping("/forgot-password")
+    public String handleForgotPassword(@RequestParam("email") String email, Model model) {
+        NguoiDung nguoiDung = (NguoiDung) nguoiDungService.findByEmail(email);
+        
+        if (nguoiDung != null) {
+            // Tạo token để gửi qua email
+            String token = java.util.UUID.randomUUID().toString();
+            nguoiDung.setToken(token);
+            nguoiDungService.saveNguoiDung(nguoiDung);
+
+            // Gửi email xác nhận với đường dẫn đặt lại mật khẩu
+            String emailBody = "Để đặt lại mật khẩu của bạn, vui lòng nhấn vào đường dẫn sau: "
+                             + "http://localhost:8181/reset-password?token=" + token;
+            emailService.sendEmail(nguoiDung.getEmail(), "Đặt lại mật khẩu", emailBody);
+            model.addAttribute("message", "Vui lòng kiểm tra email của bạn để đặt lại mật khẩu.");
+        } else {
+            model.addAttribute("error", "Email không tồn tại.");
+        }
+
+        return "web/quenmatkhau/thongbaoquenmatkhau"; // Trả về trang quên mật khẩu với thông báo
+    }
+    @GetMapping("/reset-password")
+    public String showResetPasswordForm(@RequestParam("token") String token, Model model) {
+        NguoiDung nguoiDung = nguoiDungService.findByToken(token);
+        
+        if (nguoiDung != null) {
+            model.addAttribute("token", token);
+            return "web/quenmatkhau/resetpassword"; // Trang đặt lại mật khẩu
+        } else {
+            return "error"; // Trang lỗi nếu token không hợp lệ
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(
+            @RequestParam("token") String token, 
+            @RequestParam("matKhau") String matKhau, 
+            @RequestParam("confirmMatKhau") String confirmMatKhau, // Thêm tham số xác nhận mật khẩu
+            Model model) {
+        
+        // Kiểm tra xem mật khẩu và xác nhận mật khẩu có giống nhau không
+        if (!matKhau.equals(confirmMatKhau)) {
+            model.addAttribute("token", token); // Thêm token vào model
+            model.addAttribute("error", "Mật khẩu và xác nhận mật khẩu không khớp.");
+            return "web/quenmatkhau/resetpassword"; // Trả về trang đặt lại mật khẩu với thông báo lỗi
+        }
+
+        NguoiDung nguoiDung = nguoiDungService.findByToken(token);
+        
+        if (nguoiDung != null) {
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            String encodedPassword = passwordEncoder.encode(matKhau);
+            nguoiDung.setMatKhau(encodedPassword);
+            nguoiDung.setToken(null);
+            nguoiDungService.saveNguoiDung(nguoiDung);
+            model.addAttribute("message", "Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập.");
+            return "web/quenmatkhau/doimatkhauthanhcong"; // Quay về trang đăng nhập
+        } else {
+            return "error"; // Trang lỗi nếu token không hợp lệ
+        }
+    }
+   
+
+
 }
