@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin Dashboard</title>
+	<link th:href="@{/css/quanlytaikhoan.css}" rel="stylesheet">
+	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
+	<link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+</head>
+
+<body>
+
+
+
+	<div th:replace="admin/fragments/header :: header"></div>
+
+	<div th:replace="admin/fragments/sidebar :: sidebar"></div>
+	<!-- Main Content -->
+	<div class="main-content">
+		<h1>User Account Management</h1>
+
+		<button class="btn-add">Add New User</button>
+
+		<table>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Phone</th>
+					<th>Role</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>John Doe</td>
+					<td>johndoe@example.com</td>
+					<td>+1 234 567 890</td>
+					<td>Doctor</td>
+					<td>
+						<button class="btn-edit">Edit</button>
+						<button class="btn-delete">Delete</button>
+					</td>
+				</tr>
+				<tr>
+					<td>Jane Smith</td>
+					<td>janesmith@example.com</td>
+					<td>+1 234 567 891</td>
+					<td>Nurse</td>
+					<td>
+						<button class="btn-edit">Edit</button>
+						<button class="btn-delete">Delete</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+
+</html>
