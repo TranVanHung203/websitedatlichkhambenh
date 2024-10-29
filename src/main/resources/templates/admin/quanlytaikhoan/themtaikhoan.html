@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin Dashboard</title>
+	<link th:href="@{/css/quanlytaikhoan.css}" rel="stylesheet">
+	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
+	<link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+
+	<style>
+		/* General styling */
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f4f4f9;
+			margin: 0;
+			padding: 0;
+		}
+
+		.main-content {
+			padding: 20px;
+		}
+
+		h1 {
+			text-align: center;
+			color: #333;
+		}
+
+		.form-container {
+			margin: 20px auto;
+			max-width: 1000px;
+			background-color: #fff;
+			padding: 20px;
+			border-radius: 10px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+
+		.form-container h2 {
+			margin-bottom: 20px;
+			font-size: 24px;
+			color: #333;
+		}
+
+		/* Form layout using Flexbox */
+		.form-row {
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 15px;
+		}
+
+		.form-row label {
+			width: 20%;
+			font-weight: bold;
+			color: #555;
+		}
+
+		.form-row input,
+		.form-row select {
+			width: 75%;
+			padding: 10px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			font-size: 16px;
+		}
+
+		.form-row input[type="radio"] {
+			width: auto;
+			margin-right: 10px;
+		}
+
+		.role-options {
+			display: flex;
+			align-items: center;
+		}
+
+		.form-row.radio-group {
+			display: block;
+		}
+
+		.form-actions {
+			text-align: center;
+		}
+
+		.form-actions button {
+			padding: 10px 20px;
+			font-size: 16px;
+			border: none;
+			border-radius: 5px;
+			background-color: #4CAF50;
+			color: white;
+			cursor: pointer;
+		}
+
+		.form-actions button:hover {
+			background-color: #45a049;
+		}
+
+		/* Doctor and Patient Fields */
+		#doctorPatientFields {
+			display: none;
+		}
+
+		/* Toast notification styling */
+		#toast {
+			visibility: hidden;
+			min-width: 250px;
+			margin-left: -125px;
+			background-color: #333;
+			color: #fff;
+			text-align: center;
+			border-radius: 2px;
+			padding: 16px;
+			position: fixed;
+			z-index: 1;
+			left: 50%;
+			bottom: 30px;
+			font-size: 17px;
+			transition: visibility 0.5s, opacity 0.5s ease;
+			opacity: 0;
+		}
+
+		#toast.show {
+			visibility: visible;
+			opacity: 1;
+		}
+
+		/* Responsive */
+		@media (max-width: 768px) {
+			.form-row {
+				flex-direction: column;
+			}
+
+			.form-row label {
+				width: 100%;
+				margin-bottom: 5px;
+			}
+
+			.form-row input,
+			.form-row select {
+				width: 100%;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<div th:replace="admin/fragments/header :: header"></div>
+	<div th:replace="admin/fragments/sidebar :: sidebar"></div>
+
+	<!-- Main Content -->
+	<div class="main-content">
+		<h1>Quản lý tài khoản người dùng</h1>
+
+		<!-- Form to Add New User -->
+		<div class="form-container">
+			<h2>Thêm người dùng mới</h2>
+
+			<form id="userForm" onsubmit="saveUser(event)">
+				<div class="form-row radio-group">
+					<label>Chọn vai trò:</label>
+					<div class="role-options">
+						<input type="radio" name="role" value="Admin" onclick="toggleFields('Admin')" checked> Admin
+						<input type="radio" name="role" value="BacSi" onclick="toggleFields('BacSi')"> Bác sĩ
+						<input type="radio" name="role" value="BenhNhan" onclick="toggleFields('BenhNhan')"> Bệnh nhân
+					</div>
+				</div>
+
+				<div class="form-row">
+					<label>Email:</label>
+					<input type="email" id="email" placeholder="Nhập email" required>
+				</div>
+
+				<div class="form-row">
+					<label>Tên đăng nhập:</label>
+					<input type="text" id="tenDangNhap" placeholder="Nhập tên đăng nhập" required>
+				</div>
+
+				<div class="form-row">
+					<label>Mật khẩu:</label>
+					<input type="password" id="matKhau" placeholder="Nhập mật khẩu" required>
+				</div>
+
+				<!-- Extra fields for Doctor and Patient -->
+				<div id="doctorPatientFields">
+					<div class="form-row">
+						<label>Tên:</label>
+						<input type="text" id="ten" placeholder="Nhập tên">
+					</div>
+
+					<div class="form-row">
+						<label>Điện thoại:</label>
+						<input type="tel" id="dienThoai" placeholder="Nhập số điện thoại">
+					</div>
+
+					<div class="form-row">
+						<label>Địa chỉ:</label>
+						<input type="text" id="diaChi" placeholder="Nhập địa chỉ">
+					</div>
+
+					<div class="form-row">
+						<label>Giới tính:</label>
+						<select id="gioiTinh">
+							<option value="Nam">Nam</option>
+							<option value="Nữ">Nữ</option>
+							<option value="Khác">Khác</option>
+						</select>
+					</div>
+
+					<div class="form-row">
+						<label>Ngày sinh:</label>
+						<input type="date" id="ngaySinh">
+					</div>
+				</div>
+
+				<div class="form-actions">
+					<button type="submit">Lưu</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Toast notification -->
+	<div id="toast"></div>
+
+	<script>
+		// Toggle fields based on role selection
+		function toggleFields(role) {
+			var doctorPatientFields = document.getElementById("doctorPatientFields");
+
+			if (role === 'Admin') {
+				doctorPatientFields.style.display = 'none';
+			} else if (role === 'BacSi' || role === 'BenhNhan') {
+				doctorPatientFields.style.display = 'block';
+			}
+		}
+
+		// Function to show a toast notification
+		function showToast(message, isSuccess = true) {
+			const toast = document.getElementById("toast");
+			toast.textContent = message;
+			toast.style.backgroundColor = isSuccess ? "#4CAF50" : "#f44336"; // Success (green) or Error (red)
+			toast.className = "show";
+			setTimeout(function () {
+				toast.className = toast.className.replace("show", "");
+			}, 3000); // Hide after 3 seconds
+		}
+
+		function saveUser(event) {
+			event.preventDefault(); // Prevent default form submission
+
+			var role = document.querySelector('input[name="role"]:checked').value;
+			var email = document.getElementById("email").value;
+			var tenDangNhap = document.getElementById("tenDangNhap").value;
+			var matKhau = document.getElementById("matKhau").value;
+
+			var userData = {
+				email: email,
+				tenDangNhap: tenDangNhap,
+				matKhau: matKhau,
+				vaiTro: role
+			};
+
+			// If role is Bác sĩ or Bệnh nhân, add additional fields
+			if (role === 'BacSi' || role === 'BenhNhan') {
+				var ten = document.getElementById("ten").value;
+				var dienThoai = document.getElementById("dienThoai").value;
+				var diaChi = document.getElementById("diaChi").value;
+				var gioiTinh = document.getElementById("gioiTinh").value;
+				var ngaySinh = document.getElementById("ngaySinh").value;
+
+				Object.assign(userData, {
+					ten: ten,
+					dienThoai: dienThoai,
+					diaChi: diaChi,
+					gioiTinh: gioiTinh,
+					ngaySinh: ngaySinh
+				});
+			}
+
+			// Send `userData` to server
+			fetch('/admin/qltk/add', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(userData)
+			})
+				.then(response => {
+					// Kiểm tra mã trạng thái HTTP
+					if (!response.ok) {
+						throw new Error('Thêm người dùng thất bại: ' + response.status);
+					}
+					return response.json(); // Giả định server luôn trả về JSON
+				})
+				.then(data => {
+					// Hiển thị thông báo thành công với dữ liệu từ server
+					showToast('' + (data.message || 'Không có thông báo'), true);
+					document.getElementById("userForm").reset();
+					toggleFields('Admin'); // Reset fields
+				})
+				.catch(error => {
+					// Hiển thị thông báo lỗi
+					showToast('Thêm người dùng thất bại: ' + error.message, false);
+				});
+		}
+
+
+
+	</script>
+
+</body>
+
+</html>

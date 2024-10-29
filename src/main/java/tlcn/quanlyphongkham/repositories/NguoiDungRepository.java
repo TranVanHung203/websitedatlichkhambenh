@@ -16,6 +16,11 @@ public interface NguoiDungRepository extends JpaRepository<NguoiDung, String> {
     NguoiDung findByToken(String token);
     NguoiDung findByEmail(String email);
     NguoiDung findByNguoiDungId(String nguoiDungId);
+    // Check if email exists for any user except the one with the given ID
+    boolean existsByEmailAndNguoiDungIdNot(String email, String nguoiDungId);
+
+    // Check if username exists for any user except the one with the given ID
+    boolean existsByTenDangNhapAndNguoiDungIdNot(String tenDangNhap, String nguoiDungId);
 
 
 

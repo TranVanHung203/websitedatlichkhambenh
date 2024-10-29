@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -36,4 +37,8 @@ public class BenhNhan implements Serializable {
 
     @Column(name = "dia_chi", length = 255,columnDefinition = "nvarchar(100)")
     private String diaChi;
+    
+    @OneToMany(mappedBy = "benhNhan", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<SlotThoiGian> lichKhamBenh; // Danh sách các slot đã đặt của bệnh nhân
+
 }
