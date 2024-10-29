@@ -13,8 +13,9 @@ import java.math.BigDecimal;
 @Table(name = "Thuoc")
 public class Thuoc implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "thuoc_id", length = 36)
-    private String thuocId;
+    private Long thuocId;
 
     @Column(name = "ten", nullable = false, length = 100)
     private String ten;

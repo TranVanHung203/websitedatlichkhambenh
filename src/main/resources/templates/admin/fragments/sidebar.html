@@ -10,9 +10,9 @@
     <div class="sidebar" th:fragment="sidebar">
         <ul>
             <li><a href="#" class="menu-item">Quản lý người dùng</a></li>
-            <li><a href="#" class="menu-item">Quản lý bác sĩ</a></li>
-            <li><a href="#" class="menu-item">Quản lý chuyên khoa</a></li>
-            <li><a href="#" class="menu-item">Quản lý thuốc</a></li>
+             <li><a th:href="@{/admin/qlbs}" class="menu-item">Quản lý bác sĩ</a></li>
+            <li><a th:href="@{/admin/qlck}" class="menu-item">Quản lý chuyên khoa</a></li>
+            <li><a th:href="@{/admin/qlt}" class="menu-item">Quản lý thuốc</a></li>
             <li><a href="#" class="menu-item">Quản lý ca khám bệnh</a></li>
             <li><a href="#" class="menu-item btn-logout">Đăng xuất</a></li> <!-- Thêm nút Đăng xuất -->
         </ul>

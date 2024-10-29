@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Doctor</title>
+    <link th:href="@{/css/editbacsi.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="main-content">
+        <h1>Edit Doctor</h1>
+
+        <form th:action="@{'/admin/qlbs/update/' + ${doctor.bacSiId}}" 
+              th:object="${doctor}" method="post">
+            <label for="ten">Name:</label>
+            <input type="text" id="ten" th:field="*{ten}" required />
+
+            <label for="gioiTinh">Gender:</label>
+            <select id="gioiTinh" th:field="*{gioiTinh}">
+                <option value="Nam" th:selected="${doctor.gioiTinh == 'Nam'}">Male</option>
+                <option value="Nữ" th:selected="${doctor.gioiTinh == 'Nữ'}">Female</option>
+                <option value="Khác" th:selected="${doctor.gioiTinh == 'Khác'}">Other</option>
+            </select>
+
+            <label for="ngaySinh">Date of Birth:</label>
+            <input type="date" id="ngaySinh" th:field="*{ngaySinh}" required />
+
+            <label for="diaChi">Address:</label>
+            <input type="text" id="diaChi" th:field="*{diaChi}" required />
+
+            <label for="dienThoai">Phone:</label>
+            <input type="text" id="dienThoai" th:field="*{dienThoai}" required />
+
+            <label for="chuyenKhoa">Specialization:</label>
+            <select id="chuyenKhoa" th:field="*{chuyenKhoa.chuyenKhoaId}">
+                <option th:each="chuyenKhoa : ${chuyenKhoas}" 
+                        th:value="${chuyenKhoa.chuyenKhoaId}" 
+                        th:text="${chuyenKhoa.ten}"></option>
+            </select>
+
+            <div class="button-group">
+    <button type="submit">Lưu Thông Tin Chỉnh Sửa</button>
+    <a th:href="@{'/admin/qlbs/edit-chitiet/' + ${doctor.bacSiId}}" class="btn-next">Tiếp Tục Chỉnh Sửa</a>
+</div>
+<a href="/admin/qlbs" class="btn-back">Quay lại danh sách bác sĩ</a>
+        </form>
+
+        
+    </div>
+</body>
+
+</html>

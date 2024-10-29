@@ -11,10 +11,12 @@ import java.io.Serializable;
 @Entity
 @Table(name = "ChuyenKhoa")
 public class ChuyenKhoa implements Serializable {
-    @Id
-    @Column(name = "chuyen_khoa_id", length = 36)
-    private String chuyenKhoaId;
 
-    @Column(name = "ten", nullable = false, length = 100,columnDefinition = "nvarchar(100)")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // ID tự tăng
+    @Column(name = "chuyen_khoa_id")
+    private Long chuyenKhoaId;
+
+    @Column(name = "ten", nullable = false, length = 100, columnDefinition = "nvarchar(100)")
     private String ten;
 }

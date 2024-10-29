@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Thuốc</title>
+    <link th:href="@{/css/quanlythuoc.css}" rel="stylesheet">
+    <link th:href="@{/css/headeradmin.css}" rel="stylesheet">
+    <link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div th:replace="admin/fragments/header :: header"></div>
+    <div th:replace="admin/fragments/sidebar :: sidebar"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+		
+        <table>
+            <thead>
+                <tr>
+                    <th>Mã Thuốc</th>
+                    <th>Tên</th>
+                    <th>Mô Tả</th>
+                    <th>Giá</th>
+                    <th>Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="thuoc : ${thuocs}">
+                    <td th:text="${thuoc.thuocId}"></td>
+                    <td th:text="${thuoc.ten}"></td>
+                    <td th:text="${thuoc.moTa}"></td>
+                    <td th:text="${thuoc.gia} + ' VND'"></td>
+                    <td>
+                        <form th:action="@{/admin/edit-thuoc}" method="get" style="display:inline;">
+                            <input type="hidden" name="thuocId" th:value="${thuoc.thuocId}"/>
+                            <button type="submit" class="btn-edit">Sửa</button>
+                        </form>
+                        <form th:action="@{/admin/delete-thuoc}" method="post" style="display:inline;">
+                            <input type="hidden" name="thuocId" th:value="${thuoc.thuocId}"/>
+                            <button type="submit" class="btn-delete" onclick="return confirm('Bạn có chắc chắn muốn xóa thuốc này không?')">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+           <form th:action="@{/admin/add-thuoc}" method="get" style="display:inline;">
+        <button type="submit" class="btn-add">Thêm Thuốc Mới</button>
+    </form>
+    </div>
+</body>
+
+</html>

@@ -38,23 +38,23 @@ public class WebController {
         NguoiDung user = nguoiDungService.validateLogin(tenDangNhapOrEmail, password);
         
         // Kiểm tra xem username và password có phải là null hoặc rỗng không
-        if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+        if (tenDangNhapOrEmail == null || tenDangNhapOrEmail.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             model.addAttribute("error", "Tên đăng nhập hoặc mật khẩu không được để trống.");
             return "web/dangnhap/dangnhap"; // Quay lại trang đăng nhập với thông báo lỗi
         }
 
-        System.out.println("Đang kiểm tra đăng nhập - Username: " + username);
+        System.out.println("Đang kiểm tra đăng nhập - Username: " + tenDangNhapOrEmail);
 
-        NguoiDung user = nguoiDungService.validateLogin(username, password);
+
         if (user != null) {
             // Nếu thông tin đăng nhập đúng, lưu người dùng vào session
             session.setAttribute("loggedUser", user);
-            System.out.println("Đăng nhập thành công cho người dùng: " + username);
+            System.out.println("Đăng nhập thành công cho người dùng: " + tenDangNhapOrEmail);
             return "redirect:/home"; // Chuyển hướng đến trang chủ sau khi đăng nhập thành công
         } else {
             // Nếu sai tên đăng nhập hoặc mật khẩu, thông báo lỗi
             model.addAttribute("error", "Tên đăng nhập hoặc mật khẩu không đúng.");
-            System.out.println("Đăng nhập thất bại cho người dùng: " + username);
+            System.out.println("Đăng nhập thất bại cho người dùng: " + tenDangNhapOrEmail);
             return "web/dangnhap/dangnhap"; // Quay lại trang đăng nhập với thông báo lỗi
         }
     }

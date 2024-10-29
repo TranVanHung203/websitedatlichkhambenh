@@ -2,8 +2,8 @@ package tlcn.quanlyphongkham.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.io.Serializable;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -19,7 +19,7 @@ public class BacSi implements Serializable {
     @JoinColumn(name = "nguoi_dung_id")
     private NguoiDung nguoiDung;
 
-    @Column(name = "ten", nullable = false, length = 100,columnDefinition = "nvarchar(100)")
+    @Column(name = "ten", nullable = false, length = 100, columnDefinition = "nvarchar(100)")
     private String ten;
 
     @ManyToOne
@@ -29,6 +29,15 @@ public class BacSi implements Serializable {
     @Column(name = "dien_thoai", length = 15)
     private String dienThoai;
 
-    @Column(name = "dia_chi", length = 255,columnDefinition = "nvarchar(100)")
+    @Column(name = "dia_chi", length = 255, columnDefinition = "nvarchar(255)")
     private String diaChi;
+
+    @Column(name = "gioi_tinh", length = 10, columnDefinition = "nvarchar(10)")
+    private String gioiTinh;
+
+    @Column(name = "ngay_sinh")
+    private LocalDate ngaySinh;
+
+    @OneToOne(mappedBy = "bacSi", cascade = CascadeType.ALL)
+    private ChiTietBacSi chiTietBacSi;
 }

@@ -20,8 +20,8 @@ public class WebSecurityConfig {
     	        				.requestMatchers("/404").permitAll()
     	        				.requestMatchers("/forgetpass/**").permitAll()
     	        				.requestMatchers("/register/**").permitAll()
-    	        				.requestMatchers("/user/**").hasAnyAuthority("ADMIN", "USER")
-    	        				.requestMatchers("/admin/**").hasAuthority("ADMIN")
+    	        				.requestMatchers("/user/**").permitAll()
+    	        				.requestMatchers("/admin/**").permitAll()
     	        				.anyRequest().permitAll()
     	        )
     	        .formLogin(
