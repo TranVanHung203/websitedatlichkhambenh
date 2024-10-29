@@ -13,6 +13,7 @@
             <div class="form-group">
                 <label for="tenDangNhap">Tên đăng nhập</label>
                 <input type="text" id="tenDangNhap" th:field="*{tenDangNhap}" placeholder="Nhập tên đăng nhập" required>
+                <span th:if="${error1}" style="color: red; font-size: 12px;" th:text="'Tên đăng nhập đã được sử dụng'"></span>
             </div>
             <div class="form-group">
                 <label for="matKhau">Mật khẩu</label>

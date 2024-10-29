@@ -8,55 +8,215 @@
 	<link th:href="@{/css/quanlytaikhoan.css}" rel="stylesheet">
 	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
 	<link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+
+	<!-- SweetAlert2 for beautiful popups -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
 
-
-
 	<div th:replace="admin/fragments/header :: header"></div>
-
 	<div th:replace="admin/fragments/sidebar :: sidebar"></div>
+
 	<!-- Main Content -->
 	<div class="main-content">
-		<h1>User Account Management</h1>
+		<h1>Quản lý tài khoản người dùng</h1>
 
-		<button class="btn-add">Add New User</button>
+		<!-- Search Box -->
+		<input type="text" id="searchInput" placeholder="Tìm kiếm tài khoản người dùng..." onkeyup="filterTable()" />
+		<button class="btn-add" onclick="window.location.href='/admin/qltk/add'">Add New User</button>
 
-		<table>
+
+		<table id="userTable">
 			<thead>
 				<tr>
-					<th>Name</th>
 					<th>Email</th>
-					<th>Phone</th>
-					<th>Role</th>
+					<th>Tên đăng nhập</th>
+					<th>Vai trò</th>
+					<th>Trạng thái</th>
 					<th>Actions</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
-					<td>John Doe</td>
-					<td>johndoe@example.com</td>
-					<td>+1 234 567 890</td>
-					<td>Doctor</td>
+				<tr th:each="nguoiDung : ${nguoiDungList}" th:data-nguid="${nguoiDung.nguoiDungId}">
 					<td>
-						<button class="btn-edit">Edit</button>
-						<button class="btn-delete">Delete</button>
+						<input type="text" th:value="${nguoiDung.email}" readonly />
 					</td>
-				</tr>
-				<tr>
-					<td>Jane Smith</td>
-					<td>janesmith@example.com</td>
-					<td>+1 234 567 891</td>
-					<td>Nurse</td>
 					<td>
-						<button class="btn-edit">Edit</button>
-						<button class="btn-delete">Delete</button>
+						<input type="text" th:value="${nguoiDung.tenDangNhap}" readonly />
+					</td>
+					<td>
+						<select disabled>
+							<option th:value="'Admin'" th:text="'Admin'" th:selected="${nguoiDung.vaiTro == 'Admin'}">
+							</option>
+							<option th:value="'Bác sĩ'" th:text="'Bác sĩ'"
+								th:selected="${nguoiDung.vaiTro == 'Bác sĩ'}"></option>
+							<option th:value="'Bệnh nhân'" th:text="'Bệnh nhân'"
+								th:selected="${nguoiDung.vaiTro == 'Bệnh nhân'}"></option>
+						</select>
+					</td>
+					<td>
+						<select disabled>
+							<option th:value="'ACTIVE'" th:text="'Kích hoạt'"
+								th:selected="${nguoiDung.trangthai == 'ACTIVE'}"></option>
+							<option th:value="'INACTIVE'" th:text="'Chưa kích hoạt'"
+								th:selected="${nguoiDung.trangthai == null or nguoiDung.trangthai == 'INACTIVE'}">
+							</option>
+						</select>
+					</td>
+					<td>
+						<button class="btn-edit" onclick="toggleEdit(this)">Edit</button>
+						<button class="btn-delete" onclick="deleteUser(this)">Delete</button>
 					</td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
+
+	<script>
+		// JavaScript to filter table based on search input
+		function filterTable() {
+			var input, filter, table, tr, td, i, j, txtValue;
+			input = document.getElementById("searchInput");
+			filter = input.value.toLowerCase();
+			table = document.getElementById("userTable");
+			tr = table.getElementsByTagName("tr");
+
+			for (i = 1; i < tr.length; i++) { // Start from 1 to skip the table header
+				tr[i].style.display = "none"; // Initially hide the row
+				td = tr[i].getElementsByTagName("td");
+				for (j = 0; j < td.length; j++) {
+					if (td[j]) {
+						txtValue = td[j].textContent || td[j].innerText;
+						if (txtValue.toLowerCase().indexOf(filter) > -1) {
+							tr[i].style.display = ""; // Show the row if a match is found
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		// Edit/Save functionality
+		function toggleEdit(button) {
+			var row = button.closest('tr');
+			var inputs = row.querySelectorAll('input');
+			var selectBoxes = row.querySelectorAll('select');
+
+			var nguoiDungId = row.getAttribute('data-nguid');
+
+			// Check if we're in edit mode or save mode
+			if (button.innerText === "Edit") {
+				// Store original values as data attributes on the row element
+				row.dataset.originalEmail = inputs[0].value;
+				row.dataset.originalTenDangNhap = inputs[1].value;
+				row.dataset.originalTrangThai = selectBoxes[1].value;
+
+				// Enable editing of fields except role (vaiTro)
+				button.innerText = "Lưu";
+				inputs.forEach(input => input.removeAttribute('readonly'));
+				selectBoxes[1].removeAttribute('disabled'); // Enable 'trangthai' (status), keep 'vaiTro' disabled
+			} else {
+				// Save changes
+				button.innerText = "Edit";
+				inputs.forEach(input => input.setAttribute('readonly', true));
+				selectBoxes[1].setAttribute('disabled', true); // Disable 'trangthai' again
+
+				var email = inputs[0].value;
+				var tenDangNhap = inputs[1].value;
+				var trangThai = selectBoxes[1].value;
+
+				var userData = {
+					nguoiDungId: nguoiDungId,
+					email: email,
+					tenDangNhap: tenDangNhap,
+					trangthai: trangThai
+				};
+
+				// Send data to the server
+				fetch('/admin/qltk/update', {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(userData)
+				})
+					.then(response => {
+						if (response.ok) {
+							Swal.fire({
+								icon: 'success',
+								title: 'Thành công!',
+								text: 'Cập nhật thành công!',
+								timer: 1500,
+								showConfirmButton: false
+							});
+						} else {
+							// On failure, revert the fields to the original values
+							inputs[0].value = row.dataset.originalEmail;
+							inputs[1].value = row.dataset.originalTenDangNhap;
+							selectBoxes[1].value = row.dataset.originalTrangThai;
+
+							Swal.fire({
+								icon: 'error',
+								title: 'Lỗi!',
+								text: 'Có lỗi xảy ra khi cập nhật.',
+							});
+						}
+					})
+					.catch(() => {
+						// Handle network errors by also reverting the changes
+						inputs[0].value = row.dataset.originalEmail;
+						inputs[1].value = row.dataset.originalTenDangNhap;
+						selectBoxes[1].value = row.dataset.originalTrangThai;
+
+						Swal.fire({
+							icon: 'error',
+							title: 'Lỗi!',
+							text: 'Không thể kết nối đến máy chủ.',
+						});
+					});
+			}
+		}
+
+
+		// Delete functionality with SweetAlert2 confirmation
+		function deleteUser(button) {
+			var row = button.closest('tr');
+			var userId = row.getAttribute('data-nguid');
+
+			Swal.fire({
+				title: 'Bạn có chắc muốn xóa người dùng này không?',
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonText: 'Xóa',
+				cancelButtonText: 'Hủy'
+			}).then((result) => {
+				if (result.isConfirmed) {
+					fetch(`/admin/qltk/delete/${userId}`, {
+						method: 'DELETE'
+					})
+						.then(response => {
+							if (response.ok) {
+								Swal.fire({
+									icon: 'success',
+									title: 'Xóa thành công!',
+									timer: 1500,
+									showConfirmButton: false
+								});
+								row.remove(); // Remove row from table
+							} else {
+								Swal.fire({
+									icon: 'error',
+									title: 'Lỗi!',
+									text: 'Có lỗi xảy ra khi xóa.'
+								});
+							}
+						});
+				}
+			});
+		}
+	</script>
+
 </body>
 
 </html>

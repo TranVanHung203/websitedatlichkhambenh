@@ -1,18 +1,27 @@
 package tlcn.quanlyphongkham.services;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import jakarta.persistence.EntityNotFoundException;
+import tlcn.quanlyphongkham.dtos.BacSiDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.ChiTietBacSi;
+import tlcn.quanlyphongkham.entities.ChuyenKhoa;
 import tlcn.quanlyphongkham.repositories.BacSiRepository;
-
-import java.util.List;
+import tlcn.quanlyphongkham.repositories.ChuyenKhoaRepository;
 
 @Service
 public class BacSiService {
 
     @Autowired
     private BacSiRepository bacSiRepository;
+    @Autowired
+    private ChuyenKhoaRepository chuyenKhoaRepository; // Thay đổi này
 
     public List<BacSi> getAllDoctors() {
         return bacSiRepository.findAll();
@@ -67,4 +76,17 @@ public class BacSiService {
         }
     }
 
+
+    public List<BacSiDTO> getBacSiByChuyenKhoa(String chuyenKhoaId) {
+        ChuyenKhoa chuyenKhoa = chuyenKhoaRepository.findById(chuyenKhoaId)
+            .orElseThrow(() -> new EntityNotFoundException("Chuyên khoa không tồn tại"));
+        return bacSiRepository.findByChuyenKhoa(chuyenKhoa).stream()
+                .map(bacSi -> new BacSiDTO(bacSi.getBacSiId(), bacSi.getTen()))
+                .collect(Collectors.toList());
+    }
+	public Optional<BacSi> findBacSiById(String bacSiId) {
+		
+		return bacSiRepository.findById(bacSiId);
+	}
+    
 }

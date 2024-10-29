@@ -82,6 +82,11 @@ public class WebController {
             return "web/dangky/dangky"; // Trả về trang đăng ký với thông báo lỗi
         }
         
+        if (nguoiDungService.findByTenDangNhap(dangKyDTO.getTenDangNhap()) != null) {
+            model.addAttribute("error1", "Tên đăng nhập đã tồn tại. Vui lòng nhập tên đăng nhập khác.");
+            return "web/dangky/dangky"; // Trả về trang đăng ký với thông báo lỗi
+        }
+        
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode(dangKyDTO.getMatKhau());
         

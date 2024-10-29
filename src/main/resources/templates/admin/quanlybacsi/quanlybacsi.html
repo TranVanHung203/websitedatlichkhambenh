@@ -2,59 +2,64 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link th:href="@{/css/quanlybacsi.css}" rel="stylesheet">
-    <link th:href="@{/css/headeradmin.css}" rel="stylesheet">
-    <link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin Dashboard</title>
+	<link th:href="@{/css/quanlybacsi.css}" rel="stylesheet">
+	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
+	<link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
 </head>
 
 <body>
 
-    <div th:replace="admin/fragments/header :: header"></div>
-    <div th:replace="admin/fragments/sidebar :: sidebar"></div>
+	<div th:replace="admin/fragments/header :: header"></div>
+	<div th:replace="admin/fragments/sidebar :: sidebar"></div>
 
-    <!-- Main Content -->
-    <div class="main-content">
+	<!-- Main Content -->
+	<div class="main-content">
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Gender</th>
-                    <th>Date of Birth</th>
-                    <th>Address</th>
-                    <th>Phone</th>
-                    <th>Specialization</th>
-                    <th>Degree</th>
-                    <th>International Conferences</th>
-                    <th>Certificates</th>
-                    <th>Specialized Training</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="doctor : ${doctors}">
-                    <td th:text="${doctor.ten}"></td>
-                    <td th:text="${doctor.gioiTinh}"></td>
-                    <td th:text="${doctor.ngaySinh}"></td>
-                    <td th:text="${doctor.diaChi}"></td>
-                    <td th:text="${doctor.dienThoai}"></td>
-                    <td th:text="${doctor.chuyenKhoa.ten}"></td>
-                    <td th:text="${doctor.chiTietBacSi.bangCap}"></td>
-                    <td th:text="${doctor.chiTietBacSi.hoiNghiNuocNgoai}"></td>
-                    <td th:text="${doctor.chiTietBacSi.chungChi}"></td>
-                    <td th:text="${doctor.chiTietBacSi.daoTaoChuyenNganh}"></td>
-                    <td>
-                       <a th:href="@{/admin/qlbs/edit-bacsi/{bacSiId}(bacSiId=${doctor.bacSiId})}" class="btn-edit">Chỉnh Sửa</a>
+		<table>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Gender</th>
+					<th>Date of Birth</th>
+					<th>Address</th>
+					<th>Phone</th>
+					<th>Specialization</th>
+					<th>Degree</th>
+					<th>International Conferences</th>
+					<th>Certificates</th>
+					<th>Specialized Training</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="doctor : ${doctors}">
+					<td th:text="${doctor.ten}"></td>
+					<td th:text="${doctor.gioiTinh}"></td>
+					<td th:text="${doctor.ngaySinh}"></td>
+					<td th:text="${doctor.diaChi}"></td>
+					<td th:text="${doctor.dienThoai}"></td>
+					<td>
+						<span th:if="${doctor.chuyenKhoa == null}"></span>
+						<span th:if="${doctor.chuyenKhoa != null}" th:text="${doctor.chuyenKhoa.ten}"></span>
+					</td>
 
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        
-    </div>
+					<td th:text="${doctor.chiTietBacSi.bangCap}"></td>
+					<td th:text="${doctor.chiTietBacSi.hoiNghiNuocNgoai}"></td>
+					<td th:text="${doctor.chiTietBacSi.chungChi}"></td>
+					<td th:text="${doctor.chiTietBacSi.daoTaoChuyenNganh}"></td>
+					<td>
+						<a th:href="@{/admin/qlbs/edit-bacsi/{bacSiId}(bacSiId=${doctor.bacSiId})}"
+							class="btn-edit">Chỉnh Sửa</a>
+
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+	</div>
 
 </body>
 

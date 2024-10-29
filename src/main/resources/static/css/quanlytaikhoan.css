@@ -17,6 +17,7 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transitions for hover effects */
 }
 
 .btn-add {
@@ -24,6 +25,24 @@ button {
     color: #fff;
     margin-bottom: 20px;
     float: right;
+}
+
+.btn-add:hover {
+    background-color: #218838; /* Darken color on hover */
+}
+
+/* Search Box Styles */
+#searchInput {
+    padding: 10px;
+    width: 300px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+#searchInput:focus {
+    border-color: #007bff;
+    outline: none;
 }
 
 table {
@@ -52,12 +71,43 @@ table tr:hover {
     color: #fff;
 }
 
+.btn-edit:hover {
+    background-color: #e0a800; /* Darken color on hover */
+}
+
 .btn-delete {
     background-color: #dc3545;
     color: #fff;
     margin-left: 10px;
 }
 
+.btn-delete:hover {
+    background-color: #c82333; /* Darken color on hover */
+}
+
 .btn-edit, .btn-delete {
     padding: 8px 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+
+    #searchInput {
+        width: 100%; /* Make search bar full width on small screens */
+    }
+
+    table th, table td {
+        padding: 10px;
+    }
+
+    .btn-add {
+        float: none;
+        width: 100%;
+        text-align: center;
+    }
 }
