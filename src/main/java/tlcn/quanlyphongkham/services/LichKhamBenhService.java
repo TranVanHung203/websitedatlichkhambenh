@@ -1,14 +1,17 @@
 package tlcn.quanlyphongkham.services;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.LichKhamBenh;
 import tlcn.quanlyphongkham.repositories.LichKhamBenhRepository;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Service
 public class LichKhamBenhService {
@@ -32,4 +35,15 @@ public class LichKhamBenhService {
 	
 		return lichKhamBenhRepository.existsByNgayThangNamAndCaAndBacSi(ngayThangNam, ca, bacSi);
 	}
+	
+	@Transactional
+    public boolean deleteLichKhamBenh(String maLichKhamBenh) {
+        Optional<LichKhamBenh> lichKhamBenh = lichKhamBenhRepository.findById(maLichKhamBenh);
+        if (lichKhamBenh.isPresent()) {
+            lichKhamBenhRepository.deleteById(maLichKhamBenh);
+            return true;
+        } else {
+            return false;
+        }
+    }	
 }

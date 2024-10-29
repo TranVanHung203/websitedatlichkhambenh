@@ -1,5 +1,6 @@
 package tlcn.quanlyphongkham.controllers;
 
+import java.awt.SystemColor;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -176,6 +177,24 @@ public class AdminController {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response); // Trả về 500 Internal Server Error cho lỗi
 	    }
 	}
+	@DeleteMapping("/admin/qlck/deleteLichKham/{maLichKhamBenh}")
+	public ResponseEntity<Map<String, Object>> deleteLichKhamBenh(@PathVariable String maLichKhamBenh) {
+	    // Chuyển đổi UUID thành long. 
+	    // Ở đây tôi sẽ lấy giá trị long từ phần đầu của UUID.
+
+	    
+	    Map<String, Object> response = new HashMap<>();
+	    if (lichKhamBenhService.deleteLichKhamBenh(maLichKhamBenh)) {
+	        response.put("success", true);
+	        response.put("message", "Lịch khám đã được xóa thành công.");
+	        return ResponseEntity.ok(response);
+	    } else {
+	        response.put("success", false);
+	        response.put("message", "Không tìm thấy lịch khám để xóa.");
+	        return ResponseEntity.status(404).body(response);
+	    }
+	}
+
 
 
 

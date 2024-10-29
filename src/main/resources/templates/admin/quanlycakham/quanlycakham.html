@@ -48,7 +48,7 @@
 				<div class="schedule-section">
 					<div class="section-header">
 						<h3>Buổi Chiều (13h - 16h30)</h3>
-						<button class="add-button" onclick="openPopup('popup-add')">+ Thêm Mới</button>
+						
 					</div>
 					<table class="schedule-table">
 						<thead>
@@ -67,7 +67,7 @@
 				<div class="schedule-section">
 					<div class="section-header">
 						<h3>Buổi Ngoài Giờ (17h - 19h30)</h3>
-						<button class="add-button" onclick="openPopup('popup-add')">+ Thêm Mới</button>
+						
 					</div>
 					<table class="schedule-table">
 						<thead>
@@ -82,6 +82,12 @@
 						</tbody>
 					</table>
 				</div>
+			</div>
+			<!-- Hộp thoại xác nhận xóa -->
+			<div id="delete-confirm-box" class="confirm-box">
+				<p>Bạn có chắc chắn muốn xóa lịch khám này không?</p>
+				<button id="confirm-delete-btn" class="confirm-button">Xác nhận</button>
+				<button onclick="closeConfirmBox()" class="cancel-button">Hủy</button>
 			</div>
 
 			<!-- Popup thêm lịch khám -->
@@ -144,7 +150,8 @@
 							`<td>${item.tenBacSi}</td>
                     <td>${item.tenChuyenKhoa}</td>
                     <td>
-                        <button class="delete-button" onclick="deleteSchedule(${item.maLichKhamBenh})">Xóa</button>
+                       <button class="delete-button" onclick="deleteSchedule('${item.maLichKhamBenh}')">Xóa</button>
+
                     </td>`;
 
 						if (item.caKham === "Sáng") {
@@ -211,9 +218,7 @@
 				.catch(error => console.error('Error loading doctors:', error));
 		}
 
-		function deleteSchedule(scheduleId) {
-			alert(`Xóa lịch khám với ID: ${scheduleId}`);
-		}
+
 
 		document.querySelector('.save-button').addEventListener('click', function () {
 			const doctor = document.getElementById('add-doctor').value;
@@ -291,6 +296,50 @@
     .notification.fade-out { opacity: 0; }
 `;
 		document.head.appendChild(style);
+
+		let currentScheduleId = null;
+
+		function deleteSchedule(scheduleId) {
+			currentScheduleId = scheduleId;
+			openConfirmBox();
+		}
+
+		function openConfirmBox() {
+			document.getElementById("delete-confirm-box").style.display = "block";
+		}
+
+		function closeConfirmBox() {
+			document.getElementById("delete-confirm-box").style.display = "none";
+			currentScheduleId = null;
+		}
+
+		document.getElementById("confirm-delete-btn").addEventListener("click", function () {
+			if (!currentScheduleId) return;
+
+			fetch(`/admin/qlck/deleteLichKham/${currentScheduleId}`, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			})
+				.then(response => response.json())
+				.then(data => {
+					if (data.success) {
+						showNotification('success', 'Xóa lịch khám thành công!');
+						loadSchedule();
+					} else {
+						showNotification('error', data.message || 'Không thể xóa lịch khám');
+					}
+					closeConfirmBox();
+				})
+				.catch(error => {
+					console.error('Có lỗi xảy ra:', error);
+					showNotification('error', 'Lỗi kết nối hoặc xử lý, vui lòng thử lại');
+					closeConfirmBox();
+				});
+		});
+
+
 
 
 		window.onload = function () {
