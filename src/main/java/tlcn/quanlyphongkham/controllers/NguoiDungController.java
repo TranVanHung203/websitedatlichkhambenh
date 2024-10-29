@@ -30,7 +30,7 @@ public class NguoiDungController {
 	@Autowired
 	private UserProfileService userProfileService;
 
-	String nguoiDungId = "9965ce1d-70a0-4494-a0af-11849e0907f2";
+	String nguoiDungId = "aea98d9f-dbaa-418c-a31a-6047d35326ff";
 
 	@GetMapping("/user/editprofile")
 	public String editProfile(Model model) {

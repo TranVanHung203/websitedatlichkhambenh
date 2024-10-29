@@ -84,17 +84,34 @@ public class AdminController {
 
 	@PostMapping("/admin/qltk/add")
 	public ResponseEntity<Map<String, String>> themNguoiDung(@RequestBody ThemTaiKhoanDTO themTaiKhoanDTO) {
-		Map<String, String> response = new HashMap<>();
+	    Map<String, String> response = new HashMap<>();
 
-		try {
-			nguoiDungService.themNguoiDung(themTaiKhoanDTO);
-			response.put("message", "Thêm người dùng thành công.");
-			return ResponseEntity.ok(response);
-		} catch (Exception e) {
-			response.put("error", "Lỗi khi thêm người dùng: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-		}
+	    // Kiểm tra nếu email hoặc tên đăng nhập đã tồn tại cho người dùng mới
+	    boolean emailExists = nguoiDungService.emailExists(themTaiKhoanDTO.getEmail());
+	    boolean usernameExists = nguoiDungService.usernameExists(themTaiKhoanDTO.getTenDangNhap());
+
+	    if (emailExists) {
+	        response.put("error", "Email đã tồn tại. Vui lòng chọn email khác.");
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+	    }
+
+	    if (usernameExists) {
+	        response.put("error", "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.");
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+	    }
+
+	    // Thêm người dùng mới
+	    try {
+	        nguoiDungService.themNguoiDung(themTaiKhoanDTO);
+	        response.put("message", "Thêm người dùng thành công.");
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        response.put("error", "Lỗi khi thêm người dùng: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	    }
 	}
+
+
 
 	@GetMapping("/admin/qlck")
 	public String openFormQuanLyCaKham(Model model) {

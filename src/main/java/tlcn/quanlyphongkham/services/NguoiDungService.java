@@ -145,57 +145,64 @@ public class NguoiDungService {
 		return nguoiDungRepository.existsByTenDangNhapAndNguoiDungIdNot(tenDangNhap, nguoiDungId);
 	}
 
-
 	@Transactional
 	public void themNguoiDung(ThemTaiKhoanDTO themTaiKhoanDTO) throws Exception {
-	    // Mã hóa mật khẩu
-	    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-	    String encodedPassword = passwordEncoder.encode(themTaiKhoanDTO.getMatKhau());
+		// Mã hóa mật khẩu
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String encodedPassword = passwordEncoder.encode(themTaiKhoanDTO.getMatKhau());
 
-	    // Thêm người dùng
-	    NguoiDung nguoiDung = new NguoiDung();
-	    nguoiDung.setNguoiDungId(UUID.randomUUID().toString());
-	    nguoiDung.setTenDangNhap(themTaiKhoanDTO.getTenDangNhap());
-	    nguoiDung.setMatKhau(encodedPassword); // Lưu mật khẩu đã mã hóa
-	    nguoiDung.setEmail(themTaiKhoanDTO.getEmail());
-	    nguoiDung.setVaiTro(themTaiKhoanDTO.getVaiTro());
-	    nguoiDung.setTrangthai("ACTIVE");
+		// Thêm người dùng
+		NguoiDung nguoiDung = new NguoiDung();
+		nguoiDung.setNguoiDungId(UUID.randomUUID().toString());
+		nguoiDung.setTenDangNhap(themTaiKhoanDTO.getTenDangNhap());
+		nguoiDung.setMatKhau(encodedPassword); // Lưu mật khẩu đã mã hóa
+		nguoiDung.setEmail(themTaiKhoanDTO.getEmail());
+		nguoiDung.setVaiTro(themTaiKhoanDTO.getVaiTro());
+		nguoiDung.setTrangthai("ACTIVE");
 
-	    nguoiDungRepository.save(nguoiDung);
+		nguoiDungRepository.save(nguoiDung);
 
-	    // Nếu là Bác sĩ, thêm vào bảng BacSi và ChiTietBacSi
-	    if ("BacSi".equals(themTaiKhoanDTO.getVaiTro())) {
-	        BacSi bacSi = new BacSi();
-	        bacSi.setBacSiId(UUID.randomUUID().toString());
-	        bacSi.setNguoiDung(nguoiDung);
-	        bacSi.setTen(themTaiKhoanDTO.getTen());
-	        bacSi.setDienThoai(themTaiKhoanDTO.getDienThoai());
-	        bacSi.setDiaChi(themTaiKhoanDTO.getDiaChi());
-	        bacSi.setNgaySinh(themTaiKhoanDTO.getNgaySinh());
-	        bacSi.setGioiTinh(themTaiKhoanDTO.getGioiTinh());
+		// Nếu là Bác sĩ, thêm vào bảng BacSi và ChiTietBacSi
+		if ("BacSi".equals(themTaiKhoanDTO.getVaiTro())) {
+			BacSi bacSi = new BacSi();
+			bacSi.setBacSiId(UUID.randomUUID().toString());
+			bacSi.setNguoiDung(nguoiDung);
+			bacSi.setTen(themTaiKhoanDTO.getTen());
+			bacSi.setDienThoai(themTaiKhoanDTO.getDienThoai());
+			bacSi.setDiaChi(themTaiKhoanDTO.getDiaChi());
+			bacSi.setNgaySinh(themTaiKhoanDTO.getNgaySinh());
+			bacSi.setGioiTinh(themTaiKhoanDTO.getGioiTinh());
 
-	        bacSiRepository.save(bacSi);
+			bacSiRepository.save(bacSi);
 
-	        // Thêm ChiTietBacSi
-	        ChiTietBacSi chiTietBacSi = new ChiTietBacSi();
-	        chiTietBacSi.setBacSi(bacSi);
-	        chiTietBacSiRepository.save(chiTietBacSi);
-	    }
+			// Thêm ChiTietBacSi
+			ChiTietBacSi chiTietBacSi = new ChiTietBacSi();
+			chiTietBacSi.setBacSi(bacSi);
+			chiTietBacSiRepository.save(chiTietBacSi);
+		}
 
-	    // Nếu là Bệnh nhân, thêm vào bảng BenhNhan
-	    else if ("BenhNhan".equals(themTaiKhoanDTO.getVaiTro())) {
-	        BenhNhan benhNhan = new BenhNhan();
-	        benhNhan.setBenhNhanId(UUID.randomUUID().toString());
-	        benhNhan.setNguoiDung(nguoiDung);
-	        benhNhan.setTen(themTaiKhoanDTO.getTen());
-	        benhNhan.setDienThoai(themTaiKhoanDTO.getDienThoai());
-	        benhNhan.setDiaChi(themTaiKhoanDTO.getDiaChi());
-	        benhNhan.setNgaySinh(themTaiKhoanDTO.getNgaySinh());
-	        benhNhan.setGioiTinh(themTaiKhoanDTO.getGioiTinh());
+		// Nếu là Bệnh nhân, thêm vào bảng BenhNhan
+		else if ("BenhNhan".equals(themTaiKhoanDTO.getVaiTro())) {
+			BenhNhan benhNhan = new BenhNhan();
+			benhNhan.setBenhNhanId(UUID.randomUUID().toString());
+			benhNhan.setNguoiDung(nguoiDung);
+			benhNhan.setTen(themTaiKhoanDTO.getTen());
+			benhNhan.setDienThoai(themTaiKhoanDTO.getDienThoai());
+			benhNhan.setDiaChi(themTaiKhoanDTO.getDiaChi());
+			benhNhan.setNgaySinh(themTaiKhoanDTO.getNgaySinh());
+			benhNhan.setGioiTinh(themTaiKhoanDTO.getGioiTinh());
 
-	        benhNhanRepository.save(benhNhan);
-	    }
+			benhNhanRepository.save(benhNhan);
+		}
 	}
 
+	public boolean emailExists(String email) {
+		return nguoiDungRepository.existsByEmail(email);
+	}
+
+	// Kiểm tra tên đăng nhập tồn tại cho người dùng mới
+	public boolean usernameExists(String username) {
+		return nguoiDungRepository.existsByTenDangNhap(username);
+	}
 
 }

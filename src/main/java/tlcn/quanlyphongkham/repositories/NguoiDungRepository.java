@@ -22,6 +22,7 @@ public interface NguoiDungRepository extends JpaRepository<NguoiDung, String> {
     // Check if username exists for any user except the one with the given ID
     boolean existsByTenDangNhapAndNguoiDungIdNot(String tenDangNhap, String nguoiDungId);
 
-
+    boolean existsByEmail(String email);
+    boolean existsByTenDangNhap(String tenDangNhap);
 
 }
