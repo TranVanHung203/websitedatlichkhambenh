@@ -13,7 +13,7 @@ public class ChuyenKhoaService {
     @Autowired
     private ChuyenKhoaRepository chuyenKhoaRepository;
 
-    public List<ChuyenKhoa> getAllChuyenKhoas() {
+    public List<ChuyenKhoa> getAllChuyenKhoa() {
         return chuyenKhoaRepository.findAll();
     }
     
@@ -25,7 +25,12 @@ public class ChuyenKhoaService {
         chuyenKhoaRepository.save(chuyenKhoa); // JpaRepository sẽ tự động xử lý cập nhật nếu ID đã tồn tại
     }
 
-    public ChuyenKhoa getChuyenKhoaById(Long id) {
-        return chuyenKhoaRepository.findById(id).orElse(null);
-    }
+	public ChuyenKhoa getChuyenKhoaById(String chuyenKhoaId) {
+		
+		return chuyenKhoaRepository.getChuyenKhoaBychuyenKhoaId(chuyenKhoaId);
+	}
+
+	
+
+   
 }

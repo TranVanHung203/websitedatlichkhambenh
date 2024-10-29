@@ -16,7 +16,7 @@ public class ChiTietBacSi implements Serializable {
     @Column(name = "chi_tiet_bac_si_id")
     private Long chiTietBacSiId;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "bac_si_id", nullable = false)
     private BacSi bacSi;
 

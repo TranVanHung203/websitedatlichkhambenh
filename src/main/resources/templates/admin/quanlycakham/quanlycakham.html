@@ -48,7 +48,7 @@
 				<div class="schedule-section">
 					<div class="section-header">
 						<h3>Buổi Chiều (13h - 16h30)</h3>
-						
+
 					</div>
 					<table class="schedule-table">
 						<thead>
@@ -67,7 +67,7 @@
 				<div class="schedule-section">
 					<div class="section-header">
 						<h3>Buổi Ngoài Giờ (17h - 19h30)</h3>
-						
+
 					</div>
 					<table class="schedule-table">
 						<thead>
@@ -98,16 +98,13 @@
 
 					<label for="add-specialty">Chuyên Khoa:</label>
 					<select id="add-specialty">
-						<option value="ck1">Chuyên Khoa I</option>
-						<option value="ck2">Chuyên Khoa II</option>
-						<option value="ckNoi">Chuyên Khoa Nội</option>
+						
 					</select>
 
 					<label for="add-doctor">Bác Sĩ:</label>
 					<select id="add-doctor">
-						<option value="drLuong">TS.BS. Hoàng Lương</option>
-						<option value="drCuong">BS. Nguyễn Tất Cường</option>
-						<option value="drThu">THS.BS. Trần Anh Thư</option>
+						
+						
 					</select>
 
 					<label for="add-shift">Ca Khám:</label>
@@ -132,7 +129,7 @@
 				return;
 			}
 
-			fetch(`/admin/qlck/${dateInput}`)
+			fetch(`/admin/qlckb/${dateInput}`)
 				.then(response => {
 					if (!response.ok) {
 						throw new Error("Không thể lấy dữ liệu");
@@ -178,29 +175,41 @@
 		document.querySelectorAll('.add-button').forEach(button => {
 			button.addEventListener('click', () => {
 				openPopup('popup-add');
-				loadSpecialties('add-specialty', 'add-doctor');
+				loadSpecialties(0, 'add-doctor');
 			});
 		});
 
+		let specialties = []; // Mảng lưu danh sách chuyên khoa khi tải từ server
+
+		// Load danh sách chuyên khoa từ server khi mở popup
 		function loadSpecialties(specialtySelectId, doctorSelectId) {
 			fetch('/chuyenkhoa')
 				.then(response => response.json())
 				.then(data => {
-					const specialtySelect = document.getElementById(specialtySelectId);
-					specialtySelect.innerHTML = '';
+					specialties = data; // Lưu dữ liệu chuyên khoa vào mảng
+					const specialtySelect = document.getElementById('add-specialty');
+					specialtySelect.innerHTML = ''; // Xóa các option cũ
+
+					// Điền các chuyên khoa vào select
 					data.forEach(specialty => {
 						const option = document.createElement('option');
-						option.value = specialty.id;
-						option.textContent = specialty.ten;
+						option.textContent = specialty.ten; // Hiển thị tên chuyên khoa
 						specialtySelect.appendChild(option);
 					});
 
-					if (data.length > 0) {
-						loadDoctors(data[0].chuyenKhoaId, doctorSelectId);
-					}
+					// Tự động load bác sĩ cho chuyên khoa đầu tiên
+					
+						loadDoctors(specialties[0].chuyenKhoaId,doctorSelectId); // Gọi loadDoctors với index đầu tiên
+					
 				})
 				.catch(error => console.error('Error loading specialties:', error));
 		}
+
+		// Thay đổi danh sách bác sĩ theo chuyên khoa đã chọn dựa trên index
+		document.getElementById('add-specialty').addEventListener('change', function () {
+			const selectedIndex = this.selectedIndex; // Lấy vị trí (index) chuyên khoa đã chọn
+			loadDoctors(specialties[selectedIndex].chuyenKhoaId,'add-doctor'); // Gọi loadDoctors với index chuyên khoa
+		});
 
 		function loadDoctors(chuyenKhoaId, doctorSelectId) {
 			fetch(`/bacsi?chuyenKhoaId=${chuyenKhoaId}`)
@@ -231,7 +240,7 @@
 				ngayThangNam: dateInput
 			};
 
-			fetch('/admin/qlck/addLichKham', {
+			fetch('/admin/qlckb/addLichKham', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -316,7 +325,7 @@
 		document.getElementById("confirm-delete-btn").addEventListener("click", function () {
 			if (!currentScheduleId) return;
 
-			fetch(`/admin/qlck/deleteLichKham/${currentScheduleId}`, {
+			fetch(`/admin/qlckb/deleteLichKham/${currentScheduleId}`, {
 				method: 'DELETE',
 				headers: {
 					'Content-Type': 'application/json'

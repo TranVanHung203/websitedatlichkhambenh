@@ -9,11 +9,11 @@
     <!-- Sidebar Menu -->
     <div class="admin-sidebar" th:fragment="sidebar">
         <ul>
-            <li><a href="/admin/qltk" class="admin-menu-item">Quản lý người dùng</a></li>
-            <li><a href="#" class="admin-menu-item">Quản lý bác sĩ</a></li>
-            <li><a href="#" class="admin-menu-item">Quản lý chuyên khoa</a></li>
-            <li><a href="#" class="admin-menu-item">Quản lý thuốc</a></li>
-            <li><a href="/admin/qlck" class="admin-menu-item">Quản lý ca khám bệnh</a></li>
+            <li><a th:href="@{/admin/qltk}" class="admin-menu-item">Quản lý người dùng</a></li>
+          	<li><a th:href="@{/admin/qlbs}" class="admin-menu-item">Quản lý bác sĩ</a></li>
+            <li><a th:href="@{/admin/qlck}" class="admin-menu-item">Quản lý chuyên khoa</a></li>
+            <li><a th:href="@{/admin/qlt}" class="admin-menu-item">Quản lý thuốc</a></li>
+            <li><a th:href="@{/admin/qlckb}" class="admin-menu-item">Quản lý ca khám bệnh</a></li>
             <li><a href="#" class="admin-menu-item admin-btn-logout">Đăng xuất</a></li> <!-- Thêm nút Đăng xuất -->
         </ul>
     </div>

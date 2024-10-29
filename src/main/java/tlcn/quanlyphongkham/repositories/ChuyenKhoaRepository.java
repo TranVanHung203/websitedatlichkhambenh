@@ -7,4 +7,8 @@ import tlcn.quanlyphongkham.entities.ChuyenKhoa;
 
 @Repository
 public interface ChuyenKhoaRepository extends JpaRepository<ChuyenKhoa, String> {
+
+	
+
+	ChuyenKhoa getChuyenKhoaBychuyenKhoaId(String chuyenKhoaId);
 }
