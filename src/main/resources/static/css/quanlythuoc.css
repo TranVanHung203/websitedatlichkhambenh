@@ -1,0 +1,73 @@
+/* Main Content Styles */
+.main-content {
+    margin-left: 230px;
+    padding: 20px;
+    padding-top: 80px; /* to avoid overlapping with the header */
+    width: calc(100% - 250px);
+}
+
+button {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    padding: 20px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-add {
+    background-color: #28a745;
+    color: #fff;
+    float: right;
+}
+
+.btn-add:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    color: #fff;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+    transform: scale(1.05);
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: #fff;
+    margin-left: 10px;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Loại bỏ khoảng cách giữa các ô */
+    margin-top: 20px;
+    border: 1px solid #ddd; /* Viền bao toàn bảng */
+}
+
+table th, table td {
+    padding: 12px;
+    border: 1px solid #ddd; /* Viền bao quanh từng ô */
+    text-align: center; /* Căn giữa theo chiều ngang */
+    vertical-align: middle; /* Căn giữa theo chiều dọc */
+}
+
+table th {
+    background-color: #007bff;
+    color: #fff;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}

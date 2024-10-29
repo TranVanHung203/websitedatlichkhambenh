@@ -2,7 +2,6 @@ package tlcn.quanlyphongkham.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;

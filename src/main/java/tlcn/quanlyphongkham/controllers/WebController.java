@@ -30,32 +30,36 @@ public class WebController {
     private EmailService emailService;
     
     @PostMapping("/login")
-    public String login(@RequestParam("username") String username, 
+    public String login(@RequestParam("tenDangNhapOrEmail") String tenDangNhapOrEmail, 
                         @RequestParam("password") String password, 
                         Model model, HttpSession session) {
+        
+        // Kiểm tra thông tin đăng nhập
+        NguoiDung user = nguoiDungService.validateLogin(tenDangNhapOrEmail, password);
+        
         // Kiểm tra xem username và password có phải là null hoặc rỗng không
-        if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+        if (tenDangNhapOrEmail == null || tenDangNhapOrEmail.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             model.addAttribute("error", "Tên đăng nhập hoặc mật khẩu không được để trống.");
             return "web/dangnhap/dangnhap"; // Quay lại trang đăng nhập với thông báo lỗi
         }
 
-        System.out.println("Đang kiểm tra đăng nhập - Username: " + username);
+        System.out.println("Đang kiểm tra đăng nhập - Username: " + tenDangNhapOrEmail);
 
-        NguoiDung user = nguoiDungService.validateLogin(username, password);
+
         if (user != null) {
-            // Lưu thông tin người dùng vào session
+            // Nếu thông tin đăng nhập đúng, lưu người dùng vào session
             session.setAttribute("loggedUser", user);
-            System.out.println("Đăng nhập thành công cho người dùng: " + username);
+            System.out.println("Đăng nhập thành công cho người dùng: " + tenDangNhapOrEmail);
             return "redirect:/home"; // Chuyển hướng đến trang chủ sau khi đăng nhập thành công
         } else {
+            // Nếu sai tên đăng nhập hoặc mật khẩu, thông báo lỗi
             model.addAttribute("error", "Tên đăng nhập hoặc mật khẩu không đúng.");
-            System.out.println("Đăng nhập thất bại cho người dùng: " + username);
+            System.out.println("Đăng nhập thất bại cho người dùng: " + tenDangNhapOrEmail);
             return "web/dangnhap/dangnhap"; // Quay lại trang đăng nhập với thông báo lỗi
         }
     }
 
    
-    
     
     
     
@@ -115,7 +119,7 @@ public class WebController {
                            + "http://localhost:8181/confirm?token=" + token;
         emailService.sendEmail(nguoiDung.getEmail(), "Xác nhận đăng ký tài khoản", emailBody);
         
-        return "redirect:/register/ycxn";
+        return "redirect:/login";
     }
     
     @GetMapping("/confirm")

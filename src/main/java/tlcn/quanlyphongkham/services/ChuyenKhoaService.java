@@ -1,20 +1,31 @@
 package tlcn.quanlyphongkham.services;
 
-import java.util.List;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
 import tlcn.quanlyphongkham.entities.ChuyenKhoa;
 import tlcn.quanlyphongkham.repositories.ChuyenKhoaRepository;
 
+import java.util.List;
+
 @Service
-@RequiredArgsConstructor
 public class ChuyenKhoaService {
 
-    private final ChuyenKhoaRepository chuyenKhoaRepository;
+    @Autowired
+    private ChuyenKhoaRepository chuyenKhoaRepository;
 
-    public List<ChuyenKhoa> getAllChuyenKhoa() {
+    public List<ChuyenKhoa> getAllChuyenKhoas() {
         return chuyenKhoaRepository.findAll();
+    }
+    
+    public void saveChuyenKhoa(ChuyenKhoa chuyenKhoa) {
+        chuyenKhoaRepository.save(chuyenKhoa);
+    }
+    
+    public void updateChuyenKhoa(ChuyenKhoa chuyenKhoa) {
+        chuyenKhoaRepository.save(chuyenKhoa); // JpaRepository sẽ tự động xử lý cập nhật nếu ID đã tồn tại
+    }
+
+    public ChuyenKhoa getChuyenKhoaById(Long id) {
+        return chuyenKhoaRepository.findById(id).orElse(null);
     }
 }
