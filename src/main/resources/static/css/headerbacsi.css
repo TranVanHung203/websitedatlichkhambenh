@@ -1,0 +1,82 @@
+/* Reset và thiết lập cơ bản */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+.doctor-header {
+    background-color: #2a9d8f;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header-logo h1 {
+    color: #fff;
+    font-size: 24px;
+    margin: 0;
+    padding-right: 20px;
+    white-space: nowrap; /* Giữ nguyên logo */
+}
+
+.header-nav {
+    flex-grow: 1;
+}
+
+.header-nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+.header-nav ul li {
+    position: relative;
+}
+
+.header-nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    display: inline-block;
+}
+
+.header-nav ul li a:hover {
+    background-color: #1f776d;
+}
+
+.content {
+    padding: 20px;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .doctor-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-nav ul {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px 0;
+    }
+
+    .header-nav ul li a {
+        width: 100%;
+    }
+}
