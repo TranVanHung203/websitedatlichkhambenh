@@ -4,7 +4,19 @@
     padding: 0;
     box-sizing: border-box;
 }
-
+header {
+    width: 100%;
+    background-color: #2a9d8f; /* Màu nền */
+    padding: 20px;
+    text-align: center;
+    position: fixed;  /* Đảm bảo header luôn ở trên */
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Đảm bảo header nằm trên cùng */
+}
+.container {
+    margin-top: 80px; /* Dịch nội dung xuống để tránh bị che khuất bởi header */
+}
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Lịch Khám Bệnh Của Bác Sĩ</title>
+	<link rel="stylesheet" th:href="@{/css/xemcakhambs.css}">
+	<link rel="stylesheet" th:href="@{/css/headerbacsi.css}">
+	<style>
+		.message {
+			color: white;
+			background-color: #28a745;
+			/* Màu xanh cho thông báo thành công */
+			border: 1px solid #155724;
+			padding: 10px;
+			margin: 10px 0;
+			border-radius: 5px;
+			font-size: 14px;
+			display: none;
+		}
+
+		.error-message {
+			background-color: #f8d7da;
+			border: 1px solid #f5c6cb;
+			color: red;
+		}
+
+		.success-message {
+			background-color: #d4edda;
+			border: 1px solid #c3e6cb;
+			color: green;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- Thêm header từ fragment -->
+	<div th:replace="bacsi/fragments/header :: header"></div>
+
+	<div class="schedule-container">
+		<div class="header">
+			<h2>Lịch Khám Bệnh - <span th:text="${tenBacSi}">Tên bác sĩ</span></h2>
+			<div class="date-picker">
+				<label for="date">Chọn Ngày:</label>
+				<input type="date" id="date" name="date" th:value="${ngay}">
+				<button class="view-button" id="view-button" name="view-button">Xem</button>
+			</div>
+		</div>
+
+		<div id="message" class="message"></div> <!-- Khu vực thông báo thành công hoặc lỗi -->
+
+		<!-- Bảng Lịch Khám Bệnh -->
+		<div class="schedule-section">
+			<button class="add-session-button" onclick="openAddSessionPopup()">+ Thêm Buổi</button>
+			<table class="schedule-table">
+				<thead>
+					<tr>
+						<th>Buổi</th>
+						<th>Giờ Khám</th>
+						<th>Thao Tác</th>
+					</tr>
+				</thead>
+				<tbody id="session-schedule">
+					<tr th:each="lichKhamBenh : ${lichKhamBenhList}">
+						<td th:text="${lichKhamBenh.ca}">Buổi</td>
+						<td th:text="${#strings.equals(lichKhamBenh.ca, 'Sáng') ? '7h30 - 11h30' 
+                            : #strings.equals(lichKhamBenh.ca, 'Chiều') ? '13h - 16h30' 
+                            : '17h - 19h30'}">Giờ Khám</td>
+						<td>
+							<button class="delete-button" th:data-id="${lichKhamBenh.maLichKhamBenh}">Xóa</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div id="popup-add-session" class="popup">
+		<div class="popup-content">
+			<span class="close-button" onclick="closePopup('popup-add-session')">&times;</span>
+			<h3>Thêm Buổi Khám</h3>
+			<label for="add-session-name">Buổi:</label>
+			<select id="add-session-name">
+				<option value="Sáng">Buổi Sáng (7h30 - 11h30)</option>
+				<option value="Chiều">Buổi Chiều (13h - 16h30)</option>
+				<option value="Ngoài Giờ">Buổi Ngoài Giờ (17h - 19h30)</option>
+			</select>
+			<button class="save-button" onclick="addSession()">Lưu Buổi</button>
+		</div>
+	</div>
+
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		function loadSchedule() {
+			const dateInput = document.getElementById("date").value;
+			const currentUrl = window.location.href.split('?')[0];
+			const newUrl = `${currentUrl}?ngay=${dateInput}`;
+
+			window.location.href = newUrl;
+		}
+
+		function openPopup(popupId) {
+			document.getElementById(popupId).style.display = "block";
+		}
+
+		function closePopup(popupId) {
+			document.getElementById(popupId).style.display = "none";
+		}
+
+		function openAddSessionPopup() {
+			openPopup("popup-add-session");
+		}
+
+		function addSession() {
+			const sessionName = document.getElementById("add-session-name").value;
+			const dateInput = document.getElementById("date").value;
+
+			fetch(`/bacsi/lichkham/add?ca=${sessionName}&ngay=${dateInput}`, {method: 'POST'})
+				.then(response => response.json())  // Đảm bảo trả về dưới dạng JSON
+				.then(data => {
+					if (data.status === "success") {
+						showMessage(data.message, "success");
+
+						// Trì hoãn việc gọi loadSchedule() trong 2 giây
+						setTimeout(() => {
+							loadSchedule();  // Reload lại lịch khám
+							closePopup("popup-add-session");
+						}, 1000);  // 2000 ms = 2 giây
+					} else {
+						showMessage(data.message, "error");
+					}
+				})
+				.catch(error => {
+					showMessage("Đã có lỗi xảy ra khi gọi API.", "error");
+				});
+		}
+
+
+
+		function deleteSession(button) {
+			const lichId = button.getAttribute('data-id');
+
+			// Gọi API xóa lịch khám
+			fetch(`/bacsi/lichkham/delete?id=${lichId}`, {method: 'DELETE'})
+				.then(response => {
+					if (response.ok) {
+						// Xóa ngay lập tức trên giao diện mà không cần tải lại trang
+						button.closest('tr').remove();  // Xóa dòng lịch khám tương ứng
+
+						// Hiển thị thông báo thành công
+						showMessage("Lịch khám đã được xóa thành công", "success");
+					} else {
+						showMessage("Lỗi khi xóa lịch khám", "error");
+					}
+				})
+				.catch(error => {
+					showMessage("Đã có lỗi xảy ra khi gọi API.", "error");
+				});
+		}
+
+		function showMessage(message, type) {
+			const messageDiv = document.getElementById("message");
+			messageDiv.style.display = "block";
+			messageDiv.textContent = message;
+
+			// Thêm kiểu thành công hoặc lỗi
+			if (type === "success") {
+				messageDiv.classList.add("success-message");
+				messageDiv.classList.remove("error-message");
+			} else {
+				messageDiv.classList.add("error-message");
+				messageDiv.classList.remove("success-message");
+			}
+
+			// Ẩn thông báo sau 5 giây
+			setTimeout(() => {
+				messageDiv.style.display = "none";
+			}, 4000);
+		}
+
+		document.addEventListener('DOMContentLoaded', function () {
+			const deleteButtons = document.querySelectorAll('.delete-button');
+			deleteButtons.forEach(button => {
+				button.addEventListener('click', function () {
+					deleteSession(button);
+				});
+			});
+		});
+
+		document.addEventListener('DOMContentLoaded', function () {
+			const viewButton = document.getElementById('view-button');
+			if (viewButton) {
+				viewButton.addEventListener('click', loadSchedule);
+			} else {
+				console.error('Không tìm thấy nút "Xem"');
+			}
+		});
+
+		/*]]>*/
+	</script>
+</body>
+
+</html>

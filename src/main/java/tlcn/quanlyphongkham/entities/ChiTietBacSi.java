@@ -35,9 +35,6 @@ public class ChiTietBacSi implements Serializable {
     @Column(name = "linh_vuc_chuyen_sau", length = 255,columnDefinition = "nvarchar(500)")
     private String linhVucChuyenSau;
 
-    @Column(name = "an_ban", length = 255, columnDefinition = "nvarchar(500)")
-    private String anBan;
-
     @Column(name = "gioi_thieu", columnDefinition = "nvarchar(500)")
     private String gioiThieu;  
 }
