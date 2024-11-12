@@ -1,0 +1,97 @@
+/* Cấu hình chung cho body */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+/* Định dạng chung cho phần tử bảng */
+table {
+    width: 90%; /* Tăng chiều rộng bảng */
+    margin: 30px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    table-layout: fixed; /* Đặt chiều rộng cố định cho các cột */
+}
+
+/* Định dạng tiêu đề của bảng */
+th {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px;
+    text-align: center; /* Căn giữa theo chiều ngang */
+    vertical-align: middle; /* Căn giữa theo chiều dọc */
+    font-size: 16px;
+}
+
+/* Định dạng các ô dữ liệu trong bảng */
+td {
+    padding: 12px;
+    text-align: center; /* Căn giữa theo chiều ngang */
+    vertical-align: middle; /* Căn giữa theo chiều dọc */
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Định dạng khi hover trên các hàng trong bảng */
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Định dạng cho tiêu đề trang */
+h1 {
+    text-align: center;
+    color: #333;
+    margin-top: 20px;
+}
+
+/* Định dạng cho nút tạo đơn thuốc */
+button {
+    display: block;
+    width: 200px;
+    margin: 20px auto;
+    padding: 12px;
+    background-color: #28a745;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Hiệu ứng khi hover trên nút */
+button:hover {
+    background-color: #218838;
+}
+
+/* Định dạng cột trong bảng cho các thẻ tiêu đề và ô dữ liệu */
+th:nth-child(1), td:nth-child(1) {
+    width: 10%; /* Cột Bệnh Nhân */
+}
+
+th:nth-child(2), td:nth-child(2) {
+    width: 15%; /* Cột Chẩn Đoán */
+}
+
+th:nth-child(3), td:nth-child(3) {
+    width: 20%; /* Cột Thời Gian Tạo */
+}
+
+th:nth-child(4), td:nth-child(4) {
+    width: 25%; /* Cột Tên Thuốc */
+}
+
+th:nth-child(5), td:nth-child(5) {
+    width: 10%; /* Cột Liều */
+}
+
+th:nth-child(6), td:nth-child(6) {
+    width: 10%; /* Cột Tần Suất */
+}
+
+th:nth-child(7), td:nth-child(7) {
+    width: 10%; /* Cột Tổng Tiền */
+}

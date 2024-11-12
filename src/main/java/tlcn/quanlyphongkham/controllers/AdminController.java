@@ -260,13 +260,13 @@ public class AdminController {
     }
     
     @PostMapping("/admin/delete-thuoc")
-    public String deleteThuoc(@RequestParam String thuocId) {
-        thuocService.deleteThuoc(thuocId);
+    public String deleteThuoc(@RequestParam Long thuocId) {
+	        thuocService.deleteThuoc(thuocId);
         return "redirect:/admin/qlt"; // Chuyển hướng lại trang quản lý thuốc sau khi xóa
     }
     
     @GetMapping("/admin/edit-thuoc")
-    public String editThuoc(@RequestParam String thuocId, Model model) {
+    public String editThuoc(@RequestParam Long thuocId, Model model) {
         Thuoc thuoc = thuocService.getThuocById(thuocId);
         model.addAttribute("thuoc", thuoc);
         return "bacsi/editthuoc/editthuoc"; // Trang cập nhật thuốc

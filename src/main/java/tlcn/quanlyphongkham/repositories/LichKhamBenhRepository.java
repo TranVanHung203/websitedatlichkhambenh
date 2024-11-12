@@ -13,8 +13,15 @@ import tlcn.quanlyphongkham.entities.LichKhamBenh;
 
 @Repository
 public interface LichKhamBenhRepository extends JpaRepository<LichKhamBenh, String> {
-    // Tìm tất cả lịch khám theo ngày
-    List<LichKhamBenh> findByNgayThangNam(LocalDate ngayThangNam);
-    boolean existsByNgayThangNamAndCaAndBacSi(LocalDate ngayThangNam, String ca, BacSi bacSi);
-	
+	// Tìm tất cả lịch khám theo ngày
+	List<LichKhamBenh> findByNgayThangNam(LocalDate ngayThangNam);
+
+	boolean existsByNgayThangNamAndCaAndBacSi(LocalDate ngayThangNam, String ca, BacSi bacSi);
+
+	List<LichKhamBenh> findByNgayThangNamBetween(LocalDate startDate, LocalDate endDate);
+
+	List<LichKhamBenh> findByBacSiTenContaining(String tenBacSi);
+
+
+
 }

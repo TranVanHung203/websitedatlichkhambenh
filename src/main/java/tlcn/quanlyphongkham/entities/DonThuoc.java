@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -11,24 +14,32 @@ import java.io.Serializable;
 @Entity
 @Table(name = "DonThuoc")
 public class DonThuoc implements Serializable {
-    @Id
-    @Column(name = "don_thuoc_id", length = 36)
-    private String donThuocId;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-    @ManyToOne
-    @JoinColumn(name = "ho_so_id")
-    private HoSoBenh hoSoBenh;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "don_thuoc_id")
+	private Long donThuocId;
 
-    @ManyToOne
-    @JoinColumn(name = "thuoc_id")
-    private Thuoc thuoc;
+	@ManyToOne
+	@JoinColumn(name = "ho_so_id")
+	private HoSoBenh hoSoBenh;
 
-    @Column(name = "liều", nullable = false, length = 100,columnDefinition = "nvarchar(100)")
-    private String lieu;
+	@OneToMany(mappedBy = "donThuoc", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<DonThuocThuoc> donThuocThuocs;
 
-    @Column(name = "tần_suất", nullable = false, length = 50,columnDefinition = "nvarchar(100)")
-    private String tanSuat;
+	@Transient private String formattedDate;
+	public BigDecimal calculateTongTien() {
+		BigDecimal total = BigDecimal.ZERO;
+		for (DonThuocThuoc dtt : donThuocThuocs) {
+			BigDecimal lieu = new BigDecimal(dtt.getLieu());
+			BigDecimal gia = dtt.getThuoc().getGia();
+			total = total.add(lieu.multiply(gia));
+		}
+		return total;
+	}
 
-    @Column(name = "thời_gian", length = 50)
-    private String thoiGian;
 }

@@ -32,6 +32,12 @@ public class BacSiService {
     public BacSi getDoctorById(String bacSiId) {
         return bacSiRepository.findById(bacSiId).orElse(null);
     }
+    
+    public BacSi findById(String bacSiId) {
+        // Sử dụng findById để tìm bác sĩ theo ID
+        Optional<BacSi> bacSiOptional = bacSiRepository.findById(bacSiId);
+        return bacSiOptional.orElse(null); // Trả về bác sĩ nếu tìm thấy, ngược lại trả về null
+    }
 
     public void updateDoctor(String bacSiId, BacSi updatedDoctor, ChiTietBacSi updatedChiTiet) {
         BacSi existingDoctor = bacSiRepository.findById(bacSiId).orElse(null);

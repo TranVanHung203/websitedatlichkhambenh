@@ -1,0 +1,112 @@
+/* Đặt màu nền cho body và cấu hình chung */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Tiêu đề trang */
+h1 {
+    text-align: center;
+    color: #333;
+    margin-top: 20px;
+    text-transform: uppercase; /* Chuyển đổi chữ thường thành chữ hoa */
+    letter-spacing: 2px; /* Khoảng cách giữa các chữ cái */
+}
+
+/* Định dạng chung cho phần tử form */
+form {
+    width: 60%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Căn chỉnh nhãn và các trường nhập liệu */
+label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+input {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin: 10px 0 20px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+/* Hiệu ứng focus cho các trường nhập liệu */
+input:focus {
+    border-color: #5cb85c;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 128, 0, 0.5);
+}
+
+/* Nút tìm kiếm */
+button {
+    width: 100%;
+    padding: 15px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hiệu ứng khi hover trên nút */
+button:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+/* Định dạng chung cho bảng */
+table {
+    width: 90%;
+    margin: 30px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Định dạng tiêu đề của bảng */
+th {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 16px;
+    border-bottom: 3px solid #ddd;
+}
+
+/* Định dạng các ô dữ liệu trong bảng */
+td {
+    padding: 12px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Định dạng cho các hàng chẵn và lẻ */
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+/* Định dạng khi hover trên các hàng trong bảng */
+tr:hover {
+    background-color: #f9f9f9;
+}

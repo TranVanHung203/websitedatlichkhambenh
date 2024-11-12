@@ -40,7 +40,8 @@ public class BacSi implements Serializable {
     @Column(name = "gioi_tinh", length = 10, columnDefinition = "nvarchar(10)")
     private String gioiTinh;
     
-    @OneToOne(mappedBy = "bacSi", cascade = CascadeType.ALL)
+    @OneToOne
+    (mappedBy = "bacSi", cascade = CascadeType.ALL)
     private ChiTietBacSi chiTietBacSi;
 
     @OneToMany(mappedBy = "bacSi", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
