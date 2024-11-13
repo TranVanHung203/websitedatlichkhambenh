@@ -2,12 +2,14 @@ package tlcn.quanlyphongkham.repositories;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import jakarta.transaction.Transactional;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.LichKhamBenh;
 
@@ -17,6 +19,29 @@ public interface LichKhamBenhRepository extends JpaRepository<LichKhamBenh, Stri
 	List<LichKhamBenh> findByNgayThangNam(LocalDate ngayThangNam);
 
 	boolean existsByNgayThangNamAndCaAndBacSi(LocalDate ngayThangNam, String ca, BacSi bacSi);
+
+	@Query(value = "SELECT ma_lich_id,ca,ngay_thang_nam,bac_si_id FROM lich_kham_benh WHERE bac_si_id = :idbacsi AND ngay_thang_nam = :ngay", nativeQuery = true)
+	List<LichKhamBenh> findByIdBacSiAndNgayThangNam(@Param("idbacsi") String idbacsi, @Param("ngay") LocalDate ngay);
+
+	@Modifying  // Thêm @Modifying để chỉ rõ đây là câu lệnh thay đổi dữ liệu (INSERT, UPDATE, DELETE)
+    @Transactional  // Đảm bảo phương thức được thực thi trong một transaction
+    @Query(value = "INSERT INTO lich_kham_benh (ma_lich_id, bac_si_id, ngay_thang_nam, ca) "
+            + "VALUES (:maLichId, :bacSiId, :ngayThangNam, :ca)", nativeQuery = true)
+    void addNew(@Param("maLichId") String maLichId, @Param("bacSiId") String bacSiId,
+                @Param("ngayThangNam") LocalDate ngayThangNam, @Param("ca") String ca);
+
+
+	@Query(value = "SELECT * FROM lich_kham_benh WHERE bac_si_id = :bacSiId AND ngay_thang_nam = :ngayThangNam AND ca = :ca", nativeQuery = true)
+	List<LichKhamBenh> findByIdBacSiAndNgayAndCa(@Param("bacSiId") String bacSiId,
+	                                               @Param("ngayThangNam") LocalDate ngayThangNam,
+	                                               @Param("ca") String ca);
+
+	
+	List<LichKhamBenh> findByBacSi_BacSiIdAndNgayThangNam(String bacSiId, LocalDate date);
+
+
+
+	
 
 	List<LichKhamBenh> findByNgayThangNamBetween(LocalDate startDate, LocalDate endDate);
 

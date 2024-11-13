@@ -1,0 +1,200 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    background-color: #e3f2fd;
+}
+
+.schedule-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 100px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header h2 {
+    color: #2a9d8f; /* Màu xanh chủ đạo */
+}
+
+.date-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-picker label {
+    color: #333;
+    font-weight: bold;
+}
+
+.view-button {
+    background-color: #2a9d8f; /* Màu xanh chủ đạo */
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.view-button:hover {
+    background-color: #21867a; /* Màu xanh đậm hơn khi hover */
+}
+
+.schedule-section {
+    margin-bottom: 30px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.section-header h3 {
+    color: #2a9d8f; /* Màu xanh chủ đạo */
+    font-size: 18px;
+}
+
+.add-button {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.add-button:hover {
+    background-color: #388e3c;
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.schedule-table th,
+.schedule-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.schedule-table th {
+    background-color: #bbdefb;
+    color: #2a9d8f; /* Màu xanh chủ đạo */
+}
+
+.schedule-table tbody tr:nth-child(even) {
+    background-color: #f0f0f0;
+}
+
+.edit-button,
+.delete-button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.edit-button {
+    background-color: #2a9d8f; /* Màu xanh chủ đạo */
+    color: #fff;
+}
+
+.edit-button:hover {
+    background-color: #21867a;
+}
+
+.delete-button {
+    background-color: #e53935;
+    color: #fff;
+    margin-left: 5px;
+}
+
+.delete-button:hover {
+    background-color: #d32f2f;
+}
+
+.popup {
+    display: none; /* Ẩn pop-up mặc định */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    z-index: 1000;
+}
+
+.popup-content {
+    text-align: center;
+}
+
+.popup-content h3 {
+    color: #2a9d8f; /* Màu xanh chủ đạo */
+    margin-bottom: 20px;
+}
+
+.popup-content label {
+    display: block;
+    margin-top: 10px;
+    color: #333;
+}
+
+.popup-content select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.save-button {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+.save-button:hover {
+    background-color: #388e3c;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #999;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.close-button:hover {
+    color: #333;
+}

@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Header Bác Sĩ</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Header Bác Sĩ</title>
 </head>
+
 <body>
-    <!-- Header -->
-    <header class="doctor-header">
-        <div class="header-logo">
-            <h1>Bác Sĩ Online</h1>
-        </div>
-        <nav class="header-nav">
-            <ul>
-                <li><a th:href="@{/bacsi/quanlytaodonthuoc}" href="#quanlytaodonthuoc">Tạo đơn thuốc</a></li>
-                <li><a th:href="@{/bacsi/lichsukham}" href="#lichsukham">Lịch sử khám bệnh</a></li>
-                <li><a th:href="@{/edit-schedule}" href="#edit-schedule">Chỉnh sửa ca khám</a></li>
-                <li><a th:href="@{/appointments}" href="#appointments">Lịch hẹn khám</a></li>
-                <li><a th:href="@{/edit-profile}" href="#edit-profile">Chỉnh sửa thông tin</a></li>
-            </ul>
-        </nav>
-    </header>
+	<!-- Header -->
+	<header class="doctor-header">
+		<div class="header-logo">
+			<h1>Bác Sĩ Online</h1>
+		</div>
+		<nav class="header-nav">
+			<ul>
+				<li><a th:href="@{/bacsi/quanlytaodonthuoc}" href="#quanlytaodonthuoc">Tạo đơn thuốc</a></li>
+				<li><a th:href="@{/bacsi/lichsukham}" href="#lichsukham">Lịch sử khám bệnh</a></li>
+				<li><a th:href="@{/bacsi/lichkham/viewck}" href="#edit-schedule">Chỉnh sửa ca khám</a></li>
+				<li><a th:href="@{/bacsi/xemlichhen}" href="#appointments">Lịch hẹn khám</a></li>
+				<li><a th:href="@{/bacsi/editprofile}" href="#edit-profile">Chỉnh sửa thông tin</a></li>
+				<li><a th:href="@{/logout}" href="#logout">Đăng xuất</a></li> <!-- Nút Đăng Xuất -->
+			</ul>
+		</nav>
+	</header>
 </body>
+
 </html>

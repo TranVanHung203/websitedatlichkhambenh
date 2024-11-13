@@ -3,12 +3,13 @@ package tlcn.quanlyphongkham.services;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import tlcn.quanlyphongkham.dtos.BenhNhanOfTaoDonThuocDTO;
 import tlcn.quanlyphongkham.dtos.HoSoBenhDTO;
-import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.BenhNhan;
 import tlcn.quanlyphongkham.entities.HoSoBenh;
 import tlcn.quanlyphongkham.repositories.BenhNhanRepository;
@@ -47,9 +48,19 @@ public class HoSoBenhService {
 		return hoSoBenhRepository.findById(hoSoId).orElse(null);
 	}
 
-	public List<BenhNhan> findPatientsByPhoneNumber(String phone) {
-		return benhNhanRepository.findByDienThoai(phone);
+	public List<BenhNhanOfTaoDonThuocDTO> getBenhNhanInfoByDienThoai(String dienThoai) {
+	    List<Object[]> results = benhNhanRepository.findBenhNhanInfoByDienThoai(dienThoai);
+	    return results.stream()
+	                  .map(obj -> new BenhNhanOfTaoDonThuocDTO(
+	                          (String) obj[0],                // benhnhanid
+	                          (String) obj[1],                // ten
+	                          ((java.sql.Date) obj[2]).toLocalDate(), // Chuyển đổi sang LocalDate
+	                          (String) obj[3]                 // gioitinh
+	                  ))
+	                  .collect(Collectors.toList());
 	}
+
+
 
 	 public List<HoSoBenhDTO> getHoSoBenhWithDonThuocByDateRangeAndDoctor(LocalDateTime startDateTime, LocalDateTime endDateTime, String bacSiId) {
 	        return hoSoBenhRepository.findHoSoBenhWithDetails(startDateTime, endDateTime, bacSiId);

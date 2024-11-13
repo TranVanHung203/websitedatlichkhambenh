@@ -11,6 +11,8 @@ import java.util.Optional;
 @Table(name = "LichKhamBenh")
 public class LichKhamBenh {
     
+	
+
 	@Id
     @Column(name = "ma_lich_id", length = 36)
     private String maLichKhamBenh;
@@ -25,4 +27,7 @@ public class LichKhamBenh {
     
     @OneToMany(mappedBy = "lichKhamBenh", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SlotThoiGian> slotThoiGian;
+    
+    
+ 
 }

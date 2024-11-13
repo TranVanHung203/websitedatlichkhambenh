@@ -2,53 +2,54 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link th:href="@{/css/headerbacsi.css}" rel="stylesheet">
-    <link th:href="@{/css/lichsukham.css}" rel="stylesheet">
-    <title>Xem Lịch Sử Khám Bệnh</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link th:href="@{/css/headerbacsi.css}" rel="stylesheet">
+	<link th:href="@{/css/lichsukham.css}" rel="stylesheet">
+	<title>Xem Lịch Sử Khám Bệnh</title>
 </head>
 
 <body>
-    <!-- Header -->
-    <div th:replace="bacsi/fragments/header :: header"></div>
+	<!-- Header -->
+	<div th:replace="bacsi/fragments/header :: header"></div>
 
-    <h1>Xem Lịch Sử Khám Bệnh</h1>
+	<h1>Xem Lịch Sử Khám Bệnh</h1>
 
-    <!-- Form tìm kiếm -->
-    <form th:action="@{/bacsi/lichsukham}" method="get">
-        <label for="startDate">Từ Ngày:</label>
-        <input type="date" id="startDate" name="startDate" required>
+	<!-- Form tìm kiếm -->
+	<form th:action="@{/bacsi/lichsukham}" method="get">
+		<label for="startDate">Từ Ngày:</label>
+		<input type="date" id="startDate" name="startDate" required>
 
-        <label for="endDate">Đến Ngày:</label>
-        <input type="date" id="endDate" name="endDate" required>
-        <button type="submit">Tìm Kiếm</button>
-    </form>
+		<label for="endDate">Đến Ngày:</label>
+		<input type="date" id="endDate" name="endDate" required>
+		<button type="submit">Tìm Kiếm</button>
+	</form>
 
-    <!-- Hiển thị kết quả -->
-    <div th:if="${#lists.isEmpty(hoSoBenhList)}">
-        <p>Không có hồ sơ bệnh nào trong khoảng thời gian đã chọn.</p>
-    </div>
-    <div th:unless="${#lists.isEmpty(hoSoBenhList)}">
-        <table>
-            <thead>
-                <tr>
-                    <th>Tên Bệnh Nhân</th>
-                    <th>Ngày Khám</th>
-                    <th>Chẩn Đoán</th>
-                    <th>Tên Thuốc</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="hoSoBenh : ${hoSoBenhList}">
-                    <td th:text="${hoSoBenh.tenBenhNhan}"></td> <!-- Hiển thị tên bệnh nhân -->
-                    <td th:text="${hoSoBenh.thoiGianTao}"></td> <!-- Hiển thị ngày khám -->
-                    <td th:text="${hoSoBenh.chanDoan}"></td> <!-- Hiển thị chẩn đoán -->
-                    <td th:text="${hoSoBenh.tenThuoc}"></td> <!-- Hiển thị tên thuốc -->
-                </tr>
-            </tbody>
-        </table>
-    </div>
+	<!-- Hiển thị kết quả -->
+	<div th:if="${#lists.isEmpty(hoSoBenhList)}" style="text-align: center;">
+		<p>Không có hồ sơ bệnh nào trong khoảng thời gian đã chọn.</p>
+	</div>
+
+	<div th:unless="${#lists.isEmpty(hoSoBenhList)}">
+		<table>
+			<thead>
+				<tr>
+					<th>Tên Bệnh Nhân</th>
+					<th>Ngày Khám</th>
+					<th>Chẩn Đoán</th>
+					<th>Tên Thuốc</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="hoSoBenh : ${hoSoBenhList}">
+					<td th:text="${hoSoBenh.tenBenhNhan}"></td> <!-- Hiển thị tên bệnh nhân -->
+					<td th:text="${hoSoBenh.thoiGianTao}"></td> <!-- Hiển thị ngày khám -->
+					<td th:text="${hoSoBenh.chanDoan}"></td> <!-- Hiển thị chẩn đoán -->
+					<td th:text="${hoSoBenh.tenThuoc}"></td> <!-- Hiển thị tên thuốc -->
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </body>
 
 </html>
