@@ -246,7 +246,7 @@ public class AdminController {
         model.addAttribute("doctor", doctor);
         model.addAttribute("chuyenKhoas", chuyenKhoaService.getAllChuyenKhoa());
         model.addAttribute("formattedDate", formattedDate);
-        return "bacsi/editbacsi/editbacsi";
+        return "admin/quanlybacsi/editbacsi";
     }
 
     
@@ -269,7 +269,7 @@ public class AdminController {
     public String editThuoc(@RequestParam Long thuocId, Model model) {
         Thuoc thuoc = thuocService.getThuocById(thuocId);
         model.addAttribute("thuoc", thuoc);
-        return "bacsi/editthuoc/editthuoc"; // Trang cập nhật thuốc
+        return "admin/quanlythuoc/editthuoc"; // Trang cập nhật thuốc
     }
 
     @PostMapping("/admin/update-thuoc")
@@ -281,7 +281,7 @@ public class AdminController {
  // Hiển thị trang thêm thuốc
     @GetMapping("/admin/add-thuoc")
     public String showAddThuocForm(Model model) {
-        return "bacsi/addthuoc/addthuoc"; // Trả về trang thêm thuốc
+        return "admin/quanlythuoc/addthuoc"; // Trả về trang thêm thuốc
     }
     
     @PostMapping("/admin/add-thuoc")
@@ -294,7 +294,7 @@ public class AdminController {
  // AdminController.java
     @GetMapping("/admin/add-chuyenkhoa")
     public String showAddChuyenKhoaForm(Model model) {
-        return "bacsi/addchuyenkhoa/addchuyenkhoa"; // Trả về trang thêm chuyên khoa
+        return "admin/quanlychuyenkhoa/addchuyenkhoa"; // Trả về trang thêm chuyên khoa
     }
 
     @PostMapping("/admin/add-chuyenkhoa")
@@ -313,7 +313,7 @@ public class AdminController {
     public String showEditChuyenKhoaForm(@PathVariable("chuyenKhoaId") String  chuyenKhoaId, Model model) {
         ChuyenKhoa chuyenKhoa = chuyenKhoaService.getChuyenKhoaById(chuyenKhoaId);
         model.addAttribute("chuyenKhoa", chuyenKhoa);
-        return "bacsi/editchuyenkhoa/editchuyenkhoa"; // Đường dẫn đến trang chỉnh sửa chuyên khoa
+        return "admin/quanlychuyenkhoa/editchuyenkhoa"; // Đường dẫn đến trang chỉnh sửa chuyên khoa
     }
 
     @PostMapping("/admin/qlck/update-chuyenkhoa")
@@ -333,7 +333,7 @@ public class AdminController {
         BacSi doctor = bacSiService.getDoctorById(bacSiId);
         model.addAttribute("doctor", doctor);
         model.addAttribute("chiTietBacSi", doctor.getChiTietBacSi());
-        return "bacsi/editchitietbacsi/editchitietbacsi"; // Trang mới để chỉnh sửa chi tiết bác sĩ
+        return "admin/quanlybacsi/editchitietbacsi"; // Trang mới để chỉnh sửa chi tiết bác sĩ
     }
     @PostMapping("/admin/qlbs/update-chitiet/{bacSiId}")
     public String updateDoctorDetails(@PathVariable("bacSiId") String bacSiId, ChiTietBacSi updatedChiTiet) {

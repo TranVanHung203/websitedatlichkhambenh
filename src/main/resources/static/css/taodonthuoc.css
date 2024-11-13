@@ -75,7 +75,7 @@ button:hover {
 }
 
 #phoneSearch {
-    flex-grow: 2; /* Tăng kích thước input */
+    flex-grow: 2;
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;
@@ -83,7 +83,7 @@ button:hover {
 }
 
 .search-btn {
-    flex-shrink: 1; /* Cho phép nút co lại */
+    flex-shrink: 1;
     padding: 10px 15px;
     font-size: 16px;
     background-color: #007bff;
@@ -99,7 +99,7 @@ button:hover {
     transform: scale(1.05);
 }
 
-/* Thông báo lỗi ngay bên dưới trường nhập số điện thoại */
+/* Thông báo lỗi cho số điện thoại */
 #errorPhoneMessage {
     color: red;
     font-size: 0.9em;
@@ -149,7 +149,7 @@ a:hover {
 }
 
 #drugSearch {
-    flex-grow: 2; /* Tăng kích thước input */
+    flex-grow: 2;
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;
@@ -157,7 +157,7 @@ a:hover {
 }
 
 .search-drug-btn {
-    flex-shrink: 1; /* Cho phép nút co lại */
+    flex-shrink: 1;
     padding: 10px 15px;
     font-size: 16px;
     background-color: #007bff;
@@ -216,7 +216,7 @@ a:hover {
 .selected-drug input[type="text"] {
     font-size: 14px;
     padding: 5px;
-    width: 100px; /* Giới hạn độ rộng của ô input */
+    width: 100px;
 }
 
 .selected-drug button {
