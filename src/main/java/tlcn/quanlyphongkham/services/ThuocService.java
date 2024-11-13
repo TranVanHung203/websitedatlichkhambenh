@@ -19,7 +19,7 @@ public class  ThuocService {
         return thuocRepository.findAll();  // Lấy tất cả thuốc từ database
     }
     
-    public void deleteThuoc(String thuocId) {
+    public void deleteThuoc(Long thuocId) {
         thuocRepository.deleteById(thuocId);
     }
     
@@ -27,11 +27,14 @@ public class  ThuocService {
         thuocRepository.save(thuoc);
     }
 
-    public Thuoc getThuocById(String thuocId) {
+    public Thuoc getThuocById(Long thuocId) {
         return thuocRepository.findById(thuocId).orElse(null);
     }
     
     public void saveThuoc(Thuoc thuoc) {
         thuocRepository.save(thuoc); // Lưu thuốc vào database
+    }
+    public Thuoc findThuocById(Long thuocId) {
+        return thuocRepository.findById(thuocId).orElse(null);
     }
 }

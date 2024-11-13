@@ -39,4 +39,15 @@ public interface LichKhamBenhRepository extends JpaRepository<LichKhamBenh, Stri
 	
 	List<LichKhamBenh> findByBacSi_BacSiIdAndNgayThangNam(String bacSiId, LocalDate date);
 
+	// Tìm tất cả lịch khám theo ngày
+	List<LichKhamBenh> findByNgayThangNam(LocalDate ngayThangNam);
+
+	boolean existsByNgayThangNamAndCaAndBacSi(LocalDate ngayThangNam, String ca, BacSi bacSi);
+
+	List<LichKhamBenh> findByNgayThangNamBetween(LocalDate startDate, LocalDate endDate);
+
+	List<LichKhamBenh> findByBacSiTenContaining(String tenBacSi);
+
+
+
 }

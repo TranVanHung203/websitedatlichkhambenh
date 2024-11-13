@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
 import tlcn.quanlyphongkham.dtos.ChiTietBacSiDTO;
@@ -51,10 +52,16 @@ public class BacSiController {
 		return ResponseEntity.ok(specialties);
 	}
 
-	@GetMapping("/bacsi")
-	public ResponseEntity<List<BacSiDTO>> getBacSiByChuyenKhoa(@RequestParam("chuyenKhoaId") String chuyenKhoaId) {
-		List<BacSiDTO> doctors = bacSiService.getBacSiByChuyenKhoa(chuyenKhoaId);
-		return ResponseEntity.ok(doctors);
+	@GetMapping("/bacsi/quanlytaodonthuoc")
+	public String getAllPrescriptions(Model model) {
+		List<DonThuoc> donThuocs = donThuocService.getAllDonThuoc();
+		for (DonThuoc donThuoc : donThuocs) {
+			donThuoc.calculateTongTien();
+			donThuoc.setFormattedDate(
+					donThuoc.getHoSoBenh().getThoiGianTao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+		}
+		model.addAttribute("donThuocs", donThuocs);
+		return "bacsi/taodonthuoc/quanlytaodonthuoc";
 	}
 
 	@GetMapping("/bacsi/lichkham/viewck")

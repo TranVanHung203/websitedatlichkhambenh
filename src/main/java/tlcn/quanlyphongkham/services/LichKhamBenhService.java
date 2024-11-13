@@ -21,25 +21,25 @@ public class LichKhamBenhService {
     @Autowired
     private SlotThoiGianRepository slotThoiGianRepository;
 
-    @Autowired
-    public LichKhamBenhService(LichKhamBenhRepository lichKhamBenhRepository) {
-        this.lichKhamBenhRepository = lichKhamBenhRepository;
-    }
+	@Autowired
+	public LichKhamBenhService(LichKhamBenhRepository lichKhamBenhRepository) {
+		this.lichKhamBenhRepository = lichKhamBenhRepository;
+	}
 
-    // Phương thức tìm tất cả lịch khám theo ngày
-    public List<LichKhamBenh> findAllByDate(LocalDate date) {
-        return lichKhamBenhRepository.findByNgayThangNam(date);
-    }
+	// Phương thức tìm tất cả lịch khám theo ngày
+	public List<LichKhamBenh> findAllByDate(LocalDate date) {
+		return lichKhamBenhRepository.findByNgayThangNam(date);
+	}
 
 	public LichKhamBenh addLichKhamBenh(LichKhamBenh lichKhamBenh) {
 		return lichKhamBenhRepository.save(lichKhamBenh);
 	}
 
 	public boolean existsByNgayThangNamAndCaAndBacSi(LocalDate ngayThangNam, String ca, BacSi bacSi) {
-	
+
 		return lichKhamBenhRepository.existsByNgayThangNamAndCaAndBacSi(ngayThangNam, ca, bacSi);
 	}
-	
+
 	@Transactional
     public boolean deleteLichKhamBenh(String maLichKhamBenh) {
         Optional<LichKhamBenh> lichKhamBenh = lichKhamBenhRepository.findById(maLichKhamBenh);

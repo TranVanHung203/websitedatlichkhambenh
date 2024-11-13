@@ -1,0 +1,236 @@
+/* Đặt màu nền cho body và cấu hình chung */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+/* Tiêu đề trang */
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+/* Container form */
+form {
+    width: 50%;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Căn chỉnh nhãn và các trường nhập liệu */
+label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+input,
+select {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin: 10px 0 20px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+/* Hiệu ứng focus cho các trường nhập liệu */
+input:focus,
+select:focus {
+    border-color: #5cb85c;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 128, 0, 0.5);
+}
+
+/* Nút gửi */
+button {
+    width: 100%;
+    padding: 15px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+/* Container tìm kiếm bệnh nhân */
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#phoneSearch {
+    flex-grow: 2;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-btn {
+    flex-shrink: 1;
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.search-btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Thông báo lỗi cho số điện thoại */
+#errorPhoneMessage {
+    color: red;
+    font-size: 0.9em;
+    margin-top: -15px;
+    display: none;
+}
+
+/* Container chi tiết bệnh nhân */
+#patientDetails {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    width: 100%;
+    display: none;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+#patientDetails label {
+    font-weight: bold;
+}
+
+/* Link điều hướng */
+a {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #007bff;
+    font-size: 16px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+/* Container tìm kiếm thuốc */
+.drug-search-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#drugSearch {
+    flex-grow: 2;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-drug-btn {
+    flex-shrink: 1;
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.search-drug-btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* CSS cho danh sách thuốc */
+.drug-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px;
+    width: 150px;
+    text-align: center;
+    display: inline-block;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.drug-card:hover {
+    background-color: #f1f1f1;
+    transform: scale(1.05);
+}
+
+/* CSS cho danh sách thuốc đã chọn */
+.selected-drug {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.selected-drug p strong {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.selected-drug label {
+    font-size: 14px;
+    font-weight: normal;
+    margin: 0 5px;
+}
+
+.selected-drug input[type="text"] {
+    font-size: 14px;
+    padding: 5px;
+    width: 100px;
+}
+
+.selected-drug button {
+    font-size: 14px;
+    padding: 5px 10px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.selected-drug button:hover {
+    background-color: #ff3333;
+    transform: scale(1.05);
+}

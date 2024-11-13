@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Quản Lý Đơn Thuốc</title>
+	<link th:href="@{/css/headerbacsi.css}" rel="stylesheet">
+	<link th:href="@{/css/quanlytaodonthuoc.css}" rel="stylesheet">
+</head>
+
+<body>
+	<div th:replace="bacsi/fragments/header :: header"></div>
+
+	<h1>Quản Lý Đơn Thuốc</h1>
+
+	<!-- Bảng hiển thị danh sách đơn thuốc -->
+	<table>
+		<thead>
+			<tr>
+				<th>Bệnh Nhân</th>
+				<th>Chẩn Đoán</th>
+				<th>Thời Gian Tạo Đơn</th>
+				<th>Tên Thuốc</th>
+				<th>Liều Lượng</th>
+				<th>Tần Suất</th>
+				<th>Tổng Tiền Thuốc</th>
+
+			</tr>
+		</thead>
+		<tbody>
+			<!-- Lặp qua các đơn thuốc và hiển thị thông tin -->
+			<tr th:each="donThuoc : ${donThuocs}">
+				<td th:text="${donThuoc.hoSoBenh.benhNhan.ten}"></td> <!-- Hiển thị tên bệnh nhân -->
+				<td th:text="${donThuoc.hoSoBenh.chanDoan}"></td> <!-- Hiển thị chẩn đoán -->
+				<td th:text="${donThuoc.formattedDate}"></td> <!-- Hiển thị thời gian tạo đơn thuốc -->
+				<!-- Hiển thị thời gian tạo đơn thuốc -->
+				<td>
+					<ul> <!-- Lặp qua danh sách thuốc trong đơn thuốc -->
+						<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.thuoc.ten}"></li>
+					</ul>
+				</td>
+				<td>
+					<ul> <!-- Lặp qua danh sách liều trong đơn thuốc -->
+						<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.lieu}"></li>
+					</ul>
+				</td>
+				<td>
+					<ul> <!-- Lặp qua danh sách tần suất trong đơn thuốc -->
+						<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.tanSuat}"></li>
+					</ul>
+				</td>
+				<td th:text="${donThuoc.calculateTongTien()}"></td> <!-- Hiển thị tổng tiền thuốc -->
+
+			</tr>
+		</tbody>
+	</table>
+
+	<!-- Nút để chuyển đến trang tạo đơn thuốc -->
+	<button onclick="window.location.href='/bacsi/taodonthuoc'">Tạo Đơn Thuốc</button>
+</body>
+
+</html>

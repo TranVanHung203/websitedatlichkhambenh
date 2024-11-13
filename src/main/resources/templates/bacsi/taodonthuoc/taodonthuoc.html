@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Tạo Đơn Thuốc</title>
+	<link th:href="@{/css/taodonthuoc.css}" rel="stylesheet">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+
+<body>
+
+	<h2>Tạo Đơn Thuốc</h2>
+
+	<div th:if="${successMessage}" style="color: green;">
+		<p th:text="${successMessage}"></p>
+	</div>
+
+	<form th:action="@{/bacsi/quanlytaodonthuoc}" method="post">
+		<label for="phoneSearch">Nhập Số Điện Thoại:</label>
+		<div class="search-container">
+			<input type="text" id="phoneSearch" name="phoneSearch" placeholder="Nhập số điện thoại..."
+				autocomplete="off" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+			<button type="button" class="search-btn" onclick="searchPatientByPhone()">Tìm Kiếm</button>
+			<input type="hidden" id="benhNhanId" name="benhNhanId" required />
+		</div>
+		<div id="errorPhoneMessage">Vui lòng nhập đầy đủ 10 chữ số.</div>
+
+		<div id="patientDetails">
+			<label>Tên Bệnh Nhân:</label>
+			<span id="patientName">Không tìm thấy bệnh nhân</span>
+			<br>
+			<label>Ngày Sinh:</label>
+			<span id="patientDob"></span>
+			<br>
+			<label>Giới Tính:</label>
+			<span id="patientGender"></span>
+		</div>
+
+		<label for="drugSearch">Tìm Kiếm Thuốc:</label>
+		<!-- Tìm kiếm thuốc -->
+		<div class="search-container">
+			<input type="text" id="drugSearch" placeholder="Nhập tên thuốc..." autocomplete="off" />
+			<button type="button" class="search-btn" onclick="searchDrugs()">Tìm Kiếm Thuốc</button>
+		</div>
+
+		<!-- Danh sách thuốc tìm được -->
+		<div id="drugResults" style="display: flex; flex-wrap: wrap;"></div>
+
+		<!-- Danh sách thuốc đã chọn -->
+		<div id="selectedDrugsList">
+			<!-- Các thuốc đã chọn sẽ hiển thị ở đây -->
+		</div>
+
+		<div>
+			<label for="chanDoan">Chẩn Đoán Bệnh:</label>
+			<input type="text" name="chanDoan" id="chanDoan" required />
+		</div>
+
+		<div id="errorMessage" style="color: red; display: none;">
+			Không tìm thấy bệnh nhân.
+		</div>
+
+		<div>
+			<button type="submit">Tạo Đơn Thuốc</button>
+		</div>
+	</form>
+
+	<br />
+	<a href="/bacsi/quanlytaodonthuoc">Quay Lại Trang Quản Lý Tạo Đơn Thuốc</a>
+
+	<script>
+		const selectedDrugs = new Set(); // Set to track selected drugs
+
+		function searchPatientByPhone() {
+			const phone = $('#phoneSearch').val();
+			if (phone.length !== 10) {
+				$('#errorPhoneMessage').show();
+				return;
+			} else {
+				$('#errorPhoneMessage').hide();
+			}
+
+			$.ajax({
+				url: '/bacsi/searchBenhNhanByPhone',
+				method: 'GET',
+				data: {phone: phone},
+				success: function (patients) {
+					if (patients.length > 0) {
+						const patient = patients[0];
+						$('#benhNhanId').val(patient.benhNhanId);
+						$('#patientName').text(patient.ten);
+						$('#patientDob').text(patient.ngaySinh);
+						$('#patientGender').text(patient.gioiTinh);
+						$('#patientDetails').show();
+						$('#errorMessage').hide();
+					} else {
+						$('#benhNhanId').val('');
+						$('#patientName').text("Không tìm thấy bệnh nhân");
+						$('#patientDob').text('');
+						$('#patientGender').text('');
+						$('#patientDetails').show();
+						$('#errorMessage').show();
+					}
+				},
+				error: function () {
+					alert("Có lỗi xảy ra khi tìm kiếm bệnh nhân.");
+				}
+			});
+		}
+
+		function searchDrugs() {
+			const drugName = $('#drugSearch').val();
+			if (drugName === '') {
+				alert('Vui lòng nhập tên thuốc.');
+				return;
+			}
+
+			$.ajax({
+				url: '/bacsi/searchDrugs',
+				method: 'GET',
+				data: {name: drugName},
+				success: function (drugs) {
+					$('#drugResults').empty();
+					if (drugs.length > 0) {
+						drugs.forEach(drug => {
+							if (!selectedDrugs.has(drug.thuocId)) {
+								$('#drugResults').append(`
+                                    <div class="drug-card" onclick="selectDrug(${drug.thuocId}, '${drug.ten}')">
+                                        <p><strong>${drug.ten}</strong></p>
+                                    </div>
+                                `);
+							}
+						});
+					} else {
+						alert('Không tìm thấy thuốc.');
+					}
+				},
+				error: function () {
+					alert("Có lỗi xảy ra khi tìm kiếm thuốc.");
+				}
+			});
+		}
+
+		function selectDrug(drugId, drugName) {
+			if (!selectedDrugs.has(drugId)) {
+				selectedDrugs.add(drugId); // Add drug ID to set
+				const drugItem = `
+    			<div class="selected-drug" id="selectedDrug_${drugId}">
+		
+       			<p><strong>${drugName}</strong></p>
+        		<input type="hidden" name="drugIds[]" value="${drugId}">
+        		<label>Liều Lượng:</label>
+        		<input type="text" name="lieu[]" required />
+        		<label>Tần Suất:</label>
+        		<input type="text" name="tanSuat[]" required />
+        		<button type="button" onclick="removeDrug(${drugId})">Xóa</button>
+    			</div>`;
+				$('#selectedDrugsList').append(drugItem);
+				$(`#drugResults .drug-card[onclick="selectDrug(${drugId}, '${drugName}')"]`).remove();
+			}
+		}
+
+		function removeDrug(drugId) {
+			selectedDrugs.delete(drugId); // Remove drug ID from set
+			$(`#selectedDrug_${drugId}`).remove(); // Remove drug from selected list
+			searchDrugs(); // Refresh available drugs list
+		}
+	</script>
+
+</body>
+
+</html>
