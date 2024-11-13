@@ -90,10 +90,26 @@
 				success: function (patients) {
 					if (patients.length > 0) {
 						const patient = patients[0];
-						$('#benhNhanId').val(patient.benhNhanId);
+						$('#benhNhanId').val(patient.benhnhanid);
 						$('#patientName').text(patient.ten);
-						$('#patientDob').text(patient.ngaySinh);
-						$('#patientGender').text(patient.gioiTinh);
+						
+						
+
+						// Giả sử patient.gioitinh có giá trị là ngày sinh ở định dạng "yyyy-MM-dd"
+						let dateString = patient.ngaysinh;
+
+						// Tạo đối tượng Date từ chuỗi
+						let date = new Date(dateString);
+
+						// Chuyển đổi sang định dạng dd/MM/yyyy
+						let formattedDate = date.getDate().toString().padStart(2, '0') + '/' +
+							(date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+							date.getFullYear();
+
+						// Hiển thị ngày đã định dạng trong #patientGender
+						$('#patientDob').text(formattedDate);
+			
+						$('#patientGender').text(patient.gioitinh);
 						$('#patientDetails').show();
 						$('#errorMessage').hide();
 					} else {

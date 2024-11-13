@@ -4,6 +4,7 @@ body {
     background-color: #f0f0f0;
     margin: 0;
     padding: 0;
+     padding-top: 100px; 
 }
 
 /* Tiêu đề trang */
@@ -11,8 +12,8 @@ h1 {
     text-align: center;
     color: #333;
     margin-top: 20px;
-    text-transform: uppercase; /* Chuyển đổi chữ thường thành chữ hoa */
-    letter-spacing: 2px; /* Khoảng cách giữa các chữ cái */
+   
+   
 }
 
 /* Định dạng chung cho phần tử form */
