@@ -1,0 +1,93 @@
+.doctor-schedule-container {
+    font-family: Arial, sans-serif;
+}
+
+.header-banner {
+    background-color: #1e90ff;
+    color: white;
+    text-align: center;
+    padding: 20px 10px;
+    font-size: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.department-section {
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+.department-item {
+    margin-bottom: 15px;
+    border: 1px solid #1e90ff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.department-header {
+    background-color: #1e90ff;
+    color: white;
+    padding: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.department-header .icon {
+    margin-right: 8px;
+}
+
+.department-header .arrow {
+    transform: rotate(90deg);
+    transition: transform 0.3s ease;
+}
+
+.department-header:hover {
+    background-color: #1c86ee;
+}
+
+.department-content {
+    display: none;
+    background-color: white;
+    padding: 20px;
+}
+
+.department-content .location {
+    margin-bottom: 20px;
+}
+
+.location h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #1e90ff;
+}
+
+.location p {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th,
+table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+    font-size: 14px;
+}
+
+table th {
+    background-color: #f9f9f9;
+    font-weight: bold;
+}
+
+table td {
+    background-color: #fff;
+}

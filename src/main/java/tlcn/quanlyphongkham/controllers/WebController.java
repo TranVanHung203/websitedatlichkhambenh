@@ -94,7 +94,7 @@ public class WebController {
         nguoiDung.setTenDangNhap(dangKyDTO.getTenDangNhap());
         nguoiDung.setMatKhau(encodedPassword);
         nguoiDung.setEmail(dangKyDTO.getEmail());
-        nguoiDung.setVaiTro("USER"); // Gán vai trò mặc định là USER
+        nguoiDung.setVaiTro("BenhNhan"); // Gán vai trò mặc định là USER
 
         nguoiDungService.saveNguoiDung(nguoiDung);
 
@@ -119,7 +119,7 @@ public class WebController {
                            + "http://localhost:8181/confirm?token=" + token;
         emailService.sendEmail(nguoiDung.getEmail(), "Xác nhận đăng ký tài khoản", emailBody);
         
-        return "redirect:/login";
+        return "/web/dangky/yeucauxacthuc";
     }
     
     @GetMapping("/confirm")

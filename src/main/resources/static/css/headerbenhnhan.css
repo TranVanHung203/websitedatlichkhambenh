@@ -74,6 +74,73 @@ nav ul li a.logout {
 .edit-text {
     color: white; /* Ensure the text is white */
 }
+/* Gói CSS trong lớp custom-header */
+.custom-header {
+    font-family: Arial, sans-serif;
+}
+
+/* Định dạng cơ bản cho menu con */
+.custom-header-dropdown .dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    list-style-type: none;
+    padding: 10px 0;
+    margin: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    border-radius: 8px; /* Bo góc menu */
+    overflow: hidden;
+}
+
+/* Hiển thị menu con khi hover vào mục chính */
+.custom-header-dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+/* Định dạng từng mục trong menu con */
+.custom-header-dropdown .dropdown-menu li {
+    padding: 10px 20px; /* Tăng khoảng cách cho mục đẹp hơn */
+    white-space: nowrap;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hiệu ứng bo góc và đổi màu toàn khung khi hover */
+.custom-header-dropdown .dropdown-menu li a {
+    text-decoration: none;
+    color: black;
+    font-size: 14px;
+    display: block;
+    border-radius: 8px; /* Bo góc mục con */
+    border: 2px solid transparent; /* Khung mặc định trong suốt */
+    transition: background-color 0.3s, color 0.3s, transform 0.2s, border-color 0.3s;
+}
+
+/* Hiệu ứng khi hover */
+.custom-header-dropdown .dropdown-menu li a:hover {
+    background-color: #1e90ff; /* Xanh nước biển */
+    color: white;
+    transform: translateY(-2px); /* Đẩy khung lên nhẹ khi hover */
+    box-shadow: 0 4px 10px rgba(30, 144, 255, 0.2); /* Hiệu ứng nổi */
+    border-color: #1e90ff; /* Khung đổi màu xanh nước biển */
+}
+
+/* Định dạng cho mục chính (nếu cần) */
+.custom-header-dropdown .dropdown-toggle {
+    cursor: pointer;
+    position: relative;
+}
+
+/* Điều chỉnh vị trí menu con */
+.custom-header-dropdown {
+    position: relative;
+}
+
+.custom-header-dropdown .dropdown-menu {
+    top: 100%; /* Hiển thị ngay dưới mục chính */
+    left: 0;
+    min-width: 200px; /* Độ rộng tối thiểu */
+}
 
 
 

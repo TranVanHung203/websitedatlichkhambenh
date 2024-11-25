@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Làm Việc Bác Sĩ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .doctor-schedule-container {
+            width: 90%;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+        .header-banner {
+            background-color: #007BFF;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            border-radius: 8px;
+        }
+        .department-section {
+            margin-top: 20px;
+        }
+        .department-item {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .department-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .department-header:hover {
+            background-color: #0056b3;
+        }
+        .department-header .icon {
+            margin-right: 10px;
+        }
+        .department-content {
+            display: none;
+            padding: 15px;
+        }
+        .location {
+            margin-bottom: 15px;
+        }
+        .location h3 {
+            color: #007BFF;
+            margin-bottom: 5px;
+        }
+        .location p {
+            font-size: 14px;
+            color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table thead th {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+        table tbody td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-size: 14px;
+            color: #333;
+        }
+        .arrow {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+	<div th:replace="benhnhan/fragments/header :: header"></div>
+    <div class="doctor-schedule-container">
+        <div class="header-banner">
+            <h1>LỊCH LÀM VIỆC CỦA BÁC SĨ</h1>
+        </div>
+
+        <div class="department-section">
+            <div class="department-item">
+                <div class="department-header">
+                    <span class="icon">&#128100;</span> 
+                    Khoa Tai Mũi Họng ( Giờ làm việc: 7h30 – 19h45 )
+                    <span class="arrow">&#9660;</span>
+                </div>
+                <div class="department-content">
+                    <div class="location">
+                        <h3>📍 Lịch khám bệnh Quận 1</h3>
+                        <p>9 - 15 Trịnh Văn Cấn, P. Cầu Ông Lãnh, Quận 1, Tp. HCM</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Thứ 2</th>
+                                    <th>Thứ 3</th>
+                                    <th>Thứ 4</th>
+                                    <th>Thứ 5</th>
+                                    <th>Thứ 6</th>
+                                    <th>Thứ 7</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>BS.CKI. Lê Thị Diệu Hồng</td>
+                                    <td>BS. Nguyễn Thị Thu Thủy</td>
+                                    <td>BS.CKI. Lê Thị Diệu Hồng</td>
+                                    <td>BS.CKI. Lê Thị Diệu Hồng</td>
+                                    <td>BS.</td>
+                                    <td>BS.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="location">
+                        <h3>📍 Lịch khám bệnh Quận 7</h3>
+                        <p>441 Lê Văn Lương, P. Tân Phong, Quận 7, Tp.HCM</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Thứ 2</th>
+                                    <th>Thứ 3</th>
+                                    <th>Thứ 4</th>
+                                    <th>Thứ 5</th>
+                                    <th>Thứ 6</th>
+                                    <th>Thứ 7</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>BS.CKI. Lê Thị Thanh Hà</td>
+                                    <td>BS.CKI. Lê Thị Thanh Hà</td>
+                                    <td>BS.</td>
+                                    <td>BS.</td>
+                                    <td>BS.</td>
+                                    <td>BS.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const departmentHeaders = document.querySelectorAll(".department-header");
+
+            departmentHeaders.forEach(header => {
+                header.addEventListener("click", () => {
+                    const content = header.nextElementSibling;
+                    const arrow = header.querySelector(".arrow");
+
+                    if (content.style.display === "block") {
+                        content.style.display = "none";
+                        arrow.innerHTML = "&#9660;";
+                    } else {
+                        content.style.display = "block";
+                        arrow.innerHTML = "&#9650;";
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

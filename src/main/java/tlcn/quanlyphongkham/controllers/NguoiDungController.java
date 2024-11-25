@@ -30,7 +30,7 @@ public class NguoiDungController {
 	@Autowired
 	private UserProfileService userProfileService;
 
-	String nguoiDungId = "9be06e64-7db1-4bff-834d-34677143da72";
+	String nguoiDungId = "a583ec7a-a623-439b-bf90-22e52c708898";
 
 	@GetMapping("/user/editprofile")
 	public String editProfile(Model model) {
@@ -94,6 +94,11 @@ public class NguoiDungController {
 
 	    // Redirect về trang hồ sơ hoặc trang khác sau khi cập nhật thành công
 	    return "redirect:/user/editprofile";
+	}
+	@GetMapping("/view/schedule")
+	public String viewLichKhamBenh(Model model) {
+	
+		return "benhnhan/viewbs/viewlichkhambenh"; // Trả về view editprofile
 	}
 
 }
