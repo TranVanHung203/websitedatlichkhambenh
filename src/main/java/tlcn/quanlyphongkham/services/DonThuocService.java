@@ -12,6 +12,7 @@ import tlcn.quanlyphongkham.repositories.DonThuocRepository;
 import tlcn.quanlyphongkham.repositories.HoSoBenhRepository;
 import tlcn.quanlyphongkham.repositories.ThuocRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,4 +34,7 @@ public class DonThuocService {
 	public List<Thuoc> searchDrugs(String query) {
 		 return thuocRepository.findByTenContaining(query);
 	}
+	
+	
+	
 }

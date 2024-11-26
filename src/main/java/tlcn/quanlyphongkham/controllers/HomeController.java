@@ -20,4 +20,6 @@ public class HomeController {
             return "redirect:/login"; // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
         }
     }
+    
+    
 }

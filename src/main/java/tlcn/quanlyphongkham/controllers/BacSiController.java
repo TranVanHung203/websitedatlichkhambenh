@@ -68,15 +68,6 @@ public class BacSiController {
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 	@GetMapping("/chuyenkhoa")
 	public ResponseEntity<List<ChuyenKhoa>> getAllChuyenKhoa() {
@@ -93,7 +84,7 @@ public class BacSiController {
 	@GetMapping("/bacsi/lichkham/viewck")
 	public String getLichKhamBenhTheoNgay(@RequestParam(value = "ngay", required = false) LocalDate ngay, Model model) {
 
-		String idBacSi = "f9dcf22c-ca7f-4259-b193-ff5de5f23563";
+		String idBacSi = "84960eeb-3ac9-4712-8418-68ecf7eae667";
 		if (ngay == null) {
 			ngay = LocalDate.now();
 		}
@@ -113,7 +104,7 @@ public class BacSiController {
 	public ResponseEntity<Map<String, String>> addLichKham(@RequestParam("ca") String ca,
 			@RequestParam("ngay") LocalDate ngay) {
 		try {
-			String idBacSi = "f9dcf22c-ca7f-4259-b193-ff5de5f23563"; // ID của bác sĩ
+			String idBacSi = "84960eeb-3ac9-4712-8418-68ecf7eae667"; // ID của bác sĩ
 
 			// Kiểm tra xem lịch khám đã tồn tại chưa
 			boolean exists = lichKhamBenhService.isLichKhamExist(idBacSi, ngay, ca);
@@ -155,7 +146,7 @@ public class BacSiController {
 
 	@GetMapping("/bacsi/editprofile")
 	public String editProfile(Model model) {
-		String bacSiId = "f9dcf22c-ca7f-4259-b193-ff5de5f23563"; // Example, replace with dynamic ID
+		String bacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667"; // Example, replace with dynamic ID
 
 		// Fetch personal info and details
 		EditProfileBSDTO personalInfo = bacSiService.getProfile(bacSiId);
@@ -175,7 +166,7 @@ public class BacSiController {
 	@PostMapping("/updateProfile")
 	public String updateProfile(@ModelAttribute EditProfileBSDTO profileDTO, @ModelAttribute ChiTietBacSiDTO detailDTO,
 			Model model) {
-		String bacSiId = "f9dcf22c-ca7f-4259-b193-ff5de5f23563"; // Có thể lấy từ session hoặc tham số
+		String bacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667"; // Có thể lấy từ session hoặc tham số
 
 		// Cập nhật thông tin cá nhân và chi tiết
 		String personalUpdateResult = bacSiService.updateProfile(profileDTO);
@@ -192,7 +183,7 @@ public class BacSiController {
 			date = LocalDate.now(); // Nếu không có date, mặc định là ngày hiện tại
 		}
 
-		String bacSiId = "f9dcf22c-ca7f-4259-b193-ff5de5f23563";
+		String bacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667";
 		// Lấy danh sách lịch khám theo bác sĩ và ngày
 		List<LichKhamBenh> lichKhamList = lichKhamBenhService.getLichKhamByBacSiAndDate(bacSiId, date);
 
@@ -251,12 +242,15 @@ public class BacSiController {
 		List<BenhNhanOfTaoDonThuocDTO> patients = hoSoBenhService.getBenhNhanInfoByDienThoai(phone);
 		return ResponseEntity.ok(patients);
 	}
+	
+	
+	
 
 	@PostMapping("/bacsi/quanlytaodonthuoc")
 	public String createPrescription(@RequestParam("chanDoan") String chanDoan,
 			@RequestParam("drugIds") List<Long> drugIds, @RequestParam("lieu") List<String> lieu,
 			@RequestParam("tanSuat") List<String> tanSuat, @RequestParam("benhNhanId") String benhNhanId, Model model) {
-		String fixedBacSiId = "f9dcf22c-ca7f-4259-b193-ff5de5f23563";
+		String fixedBacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667";
 		BacSi bacSi = bacSiService.findById(fixedBacSiId);
 
 		
@@ -296,6 +290,10 @@ public class BacSiController {
 		return "redirect:/bacsi/quanlytaodonthuoc";
 	}
 
+	
+	
+	
+	
 	@GetMapping("/bacsi/searchpatient")
 	public String searchPatientById(@RequestParam("id") String patientId, Model model) {
 		BenhNhan patient = hoSoBenhService.findPatientById(patientId);
@@ -314,7 +312,7 @@ public class BacSiController {
 	public String getLichSuKham(@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate, Model model) {
 
-		String bacSiId = "f9dcf22c-ca7f-4259-b193-ff5de5f23563";
+		String bacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667";
 
 		List<HoSoBenhDTO> hoSoBenhList = new ArrayList<>();
 
@@ -326,6 +324,9 @@ public class BacSiController {
 			// Chuyển đổi LocalDate sang LocalDateTime
 			LocalDateTime startDateTime = startLocalDate.atStartOfDay();
 			LocalDateTime endDateTime = endLocalDate.atTime(23, 59, 59);
+			
+			model.addAttribute("startDate", startDate);
+			model.addAttribute("endDate", endDate);
 
 			hoSoBenhList = hoSoBenhService.getHoSoBenhWithDonThuocByDateRangeAndDoctor(startDateTime, endDateTime,
 					bacSiId);
