@@ -41,28 +41,36 @@ tr:hover {
 }
 
 /* Định dạng cho các nút trong bảng */
-table button {
-    background-color: #dc3545; /* Màu nền cho nút Xóa */
+table button, table a.edit-button {
     color: white;
     border: none;
     border-radius: 4px;
     padding: 8px 12px;
     font-size: 14px;
     cursor: pointer;
-    margin: 2px; /* Khoảng cách giữa các nút */
-    transition: background-color 0.3s ease;
+    margin: 2px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-table button.edit-button {
-    background-color: #ffc107; /* Màu nền cho nút Sửa */
+/* Định dạng cho nút Xóa */
+table button {
+    background-color: #dc3545; /* Màu nền cho nút Xóa */
 }
 
 table button:hover {
     background-color: #c82333; /* Hiệu ứng hover cho nút Xóa */
 }
 
-table button.edit-button:hover {
+/* Định dạng cho nút Sửa */
+a.edit-button {
+    background-color: #ffc107; /* Màu nền cho nút Sửa */
+    text-decoration: none; /* Bỏ đường gạch chân */
+    display: inline-block; /* Hiển thị dưới dạng khối nội tuyến */
+}
+
+a.edit-button:hover {
     background-color: #e0a800; /* Hiệu ứng hover cho nút Sửa */
+    transform: scale(1.05); /* Hiệu ứng phóng to nhẹ khi hover */
 }
 
 /* Định dạng cho nút tạo đơn thuốc */

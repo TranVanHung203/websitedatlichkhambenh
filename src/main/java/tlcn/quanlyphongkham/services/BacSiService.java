@@ -5,6 +5,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -28,11 +31,14 @@ public class BacSiService {
     @Autowired
     private ChiTietBacSiRepository chiTietBacSiRepository; // Thay đổi này
 
-    public List<BacSi> getAllDoctors() {
-        return bacSiRepository.findAll();
+    public Page<BacSi> getDoctorsPaginated(int page, int size) {
+        return bacSiRepository.findAll(PageRequest.of(page, size));
     }
+
     
- 
+    public Page<BacSi> searchByPhone(String phone, Pageable pageable) {
+        return bacSiRepository.findByDienThoaiContaining(phone, pageable);
+    }
     
     public BacSi getDoctorById(String bacSiId) {
         return bacSiRepository.findById(bacSiId).orElse(null);

@@ -1,6 +1,9 @@
 package tlcn.quanlyphongkham.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import tlcn.quanlyphongkham.entities.ChuyenKhoa;
 import tlcn.quanlyphongkham.repositories.ChuyenKhoaRepository;
@@ -16,7 +19,15 @@ public class ChuyenKhoaService {
     public List<ChuyenKhoa> getAllChuyenKhoa() {
         return chuyenKhoaRepository.findAll();
     }
+    public Page<ChuyenKhoa> getChuyenKhoasPaginated(int page, int size) {
+        return chuyenKhoaRepository.findAll(PageRequest.of(page, size));
+    }
+
+    public Page<ChuyenKhoa> searchChuyenKhoasPaginated(String ten, int page, int size) {
+        return chuyenKhoaRepository.findByTenContaining(ten, PageRequest.of(page, size));
+    }
     
+
     public void saveChuyenKhoa(ChuyenKhoa chuyenKhoa) {
         chuyenKhoaRepository.save(chuyenKhoa);
     }

@@ -1,6 +1,6 @@
 /* Main Content Styles */
 .main-content {
-    margin-left: 250px;
+    margin-left: 230px;
     padding: 20px;
     padding-top: 80px; /* to avoid overlapping with the header */
     width: calc(100% - 250px);
