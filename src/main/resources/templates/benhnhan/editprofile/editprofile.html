@@ -79,9 +79,15 @@
 							<td th:text="${lichSu.tenBacSi}"></td>
 							<td th:text="${lichSu.ngayKham}"></td>
 							<td th:text="${lichSu.chanDoan}"></td>
-							<td th:text="${lichSu.thuoc}"></td>
-							<td th:text="${lichSu.lieu}"></td>
-							<td th:text="${lichSu.tanSuat}"></td>
+							<td>
+								<pre th:text="${lichSu.thuoc}"></pre> <!-- Giữ định dạng xuống dòng -->
+							</td>
+							<td>
+								<pre th:text="${lichSu.lieu}"></pre> <!-- Giữ định dạng xuống dòng -->
+							</td>
+							<td>
+								<pre th:text="${lichSu.tanSuat}"></pre> <!-- Giữ định dạng xuống dòng -->
+							</td>
 						</tr>
 					</tbody>
 				</table>

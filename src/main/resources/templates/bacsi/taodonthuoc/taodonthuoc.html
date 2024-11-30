@@ -7,6 +7,8 @@
 	<title>Tạo Đơn Thuốc</title>
 	<link th:href="@{/css/taodonthuoc.css}" rel="stylesheet">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 </head>
 
@@ -18,55 +20,58 @@
 		<p th:text="${successMessage}"></p>
 	</div>
 
-	<form th:action="@{/bacsi/quanlytaodonthuoc}" method="post">
-		<label for="phoneSearch">Nhập Số Điện Thoại:</label>
-		<div class="search-container">
-			<input type="text" id="phoneSearch" name="phoneSearch" placeholder="Nhập số điện thoại..."
-				autocomplete="off" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
-			<button type="button" class="search-btn" onclick="searchPatientByPhone()">Tìm Kiếm</button>
-			<input type="hidden" id="benhNhanId" name="benhNhanId" required />
-		</div>
-		<div id="errorPhoneMessage">Vui lòng nhập đầy đủ 10 chữ số.</div>
 
-		<div id="patientDetails">
-			<label>Tên Bệnh Nhân:</label>
-			<span id="patientName">Không tìm thấy bệnh nhân</span>
-			<br>
-			<label>Ngày Sinh:</label>
-			<span id="patientDob"></span>
-			<br>
-			<label>Giới Tính:</label>
-			<span id="patientGender"></span>
-		</div>
+	<div th:fragment="form">
+		<form th:action="@{/bacsi/taodonthuoc}" method="post">
+			<label for="phoneSearch">Nhập Số Điện Thoại:</label>
+			<div class="search-container">
+				<input type="text" id="phoneSearch" name="phoneSearch" placeholder="Nhập số điện thoại..."
+					autocomplete="off" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+				<button type="button" class="search-btn" onclick="searchPatientByPhone()">Tìm Kiếm</button>
+				<input type="hidden" id="benhNhanId" name="benhNhanId" required />
+			</div>
+			<div id="errorPhoneMessage">Vui lòng nhập đầy đủ 10 chữ số.</div>
 
-		<label for="drugSearch">Tìm Kiếm Thuốc:</label>
-		<!-- Tìm kiếm thuốc -->
-		<div class="search-container">
-			<input type="text" id="drugSearch" placeholder="Nhập tên thuốc..." autocomplete="off" />
-			<button type="button" class="search-btn" onclick="searchDrugs()">Tìm Kiếm Thuốc</button>
-		</div>
+			<div id="patientDetails">
+				<label>Tên Bệnh Nhân:</label>
+				<span id="patientName">Không tìm thấy bệnh nhân</span>
+				<br>
+				<label>Ngày Sinh:</label>
+				<span id="patientDob"></span>
+				<br>
+				<label>Giới Tính:</label>
+				<span id="patientGender"></span>
+			</div>
 
-		<!-- Danh sách thuốc tìm được -->
-		<div id="drugResults" style="display: flex; flex-wrap: wrap;"></div>
+			<label for="drugSearch">Tìm Kiếm Thuốc:</label>
+			<!-- Tìm kiếm thuốc -->
+			<div class="search-container">
+				<input type="text" id="drugSearch" placeholder="Nhập tên thuốc..." autocomplete="off" />
+				<button type="button" class="search-btn" onclick="searchDrugs()">Tìm Kiếm Thuốc</button>
+			</div>
 
-		<!-- Danh sách thuốc đã chọn -->
-		<div id="selectedDrugsList">
-			<!-- Các thuốc đã chọn sẽ hiển thị ở đây -->
-		</div>
+			<!-- Danh sách thuốc tìm được -->
+			<div id="drugResults" style="display: flex; flex-wrap: wrap;"></div>
 
-		<div>
-			<label for="chanDoan">Chẩn Đoán Bệnh:</label>
-			<input type="text" name="chanDoan" id="chanDoan" required />
-		</div>
+			<!-- Danh sách thuốc đã chọn -->
+			<div id="selectedDrugsList">
+				<!-- Các thuốc đã chọn sẽ hiển thị ở đây -->
+			</div>
 
-		<div id="errorMessage" style="color: red; display: none;">
-			Không tìm thấy bệnh nhân.
-		</div>
+			<div>
+				<label for="chanDoan">Chẩn Đoán Bệnh:</label>
+				<input type="text" name="chanDoan" id="chanDoan" required />
+			</div>
 
-		<div>
-			<button type="submit">Tạo Đơn Thuốc</button>
-		</div>
-	</form>
+			<div id="errorMessage" style="color: red; display: none;">
+				Không tìm thấy bệnh nhân.
+			</div>
+
+			<div>
+				<button type="submit">Tạo Đơn Thuốc</button>
+			</div>
+		</form>
+	</div>
 
 	<br />
 	<a href="/bacsi/quanlytaodonthuoc">Quay Lại Trang Quản Lý Tạo Đơn Thuốc</a>
@@ -92,8 +97,6 @@
 						const patient = patients[0];
 						$('#benhNhanId').val(patient.benhnhanid);
 						$('#patientName').text(patient.ten);
-						
-						
 
 						// Giả sử patient.gioitinh có giá trị là ngày sinh ở định dạng "yyyy-MM-dd"
 						let dateString = patient.ngaysinh;
@@ -108,7 +111,7 @@
 
 						// Hiển thị ngày đã định dạng trong #patientGender
 						$('#patientDob').text(formattedDate);
-			
+
 						$('#patientGender').text(patient.gioitinh);
 						$('#patientDetails').show();
 						$('#errorMessage').hide();
@@ -186,6 +189,40 @@
 		}
 	</script>
 
+	<script>
+		$(document).ready(function () {
+			$('form').on('submit', function (event) {
+				event.preventDefault(); // Ngăn form tự submit
+
+				const formData = $(this).serialize(); // Lấy dữ liệu từ form
+
+				$.ajax({
+					url: '/bacsi/taodonthuoc',
+					method: 'POST',
+					data: formData,
+					success: function (response) {
+						Swal.fire({
+							title: 'Thành Công!',
+							text: response.message,
+							icon: 'success',
+							confirmButtonText: 'OK'
+						}).then(() => {
+							window.location.href = "/bacsi/quanlytaodonthuoc"; // Reload hoặc chuyển hướng
+						});
+					},
+					error: function (xhr) {
+						const response = xhr.responseJSON || {message: 'Có lỗi xảy ra!'};
+						Swal.fire({
+							title: 'Lỗi!',
+							text: response.message,
+							icon: 'error',
+							confirmButtonText: 'OK'
+						});
+					}
+				});
+			});
+		});
+	</script>
 </body>
 
 </html>

@@ -1,6 +1,7 @@
 package tlcn.quanlyphongkham.controllers;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,20 +39,25 @@ public class NguoiDungController {
 
 	String nguoiDungId = "4ca0ba0c-cbe4-4ce9-8a0a-04081769a37f";
 
-	@GetMapping("/user/editprofile")
-	public String editProfile(Model model) {
-		UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
-		model.addAttribute("nguoiDung", userProfile.getNguoiDung());
-		model.addAttribute("benhNhan", userProfile.getBenhNhan());
+	  @GetMapping("/user/editprofile")
+	    public String editProfile(Model model) {
+	        UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
+	        model.addAttribute("nguoiDung", userProfile.getNguoiDung());
+	        model.addAttribute("benhNhan", userProfile.getBenhNhan());
 
-		String benhNhanId = "720e1f4d-c14a-45c7-b8b8-ce0847c53e36"; // Thay bằng logic lấy ID bệnh nhân
-		List<LichSuKhamDTO> lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhanId);
+	        String benhNhanId = "720e1f4d-c14a-45c7-b8b8-ce0847c53e36"; // Thay bằng logic lấy ID bệnh nhân từ session hoặc DTO
+	        
+	        // Kiểm tra nếu ID bệnh nhân null hoặc không hợp lệ
+	        if (benhNhanId == null || benhNhanId.isBlank()) {
+	            model.addAttribute("lichSuKhams", Collections.emptyList());
+	            return "benhnhan/editprofile/editprofile"; // Trả về view editprofile nếu không có ID
+	        }
 
-		model.addAttribute("lichSuKhams", lichSuKhams);
+	        List<LichSuKhamDTO> lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhanId);
+	        model.addAttribute("lichSuKhams", lichSuKhams);
 
-		return "benhnhan/editprofile/editprofile"; // Trả về view editprofile
-	}
-
+	        return "benhnhan/editprofile/editprofile"; // Trả về view editprofile
+	    }
 	@PostMapping("/user/updateprofile")
 	public String updateProfile(@ModelAttribute("nguoiDung") TaiKhoanProfileDTO tk,
 			@ModelAttribute("benhNhan") BenhNhanDTO benhNhanDTO, Model model) {

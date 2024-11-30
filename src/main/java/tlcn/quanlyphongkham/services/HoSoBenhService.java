@@ -1,16 +1,20 @@
 package tlcn.quanlyphongkham.services;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import tlcn.quanlyphongkham.dtos.BenhNhanOfTaoDonThuocDTO;
@@ -63,48 +67,48 @@ public class HoSoBenhService {
 		)).collect(Collectors.toList());
 	}
 
-
-	public List<HoSoBenhDTO> getHoSoBenhWithDonThuocByDateRangeAndDoctor(
+	public Page<HoSoBenhDTO> getHoSoBenhWithDonThuocByDateRangeAndDoctor(
 	        LocalDateTime startDateTime,
 	        LocalDateTime endDateTime,
-	        String bacSiId) {
-
-	    // Định dạng thời gian theo yêu cầu
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	        String bacSiId,
+	        Pageable pageable) {
 
 	    // Lấy dữ liệu thô từ repository
-	    List<Object[]> rawResults = hoSoBenhRepository.findHoSoBenhWithGroupedThuoc(startDateTime, endDateTime, bacSiId);
+	    Page<Object[]> rawResults = hoSoBenhRepository.findHoSoBenhWithGroupedThuoc(startDateTime, endDateTime, bacSiId, pageable);
 
 	    // Chuyển đổi Object[] sang HoSoBenhDTO
-	    return rawResults.stream().map(obj -> {
+	    return rawResults.map(obj -> {
 	        String hoSoId = (String) obj[0];
 	        String tenBenhNhan = (String) obj[1];
 	        String chanDoan = (String) obj[2];
-	        LocalDateTime thoiGianTaoRaw = LocalDateTime.parse((String) obj[3], formatter); // Parse từ String sang LocalDateTime nếu cần
-	        String thoiGianTao = thoiGianTaoRaw.format(formatter); // Convert sang String định dạng
+	        String thoiGianTao = (String) obj[3];
 	        String tenThuoc = (String) obj[4];
+	        String lieu = (String) obj[5];
+	        String tanSuat = (String) obj[6];
+	        BigDecimal tongTienThuoc = (BigDecimal) obj[7];
 
-	        // Trả về DTO
-	        return new HoSoBenhDTO(hoSoId, tenBenhNhan, chanDoan, thoiGianTao, tenThuoc);
-	    }).collect(Collectors.toList());
+	        return new HoSoBenhDTO(hoSoId, tenBenhNhan, chanDoan, thoiGianTao, tenThuoc, lieu, tanSuat, tongTienThuoc);
+	    });
 	}
 
 
+	 public List<LichSuKhamDTO> getLichSuKhamByBenhNhanId(String benhNhanId) {
+	        List<Object[]> rawData = hoSoBenhRepository.findLichSuKhamByBenhNhanIdRaw(benhNhanId);
+	        
+	        if (rawData == null || rawData.isEmpty()) {
+	            return Collections.emptyList(); // Trả về danh sách rỗng nếu không có dữ liệu
+	        }
 
-
-	// Ánh xạ thủ công trong Service
-	public List<LichSuKhamDTO> getLichSuKhamByBenhNhanId(String benhNhanId) {
-	    List<Object[]> rawData = hoSoBenhRepository.findLichSuKhamByBenhNhanIdRaw(benhNhanId);
-	    return rawData.stream()
-	                  .map(obj -> new LichSuKhamDTO(
-	                      (String) obj[0],  // tenBacSi
-	                      (String) obj[1],  // ngayKham
-	                      (String) obj[2],  // chanDoan
-	                      (String) obj[3],  // thuoc
-	                      (String) obj[4],  // lieu
-	                      (String) obj[5]   // tanSuat
-	                  ))
-	                  .toList();
-	}
+	        return rawData.stream()
+	                      .map(obj -> new LichSuKhamDTO(
+	                          (String) obj[0],  // tenBacSi
+	                          (String) obj[1],  // ngayKham
+	                          (String) obj[2],  // chanDoan
+	                          (String) obj[3],  // thuoc (đã định dạng xuống dòng từ query)
+	                          (String) obj[4],  // lieu (đã định dạng xuống dòng từ query)
+	                          (String) obj[5]   // tanSuat (đã định dạng xuống dòng từ query)
+	                      ))
+	                      .toList();
+	    }
 	
 }

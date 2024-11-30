@@ -9,8 +9,8 @@ import org.springframework.data.repository.query.Param;
 
 import tlcn.quanlyphongkham.entities.DonThuoc;
 
-public interface DonThuocRepository extends JpaRepository<DonThuoc, String> {
-	
+public interface DonThuocRepository extends JpaRepository<DonThuoc, Long> {
+	 boolean existsByHoSoBenh_HoSoId(String hoSoId);
 	
 
 }
