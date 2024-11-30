@@ -1,0 +1,100 @@
+/* Container */
+.doctor-tabs-container {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: 30px auto;
+    background: #f9f9fb;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+/* Doctor profile section */
+.doctor-profile {
+    display: flex; /* Bố trí ngang hàng */
+    align-items: flex-start; /* Căn ảnh và thông tin theo hàng trên */
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 15px;
+}
+
+.avatar-container {
+    flex-shrink: 0; /* Đảm bảo hình ảnh không co lại */
+}
+
+.doctor-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.doctor-info {
+    margin-left: 20px; /* Khoảng cách giữa ảnh và thông tin */
+}
+
+.doctor-info h1 {
+    font-size: 24px;
+    margin: 0 0 10px;
+    color: #333;
+}
+
+.doctor-info p {
+    font-size: 16px;
+    color: #555;
+    margin: 5px 0;
+}
+
+/* Tab menu */
+.tabs {
+    display: flex;
+    justify-content: center;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab-link {
+    padding: 10px 20px;
+    margin: 0 5px;
+    background: #2a9d8f;
+    color: white;
+    border: none;
+    border-radius: 5px 5px 0 0;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.tab-link.active {
+    background: #21867a;
+    font-weight: bold;
+}
+
+.tab-link:hover {
+    background: #197b6c;
+}
+
+/* Tab content */
+.tab-content {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 0 0 10px 10px;
+    background: white;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Data
 @Entity
 @Table(name = "LichKhamBenh")
@@ -18,6 +20,7 @@ public class LichKhamBenh {
     private String maLichKhamBenh;
     
     @ManyToOne
+   
     @JoinColumn(name = "bac_si_id", nullable = false)
     private BacSi bacSi; // Liên kết đến bác sĩ thực hiện ca khám
     

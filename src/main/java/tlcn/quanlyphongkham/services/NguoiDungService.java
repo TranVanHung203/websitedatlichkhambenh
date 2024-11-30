@@ -117,20 +117,8 @@ public class NguoiDungService {
 
 	// Phương thức xóa người dùng theo ID
 	public void deleteNguoiDung(String nguoiDungId) {
-		Optional<NguoiDung> existingNguoiDungOpt = nguoiDungRepository.findById(nguoiDungId);
-
-		if (existingNguoiDungOpt.isPresent()) {
-			NguoiDung existingNguoiDung = existingNguoiDungOpt.get();
-
-			existingNguoiDung.setTrangthai("DISABLE");
-			existingNguoiDung.setEmail(null);
-			existingNguoiDung.setTenDangNhap(null);
-			// Lưu thay đổi vào cơ sở dữ liệu
-			nguoiDungRepository.save(existingNguoiDung);
-
-		} else {
-			throw new RuntimeException("Không tìm thấy người dùng với ID: ");
-		}
+		nguoiDungRepository.deleteById(nguoiDungId);
+	
 	}
 
 	// Check if email already exists for another user (excluding the current user by
@@ -172,6 +160,11 @@ public class NguoiDungService {
 			bacSi.setDiaChi(themTaiKhoanDTO.getDiaChi());
 			bacSi.setNgaySinh(themTaiKhoanDTO.getNgaySinh());
 			bacSi.setGioiTinh(themTaiKhoanDTO.getGioiTinh());
+			
+			if ("Nam".equals(themTaiKhoanDTO.getGioiTinh()))
+				bacSi.setUrlAvatar("/uploads/f9dcf22c-ca7f-4259-b193-ff5de5f23563-bacsinam.jpg");
+			else
+				bacSi.setUrlAvatar("/uploads/f9dcf22c-ca7f-4259-b193-ff5de5f23563-bacsinu.jpg");
 
 			bacSiRepository.save(bacSi);
 

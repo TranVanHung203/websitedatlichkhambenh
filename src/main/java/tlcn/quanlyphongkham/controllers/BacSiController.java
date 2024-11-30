@@ -1,5 +1,10 @@
 package tlcn.quanlyphongkham.controllers;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -10,6 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +28,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.persistence.criteria.Path;
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
 import tlcn.quanlyphongkham.dtos.BenhNhanOfTaoDonThuocDTO;
 import tlcn.quanlyphongkham.dtos.ChiTietBacSiDTO;
@@ -163,6 +171,7 @@ public class BacSiController {
 
 		// Fetch available specialties
 		List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa();
+		System.out.println("Avatar URL: " + personalInfo.getAvatarurl());
 
 		model.addAttribute("personalInfo", personalInfo);
 		model.addAttribute("detailInfo", detailInfo);
@@ -170,19 +179,48 @@ public class BacSiController {
 
 		return "bacsi/chinhsuathongtinbs/chinhsuathongtinbs"; // Your Thymeleaf template
 	}
+	
+	  @Value("${upload.path}")
+	    private String uploadDir;
+	  
 
-	// Cập nhật thông tin cá nhân và chi tiết của bác sĩ
-	@PostMapping("/updateProfile")
-	public String updateProfile(@ModelAttribute EditProfileBSDTO profileDTO, @ModelAttribute ChiTietBacSiDTO detailDTO,
-			Model model) {
-		String bacSiId = "f9dcf22c-ca7f-4259-b193-ff5de5f23563"; // Có thể lấy từ session hoặc tham số
+	  @PostMapping("/updateProfile")
+	  public String updateProfile(@ModelAttribute EditProfileBSDTO profileDTO, 
+	                              @ModelAttribute ChiTietBacSiDTO detailDTO,
+	                              @RequestParam("avatar") MultipartFile avatar, 
+	                              Model model) throws IOException {
+	      String bacSiId = profileDTO.getBacSiId(); // Get the doctor ID
 
-		// Cập nhật thông tin cá nhân và chi tiết
-		String personalUpdateResult = bacSiService.updateProfile(profileDTO);
-		String detailUpdateResult = bacSiService.updateDetail(detailDTO);
+	      if (!avatar.isEmpty()) {
+	          // Generate a new filename
+	          String fileName = bacSiId + "-" + avatar.getOriginalFilename();
+	          // Path where the file will be stored
+	          String uploadDir = System.getProperty("user.dir") + "/uploads/";
 
-		return "redirect:/bacsi/editprofile";
-	}
+	          // Create the directory if it doesn't exist
+	          File directory = new File(uploadDir);
+	          if (!directory.exists()) {
+	              directory.mkdirs();
+	          }
+
+	          // Save the file to the server
+	          java.nio.file.Path filePath = Paths.get(uploadDir, fileName);
+	          Files.copy(avatar.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+	          // Set the URL of the uploaded image
+	          profileDTO.setAvatarurl("/uploads/" + fileName); // Store the relative URL
+	      }
+
+	      // Update the profile and details
+	      bacSiService.updateProfile(profileDTO);
+	      bacSiService.updateDetail(detailDTO);
+
+	      return "redirect:/bacsi/editprofile";
+	  }
+
+
+	    // Helper method to save the avatar image and return its URL
+	   
 
 	@GetMapping("/bacsi/xemlichhen")
 	public String getLichKham(

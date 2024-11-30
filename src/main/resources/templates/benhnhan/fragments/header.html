@@ -12,12 +12,12 @@
     </div>
     <nav class="custom-header">
         <ul>
-            <li><a th:href="@{/about}">Giới Thiệu</a></li>
+            <li><a th:href="@{/home}">Giới Thiệu</a></li>
             <li class="custom-header-dropdown">
-                <a th:href="@{/doctors}" class="dropdown-toggle">Bác Sĩ</a>
+                <a class="dropdown-toggle">Bác Sĩ</a>
                 <ul class="dropdown-menu">
-                    <li><a th:href="@{view/schedule}">Lịch Làm Việc</a></li>
-                    <li><a th:href="@{/doctors/team}">Đội Ngũ Bác Sĩ</a></li>
+                    <li><a th:href="@{/view/schedule}">Lịch Làm Việc</a></li>
+                    <li><a th:href="@{/findbs}">Đội Ngũ Bác Sĩ</a></li>
                 </ul>
             </li>
             <li><a th:href="@{/departments}">Chuyên Khoa</a></li>

@@ -1,7 +1,11 @@
 package tlcn.quanlyphongkham.repositories;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,6 +14,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import jakarta.transaction.Transactional;
+import tlcn.quanlyphongkham.dtos.LichKhamBenhDTO;
+import tlcn.quanlyphongkham.dtos.MaLichKhamBenhDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.LichKhamBenh;
 
@@ -46,6 +52,25 @@ public interface LichKhamBenhRepository extends JpaRepository<LichKhamBenh, Stri
 	List<LichKhamBenh> findByNgayThangNamBetween(LocalDate startDate, LocalDate endDate);
 
 	List<LichKhamBenh> findByBacSiTenContaining(String tenBacSi);
+	
+	
+	
+	  List<LichKhamBenh> findByBacSi_ChuyenKhoa_ChuyenKhoaIdAndNgayThangNam(
+	            String chuyenKhoaId, LocalDate ngayThangNam);
+
+	  @Query("SELECT new tlcn.quanlyphongkham.dtos.MaLichKhamBenhDTO(l.maLichKhamBenh) "
+		       + "FROM LichKhamBenh l "
+		       + "JOIN l.bacSi b " // Liên kết với thực thể BacSi qua đối tượng bacSi
+		       + "WHERE b.bacSiId = :bacSiId " // Sử dụng bacSiId trong đối tượng BacSi
+		       + "AND l.ngayThangNam = :ngayThangNam "
+		       + "AND l.ca = :caKham")
+		MaLichKhamBenhDTO findByBacSiAndNgayThangNamAndCa(@Param("bacSiId") String bacSiId, 
+		                                                 @Param("ngayThangNam") LocalDate selectedDates, 
+		                                                 @Param("caKham") String caKham);
+
+
+
+	
 
 
 

@@ -22,7 +22,7 @@
 		</div>
 
 		<!-- Form -->
-		<form th:action="@{/updateProfile}" method="post">
+		<form th:action="@{/updateProfile}" method="post" enctype="multipart/form-data">
 			<!-- Trường ẩn để gửi ID bác sĩ -->
 			<input type="hidden" name="bacSiId" th:value="${personalInfo.bacSiId}">
 
@@ -71,6 +71,25 @@
 						</select>
 					</div>
 
+					<!-- Avatar upload -->
+					<div class="form-group">
+						<label for="avatar">Ảnh đại diện</label>
+						<input type="file" id="avatar" name="avatar" accept="image/*" onchange="previewAvatar(event)">
+					</div>
+
+					<!-- Display current avatar -->
+					<div class="form-group">
+						<label>Hình ảnh hiện tại</label><br>
+						<textarea 
+							th:text="${personalInfo.avatarurl}"></textarea>
+						
+						<img id="current-avatar"
+							th:src="${personalInfo.avatarurl != null ? personalInfo.avatarurl : '/uploads/f9dcf22c-ca7f-4259-b193-ff5de5f23563-IMG_1666.JPG'}"
+							alt="Avatar hiện tại"
+							style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+
+					</div>
+
 					<button type="submit" class="btn">Lưu thông tin cá nhân</button>
 				</div>
 			</div>
@@ -91,7 +110,6 @@
 				</div>
 
 				<div class="form-section">
-
 					<button type="submit" class="btn">Lưu thông tin tài khoản</button>
 				</div>
 			</div>
@@ -159,6 +177,27 @@
 			document.getElementById(tabName).classList.add("active");
 			evt.currentTarget.classList.add("active");
 		}
+
+		function previewAvatar(event) {
+			const reader = new FileReader();
+			reader.onload = function () {
+				const img = document.getElementById('current-avatar');
+				img.src = reader.result; // Hiển thị ảnh mới được chọn
+			};
+			reader.readAsDataURL(event.target.files[0]);
+		}
+
+		// Hàm tải ảnh từ URL đã lưu
+		function loadSavedAvatar() {
+			const img = document.getElementById('current-avatar');
+			const savedUrl = img.getAttribute('data-saved-url'); // Lấy URL từ thuộc tính data
+			if (savedUrl) {
+				img.src = savedUrl; // Thiết lập ảnh từ URL đã lưu
+			}
+		}
+
+		// Gọi loadSavedAvatar khi trang được tải
+		window.addEventListener('DOMContentLoaded', loadSavedAvatar);
 	</script>
 </body>
 

@@ -21,4 +21,5 @@ public class EditProfileBSDTO {
     private String email;
     private String tenDangNhap;
     private String chuyenKhoaId; 
+    private String avatarurl; 
 }

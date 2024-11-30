@@ -107,6 +107,7 @@ public class WebController {
         benhNhan.setGioiTinh(dangKyDTO.getGioiTinh());
         benhNhan.setDienThoai(dangKyDTO.getDienThoai());
         benhNhan.setDiaChi(dangKyDTO.getDiaChi());
+        
 
         benhNhanService.save(benhNhan);
 
