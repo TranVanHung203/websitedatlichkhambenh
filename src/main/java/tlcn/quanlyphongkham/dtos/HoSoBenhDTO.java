@@ -5,9 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Locale;
 
 @Data
 @NoArgsConstructor
@@ -21,4 +23,9 @@ public class HoSoBenhDTO {
     private String lieu;
     private String tanSuat;
     private BigDecimal tongTienThuoc;
+    public String getFormattedTongTienThuoc() {
+        NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+        return formatter.format(tongTienThuoc) + " VNĐ";
+    }
+    
 }

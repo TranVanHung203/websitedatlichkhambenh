@@ -70,8 +70,9 @@
 							<th>Ngày khám</th>
 							<th>Chẩn đoán</th>
 							<th>Thuốc</th>
-							<th>Liều</th>
-							<th>Tần suất</th>
+							<th>Liều Lượng</th>
+							<th>Tần suất / cử</th>
+							<th>Tổng tiền</th> <!-- Thêm cột tổng tiền -->
 						</tr>
 					</thead>
 					<tbody>
@@ -88,9 +89,31 @@
 							<td>
 								<pre th:text="${lichSu.tanSuat}"></pre> <!-- Giữ định dạng xuống dòng -->
 							</td>
+							<td th:text="${lichSu.formattedTongTienThuoc}"></td>
 						</tr>
 					</tbody>
 				</table>
+				<!-- Phân trang -->
+				<div class="pagination-container">
+					<span th:if="${currentPage > 0}" class="pagination-prev">
+						<a
+							th:href="@{/user/editprofile(page=${currentPage-1}, size=${size}, currentTab=${currentTab})}">Trang
+							Trước</a>
+					</span>
+
+					<!-- Hiển thị trang hiện tại và tổng số trang -->
+					<span class="pagination-info">
+						Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span>
+					</span>
+
+					<!-- Nút trang tiếp theo -->
+					<span th:if="${currentPage < totalPages - 1}" class="pagination-next">
+						<a
+							th:href="@{/user/editprofile(page=${currentPage+1}, size=${size}, currentTab=${currentTab})}">Trang
+							Sau</a>
+					</span>
+				</div>
+
 			</div>
 
 		</section>
@@ -111,6 +134,30 @@
 			// Hiển thị section được chọn
 			document.getElementById(sectionId).style.display = 'block';
 		}
+
+		document.addEventListener('DOMContentLoaded', function () {
+			var urlParams = new URLSearchParams(window.location.search);
+			var currentTab = urlParams.get('currentTab');
+
+			// Nếu có tham số currentTab và nó là 'medical-history', hiển thị phần Lịch sử khám bệnh
+			if (currentTab === 'medical-history') {
+				showSection('medical-history');
+			} else {
+				// Mặc định là thông tin tài khoản
+				showSection('account-info');
+			}
+		});
+
+		function showSection(sectionId) {
+			// Ẩn tất cả các section
+			document.getElementById('account-info').style.display = 'none';
+			document.getElementById('personal-info').style.display = 'none';
+			document.getElementById('medical-history').style.display = 'none';
+
+			// Hiển thị section được chọn
+			document.getElementById(sectionId).style.display = 'block';
+		}
+
 	</script>
 
 	<div th:replace="benhnhan/fragments/footer :: footer"></div>

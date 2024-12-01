@@ -224,17 +224,33 @@ public class BacSiController {
 	}
 
 	@GetMapping("/bacsi/quanlytaodonthuoc")
-	public String getAllPrescriptions(Model model) {
-		List<DonThuoc> donThuocs = donThuocService.getAllDonThuoc();
-		for (DonThuoc donThuoc : donThuocs) {
-			donThuoc.calculateTongTien();
-			donThuoc.setFormattedDate(
-					donThuoc.getHoSoBenh().getThoiGianTao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-		}
-		model.addAttribute("donThuocs", donThuocs);
-		return "bacsi/taodonthuoc/quanlytaodonthuoc";
+	public String getAllPrescriptions(
+	        Model model,
+	        @RequestParam(value = "page", defaultValue = "0") int page,
+	        @RequestParam(value = "search", required = false) String search) {
+	    Pageable pageable = PageRequest.of(page, 5);
+
+	    Page<DonThuoc> donThuocPage;
+	    if (search != null && !search.trim().isEmpty()) {
+	        donThuocPage = donThuocService.searchByBenhNhanName(search, pageable);
+	    } else {
+	        donThuocPage = donThuocService.getAllDonThuoc(pageable);
+	    }
+
+	    for (DonThuoc donThuoc : donThuocPage.getContent()) {
+	        donThuoc.calculateTongTien();
+	        donThuoc.setFormattedDate(
+	                donThuoc.getHoSoBenh().getThoiGianTao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+	    }
+
+	    model.addAttribute("donThuocs", donThuocPage.getContent());
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", donThuocPage.getTotalPages());
+	    model.addAttribute("search", search); // Để giữ lại giá trị tìm kiếm
+	    return "bacsi/taodonthuoc/quanlytaodonthuoc";
 	}
-	
+
+
 	
 	@PostMapping("/bacsi/xoadonthuoc/{id}")
 	public String deletePrescription(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -402,7 +418,7 @@ public class BacSiController {
 	        @RequestParam(value = "startDate", required = false) String startDate,
 	        @RequestParam(value = "endDate", required = false) String endDate,
 	        @RequestParam(value = "page", defaultValue = "0") int page,
-	        @RequestParam(value = "size", defaultValue = "1") int size,
+	        @RequestParam(value = "size", defaultValue = "5") int size,
 	        Model model) {
 
 	    String bacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667";

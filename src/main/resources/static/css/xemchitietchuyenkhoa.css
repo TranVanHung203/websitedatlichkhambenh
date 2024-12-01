@@ -50,7 +50,7 @@
 
 /* Tạo hiệu ứng cho các tiêu đề khi di chuột */
 .chitietchuyenkhoa h1:hover {
-    color: #ff9900; /* Màu vàng cam khi hover */
+    color: blue; /* Màu vàng cam khi hover */
     cursor: pointer;
 }
 

@@ -1,140 +1,241 @@
 /* Cấu hình chung cho body */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
+	font-family: Arial, sans-serif;
+	background-color: #f4f4f4;
+	margin: 0;
+	padding: 0;
 }
 
 /* Định dạng chung cho phần tử bảng */
 table {
-    width: 90%; /* Tăng chiều rộng bảng */
-    margin: 30px auto;
-    border-collapse: collapse;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    table-layout: fixed; /* Đặt chiều rộng cố định cho các cột */
+	width: 90%;
+	/* Tăng chiều rộng bảng */
+	margin: 30px auto;
+	border-collapse: collapse;
+	background-color: #fff;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	table-layout: fixed;
+	/* Đặt chiều rộng cố định cho các cột */
 }
 
 /* Định dạng tiêu đề của bảng */
 th {
-    background-color: #4CAF50;
-    color: white;
-    padding: 12px;
-    text-align: center; /* Căn giữa theo chiều ngang */
-    vertical-align: middle; /* Căn giữa theo chiều dọc */
-    font-size: 16px;
+	background-color: #4CAF50;
+	color: white;
+	padding: 12px;
+	text-align: center;
+	/* Căn giữa theo chiều ngang */
+	vertical-align: middle;
+	/* Căn giữa theo chiều dọc */
+	font-size: 16px;
 }
 
 /* Định dạng các ô dữ liệu trong bảng */
 td {
-    padding: 12px;
-    text-align: center; /* Căn giữa theo chiều ngang */
-    vertical-align: middle; /* Căn giữa theo chiều dọc */
-    font-size: 14px;
-    border-bottom: 1px solid #ddd;
+	padding: 12px;
+	text-align: center;
+	/* Căn giữa theo chiều ngang */
+	vertical-align: middle;
+	/* Căn giữa theo chiều dọc */
+	font-size: 14px;
+	border-bottom: 1px solid #ddd;
 }
 
 /* Định dạng khi hover trên các hàng trong bảng */
 tr:hover {
-    background-color: #f1f1f1;
+	background-color: #f1f1f1;
 }
 
 /* Định dạng cho các nút trong bảng */
-table button, table a.edit-button {
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 14px;
-    cursor: pointer;
-    margin: 2px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+table button,
+table a.edit-button {
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 8px 12px;
+	font-size: 14px;
+	cursor: pointer;
+	margin: 2px;
+	transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 /* Định dạng cho nút Xóa */
 table button {
-    background-color: #dc3545; /* Màu nền cho nút Xóa */
+	background-color: #dc3545;
+	/* Màu nền cho nút Xóa */
 }
 
 table button:hover {
-    background-color: #c82333; /* Hiệu ứng hover cho nút Xóa */
+	background-color: #c82333;
+	/* Hiệu ứng hover cho nút Xóa */
 }
 
 /* Định dạng cho nút Sửa */
 a.edit-button {
-    background-color: #ffc107; /* Màu nền cho nút Sửa */
-    text-decoration: none; /* Bỏ đường gạch chân */
-    display: inline-block; /* Hiển thị dưới dạng khối nội tuyến */
+	background-color: #ffc107;
+	/* Màu nền cho nút Sửa */
+	text-decoration: none;
+	/* Bỏ đường gạch chân */
+	display: inline-block;
+	/* Hiển thị dưới dạng khối nội tuyến */
 }
 
 a.edit-button:hover {
-    background-color: #e0a800; /* Hiệu ứng hover cho nút Sửa */
-    transform: scale(1.05); /* Hiệu ứng phóng to nhẹ khi hover */
+	background-color: #e0a800;
+	/* Hiệu ứng hover cho nút Sửa */
+	transform: scale(1.05);
+	/* Hiệu ứng phóng to nhẹ khi hover */
 }
 
 /* Định dạng cho nút tạo đơn thuốc */
 button.create-button {
-    display: block;
-    width: 200px;
-    margin: 20px auto;
-    padding: 12px;
-    background-color: #28a745;
-    color: white;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    text-align: center;
+	display: block;
+	width: 200px;
+	margin-top: 30px;
+	margin-bottom: -40px;
+	margin-left: 1000px;
+	padding: 12px;
+	background-color: #28a745;
+	color: white;
+	font-size: 16px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	text-align: center;
 }
 
 /* Hiệu ứng khi hover trên nút tạo đơn thuốc */
 button.create-button:hover {
-    background-color: #218838;
+	background-color: #218838;
 }
 
 /* Định dạng cột trong bảng cho các thẻ tiêu đề và ô dữ liệu */
-th:nth-child(1), td:nth-child(1) {
-    width: 10%; /* Cột Bệnh Nhân */
+th:nth-child(1),
+td:nth-child(1) {
+	width: 10%;
+	/* Cột Bệnh Nhân */
 }
 
-th:nth-child(2), td:nth-child(2) {
-    width: 15%; /* Cột Chẩn Đoán */
+th:nth-child(2),
+td:nth-child(2) {
+	width: 15%;
+	/* Cột Chẩn Đoán */
 }
 
-th:nth-child(3), td:nth-child(3) {
-    width: 20%; /* Cột Thời Gian Tạo */
+th:nth-child(3),
+td:nth-child(3) {
+	width: 20%;
+	/* Cột Thời Gian Tạo */
 }
 
-th:nth-child(4), td:nth-child(4) {
-    width: 15%; /* Cột Tên Thuốc */
+th:nth-child(4),
+td:nth-child(4) {
+	width: 15%;
+	/* Cột Tên Thuốc */
 }
 
-th:nth-child(5), td:nth-child(5) {
-    width: 10%; /* Cột Liều */
+th:nth-child(5),
+td:nth-child(5) {
+	width: 10%;
+	/* Cột Liều */
 }
 
-th:nth-child(6), td:nth-child(6) {
-    width: 10%; /* Cột Tần Suất */
+th:nth-child(6),
+td:nth-child(6) {
+	width: 10%;
+	/* Cột Tần Suất */
 }
 
-th:nth-child(7), td:nth-child(7) {
-    width: 10%; /* Cột Tổng Tiền */
+th:nth-child(7),
+td:nth-child(7) {
+	width: 10%;
+	/* Cột Tổng Tiền */
 }
 
-th:nth-child(8), td:nth-child(8) {
-    width: 10%; /* Cột Hành Động */
+th:nth-child(8),
+td:nth-child(8) {
+	width: 10%;
+	/* Cột Hành Động */
 }
 
 /* Canh đều các nút trong cột Hành Động */
 td form {
-    display: inline-block;
-    margin: 0;
+	display: inline-block;
+	margin: 0;
 }
 
-td form button, td button.edit-button {
-    display: inline-block;
-    margin: 2px;
-    padding: 8px 12px;
+td form button,
+td button.edit-button {
+	display: inline-block;
+	margin: 2px;
+	padding: 8px 12px;
+}
+
+/* Style for the pagination container */
+.pagination {
+	display: flex;
+	justify-content: center;
+	/* Center the pagination */
+	align-items: center;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+/* Style for each page link */
+.pagination a {
+	text-decoration: none;
+	color: #007bff;
+	padding: 8px 16px;
+	margin: 0 -5px;
+	border: 1px solid #007bff;
+	border-radius: 5px;
+	background-color: #f1f1f1;
+	transition: background-color 0.3s, color 0.3s;
+}
+
+/* Hover effect on page links */
+.pagination a:hover {
+	background-color: #007bff;
+	color: #fff;
+}
+
+/* Style for current page number */
+.pagination span {
+	padding: 8px 16px;
+	margin: 0 -5px;
+	border-radius: 5px;
+	background-color: #f1f1f1;
+}
+
+/* Style for active page number */
+.pagination .active {
+	background-color: #007bff;
+	color: #fff;
+	border-color: #007bff;
+}
+
+form {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	/* Increased gap between input and button */
+	margin-left: 65px;
+	/* Increased left margin */
+}
+
+form input {
+	font-size: 14px;
+	/* Increased font size for better readability */
+	padding: 8px;
+	/* Increased padding for the input field */
+}
+
+
+.no-results {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-weight: bold;
 }

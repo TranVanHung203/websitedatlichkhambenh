@@ -5,12 +5,16 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import tlcn.quanlyphongkham.dtos.BenhNhanDTO;
 import tlcn.quanlyphongkham.dtos.LichSuKhamDTO;
@@ -46,25 +50,37 @@ public class NguoiDungController {
 	String nguoiDungId = "4ca0ba0c-cbe4-4ce9-8a0a-04081769a37f";
 
 	@GetMapping("/user/editprofile")
-	public String editProfile(Model model) {
-		UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
-		model.addAttribute("nguoiDung", userProfile.getNguoiDung());
-		model.addAttribute("benhNhan", userProfile.getBenhNhan());
+	public String editProfile(@RequestParam(defaultValue = "0") int page, 
+	                           @RequestParam(defaultValue = "2") int size, 
+	                           @RequestParam(defaultValue = "medical-history") String currentTab,
+	                           Model model) {
+	    UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
+	    model.addAttribute("nguoiDung", userProfile.getNguoiDung());
+	    model.addAttribute("benhNhan", userProfile.getBenhNhan());
 
-		String benhNhanId = "720e1f4d-c14a-45c7-b8b8-ce0847c53e36"; // Thay bằng logic lấy ID bệnh nhân từ session hoặc
-																	// DTO
+	    // Tìm bệnh nhân theo nguoiDungId thay vì gán cứng benhNhanId
+	    BenhNhan benhNhan = benhNhanService.findById(nguoiDungId);
 
-		// Kiểm tra nếu ID bệnh nhân null hoặc không hợp lệ
-		if (benhNhanId == null || benhNhanId.isBlank()) {
-			model.addAttribute("lichSuKhams", Collections.emptyList());
-			return "benhnhan/editprofile/editprofile"; // Trả về view editprofile nếu không có ID
-		}
+	    if (benhNhan == null) {
+	        model.addAttribute("lichSuKhams", Collections.emptyList());
+	        return "benhnhan/editprofile/editprofile";
+	    }
 
-		List<LichSuKhamDTO> lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhanId);
-		model.addAttribute("lichSuKhams", lichSuKhams);
+	    // Tạo đối tượng Pageable để phân trang
+	    Pageable pageable = PageRequest.of(page, size);
 
-		return "benhnhan/editprofile/editprofile"; // Trả về view editprofile
+	    // Lấy lịch sử khám của bệnh nhân với phân trang
+	    Page<LichSuKhamDTO> lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhan.getBenhNhanId(), pageable);
+	    model.addAttribute("lichSuKhams", lichSuKhams);
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", lichSuKhams.getTotalPages());
+	    model.addAttribute("currentTab", currentTab);  // Truyền tham số currentTab vào Model
+
+	    return "benhnhan/editprofile/editprofile";
 	}
+
+
+
 
 	@PostMapping("/user/updateprofile")
 	public String updateProfile(@ModelAttribute("nguoiDung") TaiKhoanProfileDTO tk,

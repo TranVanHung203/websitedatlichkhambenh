@@ -49,23 +49,24 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 	        @Param("bacSiId") String bacSiId,
 	        Pageable pageable);
 
-	 @Query(value = """
-		        SELECT
-		            bs.ten AS tenBacSi,
-		            CONVERT(VARCHAR, hs.thoi_gian_tao, 23) AS ngayKham,
-		            hs.chan_doan AS chanDoan,
-		            STRING_AGG('- ' + t.ten, CHAR(10)) AS thuoc, 
-		            STRING_AGG(dtt.lieu, CHAR(10)) AS lieu, 
-		            STRING_AGG(dtt.tan_suat, CHAR(10)) AS tanSuat --
-		        FROM ho_so_benh hs
-		        JOIN bac_si bs ON hs.bac_si_id = bs.bac_si_id
-		        LEFT JOIN don_thuoc dt ON hs.ho_so_id = dt.ho_so_id
-		        LEFT JOIN don_thuoc_thuoc dtt ON dt.don_thuoc_id = dtt.don_thuoc_id
-		        LEFT JOIN thuoc t ON dtt.thuoc_id = t.thuoc_id
-		        WHERE hs.benh_nhan_id = :benhNhanId
-		        GROUP BY hs.ho_so_id, bs.ten, hs.thoi_gian_tao, hs.chan_doan
-		        ORDER BY hs.thoi_gian_tao DESC
-		    """, nativeQuery = true)
-		    List<Object[]> findLichSuKhamByBenhNhanIdRaw(@Param("benhNhanId") String benhNhanId);
+	@Query(value = """
+		    SELECT
+		        bs.ten AS tenBacSi,
+		        CONVERT(VARCHAR, hs.thoi_gian_tao, 23) AS ngayKham,
+		        hs.chan_doan AS chanDoan,
+		        STRING_AGG('- ' + t.ten, CHAR(10)) AS thuoc, 
+		        STRING_AGG(dtt.lieu, CHAR(10)) AS lieu, 
+		        STRING_AGG(dtt.tan_suat, CHAR(10)) AS tanSuat,
+		        SUM(CAST(dtt.lieu AS DECIMAL) * t.gia) AS tongTienThuoc -- Thêm cột tổng tiền
+		    FROM ho_so_benh hs
+		    JOIN bac_si bs ON hs.bac_si_id = bs.bac_si_id
+		    LEFT JOIN don_thuoc dt ON hs.ho_so_id = dt.ho_so_id
+		    LEFT JOIN don_thuoc_thuoc dtt ON dt.don_thuoc_id = dtt.don_thuoc_id
+		    LEFT JOIN thuoc t ON dtt.thuoc_id = t.thuoc_id
+		    WHERE hs.benh_nhan_id = :benhNhanId
+		    GROUP BY hs.ho_so_id, bs.ten, hs.thoi_gian_tao, hs.chan_doan
+		    ORDER BY hs.thoi_gian_tao DESC
+		""", nativeQuery = true)
+		Page<Object[]> findLichSuKhamByBenhNhanIdRaw(@Param("benhNhanId") String benhNhanId, Pageable pageable);
 
 }
