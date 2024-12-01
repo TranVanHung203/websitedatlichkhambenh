@@ -92,23 +92,18 @@ public class HoSoBenhService {
 	}
 
 
-	 public List<LichSuKhamDTO> getLichSuKhamByBenhNhanId(String benhNhanId) {
-	        List<Object[]> rawData = hoSoBenhRepository.findLichSuKhamByBenhNhanIdRaw(benhNhanId);
-	        
-	        if (rawData == null || rawData.isEmpty()) {
-	            return Collections.emptyList(); // Trả về danh sách rỗng nếu không có dữ liệu
-	        }
+	public Page<LichSuKhamDTO> getLichSuKhamByBenhNhanId(String benhNhanId, Pageable pageable) {
+	    Page<Object[]> rawData = hoSoBenhRepository.findLichSuKhamByBenhNhanIdRaw(benhNhanId, pageable);
 
-	        return rawData.stream()
-	                      .map(obj -> new LichSuKhamDTO(
-	                          (String) obj[0],  // tenBacSi
-	                          (String) obj[1],  // ngayKham
-	                          (String) obj[2],  // chanDoan
-	                          (String) obj[3],  // thuoc (đã định dạng xuống dòng từ query)
-	                          (String) obj[4],  // lieu (đã định dạng xuống dòng từ query)
-	                          (String) obj[5]   // tanSuat (đã định dạng xuống dòng từ query)
-	                      ))
-	                      .toList();
-	    }
+	    return rawData.map(obj -> new LichSuKhamDTO(
+	        (String) obj[0],  // tenBacSi
+	        (String) obj[1],  // ngayKham
+	        (String) obj[2],  // chanDoan
+	        (String) obj[3],  // thuoc
+	        (String) obj[4],  // lieu
+	        (String) obj[5],  // tanSuat
+	        (BigDecimal) obj[6]  // tongTienThuoc (thêm cột tổng tiền)
+	    ));
+	}
 	
 }

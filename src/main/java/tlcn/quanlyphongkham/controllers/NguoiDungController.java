@@ -118,11 +118,21 @@ public class NguoiDungController {
 			return "benhnhan/editprofile/editprofile"; // Trả về view editprofile nếu không có ID
 		}
 
-		List<LichSuKhamDTO> lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhanId);
-		model.addAttribute("lichSuKhams", lichSuKhams);
+	    // Tạo đối tượng Pageable để phân trang
+	    Pageable pageable = PageRequest.of(page, size);
 
-		return "benhnhan/editprofile/editprofile"; // Trả về view editprofile
+	    // Lấy lịch sử khám của bệnh nhân với phân trang
+	    Page<LichSuKhamDTO> lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhan.getBenhNhanId(), pageable);
+	    model.addAttribute("lichSuKhams", lichSuKhams);
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", lichSuKhams.getTotalPages());
+	    model.addAttribute("currentTab", currentTab);  // Truyền tham số currentTab vào Model
+
+	    return "benhnhan/editprofile/editprofile";
 	}
+
+
+
 
 	@PostMapping("/user/updateprofile")
 	public String updateProfile(@ModelAttribute("nguoiDung") TaiKhoanProfileDTO tk,

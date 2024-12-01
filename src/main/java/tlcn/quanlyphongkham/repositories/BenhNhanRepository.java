@@ -15,7 +15,7 @@ public interface BenhNhanRepository extends JpaRepository<BenhNhan, String> {
 	 BenhNhan findByNguoiDung_NguoiDungId(String nguoiDungId);
 	 
 
-	 
+	
 	 @Query(value = "SELECT benh_nhan_id, ten, ngay_sinh, gioi_tinh FROM benh_nhan WHERE dien_thoai = :dienThoai", nativeQuery = true)
 	 List<Object[]> findBenhNhanInfoByDienThoai(@Param("dienThoai") String dienThoai);
 

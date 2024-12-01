@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,11 +34,10 @@ public class DonThuocService {
 
 	@Autowired
 	private BenhNhanRepository benhNhanRepository;
-	
+
 	@Autowired
 	private DonThuocThuocRepository donThuocThuocRepository;
 
-	
 	@Autowired
 	private ThuocRepository thuocRepository;
 
@@ -46,6 +47,13 @@ public class DonThuocService {
 
 	public List<DonThuoc> getAllDonThuoc() {
 		return donThuocRepository.findAll();
+	}
+	public Page<DonThuoc> getAllDonThuoc(Pageable pageable) {
+	    return donThuocRepository.findAll(pageable); // No sorting here
+	}
+	
+	public Page<DonThuoc> searchByBenhNhanName(String name, Pageable pageable) {
+	    return donThuocRepository.searchByNameBenhNhan(name, pageable);
 	}
 
 	public List<Thuoc> searchDrugs(String query) {
@@ -73,91 +81,89 @@ public class DonThuocService {
 	}
 
 	@Transactional
-	public void updateDonThuoc(Long donThuocId, String hoSoId, String chanDoan, String benhNhanId,
-	                           List<Long> drugIds, List<String> lieu, List<String> tanSuat, List<Long> removedDrugIds) {
-	    // 1. Lấy đơn thuốc từ cơ sở dữ liệu
-	    DonThuoc donThuoc = donThuocRepository.findById(donThuocId)
-	            .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn thuốc với ID: " + donThuocId));
+	public void updateDonThuoc(Long donThuocId, String hoSoId, String chanDoan, String benhNhanId, List<Long> drugIds,
+			List<String> lieu, List<String> tanSuat, List<Long> removedDrugIds) {
+		// 1. Lấy đơn thuốc từ cơ sở dữ liệu
+		DonThuoc donThuoc = donThuocRepository.findById(donThuocId)
+				.orElseThrow(() -> new RuntimeException("Không tìm thấy đơn thuốc với ID: " + donThuocId));
 
-	    // 2. Xử lý hồ sơ bệnh (Không thay đổi)
-	    HoSoBenh hoSoBenh = null;
-	    if (hoSoId != null) {
-	        hoSoBenh = hoSoBenhRepository.findById(hoSoId)
-	                .orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ bệnh với ID: " + hoSoId));
-	        donThuoc.setHoSoBenh(hoSoBenh);
-	    }
+		// 2. Xử lý hồ sơ bệnh (Không thay đổi)
+		HoSoBenh hoSoBenh = null;
+		if (hoSoId != null) {
+			hoSoBenh = hoSoBenhRepository.findById(hoSoId)
+					.orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ bệnh với ID: " + hoSoId));
+			donThuoc.setHoSoBenh(hoSoBenh);
+		}
 
-	    // 3. Cập nhật thông tin bệnh nhân (Không thay đổi)
-	    if (benhNhanId != null && hoSoBenh != null) {
-	        BenhNhan newBenhNhan = benhNhanRepository.findById(benhNhanId)
-	                .orElseThrow(() -> new RuntimeException("Không tìm thấy bệnh nhân với ID: " + benhNhanId));
-	        if (!newBenhNhan.getBenhNhanId().equals(hoSoBenh.getBenhNhan().getBenhNhanId())) {
-	            hoSoBenh.setBenhNhan(newBenhNhan);
-	        }
-	    }
+		// 3. Cập nhật thông tin bệnh nhân (Không thay đổi)
+		if (benhNhanId != null && hoSoBenh != null) {
+			BenhNhan newBenhNhan = benhNhanRepository.findById(benhNhanId)
+					.orElseThrow(() -> new RuntimeException("Không tìm thấy bệnh nhân với ID: " + benhNhanId));
+			if (!newBenhNhan.getBenhNhanId().equals(hoSoBenh.getBenhNhan().getBenhNhanId())) {
+				hoSoBenh.setBenhNhan(newBenhNhan);
+			}
+		}
 
-	    // 4. Cập nhật chẩn đoán (Không thay đổi)
-	    if (chanDoan != null && !chanDoan.isEmpty() && hoSoBenh != null) {
-	        hoSoBenh.setChanDoan(chanDoan);
-	    }
-	    System.out.println(removedDrugIds.size()+"hahahaha");
-	    // 5. Xóa các thuốc bị loại bỏ
-	    if (removedDrugIds != null && !removedDrugIds.isEmpty()) {
-	        List<DonThuocThuoc> drugsToRemove = donThuoc.getDonThuocThuocs().stream()
-	                .filter(dtt -> removedDrugIds.contains(dtt.getThuoc().getThuocId()))
-	                .collect(Collectors.toList());
-	        
+		// 4. Cập nhật chẩn đoán (Không thay đổi)
+		if (chanDoan != null && !chanDoan.isEmpty() && hoSoBenh != null) {
+			hoSoBenh.setChanDoan(chanDoan);
+		}
+		System.out.println(removedDrugIds.size() + "hahahaha");
+		// 5. Xóa các thuốc bị loại bỏ
+		if (removedDrugIds != null && !removedDrugIds.isEmpty()) {
+			List<DonThuocThuoc> drugsToRemove = donThuoc.getDonThuocThuocs().stream()
+					.filter(dtt -> removedDrugIds.contains(dtt.getThuoc().getThuocId())).collect(Collectors.toList());
 
-	        // Xóa thuốc khỏi cơ sở dữ liệu
-	        donThuocThuocRepository.deleteAll(drugsToRemove);
+			// Xóa thuốc khỏi cơ sở dữ liệu
+			donThuocThuocRepository.deleteAll(drugsToRemove);
 
-	        // Loại bỏ thuốc khỏi danh sách của DonThuoc
-	        donThuoc.getDonThuocThuocs().removeAll(drugsToRemove);
-	    }
+			// Loại bỏ thuốc khỏi danh sách của DonThuoc
+			donThuoc.getDonThuocThuocs().removeAll(drugsToRemove);
+		}
 
-	    // 6. Cập nhật hoặc thêm thuốc mới
-	    if (drugIds != null && lieu != null && tanSuat != null) {
-	        if (drugIds.size() != lieu.size() || drugIds.size() != tanSuat.size()) {
-	            throw new RuntimeException("Danh sách thuốc, liều và tần suất phải có cùng kích thước!");
-	        }
+		// 6. Cập nhật hoặc thêm thuốc mới
+		if (drugIds != null && lieu != null && tanSuat != null) {
+			if (drugIds.size() != lieu.size() || drugIds.size() != tanSuat.size()) {
+				throw new RuntimeException("Danh sách thuốc, liều và tần suất phải có cùng kích thước!");
+			}
 
-	        Map<Long, DonThuocThuoc> existingDrugMap = donThuoc.getDonThuocThuocs().stream()
-	                .collect(Collectors.toMap(dtt -> dtt.getThuoc().getThuocId(), dtt -> dtt));
+			Map<Long, DonThuocThuoc> existingDrugMap = donThuoc.getDonThuocThuocs().stream()
+					.collect(Collectors.toMap(dtt -> dtt.getThuoc().getThuocId(), dtt -> dtt));
 
-	        for (int i = 0; i < drugIds.size(); i++) {
-	            Long drugId = drugIds.get(i);
-	            String lieuThuoc = lieu.get(i);
-	            String tanSuatThuoc = tanSuat.get(i);
+			for (int i = 0; i < drugIds.size(); i++) {
+				Long drugId = drugIds.get(i);
+				String lieuThuoc = lieu.get(i);
+				String tanSuatThuoc = tanSuat.get(i);
 
-	            Thuoc thuoc = thuocRepository.findById(drugId)
-	                    .orElseThrow(() -> new RuntimeException("Không tìm thấy thuốc với ID: " + drugId));
+				Thuoc thuoc = thuocRepository.findById(drugId)
+						.orElseThrow(() -> new RuntimeException("Không tìm thấy thuốc với ID: " + drugId));
 
-	            DonThuocThuoc existingDrug = existingDrugMap.get(drugId);
-	            if (existingDrug != null) {
-	                // Cập nhật thuốc đã có
-	                existingDrug.setLieu(lieuThuoc);
-	                existingDrug.setTanSuat(tanSuatThuoc);
-	            } else {
-	                // Thêm thuốc mới
-	                DonThuocThuoc newDrug = new DonThuocThuoc();
-	                newDrug.setThuoc(thuoc);
-	                newDrug.setLieu(lieuThuoc);
-	                newDrug.setTanSuat(tanSuatThuoc);
-	                newDrug.setDonThuoc(donThuoc);
-	                donThuoc.getDonThuocThuocs().add(newDrug);
-	            }
-	        }
-	    }
+				DonThuocThuoc existingDrug = existingDrugMap.get(drugId);
+				if (existingDrug != null) {
+					// Cập nhật thuốc đã có
+					existingDrug.setLieu(lieuThuoc);
+					existingDrug.setTanSuat(tanSuatThuoc);
+				} else {
+					// Thêm thuốc mới
+					DonThuocThuoc newDrug = new DonThuocThuoc();
+					newDrug.setThuoc(thuoc);
+					newDrug.setLieu(lieuThuoc);
+					newDrug.setTanSuat(tanSuatThuoc);
+					newDrug.setDonThuoc(donThuoc);
+					donThuoc.getDonThuocThuocs().add(newDrug);
+				}
+			}
+		}
 
-	    // 7. Lưu hồ sơ bệnh nếu có thay đổi (Không thay đổi)
-	    if (hoSoBenh != null) {
-	        hoSoBenhRepository.save(hoSoBenh);
-	    }
+		// 7. Lưu hồ sơ bệnh nếu có thay đổi (Không thay đổi)
+		if (hoSoBenh != null) {
+			hoSoBenhRepository.save(hoSoBenh);
+		}
 
-	    // 8. Lưu đơn thuốc
-	    donThuocRepository.save(donThuoc);
+		// 8. Lưu đơn thuốc
+		donThuocRepository.save(donThuoc);
 	}
 
-
 	
+
 }

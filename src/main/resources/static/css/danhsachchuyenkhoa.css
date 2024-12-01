@@ -1,18 +1,7 @@
-/* Tối ưu bố cục cho trang */
-.danhsachchuyenkhoa {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-    display: flex;
-    flex-direction: column;
-    min-height: 76vh; /* Đảm bảo trang kéo dài hết chiều cao màn hình */
-}
-
 /* Tạo kiểu cho tiêu đề */
 .danhsachchuyenkhoa h1 {
     text-align: center;
-    font-size: 36px;
+    font-size: 26px;
     margin: 40px 0 20px 0;
     color: #333;
     text-transform: uppercase;
@@ -27,7 +16,7 @@
     margin: 0 auto;
     max-width: 1000px;
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Chia thành 2 cột */
+    grid-template-columns: repeat(8, 1fr); /* Chia thành 3 cột, có thể thay đổi thành 4 cột nếu muốn */
     gap: 20px;
     padding: 20px;
 }
@@ -41,6 +30,9 @@
     padding: 20px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
+    display: flex;
+    justify-content: center; /* Căn giữa nội dung trong mỗi item */
+    align-items: center; /* Căn giữa nội dung theo chiều dọc */
 }
 
 /* Khi hover vào item trong danh sách */
@@ -57,6 +49,7 @@
     font-weight: 600;
     display: block;
     transition: color 0.3s ease, text-decoration 0.3s ease;
+    text-align: center; /* Căn giữa văn bản trong liên kết */
 }
 
 /* Khi hover vào liên kết */
@@ -80,7 +73,6 @@
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-
 
 .danhsachchuyenkhoa p {
     font-size: 18px;
