@@ -11,15 +11,6 @@ import tlcn.quanlyphongkham.entities.NguoiDung;
 public class HomeController {
     
     @GetMapping("/home")
-    public String home(Model model, HttpSession session) {
-        NguoiDung loggedUser = (NguoiDung) session.getAttribute("loggedUser");
-        if (loggedUser != null) {
-            model.addAttribute("tenNguoiDung", loggedUser.getTenDangNhap());
-            return "benhnhan/home/home"; // Đường dẫn đến template trang chủ
-        } else {
-            return "redirect:/login"; // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
-        }
-    }
-    
-    
+    public String home(Model model) {
+    	 return "benhnhan/home/home";}
 }

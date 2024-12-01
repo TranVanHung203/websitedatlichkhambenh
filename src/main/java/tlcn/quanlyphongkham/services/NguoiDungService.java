@@ -1,5 +1,10 @@
 package tlcn.quanlyphongkham.services;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -10,16 +15,13 @@ import tlcn.quanlyphongkham.dtos.ThemTaiKhoanDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.BenhNhan;
 import tlcn.quanlyphongkham.entities.ChiTietBacSi;
+import tlcn.quanlyphongkham.entities.ChuyenKhoa;
 import tlcn.quanlyphongkham.entities.NguoiDung;
 import tlcn.quanlyphongkham.repositories.BacSiRepository;
 import tlcn.quanlyphongkham.repositories.BenhNhanRepository;
 import tlcn.quanlyphongkham.repositories.ChiTietBacSiRepository;
+import tlcn.quanlyphongkham.repositories.ChuyenKhoaRepository;
 import tlcn.quanlyphongkham.repositories.NguoiDungRepository;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class NguoiDungService {
@@ -32,6 +34,9 @@ public class NguoiDungService {
 	private ChiTietBacSiRepository chiTietBacSiRepository;
 	@Autowired
 	private BenhNhanRepository benhNhanRepository;
+	
+	@Autowired
+	private ChuyenKhoaRepository chuyenKhoaRepository;
 
 	public List<NguoiDung> getAllNguoiDung() {
 		return nguoiDungRepository.findAll();
@@ -160,6 +165,8 @@ public class NguoiDungService {
 			bacSi.setDiaChi(themTaiKhoanDTO.getDiaChi());
 			bacSi.setNgaySinh(themTaiKhoanDTO.getNgaySinh());
 			bacSi.setGioiTinh(themTaiKhoanDTO.getGioiTinh());
+			Optional<ChuyenKhoa> chuyenKhoa=chuyenKhoaRepository.findById("0");
+			bacSi.setChuyenKhoa(chuyenKhoa.get());
 			
 			if ("Nam".equals(themTaiKhoanDTO.getGioiTinh()))
 				bacSi.setUrlAvatar("/uploads/f9dcf22c-ca7f-4259-b193-ff5de5f23563-bacsinam.jpg");

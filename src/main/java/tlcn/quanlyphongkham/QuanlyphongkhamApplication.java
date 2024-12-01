@@ -3,7 +3,7 @@ package tlcn.quanlyphongkham;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "tlcn.quanlyphongkham")
 public class QuanlyphongkhamApplication {
 
 	public static void main(String[] args) {
@@ -12,3 +12,5 @@ public class QuanlyphongkhamApplication {
 	}
 
 }
+
+

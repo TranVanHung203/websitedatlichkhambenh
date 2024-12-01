@@ -18,6 +18,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
 import tlcn.quanlyphongkham.dtos.BenhNhanDTO;
+import tlcn.quanlyphongkham.dtos.LichSuKhamDTO;
 import tlcn.quanlyphongkham.dtos.MaLichKhamBenhDTO;
 import tlcn.quanlyphongkham.dtos.TaiKhoanProfileDTO;
 import tlcn.quanlyphongkham.dtos.UserProfileDTO;
@@ -39,9 +42,11 @@ import tlcn.quanlyphongkham.entities.ChuyenKhoa;
 import tlcn.quanlyphongkham.entities.LichKhamBenh;
 import tlcn.quanlyphongkham.entities.NguoiDung;
 import tlcn.quanlyphongkham.entities.SlotThoiGian;
+import tlcn.quanlyphongkham.security.CustomUserDetails;
 import tlcn.quanlyphongkham.services.BacSiService;
 import tlcn.quanlyphongkham.services.BenhNhanService;
 import tlcn.quanlyphongkham.services.ChuyenKhoaService;
+import tlcn.quanlyphongkham.services.HoSoBenhService;
 import tlcn.quanlyphongkham.services.LichKhamBenhService;
 import tlcn.quanlyphongkham.services.LichSuDatLichService;
 import tlcn.quanlyphongkham.services.NguoiDungService;
@@ -59,7 +64,7 @@ public class NguoiDungController {
 
 	@Autowired
 	private UserProfileService userProfileService;
-	
+
 	@Autowired
 	private ChuyenKhoaService chuyenKhoaService;
 
@@ -67,7 +72,7 @@ public class NguoiDungController {
 	private BacSiService bacSiService;
 
 	@Autowired
-	private ChuyenKhoaService chuyenKhoaService;
+	private HoSoBenhService hoSoBenhService;
 
 	@Autowired
 	private LichKhamBenhService lichKhamBenhService;
@@ -76,19 +81,38 @@ public class NguoiDungController {
 
 	@Autowired
 	private LichSuDatLichService lichSuDatLichService;
+	
+	
+	public String getNguoiDungId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
 
-	String nguoiDungId = "a583ec7a-a623-439b-bf90-22e52c708898";
+            if (principal instanceof CustomUserDetails) {
+                CustomUserDetails customUserDetails = (CustomUserDetails) principal;
+                return customUserDetails.getNguoiDungId(); // Get the NguoiDungId as String
+                
+            }
+            else
+            	return null;
+        }else
+        	return null;
+    }
+
+	String nguoiDungId;
+
 
 	@GetMapping("/user/editprofile")
 	public String editProfile(Model model) {
+		nguoiDungId=getNguoiDungId();
 		UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
 		model.addAttribute("nguoiDung", userProfile.getNguoiDung());
 		model.addAttribute("benhNhan", userProfile.getBenhNhan());
 
-		String benhNhanId = "720e1f4d-c14a-45c7-b8b8-ce0847c53e36"; // Thay bằng logic lấy ID bệnh nhân từ session hoặc
-																	// DTO
+		BenhNhan benhNhan = benhNhanService.findById(nguoiDungId); 
+		String benhNhanId=benhNhan.getBenhNhanId();
 
-		// Kiểm tra nếu ID bệnh nhân null hoặc không hợp lệ
+	
 		if (benhNhanId == null || benhNhanId.isBlank()) {
 			model.addAttribute("lichSuKhams", Collections.emptyList());
 			return "benhnhan/editprofile/editprofile"; // Trả về view editprofile nếu không có ID
@@ -103,7 +127,7 @@ public class NguoiDungController {
 	@PostMapping("/user/updateprofile")
 	public String updateProfile(@ModelAttribute("nguoiDung") TaiKhoanProfileDTO tk,
 			@ModelAttribute("benhNhan") BenhNhanDTO benhNhanDTO, Model model) {
-
+		nguoiDungId=getNguoiDungId();
 		// Tìm người dùng hiện tại theo ID
 		NguoiDung existingUser = nguoiDungService.findById(nguoiDungId);
 
@@ -365,6 +389,7 @@ public class NguoiDungController {
 		String selectedTime = requestData.get("selectedTime");
 		String ca = requestData.get("selectedCa");
 		LocalDate selectedDates;
+		nguoiDungId=getNguoiDungId();
 		try {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			selectedDates = LocalDate.parse(selectedDate, formatter);
@@ -414,41 +439,57 @@ public class NguoiDungController {
 	}
 
 	@GetMapping("/user/lichsudatlich")
-	public String getLichSuDatLich(Model model,
-	                               @RequestParam(defaultValue = "0") int page,
-	                               @RequestParam(required = false) String date) {
+	public String getLichSuDatLich(Model model, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(required = false) String date) {
+		nguoiDungId=getNguoiDungId();
+		// Find BenhNhan by nguoiDungId
+		BenhNhan benhNhan = benhNhanService.findById(nguoiDungId);
+		if (benhNhan == null) {
+			// Handle the case where no patient is found for the user
+			model.addAttribute("message", "Bệnh nhân không tìm thấy.");
+			return "benhnhan/dangkylichkham/lichsudatlichkham";
+		}
 
-	   
-	    
-	    // Find BenhNhan by nguoiDungId
-	    BenhNhan benhNhan = benhNhanService.findById(nguoiDungId);
-	    if (benhNhan == null) {
-	        // Handle the case where no patient is found for the user
-	        model.addAttribute("message", "Bệnh nhân không tìm thấy.");
-	        return "benhnhan/dangkylichkham/lichsudatlichkham";
-	    }
+		// Determine the date to filter by, default to today
+		LocalDate filteredDate = (date != null) ? LocalDate.parse(date) : LocalDate.now();
 
-	    // Determine the date to filter by, default to today
-	    LocalDate filteredDate = (date != null) ? LocalDate.parse(date) : LocalDate.now();
+		// Get paginated list of slots based on BenhNhan and date
+		Page<SlotThoiGian> slotPage = lichSuDatLichService.getLichSuDatLichByDateAndBenhNhanId(benhNhan.getBenhNhanId(),
+				filteredDate, page, 1);
 
-	    // Get paginated list of slots based on BenhNhan and date
-	    Page<SlotThoiGian> slotPage = lichSuDatLichService.getLichSuDatLichByDateAndBenhNhanId(benhNhan.getBenhNhanId(), filteredDate, page, 1);
+		model.addAttribute("slots", slotPage.getContent());
+		model.addAttribute("currentPage", page);
+		model.addAttribute("totalPages", slotPage.getTotalPages());
+		model.addAttribute("date", filteredDate); // Pass the date to keep it in the view
 
-	    model.addAttribute("slots", slotPage.getContent());
-	    model.addAttribute("currentPage", page);
-	    model.addAttribute("totalPages", slotPage.getTotalPages());
-	    model.addAttribute("date", filteredDate); // Pass the date to keep it in the view
-
-	    return "benhnhan/dangkylichkham/lichsudatlichkham";
+		return "benhnhan/dangkylichkham/lichsudatlichkham";
 	}
-	  @PostMapping("user/cancel")
-	    public String cancelSlot(@RequestParam String slotId, @RequestParam(required = false) String date,
-	                             @RequestParam(required = false, defaultValue = "0") int page) {
-	        // Xử lý hủy lịch
-	        slotThoiGianService.deleteById(slotId);
 
-	        // Sau khi hủy, quay lại với các thông tin lịch sử
-	        return "redirect:/user/lichsudatlich?date=" + date + "&page=" + page;
-	    }
+	@PostMapping("user/cancel")
+	public String cancelSlot(@RequestParam String slotId, @RequestParam(required = false) String date,
+			@RequestParam(required = false, defaultValue = "0") int page) {
+		// Xử lý hủy lịch
+		slotThoiGianService.deleteById(slotId);
+
+		// Sau khi hủy, quay lại với các thông tin lịch sử
+		return "redirect:/user/lichsudatlich?date=" + date + "&page=" + page;
+	}
+
+	// Controller để xử lý các yêu cầu liên quan đến chuyên khoa
+	@GetMapping("/departments")
+	public String showDepartments(Model model) {
+		// Lấy danh sách chuyên khoa từ service
+		List<ChuyenKhoa> chuyenKhoas = chuyenKhoaService.getAllChuyenKhoa();
+		model.addAttribute("chuyenKhoas", chuyenKhoas);
+		return "benhnhan/xemchuyenkhoa/danhsachchuyenkhoa"; // Trang hiển thị danh sách chuyên khoa
+	}
+
+	@GetMapping("/departments/{chuyenKhoaId}")
+	public String showDepartmentDetails(@PathVariable String chuyenKhoaId, Model model) {
+		// Lấy thông tin chuyên khoa từ service theo ID
+		ChuyenKhoa chuyenKhoa = chuyenKhoaService.getChuyenKhoaById(chuyenKhoaId);
+		model.addAttribute("chuyenKhoa", chuyenKhoa);
+		return "benhnhan/xemchuyenkhoa/xemchitietchuyenkhoa"; // Trang chi tiết chuyên khoa
+	}
 
 }

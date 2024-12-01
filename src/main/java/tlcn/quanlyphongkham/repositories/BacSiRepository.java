@@ -25,4 +25,10 @@ public interface BacSiRepository extends JpaRepository<BacSi, String> {
 	Page<BacSi> findByTenContainingIgnoreCase(String doctorName, Pageable pageable);
 
 	Page<BacSi> findByTenContainingIgnoreCaseAndChuyenKhoa_Ten(String doctorName, String section, Pageable pageable);
+
+	Page<BacSi> findByDienThoaiContaining(String phone, Pageable pageable);
+
+	BacSi findByNguoiDung_NguoiDungId(String nguoiDungId);
+
+
 }
