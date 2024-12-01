@@ -42,4 +42,11 @@ public class SlotThoiGianService {
 		return slotThoiGianRepository.findExist(formattedTime, benhNhanId, maLichKhamBenh);
 
 	}
+
+
+
+	public void deleteById(String slotId) {
+		slotThoiGianRepository.deleteById(slotId);
+		
+	}
 }

@@ -1,8 +1,11 @@
 package tlcn.quanlyphongkham.repositories;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,5 +20,17 @@ public interface SlotThoiGianRepository extends JpaRepository<SlotThoiGian, Stri
 			+ "AND st.ma_lich_kham_benh = :maLichKhamBenh", nativeQuery = true)
 	SlotThoiGian findExist(@Param("calculateStartTime") String calculateStartTime,
 			@Param("benhNhanId") String benhNhanId, @Param("maLichKhamBenh") String maLichKhamBenh);
+
+	Page<SlotThoiGian> findByLichKhamBenhNgayThangNam(LocalDate date, Pageable pageable);
+
+	
+	
+
+	
+
+	Page<SlotThoiGian> findByBenhNhan_BenhNhanIdAndLichKhamBenh_NgayThangNam(String benhNhanId, LocalDate date,
+			Pageable pageable);
+
+
 
 }

@@ -1,0 +1,108 @@
+/* CSS dành riêng cho phần giao diện lịch sử đặt lịch khám bệnh */
+.history-container {
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.history-container h1 {
+    text-align: center;
+    color: #1e90ff; /* Xanh nước biển làm chủ đạo */
+    margin-bottom: 20px;
+}
+
+.history-filter-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+
+.history-filter-container label {
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.history-filter-container input {
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 200px;
+}
+
+.history-filter-container button {
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #1e90ff;
+    color: white;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.history-filter-container button:hover {
+    background-color: #187bcd;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.history-table th,
+.history-table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.history-table th {
+    background-color: #1e90ff;
+    color: white;
+}
+
+.history-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.history-cancel-btn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.history-cancel-btn:hover {
+    background-color: #e60000;
+}
+
+.history-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.history-page-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    background-color: #f0f8ff;
+    color: #1e90ff;
+    cursor: pointer;
+    margin: 0 5px;
+    border-radius: 5px;
+}
+
+.history-page-btn:hover {
+    background-color: #1e90ff;
+    color: white;
+}
