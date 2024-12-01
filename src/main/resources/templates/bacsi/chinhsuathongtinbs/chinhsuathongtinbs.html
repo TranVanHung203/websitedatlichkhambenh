@@ -80,8 +80,7 @@
 					<!-- Display current avatar -->
 					<div class="form-group">
 						<label>Hình ảnh hiện tại</label><br>
-						<textarea 
-							th:text="${personalInfo.avatarurl}"></textarea>
+						
 						
 						<img id="current-avatar"
 							th:src="${personalInfo.avatarurl != null ? personalInfo.avatarurl : '/uploads/f9dcf22c-ca7f-4259-b193-ff5de5f23563-IMG_1666.JPG'}"

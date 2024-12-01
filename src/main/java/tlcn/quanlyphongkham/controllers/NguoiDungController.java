@@ -103,20 +103,22 @@ public class NguoiDungController {
 
 
 	@GetMapping("/user/editprofile")
-	public String editProfile(Model model) {
+	public String editProfile(@RequestParam(defaultValue = "0") int page, 
+	                           @RequestParam(defaultValue = "2") int size, 
+	                           @RequestParam(defaultValue = "medical-history") String currentTab,
+	                           Model model) {
 		nguoiDungId=getNguoiDungId();
-		UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
-		model.addAttribute("nguoiDung", userProfile.getNguoiDung());
-		model.addAttribute("benhNhan", userProfile.getBenhNhan());
+	    UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
+	    model.addAttribute("nguoiDung", userProfile.getNguoiDung());
+	    model.addAttribute("benhNhan", userProfile.getBenhNhan());
+	    
+	    // Tìm bệnh nhân theo nguoiDungId thay vì gán cứng benhNhanId
+	    BenhNhan benhNhan = benhNhanService.findById(nguoiDungId);
 
-		BenhNhan benhNhan = benhNhanService.findById(nguoiDungId); 
-		String benhNhanId=benhNhan.getBenhNhanId();
-
-	
-		if (benhNhanId == null || benhNhanId.isBlank()) {
-			model.addAttribute("lichSuKhams", Collections.emptyList());
-			return "benhnhan/editprofile/editprofile"; // Trả về view editprofile nếu không có ID
-		}
+	    if (benhNhan == null) {
+	        model.addAttribute("lichSuKhams", Collections.emptyList());
+	        return "benhnhan/editprofile/editprofile";
+	    }
 
 	    // Tạo đối tượng Pageable để phân trang
 	    Pageable pageable = PageRequest.of(page, size);
@@ -130,6 +132,7 @@ public class NguoiDungController {
 
 	    return "benhnhan/editprofile/editprofile";
 	}
+
 
 
 

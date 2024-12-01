@@ -91,7 +91,8 @@ public class WebController {
         nguoiDung.setTenDangNhap(dangKyDTO.getTenDangNhap());
         nguoiDung.setMatKhau(encodedPassword);
         nguoiDung.setEmail(dangKyDTO.getEmail());
-        nguoiDung.setVaiTro("BenhNhan"); // Gán vai trò mặc định là USER
+        nguoiDung.setVaiTro("BenhNhan"); 
+        nguoiDung.setTrangthai("DISABLE");// Gán vai trò mặc định là USER
 
         nguoiDungService.saveNguoiDung(nguoiDung);
 

@@ -27,38 +27,42 @@
 		<!-- Edit Profile Section -->
 		<section class="edit-profile-content">
 
-			<!-- Thông tin tài khoản -->
-			<div id="account-info" class="edit-form-section">
-				<h3>Thông tin tài khoản</h3>
-				<label for="email">Email</label>
-				<input type="email" id="email" name="email" th:value="${nguoiDung.email}" readonly>
+			<form method="post" th:action="@{/user/updateprofile}" class="edit-profile-form">
+				<!-- Thông tin tài khoản -->
+				<div id="account-info" class="edit-form-section">
+					<h3>Thông tin tài khoản</h3>
+					<label for="email">Email</label>
+					<input type="email" id="email" name="email" th:value="${nguoiDung.email}" readonly>
 
-				<label for="username">Tên đăng nhập</label>
-				<input type="text" id="username" name="tenDangNhap" th:value="${nguoiDung.tenDangNhap}">
-			</div>
+					<label for="username">Tên đăng nhập</label>
+					<input type="text" id="username" name="tenDangNhap" th:value="${nguoiDung.tenDangNhap}">
+				</div>
 
-			<!-- Thông tin cá nhân -->
-			<div id="personal-info" class="edit-form-section" style="display:none;">
-				<h3>Thông tin cá nhân</h3>
-				<label for="name">Họ tên</label>
-				<input type="text" id="name" name="ten" th:value="${benhNhan.ten}">
+				<!-- Thông tin cá nhân -->
+				<div id="personal-info" class="edit-form-section" style="display:none;">
+					<h3>Thông tin cá nhân</h3>
+					<label for="name">Họ tên</label>
+					<input type="text" id="name" name="ten" th:value="${benhNhan.ten}">
 
-				<label for="gender">Giới tính</label>
-				<select id="gender" name="gioiTinh">
-					<option value="Nam" th:selected="${benhNhan.gioiTinh == 'Nam'}">Nam</option>
-					<option value="Nữ" th:selected="${benhNhan.gioiTinh == 'Nữ'}">Nữ</option>
-					<option value="Khác" th:selected="${benhNhan.gioiTinh == 'Khác'}">Khác</option>
-				</select>
+					<label for="gender">Giới tính</label>
+					<select id="gender" name="gioiTinh">
+						<option value="Nam" th:selected="${benhNhan.gioiTinh == 'Nam'}">Nam</option>
+						<option value="Nữ" th:selected="${benhNhan.gioiTinh == 'Nữ'}">Nữ</option>
+						<option value="Khác" th:selected="${benhNhan.gioiTinh == 'Khác'}">Khác</option>
+					</select>
 
-				<label for="dob">Ngày sinh</label>
-				<input type="date" id="dob" name="ngaySinh" th:value="${benhNhan.ngaySinh}">
+					<label for="dob">Ngày sinh</label>
+					<input type="date" id="dob" name="ngaySinh" th:value="${benhNhan.ngaySinh}">
 
-				<label for="address">Địa chỉ</label>
-				<input type="text" id="address" name="diaChi" th:value="${benhNhan.diaChi}">
+					<label for="address">Địa chỉ</label>
+					<input type="text" id="address" name="diaChi" th:value="${benhNhan.diaChi}">
 
-				<label for="phone">Số điện thoại</label>
-				<input type="text" id="phone" name="dienThoai" th:value="${benhNhan.dienThoai}">
-			</div>
+					<label for="phone">Số điện thoại</label>
+					<input type="text" id="phone" name="dienThoai" th:value="${benhNhan.dienThoai}">
+				</div>
+
+				<button type="submit" class="save-changes-btn" id="save-btn">Save Changes</button>
+			</form>
 
 			<!-- Lịch sử khám bệnh -->
 			<div id="medical-history" class="edit-form-section" style="display:none;">
@@ -113,7 +117,6 @@
 							Sau</a>
 					</span>
 				</div>
-
 			</div>
 
 		</section>
@@ -133,6 +136,13 @@
 
 			// Hiển thị section được chọn
 			document.getElementById(sectionId).style.display = 'block';
+
+			// Ẩn hoặc hiển thị nút Save Changes dựa vào tab hiện tại
+			if (sectionId === 'medical-history') {
+				document.getElementById('save-btn').style.display = 'none';  // Ẩn nút Save Changes
+			} else {
+				document.getElementById('save-btn').style.display = 'block'; // Hiển thị nút Save Changes
+			}
 		}
 
 		document.addEventListener('DOMContentLoaded', function () {
@@ -147,17 +157,6 @@
 				showSection('account-info');
 			}
 		});
-
-		function showSection(sectionId) {
-			// Ẩn tất cả các section
-			document.getElementById('account-info').style.display = 'none';
-			document.getElementById('personal-info').style.display = 'none';
-			document.getElementById('medical-history').style.display = 'none';
-
-			// Hiển thị section được chọn
-			document.getElementById(sectionId).style.display = 'block';
-		}
-
 	</script>
 
 	<div th:replace="benhnhan/fragments/footer :: footer"></div>
