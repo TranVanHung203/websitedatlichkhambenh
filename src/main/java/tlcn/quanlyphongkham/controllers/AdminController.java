@@ -9,6 +9,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -46,11 +48,11 @@ public class AdminController {
 	@Autowired
 	private BacSiService bacSiService;
 	@Autowired
-    private ChuyenKhoaService chuyenKhoaService;
-	
+	private ChuyenKhoaService chuyenKhoaService;
+
 	@Autowired
 	private ThuocService thuocService;
-	
+
 	@GetMapping("/admin/qltk")
 	public String getAllNguoiDung(Model model) {
 		List<NguoiDungDTO> nguoiDungList = nguoiDungService.getAllNguoiDungQLTK();
@@ -213,132 +215,182 @@ public class AdminController {
 			return ResponseEntity.status(404).body(response);
 		}
 	}
-	
-	
-	
-	
-	
-	
-    @GetMapping("/admin/qlbs")
-    public String qlbs(Model model) {
-    	model.addAttribute("doctors", bacSiService.getAllDoctors());
-    	return "admin/quanlybacsi/quanlybacsi";
-    }
-    
-    @GetMapping("/admin/qlck")
-    public String qlck(Model model) {
-    	model.addAttribute("chuyenkhoas", chuyenKhoaService.getAllChuyenKhoa());
-    	return "admin/quanlychuyenkhoa/quanlychuyenkhoa";
-    }
-    
-    @GetMapping("/admin/qlt")
-    public String qlt(Model model) {
-        model.addAttribute("thuocs", thuocService.getAllThuoc());  
-        return "admin/quanlythuoc/quanlythuoc";  
-    }
-        
-    @GetMapping("/admin/qlbs/edit-bacsi/{bacSiId}")
-    public String showUpdateForm(@PathVariable("bacSiId") String bacSiId, Model model) {
-        BacSi doctor = bacSiService.getDoctorById(bacSiId);
-        // Chuyển đổi ngày sinh nếu cần
-        String formattedDate = doctor.getNgaySinh().toString(); 
-    
-        model.addAttribute("doctor", doctor);
-        model.addAttribute("chuyenKhoas", chuyenKhoaService.getAllChuyenKhoa());
-        model.addAttribute("formattedDate", formattedDate);
-        return "admin/quanlybacsi/editbacsi";
-    }
 
-    
-    // Cập nhật thông tin bác sĩ và chi tiết bác sĩ
-    @PostMapping("/admin/qlbs/update/{bacSiId}")
-    public String updateDoctor(@PathVariable("bacSiId") String bacSiId, 
-                               BacSi updatedDoctor, 
-                               ChiTietBacSi updatedChiTiet) { 
-        bacSiService.updateDoctor(bacSiId, updatedDoctor, updatedChiTiet); 
-        return "redirect:/admin/qlbs";  
-    }
-    
-    @PostMapping("/admin/delete-thuoc")
-    public String deleteThuoc(@RequestParam Long thuocId) {
-	        thuocService.deleteThuoc(thuocId);
-        return "redirect:/admin/qlt"; // Chuyển hướng lại trang quản lý thuốc sau khi xóa
-    }
-    
-    @GetMapping("/admin/edit-thuoc")
-    public String editThuoc(@RequestParam Long thuocId, Model model) {
-        Thuoc thuoc = thuocService.getThuocById(thuocId);
-        model.addAttribute("thuoc", thuoc);
-        return "admin/quanlythuoc/editthuoc"; // Trang cập nhật thuốc
-    }
+	@GetMapping("/admin/qlbs")
+	public String qlbs(@RequestParam(defaultValue = "0") int page, @RequestParam(required = false) String search,
+			Model model) {
+		int pageSize = 10; // Số bác sĩ trên mỗi trang
 
-    @PostMapping("/admin/update-thuoc")
-    public String updateThuoc(Thuoc thuoc) {
-        thuocService.updateThuoc(thuoc);
-        return "redirect:/admin/qlt"; // Chuyển hướng lại trang quản lý thuốc sau khi cập nhật
-    }
-    
- // Hiển thị trang thêm thuốc
-    @GetMapping("/admin/add-thuoc")
-    public String showAddThuocForm(Model model) {
-        return "admin/quanlythuoc/addthuoc"; // Trả về trang thêm thuốc
-    }
-    
-    @PostMapping("/admin/add-thuoc")
-    public String addThuoc(@ModelAttribute Thuoc thuoc) {
-        thuocService.saveThuoc(thuoc); // Gọi service để lưu thuốc
-        return "redirect:/admin/qlt"; // Quay lại trang danh sách thuốc
-    }
-    
-    
- // AdminController.java
-    @GetMapping("/admin/add-chuyenkhoa")
-    public String showAddChuyenKhoaForm(Model model) {
-        return "admin/quanlychuyenkhoa/addchuyenkhoa"; // Trả về trang thêm chuyên khoa
-    }
+		Page<BacSi> doctorPage;
+		if (search != null && !search.isEmpty()) {
+			// Tìm kiếm theo số điện thoại
+			doctorPage = bacSiService.searchByPhone(search, PageRequest.of(page, pageSize));
+		} else {
+			// Hiển thị danh sách mặc định
+			doctorPage = bacSiService.getDoctorsPaginated(page, pageSize);
+		}
 
-    @PostMapping("/admin/add-chuyenkhoa")
-    public String addChuyenKhoa(@ModelAttribute ChuyenKhoa chuyenKhoa) {
-        if (chuyenKhoa.getChuyenKhoaId() == null) {
-            chuyenKhoa.setChuyenKhoaId(UUID.randomUUID().toString()); // Tạo UUID mới cho id nếu nó null
-        }
-        chuyenKhoaService.saveChuyenKhoa(chuyenKhoa); // Gọi service để lưu chuyên khoa
-        return "redirect:/admin/qlck"; // Quay lại trang danh sách chuyên khoa
-    }
-    
-  
-    
-    // Hiển thị form chỉnh sửa chuyên khoa
-    @GetMapping("/admin/qlck/edit-chuyenkhoa/{chuyenKhoaId}")
-    public String showEditChuyenKhoaForm(@PathVariable("chuyenKhoaId") String  chuyenKhoaId, Model model) {
-        ChuyenKhoa chuyenKhoa = chuyenKhoaService.getChuyenKhoaById(chuyenKhoaId);
-        model.addAttribute("chuyenKhoa", chuyenKhoa);
-        return "admin/quanlychuyenkhoa/editchuyenkhoa"; // Đường dẫn đến trang chỉnh sửa chuyên khoa
-    }
+		model.addAttribute("doctors", doctorPage.getContent());
+		model.addAttribute("currentPage", page);
+		model.addAttribute("totalPages", doctorPage.getTotalPages());
+		model.addAttribute("search", search); // Giữ giá trị ô tìm kiếm sau khi tìm
+		
+		 // Thêm thông báo nếu không tìm thấy kết quả
+	    model.addAttribute("noResults", doctorPage.getTotalElements() == 0);
+	    
+		return "admin/quanlybacsi/quanlybacsi";
+	}
 
-    @PostMapping("/admin/qlck/update-chuyenkhoa")
-    public String updateChuyenKhoa(@RequestParam String chuyenKhoaId, 
-                                   @RequestParam String ten) {
-        // Lấy chuyên khoa từ cơ sở dữ liệu dựa trên ID
-        ChuyenKhoa chuyenKhoa = chuyenKhoaService.getChuyenKhoaById(chuyenKhoaId);
-        if (chuyenKhoa != null) {
-            chuyenKhoa.setTen(ten);  // Cập nhật tên chuyên khoa
-            chuyenKhoaService.updateChuyenKhoa(chuyenKhoa);  // Gọi service để cập nhật
-        }
-        return "redirect:/admin/qlck";  // Chuyển hướng về trang danh sách chuyên khoa
-    }
-    
-    @GetMapping("/admin/qlbs/edit-chitiet/{bacSiId}")
-    public String showEditDoctorDetailsForm(@PathVariable("bacSiId") String bacSiId, Model model) {
-        BacSi doctor = bacSiService.getDoctorById(bacSiId);
-        model.addAttribute("doctor", doctor);
-        model.addAttribute("chiTietBacSi", doctor.getChiTietBacSi());
-        return "admin/quanlybacsi/editchitietbacsi"; // Trang mới để chỉnh sửa chi tiết bác sĩ
-    }
-    @PostMapping("/admin/qlbs/update-chitiet/{bacSiId}")
-    public String updateDoctorDetails(@PathVariable("bacSiId") String bacSiId, ChiTietBacSi updatedChiTiet) {
-        bacSiService.updateDoctorDetails(bacSiId, updatedChiTiet); // Viết một phương thức mới trong BacSiService để xử lý cập nhật
-        return "redirect:/admin/qlbs";  // Quay lại danh sách bác sĩ sau khi cập nhật
-    }
+	@GetMapping("/admin/qlck")
+	public String qlck(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "") String ten,
+	                   Model model) {
+	    int pageSize = 10; // Số chuyên khoa mỗi trang
+	    Page<ChuyenKhoa> chuyenKhoaPage;
+
+	    if (ten.isEmpty()) {
+	        chuyenKhoaPage = chuyenKhoaService.getChuyenKhoasPaginated(page, pageSize);
+	    } else {
+	        chuyenKhoaPage = chuyenKhoaService.searchChuyenKhoasPaginated(ten, page, pageSize);
+	    }
+
+	    model.addAttribute("chuyenkhoas", chuyenKhoaPage.getContent());
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", chuyenKhoaPage.getTotalPages());
+	    model.addAttribute("searchQuery", ten);
+
+	    // Add the noResults attribute
+	    model.addAttribute("noResults", chuyenKhoaPage.getTotalElements() == 0);
+
+	    return "admin/quanlychuyenkhoa/quanlychuyenkhoa";
+	}
+
+
+	@GetMapping("/admin/qlt")
+	public String qlt(@RequestParam(defaultValue = "0") int page, 
+	                  @RequestParam(defaultValue = "") String ten, 
+	                  Model model) {
+	    int pageSize = 10; // Number of drugs per page
+	    Page<Thuoc> thuocPage;
+
+	    if (ten.isEmpty()) {
+	        thuocPage = thuocService.getThuocsPaginated(page, pageSize);
+	    } else {
+	        thuocPage = thuocService.searchThuocsPaginated(ten, page, pageSize);
+	    }
+
+	    model.addAttribute("thuocs", thuocPage.getContent());
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", thuocPage.getTotalPages());
+	    model.addAttribute("searchQuery", ten); // Add the search query to the model
+
+	    // Add a flag for no results
+	    model.addAttribute("noResults", thuocPage.isEmpty()); // Indicate no results were found
+
+	    return "admin/quanlythuoc/quanlythuoc";
+	}
+
+
+
+	@GetMapping("/admin/qlbs/edit-bacsi/{bacSiId}")
+	public String showUpdateForm(@PathVariable("bacSiId") String bacSiId, Model model) {
+		BacSi doctor = bacSiService.getDoctorById(bacSiId);
+		// Chuyển đổi ngày sinh nếu cần
+		String formattedDate = doctor.getNgaySinh().toString();
+
+		model.addAttribute("doctor", doctor);
+		model.addAttribute("chuyenKhoas", chuyenKhoaService.getAllChuyenKhoa());
+		model.addAttribute("formattedDate", formattedDate);
+		return "admin/quanlybacsi/editbacsi";
+	}
+
+	// Cập nhật thông tin bác sĩ và chi tiết bác sĩ
+	@PostMapping("/admin/qlbs/update/{bacSiId}")
+	public String updateDoctor(@PathVariable("bacSiId") String bacSiId, BacSi updatedDoctor,
+			ChiTietBacSi updatedChiTiet) {
+		bacSiService.updateDoctor(bacSiId, updatedDoctor, updatedChiTiet);
+		return "redirect:/admin/qlbs";
+	}
+
+	@PostMapping("/admin/delete-thuoc")
+	public String deleteThuoc(@RequestParam Long thuocId) {
+		thuocService.deleteThuoc(thuocId);
+		return "redirect:/admin/qlt"; // Chuyển hướng lại trang quản lý thuốc sau khi xóa
+	}
+
+	@GetMapping("/admin/edit-thuoc")
+	public String editThuoc(@RequestParam Long thuocId, Model model) {
+		Thuoc thuoc = thuocService.getThuocById(thuocId);
+		model.addAttribute("thuoc", thuoc);
+		return "admin/quanlythuoc/editthuoc"; // Trang cập nhật thuốc
+	}
+
+	@PostMapping("/admin/update-thuoc")
+	public String updateThuoc(Thuoc thuoc) {
+		thuocService.updateThuoc(thuoc);
+		return "redirect:/admin/qlt"; // Chuyển hướng lại trang quản lý thuốc sau khi cập nhật
+	}
+
+	// Hiển thị trang thêm thuốc
+	@GetMapping("/admin/add-thuoc")
+	public String showAddThuocForm(Model model) {
+		return "admin/quanlythuoc/addthuoc"; // Trả về trang thêm thuốc
+	}
+
+	@PostMapping("/admin/add-thuoc")
+	public String addThuoc(@ModelAttribute Thuoc thuoc) {
+		thuocService.saveThuoc(thuoc); // Gọi service để lưu thuốc
+		return "redirect:/admin/qlt"; // Quay lại trang danh sách thuốc
+	}
+
+	// AdminController.java
+	@GetMapping("/admin/add-chuyenkhoa")
+	public String showAddChuyenKhoaForm(Model model) {
+		return "admin/quanlychuyenkhoa/addchuyenkhoa"; // Trả về trang thêm chuyên khoa
+	}
+
+	@PostMapping("/admin/add-chuyenkhoa")
+	public String addChuyenKhoa(@ModelAttribute ChuyenKhoa chuyenKhoa) {
+		if (chuyenKhoa.getChuyenKhoaId() == null) {
+			chuyenKhoa.setChuyenKhoaId(UUID.randomUUID().toString()); // Tạo UUID mới cho id nếu nó null
+		}
+		chuyenKhoaService.saveChuyenKhoa(chuyenKhoa); // Gọi service để lưu chuyên khoa
+		return "redirect:/admin/qlck"; // Quay lại trang danh sách chuyên khoa
+	}
+
+	// Hiển thị form chỉnh sửa chuyên khoa
+	@GetMapping("/admin/qlck/edit-chuyenkhoa/{chuyenKhoaId}")
+	public String showEditChuyenKhoaForm(@PathVariable("chuyenKhoaId") String chuyenKhoaId, Model model) {
+		ChuyenKhoa chuyenKhoa = chuyenKhoaService.getChuyenKhoaById(chuyenKhoaId);
+		model.addAttribute("chuyenKhoa", chuyenKhoa);
+		return "admin/quanlychuyenkhoa/editchuyenkhoa"; // Đường dẫn đến trang chỉnh sửa chuyên khoa
+	}
+
+	@PostMapping("/admin/qlck/update-chuyenkhoa")
+	public String updateChuyenKhoa(@RequestParam String chuyenKhoaId, @RequestParam String ten,
+			@RequestParam String moTa) {
+		// Lấy chuyên khoa từ cơ sở dữ liệu dựa trên ID
+		ChuyenKhoa chuyenKhoa = chuyenKhoaService.getChuyenKhoaById(chuyenKhoaId);
+		if (chuyenKhoa != null) {
+			chuyenKhoa.setTen(ten); // Cập nhật tên chuyên khoa
+			chuyenKhoa.setMoTa(moTa);
+			chuyenKhoaService.updateChuyenKhoa(chuyenKhoa); // Gọi service để cập nhật
+		}
+		return "redirect:/admin/qlck"; // Chuyển hướng về trang danh sách chuyên khoa
+	}
+
+	@GetMapping("/admin/qlbs/edit-chitiet/{bacSiId}")
+	public String showEditDoctorDetailsForm(@PathVariable("bacSiId") String bacSiId, Model model) {
+		BacSi doctor = bacSiService.getDoctorById(bacSiId);
+		model.addAttribute("doctor", doctor);
+		model.addAttribute("chiTietBacSi", doctor.getChiTietBacSi());
+		return "admin/quanlybacsi/editchitietbacsi"; // Trang mới để chỉnh sửa chi tiết bác sĩ
+	}
+
+	@PostMapping("/admin/qlbs/update-chitiet/{bacSiId}")
+	public String updateDoctorDetails(@PathVariable("bacSiId") String bacSiId, ChiTietBacSi updatedChiTiet) {
+		bacSiService.updateDoctorDetails(bacSiId, updatedChiTiet); // Viết một phương thức mới trong BacSiService để xử
+																	// lý cập nhật
+		return "redirect:/admin/qlbs"; // Quay lại danh sách bác sĩ sau khi cập nhật
+	}
 
 }

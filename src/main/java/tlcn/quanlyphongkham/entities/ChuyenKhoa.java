@@ -17,4 +17,7 @@ public class ChuyenKhoa implements Serializable {
 
     @Column(name = "ten", nullable = false, length = 100,columnDefinition = "nvarchar(100)")
     private String ten;
+    
+    @Column(name = "mo_ta", columnDefinition = "nvarchar(255)")
+    private String moTa; // Thêm trường mô tả
 }

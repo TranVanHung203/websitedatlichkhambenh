@@ -59,6 +59,9 @@ public class NguoiDungController {
 
 	@Autowired
 	private UserProfileService userProfileService;
+	
+	@Autowired
+	private ChuyenKhoaService chuyenKhoaService;
 
 	@Autowired
 	private BacSiService bacSiService;
@@ -81,6 +84,19 @@ public class NguoiDungController {
 		UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
 		model.addAttribute("nguoiDung", userProfile.getNguoiDung());
 		model.addAttribute("benhNhan", userProfile.getBenhNhan());
+
+		String benhNhanId = "720e1f4d-c14a-45c7-b8b8-ce0847c53e36"; // Thay bằng logic lấy ID bệnh nhân từ session hoặc
+																	// DTO
+
+		// Kiểm tra nếu ID bệnh nhân null hoặc không hợp lệ
+		if (benhNhanId == null || benhNhanId.isBlank()) {
+			model.addAttribute("lichSuKhams", Collections.emptyList());
+			return "benhnhan/editprofile/editprofile"; // Trả về view editprofile nếu không có ID
+		}
+
+		List<LichSuKhamDTO> lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhanId);
+		model.addAttribute("lichSuKhams", lichSuKhams);
+
 		return "benhnhan/editprofile/editprofile"; // Trả về view editprofile
 	}
 

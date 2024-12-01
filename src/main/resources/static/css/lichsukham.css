@@ -4,7 +4,7 @@ body {
     background-color: #f0f0f0;
     margin: 0;
     padding: 0;
-     padding-top: 100px; 
+    padding-top: 100px;
 }
 
 /* Tiêu đề trang */
@@ -12,8 +12,6 @@ h1 {
     text-align: center;
     color: #333;
     margin-top: 20px;
-   
-   
 }
 
 /* Định dạng chung cho phần tử form */
@@ -110,4 +108,61 @@ tr:nth-child(odd) {
 /* Định dạng khi hover trên các hàng trong bảng */
 tr:hover {
     background-color: #f9f9f9;
+}
+
+/* Phân trang */
+.pagination ul {
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.pagination li {
+    margin: 0 5px;
+}
+
+.pagination a {
+    text-decoration: none;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #007bff;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: inline-block;
+}
+
+.pagination li.active a {
+    font-weight: bold;
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #007bff;
+}
+
+.pagination a:hover {
+    background-color: #0056b3;
+    color: white;
+}
+
+.pagination .previous, .pagination .next {
+    font-weight: bold;
+    background-color: #6c757d;
+    color: white;
+}
+
+.pagination .previous a, .pagination .next a {
+    border: 1px solid #6c757d;
+}
+
+.pagination .previous a:hover, .pagination .next a:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.pagination .disabled a {
+    color: #ccc;
+    pointer-events: none;
+    border-color: #ccc;
 }

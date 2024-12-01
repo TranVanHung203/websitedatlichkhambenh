@@ -42,25 +42,30 @@ body {
     text-decoration: underline;
 }
 
-/* Navigation Styles */
 .edit-profile-nav ul {
-    display: flex;
-    justify-content: space-between;
-    list-style-type: none;
-    background-color: #2a7abd;
+    display: flex; /* Đặt các mục trong ul nằm theo hàng ngang */
+    justify-content: center; /* Canh giữa các mục */
+    list-style: none; /* Xóa dấu chấm đầu dòng */
+    padding: 0;
     margin: 0;
-    padding: 10px 20px;
+    background-color: #1976d2; /* Màu nền cho thanh navigation */
 }
 
 .edit-profile-nav ul li {
-    margin: 0 10px;
+    margin: 0 10px; /* Khoảng cách giữa các mục */
 }
 
 .edit-profile-nav ul li a {
-    color: white;
-    text-decoration: none;
+    text-decoration: none; /* Xóa gạch dưới của link */
+    color: white; /* Màu chữ */
     font-weight: bold;
-    font-size: 13px;
+    padding: 10px 20px; /* Tăng kích thước vùng click */
+    display: inline-block;
+}
+
+.edit-profile-nav ul li a:hover {
+    background-color: #1565c0; /* Màu nền khi hover */
+    border-radius: 4px; /* Làm tròn góc */
 }
 
 .edit-profile-nav ul li a.edit-profile img {
@@ -140,4 +145,79 @@ body {
 
 .save-changes-btn:hover {
     background-color: #365899;
+}
+
+/* Medical History Table Styles */
+.edit-profile-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.edit-profile-content table th,
+.edit-profile-content table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.edit-profile-content table th {
+    background-color: #1976d2;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.edit-profile-content table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.edit-profile-content table tr:hover {
+    background-color: #e9e9e9;
+}
+
+.edit-profile-content table td {
+    color: #333;
+    position: relative;
+}
+
+.edit-profile-content table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: 100px;
+    padding-right: 10px;
+    white-space: nowrap;
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .edit-profile-content table, 
+    .edit-profile-content table thead, 
+    .edit-profile-content table tbody, 
+    .edit-profile-content table th, 
+    .edit-profile-content table td, 
+    .edit-profile-content table tr {
+        display: block;
+        width: 100%;
+    }
+
+    .edit-profile-content table tr {
+        margin-bottom: 15px;
+    }
+
+    .edit-profile-content table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-left: 50%;
+        position: relative;
+    }
+
+    .edit-profile-content table td::before {
+        display: block;
+    }
 }

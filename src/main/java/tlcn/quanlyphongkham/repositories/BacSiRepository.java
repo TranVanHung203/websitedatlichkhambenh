@@ -13,7 +13,7 @@ import tlcn.quanlyphongkham.entities.ChuyenKhoa;
 @Repository
 public interface BacSiRepository extends JpaRepository<BacSi, String> {
 
-	 List<BacSi> findByChuyenKhoa(ChuyenKhoa chuyenKhoa);
+	List<BacSi> findByChuyenKhoa(ChuyenKhoa chuyenKhoa);
 
 	 BacSi findByBacSiId(String bacSiId);
 

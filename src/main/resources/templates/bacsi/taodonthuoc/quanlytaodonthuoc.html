@@ -2,62 +2,95 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Quản Lý Đơn Thuốc</title>
-	<link th:href="@{/css/headerbacsi.css}" rel="stylesheet">
-	<link th:href="@{/css/quanlytaodonthuoc.css}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Đơn Thuốc</title>
+    <link th:href="@{/css/headerbacsi.css}" rel="stylesheet">
+    <link th:href="@{/css/quanlytaodonthuoc.css}" rel="stylesheet">
+
+    <!-- Add SweetAlert CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.10/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.10/dist/sweetalert2.all.min.js"></script>
 </head>
 
 <body>
-	<div th:replace="bacsi/fragments/header :: header"></div>
+    <div th:replace="bacsi/fragments/header :: header"></div>
 
-	<h1>Quản Lý Đơn Thuốc</h1>
+    <h1>Quản Lý Đơn Thuốc</h1>
 
-	<!-- Bảng hiển thị danh sách đơn thuốc -->
-	<table>
-		<thead>
-			<tr>
-				<th>Bệnh Nhân</th>
-				<th>Chẩn Đoán</th>
-				<th>Thời Gian Tạo Đơn</th>
-				<th>Tên Thuốc</th>
-				<th>Liều Lượng</th>
-				<th>Tần Suất</th>
-				<th>Tổng Tiền Thuốc</th>
+    <!-- Display SweetAlert if flash message is present -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var message = /*[[${message}]]*/ '';
+        var error = /*[[${error}]]*/ '';
 
-			</tr>
-		</thead>
-		<tbody>
-			<!-- Lặp qua các đơn thuốc và hiển thị thông tin -->
-			<tr th:each="donThuoc : ${donThuocs}">
-				<td th:text="${donThuoc.hoSoBenh.benhNhan.ten}"></td> <!-- Hiển thị tên bệnh nhân -->
-				<td th:text="${donThuoc.hoSoBenh.chanDoan}"></td> <!-- Hiển thị chẩn đoán -->
-				<td th:text="${donThuoc.formattedDate}"></td> <!-- Hiển thị thời gian tạo đơn thuốc -->
-				<!-- Hiển thị thời gian tạo đơn thuốc -->
-				<td>
-					<ul> <!-- Lặp qua danh sách thuốc trong đơn thuốc -->
-						<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.thuoc.ten}"></li>
-					</ul>
-				</td>
-				<td>
-					<ul> <!-- Lặp qua danh sách liều trong đơn thuốc -->
-						<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.lieu}"></li>
-					</ul>
-				</td>
-				<td>
-					<ul> <!-- Lặp qua danh sách tần suất trong đơn thuốc -->
-						<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.tanSuat}"></li>
-					</ul>
-				</td>
-				<td th:text="${donThuoc.calculateTongTien()}"></td> <!-- Hiển thị tổng tiền thuốc -->
+        if (message) {
+            Swal.fire({
+                title: 'Thành công!',
+                text: message,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        }
 
-			</tr>
-		</tbody>
-	</table>
+        if (error) {
+            Swal.fire({
+                title: 'Lỗi!',
+                text: error,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+        /*]]>*/
+    </script>
 
-	<!-- Nút để chuyển đến trang tạo đơn thuốc -->
-	<button onclick="window.location.href='/bacsi/taodonthuoc'">Tạo Đơn Thuốc</button>
+    <!-- Bảng hiển thị danh sách đơn thuốc -->
+    <table>
+        <thead>
+            <tr>
+                <th>Bệnh Nhân</th>
+                <th>Chẩn Đoán</th>
+                <th>Thời Gian Tạo Đơn</th>
+                <th>Tên Thuốc</th>
+                <th>Liều Lượng/cử</th>
+                <th>Tần Suất/lần</th>
+                <th>Tổng Tiền Thuốc</th>
+                <th>Hành Động</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="donThuoc : ${donThuocs}">
+                <td th:text="${donThuoc.hoSoBenh.benhNhan.ten}"></td>
+                <td th:text="${donThuoc.hoSoBenh.chanDoan}"></td>
+                <td th:text="${donThuoc.formattedDate}"></td>
+                <td>
+                    <ul>
+                        <li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.thuoc.ten}"></li>
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        <li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.lieu}"></li>
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        <li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.tanSuat}"></li>
+                    </ul>
+                </td>
+                <td th:text="${donThuoc.calculateTongTien()}"></td>
+                <td>
+                    <form th:action="@{|/bacsi/xoadonthuoc/${donThuoc.donThuocId}|}" method="post">
+                        <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa đơn thuốc này?')">Xóa</button>
+                    </form>
+                    <a th:href="@{|/bacsi/capnhatdonthuoc?id=${donThuoc.donThuocId}|}" class="edit-button">Sửa</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button class="create-button" onclick="window.location.href='/bacsi/taodonthuoc'">Tạo Đơn Thuốc</button>
+
 </body>
 
 </html>

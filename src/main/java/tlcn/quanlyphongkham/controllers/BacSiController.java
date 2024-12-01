@@ -24,6 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -76,15 +77,6 @@ public class BacSiController {
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 	@GetMapping("/chuyenkhoa")
 	public ResponseEntity<List<ChuyenKhoa>> getAllChuyenKhoa() {
@@ -101,7 +93,7 @@ public class BacSiController {
 	@GetMapping("/bacsi/lichkham/viewck")
 	public String getLichKhamBenhTheoNgay(@RequestParam(value = "ngay", required = false) LocalDate ngay, Model model) {
 
-		String idBacSi = "f9dcf22c-ca7f-4259-b193-ff5de5f23563";
+		String idBacSi = "84960eeb-3ac9-4712-8418-68ecf7eae667";
 		if (ngay == null) {
 			ngay = LocalDate.now();
 		}
@@ -121,7 +113,7 @@ public class BacSiController {
 	public ResponseEntity<Map<String, String>> addLichKham(@RequestParam("ca") String ca,
 			@RequestParam("ngay") LocalDate ngay) {
 		try {
-			String idBacSi = "f9dcf22c-ca7f-4259-b193-ff5de5f23563"; // ID của bác sĩ
+			String idBacSi = "84960eeb-3ac9-4712-8418-68ecf7eae667"; // ID của bác sĩ
 
 			// Kiểm tra xem lịch khám đã tồn tại chưa
 			boolean exists = lichKhamBenhService.isLichKhamExist(idBacSi, ngay, ca);
@@ -163,7 +155,7 @@ public class BacSiController {
 
 	@GetMapping("/bacsi/editprofile")
 	public String editProfile(Model model) {
-		String bacSiId = "f9dcf22c-ca7f-4259-b193-ff5de5f23563"; // Example, replace with dynamic ID
+		String bacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667"; // Example, replace with dynamic ID
 
 		// Fetch personal info and details
 		EditProfileBSDTO personalInfo = bacSiService.getProfile(bacSiId);
@@ -230,7 +222,7 @@ public class BacSiController {
 			date = LocalDate.now(); // Nếu không có date, mặc định là ngày hiện tại
 		}
 
-		String bacSiId = "f9dcf22c-ca7f-4259-b193-ff5de5f23563";
+		String bacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667";
 		// Lấy danh sách lịch khám theo bác sĩ và ngày
 		List<LichKhamBenh> lichKhamList = lichKhamBenhService.getLichKhamByBacSiAndDate(bacSiId, date);
 
@@ -276,6 +268,74 @@ public class BacSiController {
 		model.addAttribute("donThuocs", donThuocs);
 		return "bacsi/taodonthuoc/quanlytaodonthuoc";
 	}
+	
+	
+	@PostMapping("/bacsi/xoadonthuoc/{id}")
+	public String deletePrescription(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+	    try {
+	        // Gọi service để xóa đơn thuốc và hồ sơ bệnh
+	        donThuocService.deleteDonThuocAndHoSoBenhById(id);
+	        redirectAttributes.addFlashAttribute("message", "Xóa đơn thuốc và hồ sơ bệnh thành công!");
+	    } catch (Exception e) {
+	        redirectAttributes.addFlashAttribute("error", "Xóa đơn thuốc hoặc hồ sơ bệnh thất bại!");
+	    }
+	    return "redirect:/bacsi/quanlytaodonthuoc";
+	}
+	
+	
+	
+	
+	
+	@GetMapping("/bacsi/capnhatdonthuoc")
+	public String showUpdateForm(@RequestParam("id") Long donThuocId, Model model) {
+	    DonThuoc donThuoc = donThuocService.findById(donThuocId);
+	    if (donThuoc == null) {
+	        model.addAttribute("errorMessage", "Không tìm thấy đơn thuốc.");
+	        return "redirect:/bacsi/quanlytaodonthuoc";
+	    }
+
+	    // Lấy thông tin bệnh nhân từ hồ sơ bệnh
+	    HoSoBenh hoSoBenh = donThuoc.getHoSoBenh();
+	    BenhNhan benhNhan = hoSoBenh != null ? hoSoBenh.getBenhNhan() : null;
+
+	    // Thêm vào model
+	    model.addAttribute("donThuoc", donThuoc);
+	    model.addAttribute("benhNhan", benhNhan); // Thêm bệnh nhân vào model
+	    return "bacsi/taodonthuoc/capnhatdonthuoc";
+	}
+	@PostMapping("/bacsi/capnhatdonthuoc")
+	@ResponseBody
+	public ResponseEntity<Map<String, String>> updateDonThuoc(
+	        @RequestParam("donThuocId") Long donThuocId,
+	        @RequestParam("hoSoId") String hoSoId,
+	        @RequestParam("chanDoan") String chanDoan,
+	        @RequestParam("benhNhanId") String benhNhanId, // Thêm tham số này
+	        @RequestParam(value = "drugIds[]", required = false) List<Long> drugIds,
+	        @RequestParam(value = "lieu[]", required = false) List<String> lieu,
+	        @RequestParam(value = "tanSuat[]", required = false) List<String> tanSuat,
+	        @RequestParam(value = "removedDrugIds", required = false) List<Long> removedDrugIds) {
+
+	    Map<String, String> response = new HashMap<>();
+	    try {
+	        // Gọi service để cập nhật đơn thuốc
+	        donThuocService.updateDonThuoc(donThuocId, hoSoId, chanDoan, benhNhanId, drugIds, lieu, tanSuat, removedDrugIds);
+	        response.put("status", "success");
+	        response.put("message", "Cập nhật đơn thuốc thành công.");
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        response.put("status", "error");
+	        response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	    }
+	}
+	
+	
+	
+	
+	
+	
+	
+
 
 	@GetMapping("/bacsi/taodonthuoc")
 	public String showCreatePrescriptionPage(Model model) {
@@ -289,51 +349,74 @@ public class BacSiController {
 		List<BenhNhanOfTaoDonThuocDTO> patients = hoSoBenhService.getBenhNhanInfoByDienThoai(phone);
 		return ResponseEntity.ok(patients);
 	}
+	
 
-	@PostMapping("/bacsi/quanlytaodonthuoc")
-	public String createPrescription(@RequestParam("chanDoan") String chanDoan,
-			@RequestParam("drugIds") List<Long> drugIds, @RequestParam("lieu") List<String> lieu,
-			@RequestParam("tanSuat") List<String> tanSuat, @RequestParam("benhNhanId") String benhNhanId, Model model) {
-		String fixedBacSiId = "f9dcf22c-ca7f-4259-b193-ff5de5f23563";
-		BacSi bacSi = bacSiService.findById(fixedBacSiId);
+	@PostMapping("/bacsi/taodonthuoc")
+	@ResponseBody
+	public ResponseEntity<Map<String, String>> createPrescription(
+	        @RequestParam("chanDoan") String chanDoan,
+	        @RequestParam("drugIds") List<Long> drugIds,
+	        @RequestParam("lieu") List<String> lieu,
+	        @RequestParam("tanSuat") List<String> tanSuat,
+	        @RequestParam("benhNhanId") String benhNhanId) {
 
-		
-		BenhNhan benhNhan = hoSoBenhService.findPatientById(benhNhanId);
-		if (benhNhan == null) {
-			model.addAttribute("errorMessage", "Bệnh nhân không hợp lệ!");
-			return "bacsi/taodonthuoc/taodonthuoc";
-		}
+	    String fixedBacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667";
+	    BacSi bacSi = bacSiService.findById(fixedBacSiId);
 
-		HoSoBenh hoSoBenh = new HoSoBenh();
-		hoSoBenh.setHoSoId(UUID.randomUUID().toString());
-		hoSoBenh.setChanDoan(chanDoan);
-		hoSoBenh.setBenhNhan(benhNhan);
-		hoSoBenh.setBacSi(bacSi);
-		hoSoBenhService.save(hoSoBenh);
+	    Map<String, String> response = new HashMap<>();
 
-		DonThuoc donThuoc = new DonThuoc();
-		donThuoc.setHoSoBenh(hoSoBenh);
+	    // Kiểm tra bệnh nhân
+	    BenhNhan benhNhan = hoSoBenhService.findPatientById(benhNhanId);
+	    if (benhNhan == null) {
+	        response.put("status", "error");
+	        response.put("message", "Không tìm thấy thông tin bệnh nhân, Kiểm tra lại số điện thoại!");
+	        return ResponseEntity.badRequest().body(response);
+	    }
 
-		List<DonThuocThuoc> donThuocThuocs = new ArrayList<>();
-		for (int i = 0; i < drugIds.size(); i++) {
-			Long thuocId = drugIds.get(i);
-			Thuoc thuoc = thuocService.findThuocById(thuocId);
+	    try {
+	        // Tạo hồ sơ bệnh
+	        HoSoBenh hoSoBenh = new HoSoBenh();
+	        hoSoBenh.setHoSoId(UUID.randomUUID().toString());
+	        hoSoBenh.setChanDoan(chanDoan);
+	        hoSoBenh.setBenhNhan(benhNhan);
+	        hoSoBenh.setBacSi(bacSi);
+	        hoSoBenhService.save(hoSoBenh);
 
-			DonThuocThuoc donThuocThuoc = new DonThuocThuoc();
-			donThuocThuoc.setDonThuoc(donThuoc);
-			donThuocThuoc.setThuoc(thuoc);
-			donThuocThuoc.setLieu(lieu.get(i));
-			donThuocThuoc.setTanSuat(tanSuat.get(i));
+	        // Tạo đơn thuốc
+	        DonThuoc donThuoc = new DonThuoc();
+	        donThuoc.setHoSoBenh(hoSoBenh);
 
-			donThuocThuocs.add(donThuocThuoc);
-		}
-		donThuoc.setDonThuocThuocs(donThuocThuocs);
-		donThuocService.save(donThuoc);
+	        List<DonThuocThuoc> donThuocThuocs = new ArrayList<>();
+	        for (int i = 0; i < drugIds.size(); i++) {
+	            Long thuocId = drugIds.get(i);
+	            Thuoc thuoc = thuocService.findThuocById(thuocId);
 
-		model.addAttribute("successMessage", "Đơn thuốc đã được tạo thành công!");
-		return "redirect:/bacsi/quanlytaodonthuoc";
+	            DonThuocThuoc donThuocThuoc = new DonThuocThuoc();
+	            donThuocThuoc.setDonThuoc(donThuoc);
+	            donThuocThuoc.setThuoc(thuoc);
+	            donThuocThuoc.setLieu(lieu.get(i));
+	            donThuocThuoc.setTanSuat(tanSuat.get(i));
+
+	            donThuocThuocs.add(donThuocThuoc);
+	        }
+	        donThuoc.setDonThuocThuocs(donThuocThuocs);
+	        donThuocService.save(donThuoc);
+
+	        response.put("status", "success");
+	        response.put("message", "Đơn thuốc đã được tạo thành công!");
+	        return ResponseEntity.ok(response);
+
+	    } catch (Exception e) {
+	        response.put("status", "error");
+	        response.put("message", "Đã xảy ra lỗi trong quá trình tạo đơn thuốc.");
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	    }
 	}
+	
 
+	
+	
+	
 	@GetMapping("/bacsi/searchpatient")
 	public String searchPatientById(@RequestParam("id") String patientId, Model model) {
 		BenhNhan patient = hoSoBenhService.findPatientById(patientId);
@@ -349,31 +432,37 @@ public class BacSiController {
 	}
 
 	@GetMapping("/bacsi/lichsukham")
-	public String getLichSuKham(@RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = "endDate", required = false) String endDate, Model model) {
+	public String getLichSuKham(
+	        @RequestParam(value = "startDate", required = false) String startDate,
+	        @RequestParam(value = "endDate", required = false) String endDate,
+	        @RequestParam(value = "page", defaultValue = "0") int page,
+	        @RequestParam(value = "size", defaultValue = "1") int size,
+	        Model model) {
 
-		String bacSiId = "f9dcf22c-ca7f-4259-b193-ff5de5f23563";
+	    String bacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667";
 
-		List<HoSoBenhDTO> hoSoBenhList = new ArrayList<>();
+	    Page<HoSoBenhDTO> hoSoBenhPage = Page.empty();
 
-		if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-			LocalDate startLocalDate = LocalDate.parse(startDate, formatter);
-			LocalDate endLocalDate = LocalDate.parse(endDate, formatter);
+	    if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	        LocalDate startLocalDate = LocalDate.parse(startDate, formatter);
+	        LocalDate endLocalDate = LocalDate.parse(endDate, formatter);
 
-			// Chuyển đổi LocalDate sang LocalDateTime
-			LocalDateTime startDateTime = startLocalDate.atStartOfDay();
-			LocalDateTime endDateTime = endLocalDate.atTime(23, 59, 59);
+	        LocalDateTime startDateTime = startLocalDate.atStartOfDay();
+	        LocalDateTime endDateTime = endLocalDate.atTime(23, 59, 59);
 
-			hoSoBenhList = hoSoBenhService.getHoSoBenhWithDonThuocByDateRangeAndDoctor(startDateTime, endDateTime,
-					bacSiId);
-		}
+	        Pageable pageable = PageRequest.of(page, size);
 
-		if (hoSoBenhList != null) {
-			model.addAttribute("hoSoBenhList", hoSoBenhList);
-		}
+	        hoSoBenhPage = hoSoBenhService.getHoSoBenhWithDonThuocByDateRangeAndDoctor(startDateTime, endDateTime, bacSiId, pageable);
+	    }
 
-		return "bacsi/lichsukham/lichsukham";
+	    model.addAttribute("startDate", startDate);
+	    model.addAttribute("endDate", endDate);
+	    model.addAttribute("hoSoBenhPage", hoSoBenhPage);
+
+	    return "bacsi/lichsukham/lichsukham";
 	}
-
+	
+	
+	
 }
