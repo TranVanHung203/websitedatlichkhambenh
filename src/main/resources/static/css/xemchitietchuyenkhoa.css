@@ -1,0 +1,81 @@
+/* Tối ưu bố cục cho toàn bộ trang */
+.chitietchuyenkhoa {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 76vh; /* Đảm bảo trang kéo dài hết chiều cao màn hình */
+}
+
+/* Tạo khoảng cách cho header */
+.chitietchuyenkhoa header {
+    margin-bottom: 20px;
+}
+
+/* Nội dung chính của trang */
+.chitietchuyenkhoa .content {
+    flex-grow: 1; /* Đảm bảo nội dung chiếm toàn bộ không gian còn lại */
+    margin: 40px 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Tiêu đề */
+.chitietchuyenkhoa h1 {
+    text-align: center;
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+/* Mô tả chuyên khoa */
+.chitietchuyenkhoa p {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #555;
+    text-align: justify;
+    margin-bottom: 20px;
+    padding: 0 20px;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Tạo hiệu ứng cho các tiêu đề khi di chuột */
+.chitietchuyenkhoa h1:hover {
+    color: #ff9900; /* Màu vàng cam khi hover */
+    cursor: pointer;
+}
+
+/* Cải thiện kiểu cho phần mô tả */
+.chitietchuyenkhoa .content p {
+    font-size: 18px;
+    color: #666;
+    line-height: 1.8;
+    margin-bottom: 30px;
+}
+
+/* Tối ưu hóa giao diện cho màn hình nhỏ */
+@media (max-width: 768px) {
+    .chitietchuyenkhoa h1 {
+        font-size: 28px;
+    }
+
+    .chitietchuyenkhoa p {
+        font-size: 16px;
+        padding: 0 15px;
+    }
+
+    /* Điều chỉnh khoảng cách cho mô tả */
+    .chitietchuyenkhoa .content {
+        padding: 15px;
+        margin: 15px 10px;
+    }
+}
