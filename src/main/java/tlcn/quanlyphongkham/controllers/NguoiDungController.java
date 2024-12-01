@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import tlcn.quanlyphongkham.dtos.BenhNhanDTO;
@@ -16,8 +17,10 @@ import tlcn.quanlyphongkham.dtos.LichSuKhamDTO;
 import tlcn.quanlyphongkham.dtos.TaiKhoanProfileDTO;
 import tlcn.quanlyphongkham.dtos.UserProfileDTO;
 import tlcn.quanlyphongkham.entities.BenhNhan;
+import tlcn.quanlyphongkham.entities.ChuyenKhoa;
 import tlcn.quanlyphongkham.entities.NguoiDung;
 import tlcn.quanlyphongkham.services.BenhNhanService;
+import tlcn.quanlyphongkham.services.ChuyenKhoaService;
 import tlcn.quanlyphongkham.services.HoSoBenhService;
 import tlcn.quanlyphongkham.services.NguoiDungService;
 import tlcn.quanlyphongkham.services.UserProfileService;
@@ -33,31 +36,36 @@ public class NguoiDungController {
 
 	@Autowired
 	private UserProfileService userProfileService;
+	
+	@Autowired
+	private ChuyenKhoaService chuyenKhoaService;
 
 	@Autowired
 	private HoSoBenhService hoSoBenhService;
 
 	String nguoiDungId = "4ca0ba0c-cbe4-4ce9-8a0a-04081769a37f";
 
-	  @GetMapping("/user/editprofile")
-	    public String editProfile(Model model) {
-	        UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
-	        model.addAttribute("nguoiDung", userProfile.getNguoiDung());
-	        model.addAttribute("benhNhan", userProfile.getBenhNhan());
+	@GetMapping("/user/editprofile")
+	public String editProfile(Model model) {
+		UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
+		model.addAttribute("nguoiDung", userProfile.getNguoiDung());
+		model.addAttribute("benhNhan", userProfile.getBenhNhan());
 
-	        String benhNhanId = "720e1f4d-c14a-45c7-b8b8-ce0847c53e36"; // Thay bằng logic lấy ID bệnh nhân từ session hoặc DTO
-	        
-	        // Kiểm tra nếu ID bệnh nhân null hoặc không hợp lệ
-	        if (benhNhanId == null || benhNhanId.isBlank()) {
-	            model.addAttribute("lichSuKhams", Collections.emptyList());
-	            return "benhnhan/editprofile/editprofile"; // Trả về view editprofile nếu không có ID
-	        }
+		String benhNhanId = "720e1f4d-c14a-45c7-b8b8-ce0847c53e36"; // Thay bằng logic lấy ID bệnh nhân từ session hoặc
+																	// DTO
 
-	        List<LichSuKhamDTO> lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhanId);
-	        model.addAttribute("lichSuKhams", lichSuKhams);
+		// Kiểm tra nếu ID bệnh nhân null hoặc không hợp lệ
+		if (benhNhanId == null || benhNhanId.isBlank()) {
+			model.addAttribute("lichSuKhams", Collections.emptyList());
+			return "benhnhan/editprofile/editprofile"; // Trả về view editprofile nếu không có ID
+		}
 
-	        return "benhnhan/editprofile/editprofile"; // Trả về view editprofile
-	    }
+		List<LichSuKhamDTO> lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhanId);
+		model.addAttribute("lichSuKhams", lichSuKhams);
+
+		return "benhnhan/editprofile/editprofile"; // Trả về view editprofile
+	}
+
 	@PostMapping("/user/updateprofile")
 	public String updateProfile(@ModelAttribute("nguoiDung") TaiKhoanProfileDTO tk,
 			@ModelAttribute("benhNhan") BenhNhanDTO benhNhanDTO, Model model) {
@@ -109,6 +117,21 @@ public class NguoiDungController {
 		return "redirect:/user/editprofile";
 	}
 
+	// Controller để xử lý các yêu cầu liên quan đến chuyên khoa
+	@GetMapping("/departments")
+	public String showDepartments(Model model) {
+	    // Lấy danh sách chuyên khoa từ service
+	    List<ChuyenKhoa> chuyenKhoas = chuyenKhoaService.getAllChuyenKhoa();
+	    model.addAttribute("chuyenKhoas", chuyenKhoas);
+	    return "benhnhan/xemchuyenkhoa/danhsachchuyenkhoa"; // Trang hiển thị danh sách chuyên khoa
+	}
 
+	@GetMapping("/departments/{chuyenKhoaId}")
+	public String showDepartmentDetails(@PathVariable String chuyenKhoaId, Model model) {
+	    // Lấy thông tin chuyên khoa từ service theo ID
+	    ChuyenKhoa chuyenKhoa = chuyenKhoaService.getChuyenKhoaById(chuyenKhoaId);
+	    model.addAttribute("chuyenKhoa", chuyenKhoa);
+	    return "benhnhan/xemchuyenkhoa/xemchitietchuyenkhoa"; // Trang chi tiết chuyên khoa
+	}
 
 }
