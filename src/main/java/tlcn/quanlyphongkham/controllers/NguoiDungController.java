@@ -468,7 +468,7 @@ public class NguoiDungController {
 
 		// Get paginated list of slots based on BenhNhan and date
 		Page<SlotThoiGian> slotPage = lichSuDatLichService.getLichSuDatLichByDateAndBenhNhanId(benhNhan.getBenhNhanId(),
-				filteredDate, page, 1);
+				filteredDate, page, 3);
 
 		model.addAttribute("slots", slotPage.getContent());
 		model.addAttribute("currentPage", page);
