@@ -43,7 +43,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/404").permitAll()
                         .requestMatchers("/forgetpass/**").permitAll()
-                        .requestMatchers("/register/**").permitAll()
+                        .requestMatchers("/register/**","/confirm","/reset-password","/forgot-password","/forgetpass").permitAll()
                         .requestMatchers("/ac_login").permitAll()
                         .requestMatchers("/admin/**").hasRole("Admin")
                         .requestMatchers("/user/**").hasRole("BenhNhan")
