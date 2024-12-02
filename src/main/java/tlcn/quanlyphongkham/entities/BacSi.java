@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,6 +20,7 @@ public class BacSi implements Serializable {
     private String bacSiId;
 
     @ManyToOne
+   
     @JoinColumn(name = "nguoi_dung_id")
     private NguoiDung nguoiDung;
 
@@ -39,6 +42,9 @@ public class BacSi implements Serializable {
 
     @Column(name = "gioi_tinh", length = 10, columnDefinition = "nvarchar(10)")
     private String gioiTinh;
+    
+    @Column(name = "url_avatar",columnDefinition = "nvarchar(100)")
+    private String urlAvatar;
     
     @OneToOne
     (mappedBy = "bacSi", cascade = CascadeType.ALL)

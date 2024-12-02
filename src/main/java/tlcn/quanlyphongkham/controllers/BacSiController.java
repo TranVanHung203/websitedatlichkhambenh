@@ -1,5 +1,10 @@
 package tlcn.quanlyphongkham.controllers;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -10,12 +15,15 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,8 +34,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.persistence.criteria.Path;
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
 import tlcn.quanlyphongkham.dtos.BenhNhanOfTaoDonThuocDTO;
 import tlcn.quanlyphongkham.dtos.ChiTietBacSiDTO;
@@ -43,6 +53,7 @@ import tlcn.quanlyphongkham.entities.HoSoBenh;
 import tlcn.quanlyphongkham.entities.LichKhamBenh;
 import tlcn.quanlyphongkham.entities.SlotThoiGian;
 import tlcn.quanlyphongkham.entities.Thuoc;
+import tlcn.quanlyphongkham.security.CustomUserDetails;
 import tlcn.quanlyphongkham.services.AppointmentService;
 import tlcn.quanlyphongkham.services.BacSiService;
 import tlcn.quanlyphongkham.services.ChuyenKhoaService;
@@ -71,8 +82,22 @@ public class BacSiController {
 	private DonThuocService donThuocService;
 
 	
-	
-	
+	public String getNguoiDungId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+
+            if (principal instanceof CustomUserDetails) {
+                CustomUserDetails customUserDetails = (CustomUserDetails) principal;
+                return customUserDetails.getNguoiDungId(); // Get the NguoiDungId as String
+                
+            }
+            else
+            	return null;
+        }else
+        	return null;
+    }
+	String nguoiDungId;
 
 	@GetMapping("/chuyenkhoa")
 	public ResponseEntity<List<ChuyenKhoa>> getAllChuyenKhoa() {
@@ -89,7 +114,9 @@ public class BacSiController {
 	@GetMapping("/bacsi/lichkham/viewck")
 	public String getLichKhamBenhTheoNgay(@RequestParam(value = "ngay", required = false) LocalDate ngay, Model model) {
 
-		String idBacSi = "84960eeb-3ac9-4712-8418-68ecf7eae667";
+		nguoiDungId=getNguoiDungId();
+		BacSi bacSi=bacSiService.findByNguoiDungId(nguoiDungId);
+		String idBacSi = bacSi.getBacSiId();
 		if (ngay == null) {
 			ngay = LocalDate.now();
 		}
@@ -109,7 +136,9 @@ public class BacSiController {
 	public ResponseEntity<Map<String, String>> addLichKham(@RequestParam("ca") String ca,
 			@RequestParam("ngay") LocalDate ngay) {
 		try {
-			String idBacSi = "84960eeb-3ac9-4712-8418-68ecf7eae667"; // ID của bác sĩ
+			nguoiDungId=getNguoiDungId();
+			BacSi bacSi=bacSiService.findByNguoiDungId(nguoiDungId);
+			String idBacSi = bacSi.getBacSiId(); // ID của bác sĩ
 
 			// Kiểm tra xem lịch khám đã tồn tại chưa
 			boolean exists = lichKhamBenhService.isLichKhamExist(idBacSi, ngay, ca);
@@ -151,7 +180,9 @@ public class BacSiController {
 
 	@GetMapping("/bacsi/editprofile")
 	public String editProfile(Model model) {
-		String bacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667"; // Example, replace with dynamic ID
+		nguoiDungId=getNguoiDungId();
+		BacSi bacSi=bacSiService.findByNguoiDungId(nguoiDungId);
+		String bacSiId = bacSi.getBacSiId(); // Example, replace with dynamic ID
 
 		// Fetch personal info and details
 		EditProfileBSDTO personalInfo = bacSiService.getProfile(bacSiId);
@@ -159,6 +190,7 @@ public class BacSiController {
 
 		// Fetch available specialties
 		List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa();
+		System.out.println("Avatar URL: " + personalInfo.getAvatarurl());
 
 		model.addAttribute("personalInfo", personalInfo);
 		model.addAttribute("detailInfo", detailInfo);
@@ -166,19 +198,48 @@ public class BacSiController {
 
 		return "bacsi/chinhsuathongtinbs/chinhsuathongtinbs"; // Your Thymeleaf template
 	}
+	
+	  @Value("${upload.path}")
+	    private String uploadDir;
+	  
 
-	// Cập nhật thông tin cá nhân và chi tiết của bác sĩ
-	@PostMapping("/updateProfile")
-	public String updateProfile(@ModelAttribute EditProfileBSDTO profileDTO, @ModelAttribute ChiTietBacSiDTO detailDTO,
-			Model model) {
-		String bacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667"; // Có thể lấy từ session hoặc tham số
+	  @PostMapping("/updateProfile")
+	  public String updateProfile(@ModelAttribute EditProfileBSDTO profileDTO, 
+	                              @ModelAttribute ChiTietBacSiDTO detailDTO,
+	                              @RequestParam("avatar") MultipartFile avatar, 
+	                              Model model) throws IOException {
+	      String bacSiId = profileDTO.getBacSiId(); // Get the doctor ID
 
-		// Cập nhật thông tin cá nhân và chi tiết
-		String personalUpdateResult = bacSiService.updateProfile(profileDTO);
-		String detailUpdateResult = bacSiService.updateDetail(detailDTO);
+	      if (!avatar.isEmpty()) {
+	          // Generate a new filename
+	          String fileName = bacSiId + "-" + avatar.getOriginalFilename();
+	          // Path where the file will be stored
+	          String uploadDir = System.getProperty("user.dir") + "/uploads/";
 
-		return "redirect:/bacsi/editprofile";
-	}
+	          // Create the directory if it doesn't exist
+	          File directory = new File(uploadDir);
+	          if (!directory.exists()) {
+	              directory.mkdirs();
+	          }
+
+	          // Save the file to the server
+	          java.nio.file.Path filePath = Paths.get(uploadDir, fileName);
+	          Files.copy(avatar.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+	          // Set the URL of the uploaded image
+	          profileDTO.setAvatarurl("/uploads/" + fileName); // Store the relative URL
+	      }
+
+	      // Update the profile and details
+	      bacSiService.updateProfile(profileDTO);
+	      bacSiService.updateDetail(detailDTO);
+
+	      return "redirect:/bacsi/editprofile";
+	  }
+
+
+	    // Helper method to save the avatar image and return its URL
+	   
 
 	@GetMapping("/bacsi/xemlichhen")
 	public String getLichKham(
@@ -188,7 +249,9 @@ public class BacSiController {
 			date = LocalDate.now(); // Nếu không có date, mặc định là ngày hiện tại
 		}
 
-		String bacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667";
+		nguoiDungId=getNguoiDungId();
+		BacSi bacSi=bacSiService.findByNguoiDungId(nguoiDungId);
+		String bacSiId = bacSi.getBacSiId();
 		// Lấy danh sách lịch khám theo bác sĩ và ngày
 		List<LichKhamBenh> lichKhamList = lichKhamBenhService.getLichKhamByBacSiAndDate(bacSiId, date);
 
@@ -342,7 +405,9 @@ public class BacSiController {
 	        @RequestParam("tanSuat") List<String> tanSuat,
 	        @RequestParam("benhNhanId") String benhNhanId) {
 
-	    String fixedBacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667";
+		nguoiDungId=getNguoiDungId();
+		BacSi bacSi1=bacSiService.findByNguoiDungId(nguoiDungId);
+		String fixedBacSiId = bacSi1.getBacSiId();
 	    BacSi bacSi = bacSiService.findById(fixedBacSiId);
 
 	    Map<String, String> response = new HashMap<>();
@@ -421,7 +486,9 @@ public class BacSiController {
 	        @RequestParam(value = "size", defaultValue = "5") int size,
 	        Model model) {
 
-	    String bacSiId = "84960eeb-3ac9-4712-8418-68ecf7eae667";
+		nguoiDungId=getNguoiDungId();
+		BacSi bacSi=bacSiService.findByNguoiDungId(nguoiDungId);
+		String bacSiId = bacSi.getBacSiId();
 
 	    Page<HoSoBenhDTO> hoSoBenhPage = Page.empty();
 

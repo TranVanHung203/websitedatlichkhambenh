@@ -1,26 +1,29 @@
 <header th:fragment="header">
-    <div class="top-bar">
+    <div class="custom-header top-bar">
         <div class="logo">
             <img th:src="@{/images/logobenhvien.png}" alt="Logo" class="logo-img">
         </div>
 
         <div class="contact-info">
-            <p>1-3, 6-8, 9-15 Trinh Van Can, P. Cầu Ông Lãnh, Q1, TPHCM</p>
-            <p>HOTLINE: (028) 38.213.456</p>
-            <p>Mail: info@example.com</p>
+            <p>Số 1 Võ Văn Ngân, Thành Phố Thủ Đức</p>
+            <p>HOTLINE: 0901610273</p>
+            <p>Mail: 21110889@student.hcmute.edu.vn</p>
         </div>
     </div>
-
-    <nav>
+    <nav class="custom-header">
         <ul>
-            <li><a th:href="@{/about}">Giới Thiệu</a></li>
-            <li><a th:href="@{/doctors}">Bác Sĩ</a></li>
-            <!-- Cập nhật lại đường dẫn -->
+            <li><a th:href="@{/home}">Giới Thiệu</a></li>
+            <li class="custom-header-dropdown">
+                <a class="dropdown-toggle">Bác Sĩ</a>
+                <ul class="dropdown-menu">
+                    <li><a th:href="@{/view/schedule}">Lịch Làm Việc</a></li>
+                    <li><a th:href="@{/findbs}">Đội Ngũ Bác Sĩ</a></li>
+                </ul>
+            </li>
             <li><a th:href="@{/departments}">Chuyên Khoa</a></li>
-            <li><a th:href="@{/health-check}">Tầm Soát Sức Khỏe</a></li>
-            <li><a th:href="@{/customer-services}">Dịch Vụ Khách Hàng</a></li>
-            <li><a th:href="@{/knowledge}">Kiến Thức</a></li>
-            <li><a th:href="@{/recruitment}">Tuyển Dụng</a></li>
+            <li><a th:href="@{/user/dangkylichkham}">Đặt lịch khám</a></li>
+            <li><a th:href="@{/user/lichsudatlich}">Xem lịch hẹn</a></li>
+           
             <li>
                 <a th:href="@{/user/editprofile}" class="edit-profile">
                     <img th:src="@{/images/logoeditprofile.png}" alt="Edit Profile" width="20px" class="edit-icon">
@@ -30,10 +33,4 @@
             <li><a th:href="@{/logout}" class="logout">Đăng Xuất</a></li>
         </ul>
     </nav>
-    
-    
-    <style>
-		
-		
-	</style>
 </header>

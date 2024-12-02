@@ -9,12 +9,12 @@ body {
 
 /* Main Banner */
 .banner {
-    background: url('banner-image.jpg') no-repeat center center/cover;
+   
     height: 350px;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
+    color: red;
     text-align: center;
 }
 

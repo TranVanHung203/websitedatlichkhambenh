@@ -1,230 +1,225 @@
 /* General Styles */
 body {
-	font-family: Arial, sans-serif;
-	margin: 0;
-	padding: 0;
-	background-color: #f0f2f5;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f2f5;
 }
 
 /* Container Layout */
 .edit-profile-container {
-	display: flex;
-	margin: 20px;
+  display: flex;
+  margin: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
 }
 
 /* Sidebar Styles */
-.edit-profile-sidebar {
-	width: 250px;
-	background-color: white;
-	border-radius: 10px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	padding: 20px;
+.edit-profile-nav {
+  width: 250px;
+  background-color: #1976d2;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
 }
 
-.edit-profile-sidebar ul {
-	list-style: none;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
+.edit-profile-nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.edit-profile-sidebar ul li {
-	margin-bottom: 15px;
+.edit-profile-nav ul li {
+  margin-bottom: 15px;
 }
 
-.edit-profile-sidebar ul li a {
-	text-decoration: none;
-	color: #4267B2;
-	font-weight: bold;
+.edit-profile-nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
 }
 
-.edit-profile-sidebar ul li a:hover {
-	text-decoration: underline;
+.edit-profile-nav ul li a:hover {
+  color: #1565c0;
 }
 
 /* Edit Profile Section */
 .edit-profile-content {
-	flex-grow: 1;
-	background-color: white;
-	margin-left: 20px;
-	border-radius: 10px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	padding: 20px;
+  flex-grow: 1;
+  margin-left: 20px;
 }
 
-.edit-profile-form h3 {
-	margin-top: 20px;
-	color: #4267B2;
+.edit-profile-content h3 {
+  color: #000000;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.edit-profile-content label {
+  display: block;
+  margin: 10px 0 5px;
+  font-weight: bold;
 }
 
 /* Edit Form Styles */
-.edit-profile-form label {
-	display: block;
-	margin: 10px 0 5px;
-	font-weight: bold;
+.edit-profile-content input,
+.edit-profile-content select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 16px;
 }
 
-.edit-profile-form input,
-.edit-profile-form select {
-	width: 100%;
-	padding: 10px;
-	margin-bottom: 15px;
-	border-radius: 5px;
-	border: 1px solid #ccc;
-	box-sizing: border-box;
+.edit-profile-content select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
 }
 
-/* Edit Form Section */
+/* Tab Section */
 .edit-profile-form .edit-form-section {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
-/* Form input and select fields */
 .edit-profile-form .edit-form-section input,
 .edit-profile-form .edit-form-section select {
-	flex: 1 1 calc(50% - 20px);
-	min-width: 250px;
+  flex: 1 1 calc(50% - 20px);
+  min-width: 250px;
 }
 
 /* Table Styles */
 .edit-profile-content table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-top: 20px;
-	border-radius: 10px;
-	overflow: hidden;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Cột tiêu đề và dữ liệu */
 .edit-profile-content table th,
 .edit-profile-content table td {
-	padding: 10px 15px;
-	text-align: center;
-	font-size: 14px;
-	/* Đồng nhất phông chữ nhỏ hơn */
-	border-bottom: 1px solid #ddd;
+  padding: 10px 15px;
+  text-align: center;
+  font-size: 14px;
+  border-bottom: 1px solid #ddd;
 }
 
-/* Cột tiêu đề */
 .edit-profile-content table th {
-	background-color: #1976d2;
-	color: white;
-	font-weight: bold;
-	text-transform: uppercase;
+  background-color: #1976d2;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
-/* Cột dữ liệu */
 .edit-profile-content table td {
-	color: #333;
-	position: relative;
+  color: #333;
+  position: relative;
 }
 
-/* Cột đôi khi có thông tin bị dài, giảm chiều rộng */
 .edit-profile-content table td,
 .edit-profile-content table th {
-	word-wrap: break-word;
-	max-width: 200px;
-	/* Đảm bảo các cột không quá rộng */
+  word-wrap: break-word;
+  max-width: 200px;
 }
 
-/* Hiệu ứng hover */
 .edit-profile-content table tr:nth-child(even) {
-	background-color: #f2f2f2;
+  background-color: #f2f2f2;
 }
 
 .edit-profile-content table tr:hover {
-	background-color: #e9e9e9;
-}
-
-/* Mã hiệu ứng khi hover vào cột */
-.edit-profile-content table td::before {
-	content: attr(data-label);
-	position: absolute;
-	left: 10px;
-	width: 100px;
-	padding-right: 10px;
-	white-space: nowrap;
-	display: none;
-}
-
-/* Điều chỉnh bảng cho các màn hình nhỏ */
-@media (max-width: 768px) {
-
-	.edit-profile-content table,
-	.edit-profile-content table thead,
-	.edit-profile-content table tbody,
-	.edit-profile-content table th,
-	.edit-profile-content table td,
-	.edit-profile-content table tr {
-		display: block;
-		width: 100%;
-	}
-
-	.edit-profile-content table tr {
-		margin-bottom: 15px;
-	}
-
-	.edit-profile-content table td {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding-left: 50%;
-		position: relative;
-	}
-
-	.edit-profile-content table td::before {
-		display: block;
-	}
+  background-color: #e9e9e9;
 }
 
 /* Pagination Styles */
 .pagination-container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
 }
 
 .pagination-prev,
 .pagination-next {
-	color: #fff;
-	padding: 10px 20px;
-	margin: 0 10px;
-	border-radius: 5px;
-	text-decoration: none;
-	transition: background-color 0.3s ease, transform 0.2s ease;
-	cursor: pointer;
-	border: 2px solid rgb(2, 121, 253);
+  margin: 0 15px;
 }
 
-.pagination-prev:hover,
-.pagination-next:hover {
-	transform: scale(1.1);
-	background-color: rgb(2, 121, 253);
+.pagination-prev a,
+.pagination-next a {
+  text-decoration: none;
+  color: #1976d2;
+  font-weight: bold;
 }
 
-.pagination-prev:disabled,
-.pagination-next:disabled {
-	background-color: #cccccc;
-	cursor: not-allowed;
+.pagination-prev a:hover,
+.pagination-next a:hover {
+  color: #1565c0;
 }
 
 .pagination-info {
-	font-size: 16px;
-	color: #333;
-	margin: 0 10px;
+  font-size: 16px;
+  color: #555;
 }
 
-.pagination-prev:hover,
-.pagination-next:hover {
-	background-color: rgb(2, 121, 253);
-	color: white;
-	border-radius: 5px;
+/* Styling for Buttons and Inputs */
+input[type="submit"],
+button {
+  background-color: #1976d2;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
+input[type="submit"]:hover,
+button:hover {
+  background-color: #1565c0;
+}
 
+input[type="submit"]:disabled,
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
 
+/* Responsive Design */
+@media (max-width: 768px) {
+  .edit-profile-container {
+    flex-direction: column;
+  }
 
+  .edit-profile-nav {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .edit-profile-content {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .edit-profile-nav {
+    font-size: 14px;
+  }
+
+  .edit-profile-content h3 {
+    font-size: 18px;
+  }
+
+  .edit-profile-content input,
+  .edit-profile-content select {
+    font-size: 14px;
+  }
+}

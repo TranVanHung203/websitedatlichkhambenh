@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -34,4 +35,10 @@ public class NguoiDung implements Serializable {
     
     @Column(name = "token")
     private String token;
+    
+    @OneToMany(mappedBy = "nguoiDung", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BacSi> bacSis;
+
+    @OneToMany(mappedBy = "nguoiDung", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BenhNhan> benhNhans;
 }

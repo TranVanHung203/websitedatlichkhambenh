@@ -15,11 +15,20 @@ public interface BacSiRepository extends JpaRepository<BacSi, String> {
 
 	List<BacSi> findByChuyenKhoa(ChuyenKhoa chuyenKhoa);
 
-	BacSi findByBacSiId(String bacSiId);
+	 BacSi findByBacSiId(String bacSiId);
 
-	Page<BacSi> findAll(Pageable pageable);
-	
-	
+	Page<BacSi> findByChuyenKhoa_ChuyenKhoaId(String chuyenKhoaId, Pageable pageable);
+
+
+	Page<BacSi> findByChuyenKhoa_Ten(String tenChuyenKhoa, Pageable pageable);
+
+	Page<BacSi> findByTenContainingIgnoreCase(String doctorName, Pageable pageable);
+
+	Page<BacSi> findByTenContainingIgnoreCaseAndChuyenKhoa_Ten(String doctorName, String section, Pageable pageable);
+
 	Page<BacSi> findByDienThoaiContaining(String phone, Pageable pageable);
+
+	BacSi findByNguoiDung_NguoiDungId(String nguoiDungId);
+
 
 }

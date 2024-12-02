@@ -1,7 +1,9 @@
 package tlcn.quanlyphongkham.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import tlcn.quanlyphongkham.dtos.DangKyDTO;
 import tlcn.quanlyphongkham.entities.BenhNhan;
@@ -28,36 +31,30 @@ public class WebController {
     
     @Autowired
     private EmailService emailService;
+
     
-    @PostMapping("/login")
-    public String login(@RequestParam("tenDangNhapOrEmail") String tenDangNhapOrEmail, 
-                        @RequestParam("password") String password, 
-                        Model model, HttpSession session) {
-        
-        // Kiểm tra thông tin đăng nhập
-        NguoiDung user = nguoiDungService.validateLogin(tenDangNhapOrEmail, password);
-        
-        // Kiểm tra xem username và password có phải là null hoặc rỗng không
-        if (tenDangNhapOrEmail == null || tenDangNhapOrEmail.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            model.addAttribute("error", "Tên đăng nhập hoặc mật khẩu không được để trống.");
-            return "web/dangnhap/dangnhap"; // Quay lại trang đăng nhập với thông báo lỗi
+    
+   
+
+    
+	@GetMapping("/ac_login")
+	public String showLoginForm(HttpServletRequest request, Model model) {
+		HttpSession session = request.getSession(false);
+        String errorMessage = null;
+        if (session != null) {
+            AuthenticationException ex = (AuthenticationException) session
+                    .getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+            if (ex != null) {
+                errorMessage = ex.getMessage();
+            }
         }
+        
+        model.addAttribute("typenotify", "error");
+        model.addAttribute("mess", errorMessage);
+        
+		return "web/dangnhap/dangnhap";
+	}
 
-        System.out.println("Đang kiểm tra đăng nhập - Username: " + tenDangNhapOrEmail);
-
-
-        if (user != null) {
-            // Nếu thông tin đăng nhập đúng, lưu người dùng vào session
-            session.setAttribute("loggedUser", user);
-            System.out.println("Đăng nhập thành công cho người dùng: " + tenDangNhapOrEmail);
-            return "redirect:/home"; // Chuyển hướng đến trang chủ sau khi đăng nhập thành công
-        } else {
-            // Nếu sai tên đăng nhập hoặc mật khẩu, thông báo lỗi
-            model.addAttribute("error", "Tên đăng nhập hoặc mật khẩu không đúng.");
-            System.out.println("Đăng nhập thất bại cho người dùng: " + tenDangNhapOrEmail);
-            return "web/dangnhap/dangnhap"; // Quay lại trang đăng nhập với thông báo lỗi
-        }
-    }
 
    
     
@@ -94,7 +91,8 @@ public class WebController {
         nguoiDung.setTenDangNhap(dangKyDTO.getTenDangNhap());
         nguoiDung.setMatKhau(encodedPassword);
         nguoiDung.setEmail(dangKyDTO.getEmail());
-        nguoiDung.setVaiTro("USER"); // Gán vai trò mặc định là USER
+        nguoiDung.setVaiTro("BenhNhan"); 
+        nguoiDung.setTrangthai("DISABLE");// Gán vai trò mặc định là USER
 
         nguoiDungService.saveNguoiDung(nguoiDung);
 
@@ -107,6 +105,7 @@ public class WebController {
         benhNhan.setGioiTinh(dangKyDTO.getGioiTinh());
         benhNhan.setDienThoai(dangKyDTO.getDienThoai());
         benhNhan.setDiaChi(dangKyDTO.getDiaChi());
+        
 
         benhNhanService.save(benhNhan);
 
@@ -119,7 +118,7 @@ public class WebController {
                            + "http://localhost:8181/confirm?token=" + token;
         emailService.sendEmail(nguoiDung.getEmail(), "Xác nhận đăng ký tài khoản", emailBody);
         
-        return "redirect:/login";
+        return "/web/dangky/yeucauxacthuc";
     }
     
     @GetMapping("/confirm")

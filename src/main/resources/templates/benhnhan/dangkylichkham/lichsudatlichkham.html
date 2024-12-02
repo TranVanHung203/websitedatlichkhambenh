@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử Đặt Lịch Khám Bệnh</title>
+    <link th:href="@{/css/lichsudatlichkham.css}" rel="stylesheet">
+    <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+    <link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+</head>
+<body>
+	<div th:replace="benhnhan/fragments/header :: header"></div>
+    <div class="history-container">
+        <h1>Lịch Sử Đặt Lịch Khám Bệnh</h1>
+
+        <!-- Bộ lọc tìm kiếm theo ngày -->
+        <div class="history-filter-container">
+            <label for="date">Ngày:</label>
+            <input type="date" id="date" name="date" th:value="${date}" />
+            <button class="history-filter-btn" onclick="filterDate(event)">Lọc</button>
+        </div>
+
+        <!-- Bảng lịch sử đặt lịch khám bệnh -->
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Bác Sĩ</th>
+                    <th>Ngày</th>
+                    <th>Giờ</th>
+                    <th>Hủy</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="slot : ${slots}">
+                    <td th:text="${slot.lichKhamBenh.bacSi.ten}">Dr. Nguyễn Văn A</td>
+                    <td th:text="${slot.lichKhamBenh.ngayThangNam}">10/12/2024</td>
+                    <td th:text="${slot.thoiGianBatDau}">08:00</td>
+                    <td>
+                        <!-- Form ẩn gửi yêu cầu hủy -->
+                        <form th:action="@{/user/cancel}" method="post" style="display:inline;">
+                            <!-- Trường ẩn chứa slotId -->
+                            <input type="hidden" name="slotId" th:value="${slot.slotId}" />
+                            <!-- Trường ẩn chứa date -->
+                            <input type="hidden" name="date" th:value="${date}" />
+                            <!-- Trường ẩn chứa page -->
+                            <input type="hidden" name="page" th:value="${currentPage}" />
+                            
+                            <!-- Nút hủy -->
+                            <button type="submit" class="history-cancel-btn">Hủy</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Phân trang -->
+        <div class="history-pagination">
+            <button th:class="${currentPage == 0 ? 'disabled' : ''}" th:data-page="${currentPage - 1}" onclick="navigatePage(event)">« Trước</button>
+            <span>Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
+            <button th:class="${currentPage == totalPages - 1 ? 'disabled' : ''}" th:data-page="${currentPage + 1}" onclick="navigatePage(event)">Tiếp »</button>
+        </div>
+    </div>
+        <div th:replace="benhnhan/fragments/footer :: footer"></div>
+
+    <script>
+        function filterDate(event) {
+            var date = document.getElementById('date').value; // Get the value directly from the input field
+            if (date) {
+                window.location.href = '/user/lichsudatlich?date=' + date;
+            } else {
+                alert('Vui lòng chọn ngày!');
+            }
+        }
+
+        function navigatePage(event) {
+            var page = event.target.getAttribute('data-page');
+            var date = document.getElementById('date').value || '${date}'; // Default to the current date if not selected
+            window.location.href = '/user/lichsudatlich?date=' + date + '&page=' + page;
+        }
+    </script>
+</body>
+</html>

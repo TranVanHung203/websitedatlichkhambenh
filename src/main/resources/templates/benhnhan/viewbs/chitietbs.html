@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Tin Bác Sĩ</title>
+    <link rel="stylesheet" href="/css/chitietbs.css">
+    <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+    <link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Include Header -->
+    <div th:replace="benhnhan/fragments/header :: header"></div>
+    <div class="doctor-tabs-container">
+        <!-- Avatar and Basic Info -->
+        <div class="doctor-profile">
+            <div class="avatar-container">
+                <!-- Hiển thị ảnh đại diện của bác sĩ -->
+                <img th:src="@{${bacSi.urlAvatar}}" alt="Ảnh Đại Diện Bác Sĩ" class="doctor-avatar" />
+            </div>
+            <div class="doctor-info">
+                <!-- Hiển thị tên và thông tin cơ bản của bác sĩ -->
+                <h1 th:text="${bacSi.ten}">Hoàng Lương</h1>
+                <p><strong>Chuyên Khoa:</strong> <span th:text="${bacSi.chuyenKhoa != null ? bacSi.chuyenKhoa.ten : ''}">Tai Mũi Họng</span></p>
+                <p><strong>Điện Thoại:</strong> <span th:text="${bacSi.dienThoai != null ? bacSi.dienThoai : ''}">0901234567</span></p>
+                <p><strong>Địa Chỉ:</strong> <span th:text="${bacSi.diaChi != null ? bacSi.diaChi : ''}">123 Đường ABC, Quận 1, TP.HCM</span></p>
+            </div>
+        </div>
+
+        <!-- Tab menu -->
+        <div class="tabs">
+            <button class="tab-link active" onclick="openTab(event, 'basic-info')">Thông Tin Cơ Bản</button>
+            <button class="tab-link" onclick="openTab(event, 'details-info')">Thông Tin Chi Tiết</button>
+        </div>
+
+        <!-- Tab content -->
+        <div id="basic-info" class="tab-content active">
+            <h2>Thông Tin Cơ Bản</h2>
+            <p><strong>Họ và Tên:</strong> <span th:text="${bacSi.ten}">Hoàng Lương</span></p>
+            <p><strong>Ngày Sinh:</strong> <span th:text="${formattedDate != null ? formattedDate : ''}">15/05/1960</span></p>
+
+            <p><strong>Giới Tính:</strong> <span th:text="${bacSi.gioiTinh != null ? bacSi.gioiTinh : ''}">Nam</span></p>
+            <p><strong>Điện Thoại:</strong> <span th:text="${bacSi.dienThoai != null ? bacSi.dienThoai : ''}">0901234567</span></p>
+            <p><strong>Địa Chỉ:</strong> <span th:text="${bacSi.diaChi != null ? bacSi.diaChi : ''}">123 Đường ABC, Quận 1, TP.HCM</span></p>
+            <p><strong>Chuyên Khoa:</strong> <span th:text="${bacSi.chuyenKhoa != null ? bacSi.chuyenKhoa.ten : ''}">Tai Mũi Họng</span></p>
+        </div>
+
+        <div id="details-info" class="tab-content">
+            <h2>Thông Tin Chi Tiết</h2>
+            <p><strong>Bằng Cấp:</strong> <span th:text="${bacSi.chiTietBacSi.bangCap != null ? bacSi.chiTietBacSi.bangCap : ''}">Tiến sĩ, Đại học Y Dược TP.HCM</span></p>
+            <p><strong>Hội Nghị Nước Ngoài:</strong> <span th:text="${bacSi.chiTietBacSi.hoiNghiNuocNgoai != null ? bacSi.chiTietBacSi.hoiNghiNuocNgoai : ''}">Hà Lan, Hoa Kỳ, Nhật Bản</span></p>
+            <p><strong>Chứng Chỉ:</strong> <span th:text="${bacSi.chiTietBacSi.chungChi != null ? bacSi.chiTietBacSi.chungChi : ''}">Chứng nhận Tai Mũi Họng Quốc tế</span></p>
+            <p><strong>Đào Tạo Chuyên Ngành:</strong> <span th:text="${bacSi.chiTietBacSi.daoTaoChuyenNganh != null ? bacSi.chiTietBacSi.daoTaoChuyenNganh : ''}">Nội soi Tai Mũi Họng</span></p>
+            <p><strong>Lĩnh Vực Chuyên Sâu:</strong> <span th:text="${bacSi.chiTietBacSi.linhVucChuyenSau != null ? bacSi.chiTietBacSi.linhVucChuyenSau : ''}">Phẫu thuật Tai</span></p>
+            <p><strong>Giới Thiệu:</strong> <span th:text="${bacSi.chiTietBacSi.gioiThieu != null ? bacSi.chiTietBacSi.gioiThieu : ''}">Bác sĩ có kinh nghiệm 30 năm trong ngành y khoa, chuyên gia đầu ngành Tai Mũi Họng.</span></p>
+        </div>
+    </div>
+    <!-- Include Footer -->
+    <div th:replace="benhnhan/fragments/footer :: footer"></div>
+
+    <script>
+        function openTab(event, tabId) {
+            // Ẩn tất cả nội dung tab
+            const tabContents = document.querySelectorAll(".tab-content");
+            tabContents.forEach((content) => content.classList.remove("active"));
+
+            // Vô hiệu hóa tất cả các liên kết tab
+            const tabLinks = document.querySelectorAll(".tab-link");
+            tabLinks.forEach((link) => link.classList.remove("active"));
+
+            // Hiển thị nội dung tab hiện tại và kích hoạt liên kết tab
+            document.getElementById(tabId).classList.add("active");
+            event.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+
+</html>
