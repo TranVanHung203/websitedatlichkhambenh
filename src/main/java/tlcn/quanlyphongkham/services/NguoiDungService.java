@@ -6,6 +6,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -82,14 +85,30 @@ public class NguoiDungService {
 		return nguoidung;
 	}
 
-	public List<NguoiDungDTO> getAllNguoiDungQLTK() {
-		List<NguoiDung> nguoiDungList = nguoiDungRepository.findAll();
-		return nguoiDungList.stream().filter(nguoiDung -> !nguoiDung.getTrangthai().equals("DISABLE")) // Kiểm tra trạng
-																										// thái
-				.map(this::convertToDTO).collect(Collectors.toList());
-	}
+	 public Page<NguoiDungDTO> getAllNguoiDungQLTK(String search, int page) {
+	        Pageable pageable = PageRequest.of(page - 1, 5); // 5 là số bản ghi mỗi trang
+	        Page<NguoiDung> nguoiDungPage;
 
-	// Chuyển đổi Entity sang DTO
+	        if (search != null && !search.isEmpty()) {
+	            nguoiDungPage = nguoiDungRepository.findByEmailContainingOrTenDangNhapContaining(search, search, pageable);
+	        } else {
+	            nguoiDungPage = nguoiDungRepository.findAll(pageable);
+	        }
+
+	        // Chuyển đổi Page<NguoiDung> thành Page<NguoiDungDTO>
+	        Page<NguoiDungDTO> nguoiDungDTOPage = nguoiDungPage.map(nguoiDung -> new NguoiDungDTO(
+	                nguoiDung.getNguoiDungId(),
+	                nguoiDung.getTenDangNhap(),
+	                nguoiDung.getEmail(),
+	                nguoiDung.getVaiTro(),
+	                nguoiDung.getTrangthai()
+	        ));
+
+	        return nguoiDungDTOPage;
+	    }
+
+
+	
 	private NguoiDungDTO convertToDTO(NguoiDung nguoiDung) {
 		return new NguoiDungDTO(nguoiDung.getNguoiDungId(), nguoiDung.getTenDangNhap(), nguoiDung.getEmail(),
 				nguoiDung.getVaiTro(), nguoiDung.getTrangthai() // Lấy trạng thái từ entity
@@ -204,5 +223,13 @@ public class NguoiDungService {
 	public boolean usernameExists(String username) {
 		return nguoiDungRepository.existsByTenDangNhap(username);
 	}
+
+	public NguoiDung findBySDT(String dienThoai) {
+        BenhNhan benhNhan = benhNhanRepository.findByDienThoai(dienThoai);
+        if (benhNhan != null) {
+            return benhNhan.getNguoiDung();
+        }
+        return null;  // Or throw an exception, depending on your error handling strategy
+    }
 
 }

@@ -3,6 +3,7 @@ package tlcn.quanlyphongkham.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import tlcn.quanlyphongkham.security.CustomAuthenticationFailureHandler;
@@ -61,7 +63,10 @@ public class WebSecurityConfig {
                         .permitAll())
                 .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .permitAll())
-                .exceptionHandling(except -> except.accessDeniedPage("/403"))
+                .exceptionHandling(except -> except
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.FORBIDDEN))  // Default handling for 403 errors
+                        .defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.NOT_FOUND), new AntPathRequestMatcher("/404"))  // Handling 404 errors
+                )
                 .build();
     }
 

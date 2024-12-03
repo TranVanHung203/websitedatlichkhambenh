@@ -20,8 +20,13 @@
             <button class="history-filter-btn" onclick="filterDate(event)">Lọc</button>
         </div>
 
+        <!-- Kiểm tra nếu không có lịch sử -->
+        <div th:if="${#lists.isEmpty(slots)}" class="no-history-message">
+            <p>Không có lịch sử đặt lịch khám bệnh!</p>
+        </div>
+
         <!-- Bảng lịch sử đặt lịch khám bệnh -->
-        <table class="history-table">
+        <table th:if="${!#lists.isEmpty(slots)}" class="history-table">
             <thead>
                 <tr>
                     <th>Bác Sĩ</th>
@@ -36,16 +41,10 @@
                     <td th:text="${slot.lichKhamBenh.ngayThangNam}">10/12/2024</td>
                     <td th:text="${slot.thoiGianBatDau}">08:00</td>
                     <td>
-                        <!-- Form ẩn gửi yêu cầu hủy -->
                         <form th:action="@{/user/cancel}" method="post" style="display:inline;">
-                            <!-- Trường ẩn chứa slotId -->
                             <input type="hidden" name="slotId" th:value="${slot.slotId}" />
-                            <!-- Trường ẩn chứa date -->
                             <input type="hidden" name="date" th:value="${date}" />
-                            <!-- Trường ẩn chứa page -->
                             <input type="hidden" name="page" th:value="${currentPage}" />
-                            
-                            <!-- Nút hủy -->
                             <button type="submit" class="history-cancel-btn">Hủy</button>
                         </form>
                     </td>
@@ -54,17 +53,25 @@
         </table>
 
         <!-- Phân trang -->
-        <div class="history-pagination">
-            <button th:class="${currentPage == 0 ? 'disabled' : ''}" th:data-page="${currentPage - 1}" onclick="navigatePage(event)">« Trước</button>
+        <div th:if="${!#lists.isEmpty(slots)}" class="history-pagination">
+            <!-- Previous Button (only visible if not on the first page) -->
+            <button th:if="${currentPage > 0}" 
+                    th:data-page="${currentPage - 1}" 
+                    onclick="navigatePage(event)">« Trước</button>
+
             <span>Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
-            <button th:class="${currentPage == totalPages - 1 ? 'disabled' : ''}" th:data-page="${currentPage + 1}" onclick="navigatePage(event)">Tiếp »</button>
+            
+            <!-- Next Button (only visible if not on the last page) -->
+            <button th:if="${currentPage < totalPages - 1}" 
+                    th:data-page="${currentPage + 1}" 
+                    onclick="navigatePage(event)">Tiếp »</button>
         </div>
     </div>
-        <div th:replace="benhnhan/fragments/footer :: footer"></div>
+    <div th:replace="benhnhan/fragments/footer :: footer"></div>
 
     <script>
         function filterDate(event) {
-            var date = document.getElementById('date').value; // Get the value directly from the input field
+            var date = document.getElementById('date').value;
             if (date) {
                 window.location.href = '/user/lichsudatlich?date=' + date;
             } else {
@@ -74,7 +81,14 @@
 
         function navigatePage(event) {
             var page = event.target.getAttribute('data-page');
-            var date = document.getElementById('date').value || '${date}'; // Default to the current date if not selected
+            var totalPages = parseInt('${totalPages}', 10); // Total pages from Thymeleaf
+            var date = document.getElementById('date').value || '${date}'; // Use default date if not selected
+
+            // Ensure the page number is valid
+            if (page < 0 || page >= totalPages) {
+                return; // Do nothing if page is out of range
+            }
+
             window.location.href = '/user/lichsudatlich?date=' + date + '&page=' + page;
         }
     </script>

@@ -54,11 +54,23 @@ public class AdminController {
 	private ThuocService thuocService;
 
 	@GetMapping("/admin/qltk")
-	public String getAllNguoiDung(Model model) {
-		List<NguoiDungDTO> nguoiDungList = nguoiDungService.getAllNguoiDungQLTK();
-		model.addAttribute("nguoiDungList", nguoiDungList); // Thêm dữ liệu vào model
-		return "admin/quanlytaikhoan/quanlytaikhoan"; // Tên của trang giao diện Thymeleaf
+	public String getAllNguoiDung(Model model,
+	        @RequestParam(defaultValue = "1") int page, 
+	        @RequestParam(defaultValue = "") String search) {
+	    
+	    // Lấy danh sách người dùng với phân trang và tìm kiếm
+	    Page<NguoiDungDTO> nguoiDungPage = nguoiDungService.getAllNguoiDungQLTK(search, page);
+	    
+	    // Thêm dữ liệu vào model
+	    model.addAttribute("nguoiDungPage", nguoiDungPage);
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", nguoiDungPage.getTotalPages());
+	    model.addAttribute("search", search);
+
+	    return "admin/quanlytaikhoan/quanlytaikhoan"; // Tên của trang giao diện Thymeleaf
 	}
+
+
 
 	@GetMapping("/admin/qltk/add")
 	public String openFormAddUser(Model model) {

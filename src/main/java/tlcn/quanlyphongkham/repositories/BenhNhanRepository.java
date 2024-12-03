@@ -21,6 +21,10 @@ public interface BenhNhanRepository extends JpaRepository<BenhNhan, String> {
 
 
 
+	BenhNhan findByDienThoai(String dienThoai);
+
+
+
 
 	
 	

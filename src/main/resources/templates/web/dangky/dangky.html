@@ -44,6 +44,7 @@
             <div class="form-group">
                 <label for="dienThoai">Số điện thoại</label>
                 <input type="tel" id="dienThoai" th:field="*{dienThoai}" placeholder="Nhập số điện thoại" required>
+                 <span th:if="${error3}" style="color: red; font-size: 12px;" th:text="'Số điện thoại đã được sử dụng'"></span>
             </div>
             <div class="form-group">
                 <label for="diaChi">Địa chỉ</label>
