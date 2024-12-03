@@ -48,13 +48,22 @@ public class DonThuocService {
 	public List<DonThuoc> getAllDonThuoc() {
 		return donThuocRepository.findAll();
 	}
-	public Page<DonThuoc> getAllDonThuoc(Pageable pageable) {
-	    return donThuocRepository.findAll(pageable); // No sorting here
-	}
-	
-	public Page<DonThuoc> searchByBenhNhanName(String name, Pageable pageable) {
-	    return donThuocRepository.searchByNameBenhNhan(name, pageable);
-	}
+//	public Page<DonThuoc> getAllDonThuoc(Pageable pageable) {
+//	    return donThuocRepository.findAll(pageable); // No sorting here
+//	}
+//	
+//	public Page<DonThuoc> searchByBenhNhanName(String name, Pageable pageable) {
+//	    return donThuocRepository.searchByNameBenhNhan(name, pageable);
+//	}
+	  // Phương thức để lấy đơn thuốc theo bác sĩ và tên bệnh nhân
+    public Page<DonThuoc> findByBacSiIdAndBenhNhanNameContaining(String bacSiId, String name, Pageable pageable) {
+        return donThuocRepository.findByBacSiIdAndBenhNhanNameContaining(bacSiId, name, pageable);
+    }
+
+    // Phương thức để lấy tất cả đơn thuốc của bác sĩ
+    public Page<DonThuoc> getAllDonThuocByBacSiId(String bacSiId, Pageable pageable) {
+        return donThuocRepository.findAllByBacSiId(bacSiId, pageable);
+    }
 
 	public List<Thuoc> searchDrugs(String query) {
 		return thuocRepository.findByTenContaining(query);

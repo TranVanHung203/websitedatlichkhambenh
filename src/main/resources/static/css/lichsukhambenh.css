@@ -1,0 +1,176 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #e0f7fa; /* Màu nền xanh nhạt */
+}
+
+/* Container for medical history */
+.medical-history-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Content styling */
+.medical-history-content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #007bff; /* Xanh dương đậm */
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Table styling */
+.medical-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #f7faff; /* Màu nền bảng xanh nhạt */
+}
+
+.medical-history-table th,
+.medical-history-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.medical-history-table th {
+    background-color: #007bff; /* Màu xanh dương đậm */
+    color: #ffffff; /* Chữ trắng */
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.medical-history-table td {
+    font-size: 14px;
+    color: #555;
+}
+
+.medical-history-table tr:nth-child(even) {
+    background-color: #e3f2fd; /* Xanh nhạt */
+}
+
+.medical-history-table tr:hover {
+    background-color: #bbdefb; /* Xanh nhạt khi hover */
+}
+
+.medical-history-table td pre {
+    margin: 0;
+    padding: 5px;
+    background-color: #e3f2fd;
+    border-radius: 4px;
+}
+
+/* Pagination styling */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination-prev,
+.pagination-next {
+    margin: 0 10px;
+    font-size: 16px;
+    color: #007bff;
+    text-decoration: none;
+    background-color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: 1px solid #007bff;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.pagination-prev:hover,
+.pagination-next:hover {
+    background-color: #007bff;
+    color: #ffffff;
+    transform: scale(1.05);
+}
+
+.pagination-info {
+    font-size: 16px;
+    color: #333;
+    margin: 0 10px;
+}
+
+.pagination-prev:disabled,
+.pagination-next:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    border: 1px solid #cccccc;
+}
+
+/* Lọc ngày tháng năm */
+.filter-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-form label {
+    font-size: 16px;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.filter-form input[type="date"] {
+    padding: 8px 15px;
+    font-size: 16px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    outline: none;
+    width: 180px;
+    transition: all 0.3s ease;
+}
+
+.filter-form input[type="date"]:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.filter-form button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.filter-form button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.filter-form button:focus {
+    outline: none;
+}
+
+.filter-form button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}

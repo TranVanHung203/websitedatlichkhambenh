@@ -105,5 +105,19 @@ public class HoSoBenhService {
 	        (BigDecimal) obj[6]  // tongTienThuoc (thêm cột tổng tiền)
 	    ));
 	}
+	public Page<LichSuKhamDTO> getLichSuKhamByBenhNhanIdAndDate(String benhNhanId, String date, Pageable pageable) {
+	    Page<Object[]> rawData = hoSoBenhRepository.findLichSuKhamByBenhNhanIdAndDateRaw(benhNhanId, date, pageable);
+
+	    return rawData.map(obj -> new LichSuKhamDTO(
+	        (String) obj[0],  // tenBacSi
+	        (String) obj[1],  // ngayKham
+	        (String) obj[2],  // chanDoan
+	        (String) obj[3],  // thuoc
+	        (String) obj[4],  // lieu
+	        (String) obj[5],  // tanSuat
+	        (BigDecimal) obj[6]  // tongTienThuoc
+	    ));
+	}
+
 	
 }
