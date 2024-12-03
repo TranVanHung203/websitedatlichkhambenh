@@ -26,9 +26,9 @@
         <form action="#" th:action="@{/admin/qltk}" method="get">
             <input type="text" id="searchInput" name="search" placeholder="Tìm kiếm tài khoản người dùng..." 
                    th:value="${search}" onkeyup="filterTable()" autocomplete="off" />
-            <button class="btn-add" onclick="window.location.href='/admin/qltk/add'">Add New User</button>
+           
         </form>
-
+ <button class="btn-add" onclick="window.location.href='/admin/qltk/add'">Add New User</button>
         <!-- User Table -->
         <table id="userTable">
             <thead>
