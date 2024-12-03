@@ -19,4 +19,8 @@ public class BenhNhanService {
 		BenhNhan benhNhan = benhNhanRepository.findByNguoiDung_NguoiDungId(nguoiDungId);
 		return benhNhan;
 	}
+
+	public BenhNhan findByPhone(String patientPhone) {
+        return benhNhanRepository.findByPhone(patientPhone);
+    }
 }

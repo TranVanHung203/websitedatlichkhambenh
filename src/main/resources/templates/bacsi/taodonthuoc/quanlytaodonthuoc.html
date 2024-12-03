@@ -22,15 +22,14 @@
 	<form method="get" th:action="@{/bacsi/quanlytaodonthuoc}">
 		<input type="text" name="search" placeholder="Nhập tên bệnh nhân cần tìm" th:value="${search}" />
 	</form>
-	
+
 	<!-- Kiểm tra nếu không có đơn thuốc -->
 	<div th:if="${#lists.isEmpty(donThuocs)}" class="no-results">
 		<p>Không tìm thấy thông tin bệnh nhân.</p>
 	</div>
-	
-	<!-- Show table and pagination only if there are results -->
+
+	<!-- Hiển thị bảng đơn thuốc -->
 	<div th:unless="${#lists.isEmpty(donThuocs)}">
-		<!-- Bảng hiển thị danh sách đơn thuốc -->
 		<table>
 			<thead>
 				<tr>
@@ -67,11 +66,12 @@
 					<td th:text="${donThuoc.formattedTongTienThuoc}"></td>
 					<td>
 						<form th:action="@{|/bacsi/xoadonthuoc/${donThuoc.donThuocId}|}" method="post">
-							<button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa đơn thuốc này?')">Xóa</button>
+							<button type="submit"
+								onclick="return confirm('Bạn có chắc chắn muốn xóa đơn thuốc này?')">Xóa</button>
 						</form>
 						<a th:href="@{|/bacsi/capnhatdonthuoc?id=${donThuoc.donThuocId}|}" class="edit-button">Sửa</a>
 					</td>
-				</tr> 	
+				</tr>
 			</tbody>
 		</table>
 
@@ -90,6 +90,7 @@
 				<a th:href="@{|/bacsi/quanlytaodonthuoc?page=${currentPage + 1}&search=${search}|}">Trang Sau</a>
 			</span>
 		</div>
+	</div>
 	</div>
 </body>
 

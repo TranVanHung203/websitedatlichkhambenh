@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bước 2 - Đặt Lịch Khám</title>
+	<link th:href="@{/css/dangkylichkham.css}" rel="stylesheet">
+	<link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+</head>
+
+<body>
+	<div th:replace="benhnhan/fragments/header :: header"></div> <!-- Header -->
+	<input type="hidden" name="doctor-id" id="doctor-id" th:value="${doctorId}">
+
+	<!-- Step 2 -->
+	<div class="dk-container">
+		<div class="dk-step dk-step-2 active">
+			<h2 class="dk-title">TIỆN LỢI - NHANH CHÓNG</h2>
+			<div class="dk-instructions">
+				<p><strong>Cách đặt hẹn:</strong></p>
+				<ul>
+					<li>Bước 2: Chọn ngày và giờ bạn muốn khám để đặt hẹn khám bệnh.</li>
+				</ul>
+			</div>
+			<form class="dk-form">
+				<div class="dk-schedule-container">
+					<!-- Calendar -->
+					<div class="dk-calendar" id="calendar">
+						<h3 id="month-name"></h3>
+						<div class="dk-date-grid" id="month"></div>
+						<p id="selected-date">Bạn chưa chọn ngày.</p>
+					</div>
+					<!-- Time Slots -->
+					<div class="dk-time-slots" id="available-time-slots">
+						<h3>Chọn Giờ</h3>
+					</div>
+				</div>
+				<div class="dk-actions">
+					<button type="button" class="dk-btn dk-btn-secondary"
+						onclick="window.location.href='/nhanvien/dangkylichkham'">TRỞ LẠI</button>
+					<!-- Sửa nút tiếp theo để gửi POST -->
+					<button type="button" class="dk-btn dk-btn-primary" onclick="proceedToStep3()">TIẾP THEO</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Inline JavaScript for Step 2 -->
+	<script>
+		let selectedDate = null;
+		let selectedTime = null;
+		let doctorId = document.getElementById("doctor-id").value;
+
+		// Initialize the current month and year
+		const today = new Date();
+		const currentMonth = today.getMonth(); // 0-based month (0 = January, 11 = December)
+		const currentYear = today.getFullYear();
+		const currentDate = today.getDate();
+
+		// Display the month and year in the calendar header
+		document.getElementById("month-name").textContent = `${getMonthName(currentMonth)} ${currentYear}`;
+
+		// Generate the calendar for the current month
+		generateCalendar(currentMonth, currentYear);
+
+		function generateCalendar(month, year) {
+			const daysInMonth = new Date(year, month + 1, 0).getDate(); // Get the number of days in the month
+			const firstDayOfMonth = new Date(year, month, 1).getDay(); // Get the day of the week for the 1st day of the month
+			const monthGrid = document.getElementById("month");
+
+			// Clear any existing dates in the grid
+			monthGrid.innerHTML = '';
+
+			// Add empty cells for the days before the 1st day of the month
+			for (let i = 0; i < firstDayOfMonth; i++) {
+				monthGrid.innerHTML += `<div class="dk-date empty"></div>`;
+			}
+
+			// Add the actual days of the month to the calendar
+			for (let day = 1; day <= daysInMonth; day++) {
+				const isToday = day === currentDate;
+				const dayClass = isToday ? 'dk-date today' : 'dk-date';
+
+				monthGrid.innerHTML += `<button type="button" class="${dayClass}" onclick="selectDate(${day}, ${month + 1}, ${year})">${day}</button>`;
+			}
+		}
+
+		function getMonthName(month) {
+			const months = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+			return months[month];
+		}
+
+		function selectDate(day, month, year) {
+			selectedDate = `${year}-${month}-${day}`;
+			document.getElementById("selected-date").textContent = `Ngày đã chọn: ${selectedDate}`;
+
+			// Fetch available slots for the selected date and doctor
+			fetch(`/nhanvien/dangkylichkham/getAvailableSlots`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({doctorId: doctorId, date: selectedDate})
+			})
+				.then(response => response.json())
+				.then(data => {
+					updateAvailableSlots(data);
+				});
+		}
+
+		function updateAvailableSlots(data) {
+			const bookedSlots = data.bookedSlots;
+			const caList = data.caList;
+			const timeSlotsContainer = document.getElementById("available-time-slots");
+			timeSlotsContainer.innerHTML = ''; // Clear existing slots
+
+			const timeFrames = {
+				"Sáng": ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"],
+				"Chiều": ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"],
+				"Ngoài Giờ": ["17:00", "17:30", "18:00", "18:30", "19:00", "19:30"]
+			};
+
+			for (const timeFrame in timeFrames) {
+				if (caList.includes(timeFrame)) {
+					const timeSlots = timeFrames[timeFrame];
+					const timeSlotContainer = document.createElement("div");
+					timeSlotContainer.classList.add("time-frame");
+
+					const timeFrameTitle = document.createElement("h4");
+					timeFrameTitle.textContent = timeFrame;
+					timeSlotContainer.appendChild(timeFrameTitle);
+
+					timeSlots.forEach(time => {
+						const isBooked = bookedSlots.includes(time);
+						const label = document.createElement("label");
+						const input = document.createElement("input");
+						input.type = "radio";
+						input.name = "time";
+						input.value = time;
+
+						if (isBooked) {
+							label.style.textDecoration = 'line-through'; // Gạch chéo nếu đã có lịch
+							input.disabled = true; // Disable nếu đã có lịch
+						}
+
+						label.appendChild(input);
+						label.appendChild(document.createTextNode(time));
+						timeSlotContainer.appendChild(label);
+					});
+
+					timeSlotsContainer.appendChild(timeSlotContainer);
+				}
+			}
+		}
+
+		function proceedToStep3() {
+			const selectedTime = document.querySelector('input[name="time"]:checked');
+
+			if (selectedTime) {
+				const selectedTimeValue = selectedTime.value;  // Giá trị giờ đã chọn
+				const selectedTimeHour = parseInt(selectedTimeValue.split(':')[0], 10);  // Lấy giờ từ giá trị giờ (ví dụ: "13:00" -> 13)
+				const selectedTimeMinute = parseInt(selectedTimeValue.split(':')[1], 10);  // Lấy phút từ giá trị giờ (ví dụ: "13:30" -> 30)
+
+				// Xác định ca dựa trên giờ và phút
+				let ca = '';
+
+				if ((selectedTimeHour > 7 || (selectedTimeHour === 7 && selectedTimeMinute >= 30)) && (selectedTimeHour < 12 || (selectedTimeHour === 11 && selectedTimeMinute <= 30))) {
+					// 7h30 - 11h30 => Ca Sáng
+					ca = 'Sáng';
+				} else if ((selectedTimeHour >= 13 && selectedTimeHour < 17) || (selectedTimeHour === 16 && selectedTimeMinute <= 30)) {
+					// 13h - 16h30 => Ca Chiều
+					ca = 'Chiều';
+				} else if ((selectedTimeHour >= 17 && selectedTimeHour < 20) || (selectedTimeHour === 19 && selectedTimeMinute <= 30)) {
+					// 17h - 19h30 => Ca Tối
+					ca = 'Tối';
+				} else {
+					alert('Giờ khám không hợp lệ! Vui lòng chọn lại!');
+					return;
+				}
+
+				// Xây dựng URL cho request GET
+				const url = new URL('/nhanvien/dangkylichkham/buoc3', window.location.origin);
+				const params = new URLSearchParams();
+				params.append("doctorId", doctorId);  // doctorId cần được xác định từ đâu đó
+				params.append("selectedDate", selectedDate);  // selectedDate cần được xác định từ đâu đó
+				params.append("selectedTime", selectedTimeValue);
+				params.append("ca", ca);  // Gán giá trị của ca vào tham số
+
+				// Thêm tham số vào URL
+				url.search = params.toString();
+
+				// Chuyển hướng tới URL đã xây dựng
+				window.location.href = url.toString();
+			} else {
+				alert('Vui lòng chọn giờ khám!');
+			}
+
+		}
+
+
+	</script>
+</body>
+
+</html>

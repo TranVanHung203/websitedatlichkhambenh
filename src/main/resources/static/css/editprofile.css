@@ -1,225 +1,143 @@
 /* General Styles */
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f0f2f5;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
 }
 
 /* Container Layout */
 .edit-profile-container {
-  display: flex;
-  margin: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+    display: flex;
+    margin: 20px;
 }
 
 /* Sidebar Styles */
-.edit-profile-nav {
-  width: 250px;
-  background-color: #1976d2;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+.edit-profile-sidebar {
+    width: 250px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
 }
 
+.edit-profile-sidebar ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column; /* Đưa các mục xuống hàng */
+}
+
+.edit-profile-sidebar ul li {
+    margin-bottom: 15px;
+}
+
+.edit-profile-sidebar ul li a {
+    text-decoration: none;
+    color: #4267B2;
+    font-weight: bold;
+}
+
+.edit-profile-sidebar ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Navigation Styles */
 .edit-profile-nav ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    justify-content: space-between;
+    list-style-type: none;
+    background-color: #2a7abd;
+    margin: 0;
+    padding: 10px 20px;
 }
 
 .edit-profile-nav ul li {
-  margin-bottom: 15px;
+    margin: 0 10px;
 }
 
 .edit-profile-nav ul li a {
-  text-decoration: none;
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
 }
 
-.edit-profile-nav ul li a:hover {
-  color: #1565c0;
+.edit-profile-nav ul li a.edit-profile img {
+    vertical-align: middle;
 }
 
-/* Edit Profile Section */
+.edit-profile-nav ul li a.logout {
+    background-color: #ff6f61;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* Profile Content Styles */
 .edit-profile-content {
-  flex-grow: 1;
-  margin-left: 20px;
+    flex-grow: 1;
+    background-color: white;
+    margin-left: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
 }
 
-.edit-profile-content h3 {
-  color: #000000;
-  font-size: 22px;
-  margin-bottom: 20px;
-}
-
-.edit-profile-content label {
-  display: block;
-  margin: 10px 0 5px;
-  font-weight: bold;
+.edit-profile-form h3 {
+    margin-top: 20px;
+    color: #4267B2;
 }
 
 /* Edit Form Styles */
-.edit-profile-content input,
-.edit-profile-content select {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  font-size: 16px;
+.edit-profile-form label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
 }
 
-.edit-profile-content select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  cursor: pointer;
+.edit-profile-form input,
+.edit-profile-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box; /* Đảm bảo tính toán chiều rộng và chiều cao đúng */
 }
 
-/* Tab Section */
+/* Canh lề đều giữa các ô trong form */
 .edit-profile-form .edit-form-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Khoảng cách giữa các ô */
 }
 
+/* Các input và select nằm đều nhau và responsive */
 .edit-profile-form .edit-form-section input,
 .edit-profile-form .edit-form-section select {
-  flex: 1 1 calc(50% - 20px);
-  min-width: 250px;
+    flex: 1 1 calc(50% - 20px); /* Chia 50% chiều rộng và trừ khoảng cách giữa các ô */
+    min-width: 250px; /* Chiều rộng tối thiểu để tránh các ô quá nhỏ */
 }
 
-/* Table Styles */
-.edit-profile-content table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Đảm bảo khoảng cách giữa các trường input và select */
+.edit-profile-form .edit-form-section input[type="date"],
+.edit-profile-form .edit-form-section input[type="text"],
+.edit-profile-form .edit-form-section input[type="email"],
+.edit-profile-form .edit-form-section input[type="password"],
+.edit-profile-form .edit-form-section select {
+    margin-bottom: 15px;
 }
 
-.edit-profile-content table th,
-.edit-profile-content table td {
-  padding: 10px 15px;
-  text-align: center;
-  font-size: 14px;
-  border-bottom: 1px solid #ddd;
+/* Button Styles */
+.save-changes-btn {
+    background-color: #4267B2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
-.edit-profile-content table th {
-  background-color: #1976d2;
-  color: white;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.edit-profile-content table td {
-  color: #333;
-  position: relative;
-}
-
-.edit-profile-content table td,
-.edit-profile-content table th {
-  word-wrap: break-word;
-  max-width: 200px;
-}
-
-.edit-profile-content table tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-.edit-profile-content table tr:hover {
-  background-color: #e9e9e9;
-}
-
-/* Pagination Styles */
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.pagination-prev,
-.pagination-next {
-  margin: 0 15px;
-}
-
-.pagination-prev a,
-.pagination-next a {
-  text-decoration: none;
-  color: #1976d2;
-  font-weight: bold;
-}
-
-.pagination-prev a:hover,
-.pagination-next a:hover {
-  color: #1565c0;
-}
-
-.pagination-info {
-  font-size: 16px;
-  color: #555;
-}
-
-/* Styling for Buttons and Inputs */
-input[type="submit"],
-button {
-  background-color: #1976d2;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-input[type="submit"]:hover,
-button:hover {
-  background-color: #1565c0;
-}
-
-input[type="submit"]:disabled,
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .edit-profile-container {
-    flex-direction: column;
-  }
-
-  .edit-profile-nav {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-
-  .edit-profile-content {
-    margin-left: 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .edit-profile-nav {
-    font-size: 14px;
-  }
-
-  .edit-profile-content h3 {
-    font-size: 18px;
-  }
-
-  .edit-profile-content input,
-  .edit-profile-content select {
-    font-size: 14px;
-  }
+.save-changes-btn:hover {
+    background-color: #365899;
 }

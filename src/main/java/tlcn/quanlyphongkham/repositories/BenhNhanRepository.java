@@ -21,6 +21,9 @@ public interface BenhNhanRepository extends JpaRepository<BenhNhan, String> {
 
 
 
+	 @Query(value = "SELECT * FROM benh_nhan WHERE dien_thoai = :patientPhone", nativeQuery = true)
+	 BenhNhan findByPhone(@Param("patientPhone") String patientPhone);
+
 
 	
 	

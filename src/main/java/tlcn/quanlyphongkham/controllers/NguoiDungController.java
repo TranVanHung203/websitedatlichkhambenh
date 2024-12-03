@@ -81,66 +81,73 @@ public class NguoiDungController {
 
 	@Autowired
 	private LichSuDatLichService lichSuDatLichService;
-	
-	
-	public String getNguoiDungId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
 
-            if (principal instanceof CustomUserDetails) {
-                CustomUserDetails customUserDetails = (CustomUserDetails) principal;
-                return customUserDetails.getNguoiDungId(); // Get the NguoiDungId as String
-                
-            }
-            else
-            	return null;
-        }else
-        	return null;
-    }
+	public String getNguoiDungId() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null && authentication.isAuthenticated()) {
+			Object principal = authentication.getPrincipal();
+
+			if (principal instanceof CustomUserDetails) {
+				CustomUserDetails customUserDetails = (CustomUserDetails) principal;
+				return customUserDetails.getNguoiDungId(); // Get the NguoiDungId as String
+
+			} else
+				return null;
+		} else
+			return null;
+	}
 
 	String nguoiDungId;
 
-
 	@GetMapping("/user/editprofile")
-	public String editProfile(@RequestParam(defaultValue = "0") int page, 
-	                           @RequestParam(defaultValue = "2") int size, 
-	                           @RequestParam(defaultValue = "medical-history") String currentTab,
-	                           Model model) {
-		nguoiDungId=getNguoiDungId();
-	    UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
-	    model.addAttribute("nguoiDung", userProfile.getNguoiDung());
-	    model.addAttribute("benhNhan", userProfile.getBenhNhan());
-	    
-	    // Tìm bệnh nhân theo nguoiDungId thay vì gán cứng benhNhanId
-	    BenhNhan benhNhan = benhNhanService.findById(nguoiDungId);
+	public String editProfile(Model model) {
+		nguoiDungId = getNguoiDungId();
+		UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
+		model.addAttribute("nguoiDung", userProfile.getNguoiDung());
+		model.addAttribute("benhNhan", userProfile.getBenhNhan());
 
-	    if (benhNhan == null) {
-	        model.addAttribute("lichSuKhams", Collections.emptyList());
-	        return "benhnhan/editprofile/editprofile";
-	    }
-
-	    // Tạo đối tượng Pageable để phân trang
-	    Pageable pageable = PageRequest.of(page, size);
-
-	    // Lấy lịch sử khám của bệnh nhân với phân trang
-	    Page<LichSuKhamDTO> lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhan.getBenhNhanId(), pageable);
-	    model.addAttribute("lichSuKhams", lichSuKhams);
-	    model.addAttribute("currentPage", page);
-	    model.addAttribute("totalPages", lichSuKhams.getTotalPages());
-	    model.addAttribute("currentTab", currentTab);  // Truyền tham số currentTab vào Model
-
-	    return "benhnhan/editprofile/editprofile";
+		// Tìm bệnh nhân theo nguoiDungId thay vì gán cứng benhNhanId
+		BenhNhan benhNhan = benhNhanService.findById(nguoiDungId);
+		return "benhnhan/editprofile/editprofile";
 	}
 
+	@GetMapping("/user/lichsukhambenh")
+	public String lichSuKham(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,
+			@RequestParam(required = false) String date, // Thêm tham số date
+			Model model) {
+		nguoiDungId = getNguoiDungId();
+		UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
+		model.addAttribute("nguoiDung", userProfile.getNguoiDung());
+		model.addAttribute("benhNhan", userProfile.getBenhNhan());
 
+		BenhNhan benhNhan = benhNhanService.findById(nguoiDungId);
 
+		if (benhNhan == null) {
+			model.addAttribute("lichSuKhams", Collections.emptyList());
+			return "benhnhan/lichsukham/lichsukham";
+		}
 
+		Pageable pageable = PageRequest.of(page, size);
+		Page<LichSuKhamDTO> lichSuKhams;
+
+		// Nếu có ngày được chọn, gọi phương thức lọc theo ngày
+		if (date != null && !date.isEmpty()) {
+			lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanIdAndDate(benhNhan.getBenhNhanId(), date, pageable);
+		} else {
+			lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhan.getBenhNhanId(), pageable);
+		}
+
+		model.addAttribute("lichSuKhams", lichSuKhams);
+		model.addAttribute("currentPage", page);
+		model.addAttribute("totalPages", lichSuKhams.getTotalPages());
+
+		return "benhnhan/lichsukhambenh/lichsukhambenh";
+	}
 
 	@PostMapping("/user/updateprofile")
 	public String updateProfile(@ModelAttribute("nguoiDung") TaiKhoanProfileDTO tk,
 			@ModelAttribute("benhNhan") BenhNhanDTO benhNhanDTO, Model model) {
-		nguoiDungId=getNguoiDungId();
+		nguoiDungId = getNguoiDungId();
 		// Tìm người dùng hiện tại theo ID
 		NguoiDung existingUser = nguoiDungService.findById(nguoiDungId);
 
@@ -402,7 +409,7 @@ public class NguoiDungController {
 		String selectedTime = requestData.get("selectedTime");
 		String ca = requestData.get("selectedCa");
 		LocalDate selectedDates;
-		nguoiDungId=getNguoiDungId();
+		nguoiDungId = getNguoiDungId();
 		try {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			selectedDates = LocalDate.parse(selectedDate, formatter);
@@ -454,7 +461,7 @@ public class NguoiDungController {
 	@GetMapping("/user/lichsudatlich")
 	public String getLichSuDatLich(Model model, @RequestParam(defaultValue = "0") int page,
 			@RequestParam(required = false) String date) {
-		nguoiDungId=getNguoiDungId();
+		nguoiDungId = getNguoiDungId();
 		// Find BenhNhan by nguoiDungId
 		BenhNhan benhNhan = benhNhanService.findById(nguoiDungId);
 		if (benhNhan == null) {
