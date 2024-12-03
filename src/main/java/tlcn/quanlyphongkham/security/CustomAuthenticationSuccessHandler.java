@@ -28,7 +28,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         } else if (role.equals("ROLE_BenhNhan")) {
             response.sendRedirect("/home");  // Redirect to user homepage
         } else if (role.equals("ROLE_BacSi")) {
-            response.sendRedirect("/bacsi/editprofile");  // Redirect to doctor dashboard
+            response.sendRedirect("/bacsi/editprofile");
+        } else if (role.equals("ROLE_NhanVien")) {
+            response.sendRedirect("/nhanvien/dangkylichkham");// Redirect to doctor dashboard
         } else {
             response.sendRedirect("/login");  // Default redirect for other roles
         }

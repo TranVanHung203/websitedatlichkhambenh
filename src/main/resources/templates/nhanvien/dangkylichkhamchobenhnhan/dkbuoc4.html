@@ -34,7 +34,7 @@
 </head>
 
 <body>
-	<div th:replace="benhnhan/fragments/header :: header"></div> <!-- Header -->
+	 <div th:replace="nhanvien/fragments/header :: header"></div> <!-- Header -->
 
 	<!-- Thông báo -->
 	<div class="message-box" id="messageBox"></div>
@@ -160,7 +160,7 @@
 					setTimeout(() => {
 						messageBox.style.display = 'none';
 						if (data.status === 'success') {
-							window.location.href = '/home';
+							window.location.href = '/nhanvien/dangkylichkham';
 						}
 					}, 2000);
 				})

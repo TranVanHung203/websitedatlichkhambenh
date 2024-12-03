@@ -126,9 +126,9 @@ public class NguoiDungService {
 			// Cập nhật các trường
 			existingNguoiDung.setTenDangNhap(nguoiDungDTO.getTenDangNhap());
 			existingNguoiDung.setEmail(nguoiDungDTO.getEmail());
-			existingNguoiDung.setVaiTro(nguoiDungDTO.getVaiTro());
+		
 			existingNguoiDung.setTrangthai(nguoiDungDTO.getTrangthai());
-
+		
 			// Lưu thay đổi vào cơ sở dữ liệu
 			nguoiDungRepository.save(existingNguoiDung);
 
