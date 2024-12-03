@@ -21,6 +21,6 @@ public class BenhNhanService {
 	}
 
 	public BenhNhan findByPhone(String patientPhone) {
-        return benhNhanRepository.findByPhone(patientPhone);
+        return benhNhanRepository.findByDienThoai(patientPhone);
     }
 }

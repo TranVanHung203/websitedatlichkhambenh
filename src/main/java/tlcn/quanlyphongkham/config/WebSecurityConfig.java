@@ -52,7 +52,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/bacsi/**","/bacsi").hasRole("BacSi")
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/home","/view/schedule","/findbs","/departments/**","/chitietbacsi/**,/user/dangkylichkham").permitAll()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.loginPage("/login")
                         .loginProcessingUrl("/ac_login")
