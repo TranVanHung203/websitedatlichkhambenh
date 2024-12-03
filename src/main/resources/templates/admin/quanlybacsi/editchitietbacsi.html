@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Doctor Details</title>
+    <link th:href="@{/css/editchitietbacsi.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="main-content">
+        <h1>Edit Doctor Details</h1>
+        <form th:action="@{'/admin/qlbs/update-chitiet/' + ${doctor.bacSiId}}" th:object="${chiTietBacSi}" method="post">
+            <label for="bangCap">Degree:</label>
+            <input type="text" id="bangCap" th:field="*{bangCap}" />
+
+            <label for="hoiNghiNuocNgoai">International Conferences:</label>
+            <input type="text" id="hoiNghiNuocNgoai" th:field="*{hoiNghiNuocNgoai}" />
+
+            <label for="chungChi">Certificates:</label>
+            <input type="text" id="chungChi" th:field="*{chungChi}" />
+
+            <label for="daoTaoChuyenNganh">Specialized Training:</label>
+            <input type="text" id="daoTaoChuyenNganh" th:field="*{daoTaoChuyenNganh}" />
+
+            <label for="gioiThieu">Introduction:</label>
+            <textarea id="gioiThieu" th:field="*{gioiThieu}"></textarea>
+
+            <button type="submit">Lưu Cập Nhật</button>
+        </form>
+        <a href="/admin/qlbs" class="btn-back">Quay lại danh sách bác sĩ</a>
+    </div>
+</body>
+</html>

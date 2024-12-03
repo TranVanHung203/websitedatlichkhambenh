@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Nhận Tài Khoản</title>
+    <link rel="stylesheet" th:href="@{/css/confirmation.css}">
+</head>
+<body>
+    <div class="confirmation-container">
+        <h2>Xác Nhận Tài Khoản</h2>
+        <p>Vui lòng kiểm tra email của bạn để xác nhận tài khoản. Nếu bạn không thấy email, hãy kiểm tra trong thư mục Spam hoặc Junk.</p>
+        <button onclick="goToHome()">Quay lại trang đăng nhập</button>
+    </div>
+    <script>
+        function goToHome() {
+            window.location.href = '/login'; // Thay đổi đường dẫn về trang chính nếu cần
+        }
+    </script>
+</body>
+</html>

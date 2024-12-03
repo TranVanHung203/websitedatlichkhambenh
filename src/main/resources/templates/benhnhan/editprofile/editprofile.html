@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Edit Profile</title>
+	<link rel="stylesheet" th:href="@{/css/editprofile.css}">
+	<link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+	<link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+</head>
+
+<body>
+	<div th:replace="benhnhan/fragments/header :: header"></div>
+
+	<!-- Main Container -->
+	<div class="edit-profile-container">
+		<!-- Sidebar -->
+		<nav class="edit-profile-nav">
+			<ul>
+				<li><a href="#" onclick="showSection('account-info')">Thông tin tài khoản</a></li>
+				<li><a href="#" onclick="showSection('personal-info')">Thông tin cá nhân</a></li>
+			</ul>
+		</nav>
+
+		<!-- Edit Profile Section -->
+		<section class="edit-profile-content">
+
+			<!-- Edit Form -->
+			<form method="post" th:action="@{/user/updateprofile}" class="edit-profile-form">
+				<!-- Thông tin tài khoản -->
+				<div id="account-info" class="edit-form-section">
+					<h3>Thông tin tài khoản</h3>
+					<label for="email">Email</label>
+					<input type="email" id="email" name="email" th:value="${nguoiDung.email}" readonly>
+
+					<label for="username">Tên đăng nhập</label>
+					<input type="text" id="username" name="tenDangNhap" th:value="${nguoiDung.tenDangNhap}">
+				</div>
+
+				<!-- Thông tin cá nhân -->
+				<div id="personal-info" class="edit-form-section" style="display:none;">
+					<h3>Thông tin cá nhân</h3>
+					<label for="name">Họ tên</label>
+					<input type="text" id="name" name="ten" th:value="${benhNhan.ten}">
+
+					<label for="gender">Giới tính</label>
+					<select id="gender" name="gioiTinh">
+						<option value="Nam" th:selected="${benhNhan.gioiTinh == 'Nam'}">Nam</option>
+						<option value="Nữ" th:selected="${benhNhan.gioiTinh == 'Nữ'}">Nữ</option>
+						<option value="Khác" th:selected="${benhNhan.gioiTinh == 'Khác'}">Khác</option>
+					</select>
+
+
+					<label for="dob">Ngày sinh</label>
+					<input type="date" id="dob" name="ngaySinh" th:value="${benhNhan.ngaySinh}">
+
+					<label for="address">Địa chỉ</label>
+					<input type="text" id="address" name="diaChi" th:value="${benhNhan.diaChi}">
+
+					<label for="phone">Số điện thoại</label>
+					<input type="text" id="phone" name="dienThoai" th:value="${benhNhan.dienThoai}">
+				</div>
+
+				<button type="submit" class="save-changes-btn">Save Changes</button>
+			</form>
+
+		</section>
+	</div>
+
+	<script>
+		// Hiển thị mặc định 'account-info' khi trang được tải
+		document.addEventListener('DOMContentLoaded', function () {
+			showSection('account-info');
+		});
+
+		function showSection(sectionId) {
+			// Ẩn tất cả các section
+			document.getElementById('account-info').style.display = 'none';
+			document.getElementById('personal-info').style.display = 'none';
+
+			// Hiển thị section được chọn
+			document.getElementById(sectionId).style.display = 'block';
+		}
+	</script>
+
+	<div th:replace="benhnhan/fragments/footer :: footer"></div>
+</body>
+
+</html>

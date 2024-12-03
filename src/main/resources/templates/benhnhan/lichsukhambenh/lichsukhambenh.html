@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử khám bệnh</title>
+    <link rel="stylesheet" th:href="@{/css/lichsukhambenh.css}">
+    <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+    <link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div th:replace="benhnhan/fragments/header :: header"></div>
+
+    <!-- Main Container -->
+    <div class="medical-history-container">
+        <!-- Lịch sử khám bệnh -->
+        <section class="medical-history-content">
+            <div id="medical-history">
+                <h3 class="section-title">Lịch sử khám bệnh</h3>
+                
+                <!-- Lọc theo ngày -->
+                <form action="#" th:action="@{/user/lichsukhambenh}" method="get" class="filter-form">
+                    <label for="date-filter">Lọc theo ngày:</label>
+                    <input type="date" id="date-filter" name="date" th:value="${param.date}" />
+                    <button type="submit">Lọc</button>
+                </form>
+
+                <table class="medical-history-table">
+                    <thead>
+                        <tr>
+                            <th>Bác sĩ khám</th>
+                            <th>Ngày khám</th>
+                            <th>Chẩn đoán</th>
+                            <th>Thuốc</th>
+                            <th>Liều Lượng</th>
+                            <th>Tần suất / cử</th>
+                            <th>Tổng tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="lichSu : ${lichSuKhams}">
+                            <td th:text="${lichSu.tenBacSi}"></td>
+                            <td th:text="${lichSu.ngayKham}"></td>
+                            <td th:text="${lichSu.chanDoan}"></td>
+                            <td>
+                                <pre th:text="${lichSu.thuoc}"></pre>
+                            </td>
+                            <td>
+                                <pre th:text="${lichSu.lieu}"></pre>
+                            </td>
+                            <td>
+                                <pre th:text="${lichSu.tanSuat}"></pre>
+                            </td>
+                            <td th:text="${lichSu.formattedTongTienThuoc}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Phân trang -->
+                <div class="pagination-container">
+                    <span th:if="${currentPage > 0}" class="pagination-prev">
+                        <a th:href="@{/user/lichsukhambenh(page=${currentPage-1}, size=${size}, date=${param.date})}">Trang Trước</a>
+                    </span>
+
+                    <span class="pagination-info">
+                        Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span>
+                    </span>
+
+                    <span th:if="${currentPage < totalPages - 1}" class="pagination-next">
+                        <a th:href="@{/user/lichsukhambenh(page=${currentPage+1}, size=${size}, date=${param.date})}">Trang Sau</a>
+                    </span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div th:replace="benhnhan/fragments/footer :: footer"></div>
+
+</body>
+
+</html>

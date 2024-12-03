@@ -1,0 +1,16 @@
+
+
+/* Footer */
+footer {
+    background-color: #2a7abd; /* Màu nền xanh dương */
+    color: white; /* Màu chữ trắng */
+    text-align: center;
+    padding: 15px 0; /* Khoảng cách padding trên dưới */
+    margin-top: auto; /* Đẩy footer xuống dưới cùng */
+    width: 100%; /* Footer chiếm toàn bộ chiều rộng */
+}
+
+footer .footer-content p {
+    margin: 0;
+    font-size: 14px; /* Kích thước chữ */
+}

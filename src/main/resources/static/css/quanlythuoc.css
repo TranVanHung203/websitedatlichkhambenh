@@ -1,0 +1,165 @@
+/* Main Content Styles */
+.main-content {
+	margin-left: 230px;
+	padding: 20px;
+	padding-top: 80px;
+	/* to avoid overlapping with the header */
+	width: calc(100% - 250px);
+	background-color: #fff;
+	/* Đặt màu nền sáng cho nội dung chính */
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	/* Thêm bóng đổ để tạo hiệu ứng nổi */
+	border-radius: 10px;
+	/* Bo tròn góc */
+}
+h1 {
+    text-align: left;
+    color: #333;
+}
+
+/* Nút bấm */
+button {
+	margin-top: 30px;
+	margin-bottom: 20px;
+	padding: 12px 20px;
+	/* Điều chỉnh lại padding */
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background-color 0.3s, transform 0.2s;
+	font-size: 14px;
+	/* Điều chỉnh cỡ chữ */
+}
+
+.btn-add {
+	background-color: #28a745;
+	color: #fff;
+	float: right;
+}
+
+.btn-add:hover {
+	background-color: #218838;
+	transform: scale(1.05);
+}
+
+.btn-edit {
+	background-color: #ffc107;
+	color: #fff;
+	margin-left: 10px;
+	/* Thêm khoảng cách giữa các nút */
+	font-size: 12px;
+	border: 1px solid #ffc107;
+	/* Thêm viền */
+	border-radius: 4px;
+}
+
+.btn-edit:hover {
+	background-color: #e0a800;
+	transform: scale(1.05);
+}
+
+.btn-delete {
+	background-color: #dc3545;
+	color: #fff;
+	margin-left: 10px;
+	font-size: 12px;
+	border: 1px solid #dc3545;
+	/* Thêm viền */
+	border-radius: 4px;
+}
+
+.btn-delete:hover {
+	background-color: #c82333;
+	transform: scale(1.05);
+}
+
+/* Table Styles */
+table {
+	width: 100%;
+	border-collapse: collapse;
+	/* Loại bỏ khoảng cách giữa các ô */
+	margin-top: 20px;
+	border: 1px solid #ddd;
+	/* Viền bao toàn bảng */
+	table-layout: fixed;
+	/* Đặt chiều rộng cố định cho các cột */
+	background-color: #f8f9fa;
+	/* Màu nền bảng */
+}
+
+table th,
+table td {
+	padding: 5px;
+	/* Tăng padding để trông rộng rãi hơn */
+	border: 1px solid #ddd;
+	/* Viền bao quanh từng ô */
+	text-align: center;
+	/* Căn giữa theo chiều ngang */
+	vertical-align: middle;
+	/* Căn giữa theo chiều dọc */
+	font-size: 14px;
+	/* Điều chỉnh cỡ chữ */
+	word-wrap: break-word;
+	/* Đảm bảo từ sẽ được xuống dòng khi quá dài */
+}
+
+table th {
+	background-color: #007bff;
+	color: #fff;
+	font-size: 14px;
+	text-transform: uppercase;
+	/* Viết hoa tên các cột */
+}
+
+table td {
+	background-color: #fff;
+	color: #333;
+}
+
+table tr:nth-child(even) {
+	background-color: #f2f2f2;
+}
+
+table tr:hover {
+	background-color: #e9ecef;
+	/* Màu nền khi hover */
+}
+
+/* Pagination Styles */
+.pagination {
+	margin-top: 20px;
+	text-align: center;
+	font-size: 14px;
+}
+
+.pagination a {
+	margin: 0 0px;
+	padding: 8px 12px;
+	text-decoration: none;
+	color: #007bff;
+	border-radius: 4px;
+	border: 1px solid #ddd;
+
+	transition: color 0.3s, background-color 0.3s;
+}
+
+.pagination span {
+	margin: 0 0px;
+	padding: 8px 12px;
+	text-decoration: none;
+	color: #007bff;
+	border-radius: 4px;
+	transition: color 0.3s, background-color 0.3s;
+}
+
+.pagination a.active {
+	background-color: #007bff;
+	color: white;
+	font-weight: bold;
+	border-color: #007bff;
+}
+
+.pagination a:hover {
+	background-color: #0056b3;
+	color: white;
+}

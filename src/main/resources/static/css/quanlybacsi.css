@@ -1,0 +1,236 @@
+/* Main Content Styles */
+.main-content {
+	margin-left: 230px;
+	padding: 20px;
+	padding-top: 80px;
+	/* to avoid overlapping with the header */
+	width: calc(100% - 250px);
+}
+
+h1 {
+    text-align: left;
+    color: #333;
+}
+button {
+	margin-top: 30px;
+	margin-bottom: 20px;
+	padding: 20px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-add {
+	background-color: #28a745;
+	color: #fff;
+	float: right;
+}
+
+.btn-add:hover {
+	background-color: #218838;
+	transform: scale(1.05);
+}
+
+.btn-edit {
+	color: #007bff;
+	padding: 6px 12px;
+	background-color: #fff;
+	border: 1px solid #007bff;
+	border-radius: 4px;
+	transition: background-color 0.3s, color 0.3s, transform 0.2s;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 12px;
+	/* Chỉnh cỡ chữ nhỏ hơn */
+}
+
+.btn-edit:hover {
+	background-color: #007bff;
+	color: #fff;
+	transform: scale(1.05);
+}
+
+/* Table Styles */
+table {
+	width: 100%;
+	border-collapse: collapse;
+	/* Loại bỏ khoảng cách giữa các ô */
+	margin-top: 20px;
+	border: 1px solid #ddd;
+	/* Viền bao toàn bảng */
+	table-layout: auto;
+	/* Cho phép cột tự động điều chỉnh độ rộng */
+}
+
+table th,
+table td {
+	padding: 10px;
+	/* Giảm padding để trông rộng rãi hơn */
+	border: 1px solid #ddd;
+	/* Viền bao quanh từng ô */
+	text-align: center;
+	/* Căn giữa theo chiều ngang */
+	vertical-align: middle;
+	/* Căn giữa theo chiều dọc */
+	font-size: 12px;
+	/* Chỉnh cỡ chữ nhỏ hơn */
+}
+
+table th {
+	background-color: #007bff;
+	color: #fff;
+	font-size: 12px;
+}
+
+table td {
+	background-color: #fff;
+	color: #333;
+	font-size: 12px;
+}
+
+table tr:nth-child(even) {
+	background-color: #f9f9f9;
+}
+
+table tr:hover {
+	background-color: #f1f1f1;
+}
+
+/* Tăng độ rộng của cột để trông rộng rãi hơn */
+table th:nth-child(1),
+table td:nth-child(1) {
+	width: 10%;
+	/* Cột Tên */
+}
+
+table th:nth-child(2),
+table td:nth-child(2) {
+	width: 8%;
+	/* Cột Giới tính */
+}
+
+table th:nth-child(3),
+table td:nth-child(3) {
+	width: 12%;
+	/* Cột Ngày sinh */
+}
+
+table th:nth-child(4),
+table td:nth-child(4) {
+	width: 15%;
+	/* Cột Địa chỉ */
+}
+
+table th:nth-child(5),
+table td:nth-child(5) {
+	width: 12%;
+	/* Cột Số điện thoại */
+}
+
+table th:nth-child(6),
+table td:nth-child(6) {
+	width: 10%;
+	/* Cột Chuyên khoa */
+}
+
+table th:nth-child(7),
+table td:nth-child(7) {
+	width: 10%;
+	/* Cột Bằng cấp */
+}
+
+table th:nth-child(8),
+table td:nth-child(8) {
+	width: 10%;
+	/* Cột Hội nghị nước ngoài */
+}
+
+table th:nth-child(9),
+table td:nth-child(9) {
+	width: 10%;
+	/* Cột Chứng chỉ */
+}
+
+table th:nth-child(10),
+table td:nth-child(10) {
+	width: 10%;
+	/* Cột Đào tạo chuyên ngành */
+}
+
+table th:nth-child(11),
+table td:nth-child(11) {
+	width: 8%;
+	/* Cột Hành động */
+}
+
+/* CSS cho phân trang */
+.pagination {
+	margin-top: 20px;
+	text-align: center;
+	font-size: 14px;
+	display: flex;
+	justify-content: center;
+	/* Center the pagination horizontally */
+	align-items: center;
+	/* Center the pagination vertically */
+}
+
+.pagination a{
+	margin: 0 0px;
+	padding: 8px 12px;
+	text-decoration: none;
+	color: #007bff;
+	border-radius: 4px;
+	background-color: #fff;
+	transition: color 0.3s, background-color 0.3s, transform 0.2s;
+}
+.pagination span {
+	margin: 0 0px;
+	padding: 8px 12px;
+	text-decoration: none;
+	color: #007bff;
+	border-radius: 4px;
+	background-color: #fff;
+	transition: color 0.3s, background-color 0.3s, transform 0.2s;
+}
+
+.pagination a:hover,
+.pagination span:hover {
+	background-color: #f1f1f1;
+	border-color: #007bff;
+	color: #0056b3;
+}
+
+.pagination a.active {
+	background-color: #007bff;
+	color: white;
+	font-weight: bold;
+	border: 1px solid #0056b3;
+}
+
+.pagination a:active {
+	transform: scale(0.95);
+}
+
+.pagination-container {
+	display: flex;
+	justify-content: center;
+	/* Center the pagination container */
+	padding: 10px;
+	border: 1px solid #ddd;
+	/* Viền bao quanh toàn bộ phân trang */
+	border-radius: 5px;
+	background-color: #f9f9f9;
+}
+
+form {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	/* Khoảng cách giữa ô input và nút */
+}
+
+form input {
+	font-size: 14px;
+}

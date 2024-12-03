@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Quản Lý Chuyên Khoa</title>
+	<link th:href="@{/css/quanlychuyenkhoa.css}" rel="stylesheet">
+	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
+	<link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+</head>
+
+<body>
+	<div th:replace="admin/fragments/header :: header"></div>
+	<div th:replace="admin/fragments/sidebar :: sidebar"></div>
+	<div class="main-content">
+		<h1>Quản lý chuyên khoa</h1>
+		<!-- Search Form -->
+		<form th:action="@{/admin/qlck}" method="get" id="searchForm">
+			<input type="text" name="ten" id="searchInput" placeholder="Tìm kiếm chuyên khoa theo tên"
+				style="padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px;"
+				th:value="${searchQuery}" />
+			<button type="submit" style="display:none;">Search</button>
+		</form>
+
+		<!-- Display No Results Message -->
+		<div th:if="${noResults}" class="no-results-message">
+			<p>Không tìm thấy chuyên khoa nào với từ khóa tìm kiếm.</p>
+		</div>
+
+		<!-- Table -->
+		<table th:if="${!noResults}">
+			<thead>
+				<tr>
+					<th>Tên Chuyên Khoa</th>
+					<th>Mô Tả</th>
+					<th>Thao Tác</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="chuyenKhoa : ${chuyenkhoas}">
+					<td th:text="${chuyenKhoa.ten}"></td>
+					<td th:text="${chuyenKhoa.moTa}"></td>
+					<td>
+						<a th:href="@{/admin/qlck/edit-chuyenkhoa/{chuyenKhoaId}(chuyenKhoaId=${chuyenKhoa.chuyenKhoaId})}"
+							class="btn-edit">Chỉnh Sửa</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<!-- Pagination (will be hidden if no results) -->
+		<div th:if="${!noResults}" class="pagination">
+			<div class="pagination-buttons">
+				<a th:if="${currentPage > 0}" th:href="@{/admin/qlck(page=${currentPage - 1}, ten=${searchQuery})}"
+					class="prev">Trang trước</a>
+
+				<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+					<a th:href="@{/admin/qlck(page=${i}, ten=${searchQuery})}" th:text="${i + 1}"
+						th:classappend="${i == currentPage ? 'active' : ''}"></a>
+				</span>
+
+				<a th:if="${currentPage < totalPages - 1}"
+					th:href="@{/admin/qlck(page=${currentPage + 1}, ten=${searchQuery})}" class="next">Trang sau</a>
+			</div>
+		</div>
+
+
+		<!-- Add New Chuyen Khoa -->
+		<form th:action="@{/admin/add-chuyenkhoa}" method="get" style="display:inline; ">
+			<button type="submit" class="btn-add">Thêm Chuyên Khoa</button>
+		</form>
+	</div>
+</body>
+
+</html>

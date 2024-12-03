@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bước 3 - Đặt Lịch Khám</title>
+    <link th:href="@{/css/dangkylichkham.css}" rel="stylesheet">
+    <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div th:replace="nhanvien/fragments/header :: header"></div> <!-- Header -->
+
+    <!-- Step 3 -->
+    <div class="dk-container">
+        <div class="dk-step dk-step-3 active">
+            <h2 class="dk-title">XEM LỊCH KHÁM</h2>
+
+            <!-- Thông tin bác sĩ -->
+            <div class="dk-doctor-info">
+                <p><strong>Bác sĩ:</strong> <span id="doctorName" th:text="${doctor.ten}">Dr. Trần Thiết Hùng</span></p>
+                <p><strong></strong> <span id="hiddenDoctorId" style="display:none;" th:text="${doctor.bacSiId}">12345</span></p>
+                <p><strong>Chuyên khoa:</strong> <span id="doctorSpecialty" th:text="${doctor.chuyenKhoa.ten}">Nội khoa</span></p>
+            </div>
+
+            <!-- Thông tin lịch khám -->
+            <div class="dk-schedule">
+                <p><strong>Ngày khám:</strong> <span id="selectedDate" th:text="${date}">30 Tháng Mười Một 2024</span></p>
+                <p><strong>Giờ khám:</strong> <span id="selectedTime" th:text="${time}">13:30</span></p>	
+                <p><strong>Ca:</strong> <span id="selectedCa" th:text="${ca}"></span></p>
+            </div>
+
+            <div class="dk-actions">
+                <button type="button" class="dk-btn dk-btn-secondary" onclick="window.location.href='/nhanvien/dangkylichkham'">THAY ĐỔI</button>
+                <button type="button" class="dk-btn dk-btn-primary" onclick="saveDataToSession()">TIẾP THEO</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function saveDataToSession() {
+            // Lấy thông tin từ giao diện
+            const doctorId = document.getElementById('hiddenDoctorId').textContent.trim();
+            const doctorName = document.getElementById('doctorName').textContent.trim();
+            const doctorSpecialty = document.getElementById('doctorSpecialty').textContent.trim();
+            const selectedDate = document.getElementById('selectedDate').textContent.trim();
+            const selectedTime = document.getElementById('selectedTime').textContent.trim();
+            const selectedCa = document.getElementById('selectedCa').textContent.trim();
+
+            // Lưu dữ liệu vào Session Storage
+            sessionStorage.setItem('doctorId', doctorId);
+            sessionStorage.setItem('doctorName', doctorName);
+            sessionStorage.setItem('doctorSpecialty', doctorSpecialty);
+            sessionStorage.setItem('selectedDate', selectedDate);
+            sessionStorage.setItem('selectedTime', selectedTime);
+            sessionStorage.setItem('selectedCa', selectedCa);
+
+            // Chuyển sang bước 4
+            window.location.href = '/nhanvien/dangkylichkham/buoc4';
+        }
+    </script>
+</body>
+
+</html>

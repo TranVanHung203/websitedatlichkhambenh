@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Quản Lý Bác Sĩ</title>
+	<link th:href="@{/css/quanlybacsi.css}" rel="stylesheet">
+	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
+	<link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+</head>
+
+<body>
+	<div th:replace="admin/fragments/header :: header"></div>
+	<div th:replace="admin/fragments/sidebar :: sidebar"></div>
+
+	<!-- Main Content -->
+	<div class="main-content">
+		<h1>Quản lý bác sĩ</h1>
+
+		<!-- Search Form -->
+		<form action="/admin/qlbs" method="get" style="margin-bottom: 20px;">
+			<input type="number" name="search" placeholder="Tìm kiếm bác sĩ theo số điện thoại"
+				style="padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px;"
+				oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
+		</form>
+
+		<!-- Hiển thị thông báo khi không tìm thấy bác sĩ -->
+		<div th:if="${noResults}" class="no-results-message">
+			<p>Không tìm thấy bác sĩ nào với số điện thoại đã nhập.</p>
+		</div>
+
+		<table th:if="${!noResults}">
+			<thead>
+				<tr>
+					<th>Tên</th>
+					<th>Giới tính</th>
+					<th>Ngày sinh</th>
+					<th>Địa chỉ</th>
+					<th>Số điện thoại</th>
+					<th>Chuyên khoa</th>
+					<th>Bằng cấp</th>
+					<th>Hội nghị nước ngoài</th>
+					<th>Chứng chỉ</th>
+					<th>Đào tạo chuyên ngành</th>
+					<th>Hành động</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="doctor : ${doctors}">
+					<td th:text="${doctor.ten}"></td>
+					<td th:text="${doctor.gioiTinh}"></td>
+					<td th:text="${doctor.ngaySinh}"></td>
+					<td th:text="${doctor.diaChi}"></td>
+					<td th:text="${doctor.dienThoai}"></td>
+					<td>
+						<span th:if="${doctor.chuyenKhoa == null}">Không có</span>
+						<span th:if="${doctor.chuyenKhoa != null}" th:text="${doctor.chuyenKhoa.ten}"></span>
+					</td>
+					<td th:text="${doctor.chiTietBacSi.bangCap}"></td>
+					<td th:text="${doctor.chiTietBacSi.hoiNghiNuocNgoai}"></td>
+					<td th:text="${doctor.chiTietBacSi.chungChi}"></td>
+					<td th:text="${doctor.chiTietBacSi.daoTaoChuyenNganh}"></td>
+					<td>
+						<a th:href="@{/admin/qlbs/edit-bacsi/{bacSiId}(bacSiId=${doctor.bacSiId})}"
+							class="btn-edit">Chỉnh Sửa</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<!-- Pagination -->
+		<div class="pagination" th:if="${!noResults}">
+			<a th:if="${currentPage > 0}" th:href="@{/admin/qlbs(page=${currentPage - 1})}" class="prev">Trang trước</a>
+
+			<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+				<a th:href="@{/admin/qlbs(page=${i})}" th:text="${i + 1}"
+					th:classappend="${i == currentPage ? 'active' : ''}"></a>
+			</span>
+
+			<a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/qlbs(page=${currentPage + 1})}"
+				class="next">Trang sau</a>
+		</div>
+	</div>
+</body>
+
+</html>

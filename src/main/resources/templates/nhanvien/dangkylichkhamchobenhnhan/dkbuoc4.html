@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bước 4 - Nhập Thông Tin Bệnh Nhân</title>
+	<link th:href="@{/css/dangkylichkham.css}" rel="stylesheet">
+	<link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+	<link th:href="@{/css/dkbuoc4.css}" rel="stylesheet">
+	<style>
+		.message-box {
+			display: none;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			padding: 20px;
+			border-radius: 5px;
+			color: white;
+			font-size: 16px;
+			text-align: center;
+			z-index: 1000;
+		}
+
+		.success {
+			background-color: green;
+		}
+
+		.error {
+			background-color: red;
+		}
+	</style>
+</head>
+
+<body>
+	 <div th:replace="nhanvien/fragments/header :: header"></div> <!-- Header -->
+
+	<!-- Thông báo -->
+	<div class="message-box" id="messageBox"></div>
+
+	<!-- Step 4 -->
+	<div class="dk-container">
+		<div class="dk-step dk-step-4 active">
+			<h2 class="dk-title">NHẬP THÔNG TIN BỆNH NHÂN</h2>
+
+			<!-- Hiển thị thông tin bác sĩ và lịch khám từ bước 3 -->
+			<div id="doctorScheduleInfo">
+				<p><strong>Bác sĩ:</strong> <span id="doctorName"></span></p>
+				<p><strong>Chuyên khoa:</strong> <span id="doctorSpecialty"></span></p>
+				<p><strong>Ngày khám:</strong> <span id="selectedDate"></span></p>
+				<p><strong>Giờ khám:</strong> <span id="selectedTime"></span></p>
+				<p><strong>Ca:</strong> <span id="selectedCa"></span></p>
+			</div>
+
+			<!-- Form nhập thông tin bệnh nhân -->
+			<form id="patientForm">
+				<div class="form-group">
+					<label for="patientName">Họ và tên:</label>
+					<input type="text" id="patientName" name="patientName" required>
+				</div>
+
+				<div class="form-group">
+					<label for="patientPhone">Số điện thoại:</label>
+					<input type="text" id="patientPhone" name="patientPhone" required>
+				</div>
+
+				<div class="form-group">
+					<label for="patientAddress">Địa chỉ:</label>
+					<input type="text" id="patientAddress" name="patientAddress" required>
+				</div>
+
+				<div class="form-group">
+					<label for="patientGender">Giới tính:</label>
+					<select id="patientGender" name="patientGender" required>
+						<option value="Nam">Nam</option>
+						<option value="Nữ">Nữ</option>
+						<option value="Khác">Khác</option>
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label for="patientBirthDate">Ngày sinh:</label>
+					<input type="date" id="patientBirthDate" name="patientBirthDate" required>
+				</div>
+
+				<div class="dk-actions">
+					<button type="button" class="dk-btn dk-btn-secondary"
+						onclick="window.location.href='/nhanvien/dangkylichkham'">QUAY LẠI</button>
+					<button type="button" class="dk-btn dk-btn-primary" id="confirmButton">XÁC NHẬN</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script>
+		// Lấy dữ liệu từ Session Storage
+		function loadStep3Data() {
+			const doctorName = sessionStorage.getItem('doctorName');
+			const doctorSpecialty = sessionStorage.getItem('doctorSpecialty');
+			const selectedDate = sessionStorage.getItem('selectedDate');
+			const selectedTime = sessionStorage.getItem('selectedTime');
+			const selectedCa = sessionStorage.getItem('selectedCa');
+
+			// Hiển thị dữ liệu lên giao diện
+			document.getElementById('doctorName').textContent = doctorName || 'Chưa xác định';
+			document.getElementById('doctorSpecialty').textContent = doctorSpecialty || 'Chưa xác định';
+			document.getElementById('selectedDate').textContent = selectedDate || 'Chưa xác định';
+			document.getElementById('selectedTime').textContent = selectedTime || 'Chưa xác định';
+			document.getElementById('selectedCa').textContent = selectedCa || 'Chưa xác định';
+		}
+
+		// Xác nhận thông tin bệnh nhân
+		document.getElementById('confirmButton').addEventListener('click', function () {
+			const doctorId = sessionStorage.getItem('doctorId');
+			const selectedDate = sessionStorage.getItem('selectedDate');
+			const selectedTime = sessionStorage.getItem('selectedTime');
+			const selectedCa = sessionStorage.getItem('selectedCa');
+
+			const patientName = document.getElementById('patientName').value.trim();
+			const patientPhone = document.getElementById('patientPhone').value.trim();
+			const patientAddress = document.getElementById('patientAddress').value.trim();
+			const patientGender = document.getElementById('patientGender').value.trim();
+			const patientBirthDate = document.getElementById('patientBirthDate').value;
+
+			if (!patientName || !patientPhone || !patientAddress || !patientGender || !patientBirthDate) {
+				alert('Vui lòng nhập đầy đủ thông tin bệnh nhân!');
+				return;
+			}
+
+			// Gửi dữ liệu qua POST request
+			fetch('/nhanvien/dangkylichkham/confirm', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					doctorId,
+					selectedDate,
+					selectedTime,
+					selectedCa,
+					patientName,
+					patientPhone,
+					patientAddress,
+					patientGender,
+					patientBirthDate
+				})
+			})
+				.then(response => response.json())
+				.then(data => {
+					const messageBox = document.getElementById('messageBox');
+					if (data.status === 'success') {
+						messageBox.textContent = 'Lịch khám của bạn đã được xác nhận thành công!';
+						messageBox.className = 'message-box success';
+					} else {
+						messageBox.textContent = data.message || 'Đã có lỗi xảy ra, vui lòng thử lại!';
+						messageBox.className = 'message-box error';
+					}
+					messageBox.style.display = 'block';
+					setTimeout(() => {
+						messageBox.style.display = 'none';
+						if (data.status === 'success') {
+							window.location.href = '/nhanvien/dangkylichkham';
+						}
+					}, 2000);
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					alert('Đã có lỗi xảy ra, vui lòng thử lại!');
+				});
+		});
+
+		// Gọi hàm để hiển thị dữ liệu bước 3
+		loadStep3Data();
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link th:href="@{/css/quanlytaikhoan.css}" rel="stylesheet">
+    <link th:href="@{/css/headeradmin.css}" rel="stylesheet">
+    <link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+</head>
+
+<body>
+
+    <div th:replace="admin/fragments/header :: header"></div>
+    <div th:replace="admin/fragments/sidebar :: sidebar"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1>Quản lý tài khoản người dùng</h1>
+
+        <!-- Form to Add New User -->
+        <div class="form-container">
+            <h2>Thêm người dùng mới</h2>
+
+            <form id="userForm" onsubmit="saveUser(event)">
+                <div class="form-row radio-group">
+                    <label>Chọn vai trò:</label>
+                    <div class="role-options">
+                        <input type="radio" name="role" value="Admin" onclick="toggleFields('Admin')" checked> Admin
+                        <input type="radio" name="role" value="BacSi" onclick="toggleFields('BacSi')"> Bác sĩ
+                        <input type="radio" name="role" value="BenhNhan" onclick="toggleFields('BenhNhan')"> Bệnh nhân
+                        <input type="radio" name="role" value="NhanVien" onclick="toggleFields('NhanVien')"> Nhân viên
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>Email:</label>
+                    <input type="email" id="email" placeholder="Nhập email" required>
+                </div>
+
+                <div class="form-row">
+                    <label>Tên đăng nhập:</label>
+                    <input type="text" id="tenDangNhap" placeholder="Nhập tên đăng nhập" required>
+                </div>
+
+                <div class="form-row">
+                    <label>Mật khẩu:</label>
+                    <input type="password" id="matKhau" placeholder="Nhập mật khẩu" required>
+                </div>
+
+                <div id="doctorPatientFields">
+                    <div class="form-row">
+                        <label>Tên:</label>
+                        <input type="text" id="ten" placeholder="Nhập tên">
+                    </div>
+
+                    <div class="form-row">
+                        <label>Điện thoại:</label>
+                        <input type="tel" id="dienThoai" placeholder="Nhập số điện thoại">
+                    </div>
+
+                    <div class="form-row">
+                        <label>Địa chỉ:</label>
+                        <input type="text" id="diaChi" placeholder="Nhập địa chỉ">
+                    </div>
+
+                    <div class="form-row">
+                        <label>Giới tính:</label>
+                        <select id="gioiTinh">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label>Ngày sinh:</label>
+                        <input type="date" id="ngaySinh">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast"></div>
+
+    <script>
+        function toggleFields(role) {
+            var doctorPatientFields = document.getElementById("doctorPatientFields");
+
+            // Hide fields for "Admin" and "Nhân viên" roles
+            if (role === 'Admin' || role === 'NhanVien') {
+                doctorPatientFields.style.display = 'none';
+            } else {
+                doctorPatientFields.style.display = 'block';
+            }
+        }
+
+        function showToast(message, isSuccess = true) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.style.backgroundColor = isSuccess ? "#4CAF50" : "#f44336";
+            toast.className = "show";
+            setTimeout(() => {
+                toast.className = toast.className.replace("show", "");
+            }, 4000);
+        }
+
+        function saveUser(event) {
+            event.preventDefault();
+
+            const role = document.querySelector('input[name="role"]:checked').value;
+            const email = document.getElementById("email").value;
+            const tenDangNhap = document.getElementById("tenDangNhap").value;
+            const matKhau = document.getElementById("matKhau").value;
+
+            const userData = { email, tenDangNhap, matKhau, vaiTro: role };
+
+            // If the role is 'Bác sĩ' or 'Bệnh nhân', include additional fields
+            if (role === 'BacSi' || role === 'BenhNhan') {
+                userData.ten = document.getElementById("ten").value;
+                userData.dienThoai = document.getElementById("dienThoai").value;
+                userData.diaChi = document.getElementById("diaChi").value;
+                userData.gioiTinh = document.getElementById("gioiTinh").value;
+                userData.ngaySinh = document.getElementById("ngaySinh").value;
+            }
+
+            fetch('/admin/qltk/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errData => {
+                            const errMessage = errData.error || 'Thêm người dùng thất bại';
+                            throw new Error(errMessage);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showToast(data.message || 'Thêm người dùng thành công', true);
+                    document.getElementById("userForm").reset();
+                    toggleFields('Admin');
+                })
+                .catch(error => {
+                    showToast(error.message, false);
+                });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Chuyên Khoa</title>
+    <link th:href="@{/css/addchuyenkhoa.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="main-content">
+        <h1>Thêm Chuyên Khoa Mới</h1>
+        <form th:action="@{/admin/add-chuyenkhoa}" method="post">
+            <!-- Trường tên chuyên khoa -->
+            <div class="form-group">
+                <label for="ten">Tên Chuyên Khoa:</label>
+                <input type="text" id="ten" name="ten" required />
+            </div>
+
+            <!-- Trường mô tả -->
+            <div class="form-group">
+                <label for="moTa">Mô Tả:</label>
+                <textarea id="moTa" name="moTa" rows="4" cols="50" 
+                          placeholder="Nhập mô tả cho chuyên khoa..." 
+                          style="resize: none;"></textarea>
+            </div>
+
+            <!-- Nút thêm -->
+            <button type="submit" class="btn-add">Thêm Chuyên Khoa</button>
+        </form>
+
+        <!-- Nút quay lại -->
+        <a href="/admin/qlck" class="btn-back">Quay lại danh sách chuyên khoa</a>
+    </div>
+</body>
+
+</html>

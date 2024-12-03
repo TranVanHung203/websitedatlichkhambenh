@@ -1,0 +1,86 @@
+/* styles.css */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e1f5fe; /* Màu nền xanh dương nhạt */
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    height: 100vh; /* Đảm bảo chiều cao bằng toàn bộ cửa sổ */
+}
+
+.forgot-password-container {
+    width: 400px;
+    padding: 40px; /* Tăng padding cho nội dung */
+    background-color: white; /* Nền trắng cho phần nhập liệu */
+    border-radius: 10px; /* Độ cong cho border */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Đổ bóng mờ */
+    text-align: center; /* Căn giữa nội dung */
+}
+
+h2 {
+    margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+    color: #0277bd; /* Màu tiêu đề xanh dương */
+}
+
+p {
+    margin-bottom: 30px; /* Khoảng cách dưới đoạn mô tả */
+    color: #555;
+}
+
+.form-group {
+    margin-bottom: 20px; /* Khoảng cách giữa các trường nhập */
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+input[type="email"] {
+    width: 100%;
+    padding: 1px; /* Padding cho trường nhập */
+    border: 1px solid #ccc; /* Đường viền */
+    border-radius: 5px; /* Độ cong cho border */
+    font-size: 16px; /* Kích thước chữ */
+    transition: border-color 0.3s; /* Hiệu ứng chuyển màu */
+}
+
+input[type="email"]:focus {
+    border-color: #0277bd; /* Màu viền khi chọn */
+}
+
+button {
+    width: 100%;
+    padding: 12px; /* Padding cho nút */
+    background-color: #0288d1; /* Màu nền nút xanh dương */
+    color: white;
+    border: none;
+    border-radius: 5px; /* Độ cong cho border */
+    cursor: pointer;
+    font-size: 16px; /* Kích thước chữ */
+    transition: background-color 0.3s; /* Hiệu ứng chuyển màu */
+}
+
+button:hover {
+    background-color: #01579b; /* Màu nền khi hover */
+}
+
+.back-to-login {
+    margin-top: 20px; /* Khoảng cách trên cùng cho liên kết quay lại */
+}
+
+.back-to-login a {
+    color: #0288d1; /* Màu liên kết xanh dương */
+    text-decoration: none; /* Bỏ gạch chân */
+}
+
+.back-to-login a:hover {
+    text-decoration: underline; /* Gạch chân khi hover */
+}

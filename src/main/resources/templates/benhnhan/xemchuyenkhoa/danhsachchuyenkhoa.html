@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Danh Sách Chuyên Khoa</title>
+	<link th:href="@{/css/danhsachchuyenkhoa.css}" rel="stylesheet">
+	<link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+	<link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+</head>
+
+<body>
+	<div th:replace="benhnhan/fragments/header :: header"></div>
+	<div class="danhsachchuyenkhoa">
+		<h1>Danh Sách Các Chuyên Khoa</h1>
+		<ul class="department-list">
+			<li th:each="chuyenKhoa : ${chuyenKhoas}">
+				<!-- Liên kết dẫn tới trang chi tiết chuyên khoa -->
+				<a th:href="@{|/departments/${chuyenKhoa.chuyenKhoaId}|}" th:text="${chuyenKhoa.ten}"></a>
+			</li>
+		</ul>
+
+	</div>
+	<div th:replace="benhnhan/fragments/footer :: footer"></div>
+
+</body>
+
+</html>

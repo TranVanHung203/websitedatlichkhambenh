@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bước 3 - Đặt Lịch Khám</title>
+    <link th:href="@{/css/dangkylichkham.css}" rel="stylesheet">
+    <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+    <style>
+        /* Thêm CSS cho thông báo */
+        .message-box {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .success {
+            background-color: green;
+        }
+
+        .error {
+            background-color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="benhnhan/fragments/header :: header"></div> <!-- Header -->
+
+    <!-- Thông báo thành công hoặc thất bại -->
+    <div class="message-box" id="messageBox"></div>
+
+    <!-- Step 3 -->
+    <div class="dk-container">
+        <div class="dk-step dk-step-3 active">
+            <h2 class="dk-title">XÁC NHẬN LỊCH KHÁM</h2>
+
+            <!-- Thông tin bác sĩ -->
+            <div class="dk-doctor-info">
+                <p><strong>Bác sĩ:</strong> <span id="doctorName" th:text="${doctor.ten}">Dr. Trần Thiết Hùng</span></p>
+                <p><strong></strong> <span id="hiddenDoctorId" style="display:none;" th:text="${doctor.bacSiId}">12345</span></p>
+                <p><strong>Chuyên khoa:</strong> <span id="doctorSpecialty" th:text="${doctor.chuyenKhoa.ten}">Nội khoa</span></p>
+            </div>
+
+            <!-- Thông tin lịch khám -->
+            <div class="dk-schedule">
+                <p><strong>Ngày khám:</strong> <span id="selectedDate" th:text="${date}">30 Tháng Mười Một 2024</span></p>
+                <p><strong>Giờ khám:</strong> <span id="selectedTime" th:text="${time}">13:30</span></p>
+                <p><strong>Ca:</strong> <span id="selectedCa" th:text="${ca}"></span></p>
+            </div>
+
+            <div class="dk-actions">
+                <button type="button" class="dk-btn dk-btn-secondary" onclick="window.location.href='/user/dangkylichkham'">THAY ĐỔI</button>
+                <button type="submit" class="dk-btn dk-btn-primary">XÁC NHẬN</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sự kiện cho nút "XÁC NHẬN"
+        document.querySelector('.dk-btn-primary').addEventListener('click', function () {
+            // Lấy các thông tin cần thiết từ giao diện
+            const doctorNameElement = document.querySelector('#hiddenDoctorId');
+            const selectedDateElement = document.querySelector('#selectedDate');
+            const selectedTimeElement = document.querySelector('#selectedTime');
+            const selectedCaElement = document.querySelector('#selectedCa');
+
+            // Kiểm tra xem các phần tử có tồn tại hay không
+            if (doctorNameElement && selectedDateElement && selectedTimeElement && selectedCaElement) {
+                const doctorId = doctorNameElement.textContent.trim();  // Lấy doctorId
+                const selectedDate = selectedDateElement.textContent.trim();  // Lấy ngày khám
+                const selectedTime = selectedTimeElement.textContent.trim();  // Lấy giờ khám
+                const selectedCa = selectedCaElement.textContent.trim();  // Lấy ca khám
+
+                // Gửi thông tin lên server qua POST request
+                fetch('/user/dangkylichkham/confirm', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        doctorId: doctorId,  // Sử dụng doctorId
+                        selectedDate: selectedDate,
+                        selectedTime: selectedTime,
+                        selectedCa: selectedCa  // Thêm thông tin về ca khám
+                    })
+                })
+                    .then(response => response.json())  // Giải mã phản hồi dưới dạng JSON
+                    .then(data => {
+                        // Hiển thị thông báo thành công hoặc thất bại
+                        const messageBox = document.getElementById('messageBox');
+                        if (data.status === 'success') {
+                            // Hiển thị thông báo thành công
+                            messageBox.textContent = 'Lịch khám của bạn đã được xác nhận thành công!';
+                            messageBox.className = 'message-box success';  // Đặt lớp cho thông báo thành công
+                        } else {
+                            // Hiển thị thông báo thất bại
+                            messageBox.textContent = data.message || 'Đã có lỗi xảy ra, vui lòng thử lại!';
+                            messageBox.className = 'message-box error';  // Đặt lớp cho thông báo thất bại
+                        }
+                        // Hiển thị thông báo trong 2 giây rồi chuyển hướng
+                        messageBox.style.display = 'block';
+                        setTimeout(function () {
+                            messageBox.style.display = 'none';  // Ẩn thông báo
+                            if (data.status === 'success') {
+                                // Nếu thành công, chuyển trang
+                                window.location.href = '/home';
+                            }
+                        }, 2000);  // Đợi 2 giây
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Đã có lỗi xảy ra, vui lòng thử lại!');
+                    });
+            } else {
+                alert('Có lỗi trong việc lấy thông tin! Vui lòng thử lại!');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

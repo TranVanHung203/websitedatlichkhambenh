@@ -1,0 +1,37 @@
+<header th:fragment="header">
+    <div class="custom-header top-bar">
+        <div class="logo">
+            <img th:src="@{/images/logobenhvien.png}" alt="Logo" class="logo-img">
+        </div>
+
+        <div class="contact-info">
+            <p>Số 1 Võ Văn Ngân, Thành Phố Thủ Đức</p>
+            <p>HOTLINE: 0901610273</p>
+            <p>Mail: 21110889@student.hcmute.edu.vn</p>
+        </div>
+    </div>
+    <nav class="custom-header">
+        <ul>
+            <li><a th:href="@{/home}">Giới Thiệu</a></li>
+            <li class="custom-header-dropdown">
+                <a class="dropdown-toggle">Bác Sĩ</a>
+                <ul class="dropdown-menu">
+                    <li><a th:href="@{/view/schedule}">Lịch Làm Việc</a></li>
+                    <li><a th:href="@{/findbs}">Đội Ngũ Bác Sĩ</a></li>
+                </ul>
+            </li>
+            <li><a th:href="@{/departments}">Chuyên Khoa</a></li>
+            <li><a th:href="@{/user/dangkylichkham}">Đặt lịch khám</a></li>
+            <li><a th:href="@{/user/lichsudatlich}">Xem lịch hẹn</a></li>
+            <li><a th:href="@{/user/lichsukhambenh}">Lịch sử khám bệnh</a></li>
+           
+            <li>
+                <a th:href="@{/user/editprofile}" class="edit-profile">
+                    <img th:src="@{/images/logoeditprofile.png}" alt="Edit Profile" width="20px" class="edit-icon">
+                    <span class="edit-text">Thông tin cá nhân</span>
+                </a>
+            </li>
+            <li><a th:href="@{/logout}" class="logout">Đăng Xuất</a></li>
+        </ul>
+    </nav>
+</header>

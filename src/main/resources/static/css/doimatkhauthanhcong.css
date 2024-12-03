@@ -1,0 +1,51 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff; /* Màu nền xanh dương nhạt */
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Chiều cao 100% viewport */
+}
+
+.card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    width: 300px; /* Độ rộng của card */
+}
+
+.checkmark-container {
+    font-size: 50px; /* Kích thước của dấu tích */
+    color: #a0d3ff; /* Màu xanh dương nhạt hơn */
+    margin-bottom: 15px; /* Khoảng cách dưới dấu tích */
+}
+
+h2 {
+    color: #007bff; /* Màu xanh dương */
+    margin-bottom: 10px;
+}
+
+p {
+    color: #555; /* Màu chữ tối */
+    margin-bottom: 20px;
+}
+
+button {
+    background-color: #007bff; /* Màu xanh dương */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #0056b3; /* Màu xanh dương đậm hơn khi hover */
+}

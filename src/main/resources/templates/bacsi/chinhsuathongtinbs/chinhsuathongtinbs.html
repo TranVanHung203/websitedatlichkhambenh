@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Chỉnh sửa thông tin Bác sĩ</title>
+	<link rel="stylesheet" th:href="@{/css/chinhsuathongtinbs.css}">
+	<link rel="stylesheet" th:href="@{/css/headerbacsi.css}">
+</head>
+
+<body>
+	<div th:replace="bacsi/fragments/header :: header"></div>
+	<div class="container">
+		<h2>Chỉnh sửa thông tin Bác sĩ</h2>
+
+		<!-- Tabs -->
+		<div class="tabs">
+			<div class="tab active" onclick="openTab(event, 'tabPersonal')">Thông tin cá nhân</div>
+			<div class="tab" onclick="openTab(event, 'tabAccount')">Thông tin tài khoản</div>
+			<div class="tab" onclick="openTab(event, 'tabProfessional')">Thông tin chuyên môn</div>
+		</div>
+
+		<!-- Form -->
+		<form th:action="@{/updateProfile}" method="post" enctype="multipart/form-data">
+			<!-- Trường ẩn để gửi ID bác sĩ -->
+			<input type="hidden" name="bacSiId" th:value="${personalInfo.bacSiId}">
+
+			<!-- Thông tin cá nhân -->
+			<div id="tabPersonal" class="tab-content active">
+				<div class="form-section">
+					<div class="form-group">
+						<label for="ten">Tên</label>
+						<input type="text" id="ten" name="ten" th:value="${personalInfo.ten}"
+							placeholder="Nhập tên của bạn" required>
+					</div>
+					<div class="form-group">
+						<label for="ngaySinh">Ngày sinh</label>
+						<input type="date" id="ngaySinh" name="ngaySinh" th:value="${personalInfo.ngaySinh}" required>
+					</div>
+					<div class="form-group">
+						<label for="gioiTinh">Giới tính</label>
+						<select id="gioiTinh" name="gioiTinh">
+							<option value="Nam" th:selected="${personalInfo.gioiTinh == 'Nam'}">Nam</option>
+							<option value="Nữ" th:selected="${personalInfo.gioiTinh == 'Nữ'}">Nữ</option>
+							<option value="Khác" th:selected="${personalInfo.gioiTinh == 'Khác'}">Khác</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="form-section">
+					<div class="form-group">
+						<label for="dienThoai">Điện thoại</label>
+						<input type="tel" id="dienThoai" name="dienThoai" th:value="${personalInfo.dienThoai}"
+							placeholder="Nhập số điện thoại">
+					</div>
+					<div class="form-group">
+						<label for="diaChi">Địa chỉ</label>
+						<input type="text" id="diaChi" name="diaChi" th:value="${personalInfo.diaChi}"
+							placeholder="Nhập địa chỉ">
+					</div>
+					<div class="form-group">
+						<label for="chuyenKhoa">Chuyên Khoa</label>
+						<select id="chuyenKhoa" name="chuyenKhoaId" required>
+							<option value="" disabled selected>Chọn chuyên khoa</option>
+							<option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.chuyenKhoaId}"
+								th:text="${chuyenKhoa.ten}"
+								th:selected="${chuyenKhoa.chuyenKhoaId == personalInfo.chuyenKhoaId}">
+								Chuyên Khoa
+							</option>
+						</select>
+					</div>
+
+					<!-- Avatar upload -->
+					<div class="form-group">
+						<label for="avatar">Ảnh đại diện</label>
+						<input type="file" id="avatar" name="avatar" accept="image/*" onchange="previewAvatar(event)">
+					</div>
+
+					<!-- Display current avatar -->
+					<div class="form-group">
+						<label>Hình ảnh hiện tại</label><br>
+						
+						
+						<img id="current-avatar"
+							th:src="${personalInfo.avatarurl != null ? personalInfo.avatarurl : '/uploads/f9dcf22c-ca7f-4259-b193-ff5de5f23563-IMG_1666.JPG'}"
+							alt="Avatar hiện tại"
+							style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+
+					</div>
+
+					<button type="submit" class="btn">Lưu thông tin cá nhân</button>
+				</div>
+			</div>
+
+			<!-- Thông tin tài khoản -->
+			<div id="tabAccount" class="tab-content">
+				<div class="form-section">
+					<div class="form-group">
+						<label for="email">Email</label>
+						<input type="email" id="email" name="email" th:value="${personalInfo.email}"
+							placeholder="Nhập email" required>
+					</div>
+					<div class="form-group">
+						<label for="tenDangNhap">Tên đăng nhập</label>
+						<input type="text" id="tenDangNhap" name="tenDangNhap" th:value="${personalInfo.tenDangNhap}"
+							placeholder="Nhập tên đăng nhập" required>
+					</div>
+				</div>
+
+				<div class="form-section">
+					<button type="submit" class="btn">Lưu thông tin tài khoản</button>
+				</div>
+			</div>
+
+			<!-- Thông tin chuyên môn -->
+			<div id="tabProfessional" class="tab-content">
+				<div class="form-section">
+					<div class="form-group">
+						<label for="bangCap">Bằng cấp</label>
+						<textarea id="bangCap" name="bangCap" placeholder="Nhập thông tin bằng cấp"
+							th:text="${detailInfo.bangCap}"></textarea>
+					</div>
+					<div class="form-group">
+						<label for="hoiNghiNuocNgoai">Hội nghị nước ngoài</label>
+						<textarea id="hoiNghiNuocNgoai" name="hoiNghiNuocNgoai" placeholder="Nhập thông tin hội nghị"
+							th:text="${detailInfo.hoiNghiNuocNgoai}"></textarea>
+					</div>
+				</div>
+
+				<div class="form-section">
+					<div class="form-group">
+						<label for="chungChi">Chứng chỉ</label>
+						<textarea id="chungChi" name="chungChi" placeholder="Nhập chứng chỉ"
+							th:text="${detailInfo.chungChi}"></textarea>
+					</div>
+					<div class="form-group">
+						<label for="linhVucChuyenSau">Lĩnh vực chuyên sâu</label>
+						<textarea id="linhVucChuyenSau" name="linhVucChuyenSau" placeholder="Nhập lĩnh vực chuyên sâu"
+							th:text="${detailInfo.linhVucChuyenSau}"></textarea>
+					</div>
+				</div>
+
+				<div class="form-section">
+					<div class="form-group">
+						<label for="daoTaoChuyenNganh">Đào tạo chuyên ngành</label>
+						<textarea id="daoTaoChuyenNganh" name="daoTaoChuyenNganh"
+							placeholder="Nhập thông tin đào tạo chuyên ngành"
+							th:text="${detailInfo.daoTaoChuyenNganh}"></textarea>
+					</div>
+					<div class="form-group">
+						<label for="gioiThieu">Giới thiệu</label>
+						<textarea id="gioiThieu" name="gioiThieu" placeholder="Giới thiệu về bản thân"
+							th:text="${detailInfo.gioiThieu}"></textarea>
+					</div>
+					<button type="submit" class="btn">Lưu thông tin chuyên môn</button>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<script>
+		function openTab(evt, tabName) {
+			var i, tabContent, tabLinks;
+
+			tabContent = document.getElementsByClassName("tab-content");
+			for (i = 0; i < tabContent.length; i++) {
+				tabContent[i].classList.remove("active");
+			}
+
+			tabLinks = document.getElementsByClassName("tab");
+			for (i = 0; i < tabLinks.length; i++) {
+				tabLinks[i].classList.remove("active");
+			}
+
+			document.getElementById(tabName).classList.add("active");
+			evt.currentTarget.classList.add("active");
+		}
+
+		function previewAvatar(event) {
+			const reader = new FileReader();
+			reader.onload = function () {
+				const img = document.getElementById('current-avatar');
+				img.src = reader.result; // Hiển thị ảnh mới được chọn
+			};
+			reader.readAsDataURL(event.target.files[0]);
+		}
+
+		// Hàm tải ảnh từ URL đã lưu
+		function loadSavedAvatar() {
+			const img = document.getElementById('current-avatar');
+			const savedUrl = img.getAttribute('data-saved-url'); // Lấy URL từ thuộc tính data
+			if (savedUrl) {
+				img.src = savedUrl; // Thiết lập ảnh từ URL đã lưu
+			}
+		}
+
+		// Gọi loadSavedAvatar khi trang được tải
+		window.addEventListener('DOMContentLoaded', loadSavedAvatar);
+	</script>
+</body>
+
+</html>

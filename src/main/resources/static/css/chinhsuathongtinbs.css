@@ -1,0 +1,144 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background-color: #ffffff;
+    width: 85%;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    margin-bottom: -200px;
+}
+
+.container h2 {
+    color: #2a9d8f;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.tab:hover {
+    background-color: #f1f1f1;
+}
+
+.tab.active {
+    color: #2a9d8f;
+    border-bottom: 3px solid #2a9d8f;
+}
+
+.tab-content {
+    display: none;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+.form-section {
+    flex: 1;
+    padding: 20px;
+    margin-right: 10px;
+    min-width: 300px;
+}
+
+.form-section:last-child {
+    margin-right: 0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    color: #333;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    font-size: 14px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #2a9d8f;
+}
+
+textarea {
+    resize: none;
+    height: 60px;
+}
+
+.btn {
+    background-color: #2a9d8f;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 12px;
+    text-align: center;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.btn:hover {
+    background-color: #21867a;
+}
+
+/* New styles for layout */
+.tab-content .form-section {
+    flex-basis: 30%; /* Adjusted for three columns */
+    margin-right: 20px;
+}
+
+.tab-content .form-section:last-child {
+    margin-right: 0;
+}
+
+@media (max-width: 768px) {
+    .tab-content .form-section {
+        flex-basis: 100%; /* Stack vertically for small screens */
+        margin-right: 0;
+    }
+}

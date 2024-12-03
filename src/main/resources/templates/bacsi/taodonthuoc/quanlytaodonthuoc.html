@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Quản Lý Đơn Thuốc</title>
+	<link th:href="@{/css/headerbacsi.css}" rel="stylesheet">
+	<link th:href="@{/css/quanlytaodonthuoc.css}" rel="stylesheet">
+
+	<!-- Add SweetAlert CSS and JS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.10/dist/sweetalert2.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.10/dist/sweetalert2.all.min.js"></script>
+</head>
+
+<body>
+	<div th:replace="bacsi/fragments/header :: header"></div>
+
+	<h1>Quản Lý Đơn Thuốc</h1>
+
+	<button class="create-button" onclick="window.location.href='/bacsi/taodonthuoc'">Tạo Đơn Thuốc</button>
+	<form method="get" th:action="@{/bacsi/quanlytaodonthuoc}">
+		<input type="text" name="search" placeholder="Nhập tên bệnh nhân cần tìm" th:value="${search}" />
+	</form>
+
+	<!-- Kiểm tra nếu không có đơn thuốc -->
+	<div th:if="${#lists.isEmpty(donThuocs)}" class="no-results">
+		<p>Không tìm thấy thông tin bệnh nhân.</p>
+	</div>
+
+	<!-- Hiển thị bảng đơn thuốc -->
+	<div th:unless="${#lists.isEmpty(donThuocs)}">
+		<table>
+			<thead>
+				<tr>
+					<th>Bệnh Nhân</th>
+					<th>Chẩn Đoán</th>
+					<th>Thời Gian Tạo Đơn</th>
+					<th>Tên Thuốc</th>
+					<th>Liều Lượng</th>
+					<th>Tần Suất / lần</th>
+					<th>Tổng Tiền Thuốc</th>
+					<th>Hành Động</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="donThuoc : ${donThuocs}">
+					<td th:text="${donThuoc.hoSoBenh.benhNhan.ten}"></td>
+					<td th:text="${donThuoc.hoSoBenh.chanDoan}"></td>
+					<td th:text="${donThuoc.formattedDate}"></td>
+					<td>
+						<ul>
+							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.thuoc.ten}"></li>
+						</ul>
+					</td>
+					<td>
+						<ul>
+							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.lieu}"></li>
+						</ul>
+					</td>
+					<td>
+						<ul>
+							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.tanSuat}"></li>
+						</ul>
+					</td>
+					<td th:text="${donThuoc.formattedTongTienThuoc}"></td>
+					<td>
+						<form th:action="@{|/bacsi/xoadonthuoc/${donThuoc.donThuocId}|}" method="post">
+							<button type="submit"
+								onclick="return confirm('Bạn có chắc chắn muốn xóa đơn thuốc này?')">Xóa</button>
+						</form>
+						<a th:href="@{|/bacsi/capnhatdonthuoc?id=${donThuoc.donThuocId}|}" class="edit-button">Sửa</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<!-- Pagination -->
+		<div class="pagination">
+			<span th:if="${currentPage > 0}">
+				<a th:href="@{|/bacsi/quanlytaodonthuoc?page=${currentPage - 1}&search=${search}|}">Trang Trước</a>
+			</span>
+
+			<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+				<a th:href="@{|/bacsi/quanlytaodonthuoc?page=${i}&search=${search}|}"
+					th:classappend="${i == currentPage} ? 'active' : ''" th:text="${i + 1}"></a>
+			</span>
+
+			<span th:if="${currentPage < totalPages - 1}">
+				<a th:href="@{|/bacsi/quanlytaodonthuoc?page=${currentPage + 1}&search=${search}|}">Trang Sau</a>
+			</span>
+		</div>
+	</div>
+	</div>
+</body>
+
+</html>
