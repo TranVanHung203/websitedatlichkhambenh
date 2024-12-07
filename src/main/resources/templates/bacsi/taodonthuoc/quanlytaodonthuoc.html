@@ -39,6 +39,7 @@
 					<th>Tên Thuốc</th>
 					<th>Liều Lượng</th>
 					<th>Tần Suất / lần</th>
+					<th>Số Lượng</th> <!-- Thêm cột tiêu đề -->
 					<th>Tổng Tiền Thuốc</th>
 					<th>Hành Động</th>
 				</tr>
@@ -63,6 +64,12 @@
 							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.tanSuat}"></li>
 						</ul>
 					</td>
+					<td>
+						<ul>
+							<!-- Hiển thị số lượng thuốc -->
+							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.soLuong}"></li>
+						</ul>
+					</td>
 					<td th:text="${donThuoc.formattedTongTienThuoc}"></td>
 					<td>
 						<form th:action="@{|/bacsi/xoadonthuoc/${donThuoc.donThuocId}|}" method="post">
@@ -75,23 +82,53 @@
 			</tbody>
 		</table>
 
+
 		<!-- Pagination -->
 		<div class="pagination">
+			<!-- Link đến trang trước -->
 			<span th:if="${currentPage > 0}">
-				<a th:href="@{|/bacsi/quanlytaodonthuoc?page=${currentPage - 1}&search=${search}|}">Trang Trước</a>
+				<a
+					th:href="@{|/bacsi/quanlytaodonthuoc?page=${currentPage - 1}&search=${search != null ? search : ''}|}">Trang
+					Trước</a>
 			</span>
 
+			<!-- Danh sách các trang -->
 			<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-				<a th:href="@{|/bacsi/quanlytaodonthuoc?page=${i}&search=${search}|}"
+				<a th:href="@{|/bacsi/quanlytaodonthuoc?page=${i}&search=${search != null ? search : ''}|}"
 					th:classappend="${i == currentPage} ? 'active' : ''" th:text="${i + 1}"></a>
 			</span>
 
+			<!-- Link đến trang sau -->
 			<span th:if="${currentPage < totalPages - 1}">
-				<a th:href="@{|/bacsi/quanlytaodonthuoc?page=${currentPage + 1}&search=${search}|}">Trang Sau</a>
+				<a
+					th:href="@{|/bacsi/quanlytaodonthuoc?page=${currentPage + 1}&search=${search != null ? search : ''}|}">Trang
+					Sau</a>
 			</span>
 		</div>
 	</div>
-	</div>
+	<script>
+		// Hiển thị thông báo thành công
+		let successMessage = /*[[${successMessage}]]*/ null;
+		if (successMessage) {
+			Swal.fire({
+				icon: 'success',
+				title: 'Thành công!',
+				text: successMessage,
+				confirmButtonText: 'OK'
+			});
+		}
+
+		// Hiển thị thông báo lỗi
+		let errorMessage = /*[[${errorMessage}]]*/ null;
+		if (errorMessage) {
+			Swal.fire({
+				icon: 'error',
+				title: 'Thất bại!',
+				text: errorMessage,
+				confirmButtonText: 'OK'
+			});
+		}
+	</script>
 </body>
 
 </html>

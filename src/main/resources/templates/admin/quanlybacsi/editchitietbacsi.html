@@ -10,22 +10,28 @@
     <div class="main-content">
         <h1>Edit Doctor Details</h1>
         <form th:action="@{'/admin/qlbs/update-chitiet/' + ${doctor.bacSiId}}" th:object="${chiTietBacSi}" method="post">
-            <label for="bangCap">Degree:</label>
+            <label for="bangCap">Bằng Cấp:</label>
             <input type="text" id="bangCap" th:field="*{bangCap}" />
 
-            <label for="hoiNghiNuocNgoai">International Conferences:</label>
+            <label for="hoiNghiNuocNgoai">Hội Nghị Nước Ngoài:</label>
             <input type="text" id="hoiNghiNuocNgoai" th:field="*{hoiNghiNuocNgoai}" />
 
-            <label for="chungChi">Certificates:</label>
+            <label for="chungChi">Chứng Chỉ:</label>
             <input type="text" id="chungChi" th:field="*{chungChi}" />
 
-            <label for="daoTaoChuyenNganh">Specialized Training:</label>
+            <label for="daoTaoChuyenNganh">Đào Tạo Chuyên Ngành:</label>
             <input type="text" id="daoTaoChuyenNganh" th:field="*{daoTaoChuyenNganh}" />
+            
+               <!-- Thêm trường "Lĩnh vực chuyên sâu" -->
+            <label for="linhVucChuyenSau">Lĩnh Vực Chuyên Sâu:</label>
+            <input type="text" id="linhVucChuyenSau" th:field="*{linhVucChuyenSau}" />
 
-            <label for="gioiThieu">Introduction:</label>
+            <label for="gioiThieu">Giới Thiệu:</label>
             <textarea id="gioiThieu" th:field="*{gioiThieu}"></textarea>
 
-            <button type="submit">Lưu Cập Nhật</button>
+         
+
+            <button type="submit">Cập Nhật Thông Tin</button>
         </form>
         <a href="/admin/qlbs" class="btn-back">Quay lại danh sách bác sĩ</a>
     </div>

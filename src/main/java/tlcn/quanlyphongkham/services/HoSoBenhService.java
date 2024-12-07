@@ -67,57 +67,61 @@ public class HoSoBenhService {
 		)).collect(Collectors.toList());
 	}
 
-	public Page<HoSoBenhDTO> getHoSoBenhWithDonThuocByDateRangeAndDoctor(
-	        LocalDateTime startDateTime,
-	        LocalDateTime endDateTime,
-	        String bacSiId,
-	        Pageable pageable) {
+	public Page<HoSoBenhDTO> getHoSoBenhWithDonThuocByDateRangeAndDoctor(LocalDateTime startDateTime,
+			LocalDateTime endDateTime, String bacSiId, Pageable pageable) {
 
-	    // Lấy dữ liệu thô từ repository
-	    Page<Object[]> rawResults = hoSoBenhRepository.findHoSoBenhWithGroupedThuoc(startDateTime, endDateTime, bacSiId, pageable);
+		// Lấy dữ liệu thô từ repository
+		Page<Object[]> rawResults = hoSoBenhRepository.findHoSoBenhWithGroupedThuoc(startDateTime, endDateTime, bacSiId,
+				pageable);
 
-	    // Chuyển đổi Object[] sang HoSoBenhDTO
-	    return rawResults.map(obj -> {
-	        String hoSoId = (String) obj[0];
-	        String tenBenhNhan = (String) obj[1];
-	        String chanDoan = (String) obj[2];
-	        String thoiGianTao = (String) obj[3];
-	        String tenThuoc = (String) obj[4];
-	        String lieu = (String) obj[5];
-	        String tanSuat = (String) obj[6];
-	        BigDecimal tongTienThuoc = (BigDecimal) obj[7];
+		// Chuyển đổi Object[] sang HoSoBenhDTO
+		return rawResults.map(obj -> {
+			String hoSoId = (String) obj[0];
+			String tenBenhNhan = (String) obj[1];
+			String chanDoan = (String) obj[2];
+			String thoiGianTao = (String) obj[3];
+			String tenThuoc = (String) obj[4];
+			String lieu = (String) obj[5];
+			String tanSuat = (String) obj[6];
+			BigDecimal tongTienThuoc = (BigDecimal) obj[7];
 
-	        return new HoSoBenhDTO(hoSoId, tenBenhNhan, chanDoan, thoiGianTao, tenThuoc, lieu, tanSuat, tongTienThuoc);
-	    });
+			// Thêm thông tin số lượng vào DTO (Chuyển sang kiểu int)
+	        String soLuong = (String) obj[8];  // Thay đổi từ int sang String
+
+			return new HoSoBenhDTO(hoSoId, tenBenhNhan, chanDoan, thoiGianTao, tenThuoc, lieu, tanSuat, tongTienThuoc,
+					soLuong);
+		});
 	}
-
 
 	public Page<LichSuKhamDTO> getLichSuKhamByBenhNhanId(String benhNhanId, Pageable pageable) {
 	    Page<Object[]> rawData = hoSoBenhRepository.findLichSuKhamByBenhNhanIdRaw(benhNhanId, pageable);
 
 	    return rawData.map(obj -> new LichSuKhamDTO(
-	        (String) obj[0],  // tenBacSi
-	        (String) obj[1],  // ngayKham
-	        (String) obj[2],  // chanDoan
-	        (String) obj[3],  // thuoc
-	        (String) obj[4],  // lieu
-	        (String) obj[5],  // tanSuat
-	        (BigDecimal) obj[6]  // tongTienThuoc (thêm cột tổng tiền)
+	            (String) obj[0], // tenBacSi
+	            (String) obj[1], // ngayKham
+	            (String) obj[2], // chanDoan
+	            (String) obj[3], // thuoc
+	            (String) obj[4], // lieu
+	            (String) obj[5], // tanSuat
+	            (BigDecimal) obj[6], // tongTienThuoc
+	            (String) obj[7] // soLuong
 	    ));
 	}
+
 	public Page<LichSuKhamDTO> getLichSuKhamByBenhNhanIdAndDate(String benhNhanId, String date, Pageable pageable) {
 	    Page<Object[]> rawData = hoSoBenhRepository.findLichSuKhamByBenhNhanIdAndDateRaw(benhNhanId, date, pageable);
 
 	    return rawData.map(obj -> new LichSuKhamDTO(
-	        (String) obj[0],  // tenBacSi
-	        (String) obj[1],  // ngayKham
-	        (String) obj[2],  // chanDoan
-	        (String) obj[3],  // thuoc
-	        (String) obj[4],  // lieu
-	        (String) obj[5],  // tanSuat
-	        (BigDecimal) obj[6]  // tongTienThuoc
+	            (String) obj[0], // tenBacSi
+	            (String) obj[1], // ngayKham
+	            (String) obj[2], // chanDoan
+	            (String) obj[3], // thuoc
+	            (String) obj[4], // lieu
+	            (String) obj[5], // tanSuat
+	            (BigDecimal) obj[6], // tongTienThuoc
+	            (String) obj[7] // soLuong
 	    ));
 	}
 
-	
+
 }

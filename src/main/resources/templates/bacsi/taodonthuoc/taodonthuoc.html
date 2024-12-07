@@ -162,25 +162,34 @@
 				}
 			});
 		}
-
 		function selectDrug(drugId, drugName) {
 			if (!selectedDrugs.has(drugId)) {
-				selectedDrugs.add(drugId); // Add drug ID to set
+				selectedDrugs.add(drugId); // Thêm ID thuốc vào Set
 				const drugItem = `
-    			<div class="selected-drug" id="selectedDrug_${drugId}">
-		
-       			<p><strong>${drugName}</strong></p>
-        		<input type="hidden" name="drugIds[]" value="${drugId}">
-        		<label>Liều Lượng:</label>
-        		<input type="text" name="lieu[]" required />
-        		<label>Tần Suất:</label>
-        		<input type="text" name="tanSuat[]" required />
-        		<button type="button" onclick="removeDrug(${drugId})">Xóa</button>
-    			</div>`;
+			<div class="selected-drug" id="selectedDrug_${drugId}">
+				<p>${drugName}</p>
+				<div>
+					<label for="dosage_${drugId}">Liều Lượng:</label>
+					<input type="text" name="lieu[]" id="dosage_${drugId}" required />
+				</div>
+				<div>
+					<label for="frequency_${drugId}">Tần Suất:</label>
+					<input type="text" name="tanSuat[]" id="frequency_${drugId}" required />
+				</div>
+				<div>
+					<label for="quantity_${drugId}">Số Lượng:</label>
+					<input type="number" name="soLuong[]" id="quantity_${drugId}" value="1" required />
+				</div>
+				<div>
+					<button type="button" onclick="removeDrug(${drugId})">Xóa</button>
+				</div>
+			</div>`;
 				$('#selectedDrugsList').append(drugItem);
 				$(`#drugResults .drug-card[onclick="selectDrug(${drugId}, '${drugName}')"]`).remove();
 			}
 		}
+
+
 
 		function removeDrug(drugId) {
 			selectedDrugs.delete(drugId); // Remove drug ID from set
@@ -194,12 +203,22 @@
 			$('form').on('submit', function (event) {
 				event.preventDefault(); // Ngăn form tự submit
 
-				const formData = $(this).serialize(); // Lấy dữ liệu từ form
+				// Lấy dữ liệu từ form
+				const formData = $(this).serializeArray();
+
+				// Thêm drugIds vào formData
+				const drugIds = Array.from(selectedDrugs);
+				// Nếu có thuốc đã chọn, thêm vào formData
+				if (drugIds.length > 0) {
+					drugIds.forEach((drugId) => {
+						formData.push({name: 'drugIds[]', value: drugId});
+					});
+				}
 
 				$.ajax({
 					url: '/bacsi/taodonthuoc',
 					method: 'POST',
-					data: formData,
+					data: $.param(formData), // Sử dụng $.param để gửi dữ liệu dạng query string
 					success: function (response) {
 						Swal.fire({
 							title: 'Thành Công!',

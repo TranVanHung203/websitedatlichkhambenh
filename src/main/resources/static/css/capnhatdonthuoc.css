@@ -190,105 +190,213 @@ a:hover {
 	background-color: #f1f1f1;
 	transform: scale(1.05);
 }
-#selectedDrugsList {
-    margin-top: 20px;
+
+/* General Styles */
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f4f4f4;
+	margin: 0;
+	padding: 0;
 }
 
+/* Container for the form */
+form {
+	width: 50%;
+	margin: 30px auto;
+	padding: 20px;
+	background-color: #ffffff;
+	border-radius: 8px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Label styling */
+label {
+	font-size: 16px;
+	font-weight: bold;
+	margin-bottom: 5px;
+	display: inline-block;
+}
+
+/* Input and select styling */
+input,
+select {
+	width: calc(100% - 22px);
+	padding: 10px;
+	margin: 10px 0 20px 0;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	font-size: 16px;
+}
+
+/* Focus effect for inputs and selects */
+input:focus,
+select:focus {
+	border-color: #5cb85c;
+	outline: none;
+	box-shadow: 0 0 5px rgba(0, 128, 0, 0.5);
+}
+
+/* Button styling */
+button {
+	padding: 15px;
+	background-color: #28a745;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	font-size: 18px;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+	background-color: #218838;
+	transform: scale(1.05);
+}
+
+/* General Styles */
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f4f4f4;
+	margin: 0;
+	padding: 0;
+}
+
+/* Container for the form */
+form {
+	width: 50%;
+	margin: 30px auto;
+	padding: 20px;
+	background-color: #ffffff;
+	border-radius: 8px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Label styling */
+label {
+	font-size: 16px;
+	font-weight: bold;
+	margin-bottom: 5px;
+	display: block;
+	/* Đảm bảo nhãn hiển thị trên các trường nhập liệu */
+}
+
+/* Input and select styling */
+input,
+select {
+	width: 100%;
+	/* Đặt chiều rộng đầy đủ cho các trường nhập liệu */
+	padding: 10px;
+	margin-bottom: 20px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	font-size: 16px;
+}
+
+/* Focus effect for inputs and selects */
+input:focus,
+select:focus {
+	border-color: #5cb85c;
+	outline: none;
+	box-shadow: 0 0 5px rgba(0, 128, 0, 0.5);
+}
+
+/* Button styling */
+button {
+	padding: 15px;
+	background-color: #28a745;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	font-size: 18px;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+	background-color: #218838;
+	transform: scale(1.05);
+}
+
+/* Drug card styling */
+.drug-card {
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	padding: 10px;
+	margin: 10px;
+	width: 150px;
+	text-align: center;
+	display: inline-block;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.drug-card:hover {
+	background-color: #f1f1f1;
+	transform: scale(1.05);
+}
+
+/* Selected drug styling */
 .selected-drug {
-    display: grid;
-    grid-template-columns: 2fr 2fr 2fr 2fr auto; /* 5 cột */
-    gap: 10px;
-    align-items: center;
-    padding: 10px;
-    border: 1px solid #4caf50;
-    border-radius: 5px;
-    background-color: #e8f5e9;
-    margin-bottom: 10px;
+	background-color: #f0f8f0;
+	border: 1px solid #dcdcdc;
+	border-radius: 5px;
+	padding: 10px;
+	margin-bottom: 10px;
+	display: flex;
+	align-items: center;
 }
 
 .selected-drug p {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    margin: 0;
+	flex: 1;
+	margin: 0;
+	font-weight: bold;
+}
+
+.selected-drug label {
+	margin-right: 5px;
 }
 
 .selected-drug input[type="text"],
 .selected-drug input[type="number"] {
-    width: 100%;
-    padding: 3px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    text-align: center;
+	margin-right: 10px;
+	padding: 5px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	width: 70px;
+	/* Fixed width to keep them uniform */
 }
 
 .selected-drug button {
-    font-size: 14px;
-    padding: 5px 10px;
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+	background-color: #ff4d4d;
+	color: white;
+	border: none;
+	border-radius: 3px;
+	padding: 5px 10px;
+	cursor: pointer;
 }
 
 .selected-drug button:hover {
-    background-color: #ff3333;
-    transform: scale(1.05);
+	background-color: #ff1a1a;
 }
 
-
-
+/* Layout adjustments */
+#drugResults {
+	display: flex;
+	flex-wrap: wrap;
+}
 
 #selectedDrugsList {
-    margin-top: 20px;
+	margin-top: 20px;
 }
 
-.selected-drug {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr auto; /* Chia 5 cột */
-    gap: 10px;
-    align-items: center;
-    padding: 10px;
-    border: 1px solid #4caf50;
-    border-radius: 5px;
-    background-color: #e8f5e9;
-    margin-bottom: 10px;
+/* Error message for phone search */
+#errorPhoneMessage {
+	color: red;
+	display: none;
 }
 
-.drug-column {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
+/* Patient details section */
+#patientDetails {
+	display: none;
+	margin-bottom: 20px;
 }
-
-.drug-column input[type="text"],
-.drug-column input[type="number"] {
-    width: 100%;
-    padding: 5px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    text-align: center;
-}
-
-.remove-btn {
-    padding: 5px 10px;
-    font-size: 14px;
-    color: white;
-    background-color: #ff4d4d;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.remove-btn:hover {
-    background-color: #ff3333;
-    transform: scale(1.05);
-}
-
-

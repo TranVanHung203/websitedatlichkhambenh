@@ -26,7 +26,8 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 			    STRING_AGG('- ' + t.ten, CHAR(10)) AS tenThuoc,
 			    STRING_AGG(dtt.lieu, CHAR(10)) AS lieu,
 			    STRING_AGG(dtt.tan_suat, CHAR(10)) AS tanSuat,
-			    SUM(CAST(dtt.lieu AS DECIMAL) * t.gia) AS tongTienThuoc
+			    SUM(dtt.so_luong * t.gia) AS tongTienThuoc,
+			    STRING_AGG(CAST(dtt.so_luong AS VARCHAR), CHAR(10)) AS soLuong
 			FROM ho_so_benh hs
 			JOIN benh_nhan bn ON hs.benh_nhan_id = bn.benh_nhan_id
 			JOIN don_thuoc dt ON hs.ho_so_id = dt.ho_so_id
@@ -49,10 +50,11 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 			        bs.ten AS tenBacSi,
 			        CONVERT(VARCHAR, hs.thoi_gian_tao, 23) AS ngayKham,
 			        hs.chan_doan AS chanDoan,
-			        STRING_AGG('- ' + t.ten, CHAR(10)) AS thuoc,
+			        STRING_AGG('-'+t.ten, CHAR(10)) AS thuoc,
 			        STRING_AGG(dtt.lieu, CHAR(10)) AS lieu,
 			        STRING_AGG(dtt.tan_suat, CHAR(10)) AS tanSuat,
-			        SUM(CAST(dtt.lieu AS DECIMAL) * t.gia) AS tongTienThuoc -- Thêm cột tổng tiền
+			         SUM(dtt.so_luong * t.gia) AS tongTienThuoc,
+			        STRING_AGG(CAST(dtt.so_luong AS VARCHAR), CHAR(10)) AS soLuong
 			    FROM ho_so_benh hs
 			    JOIN bac_si bs ON hs.bac_si_id = bs.bac_si_id
 			    LEFT JOIN don_thuoc dt ON hs.ho_so_id = dt.ho_so_id
@@ -69,10 +71,11 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 			        bs.ten AS tenBacSi,
 			        CONVERT(VARCHAR, hs.thoi_gian_tao, 23) AS ngayKham,
 			        hs.chan_doan AS chanDoan,
-			        STRING_AGG('- ' + t.ten, CHAR(10)) AS thuoc,
+			        STRING_AGG('-'+t.ten, CHAR(10)) AS thuoc,
 			        STRING_AGG(dtt.lieu, CHAR(10)) AS lieu,
 			        STRING_AGG(dtt.tan_suat, CHAR(10)) AS tanSuat,
-			        SUM(CAST(dtt.lieu AS DECIMAL) * t.gia) AS tongTienThuoc
+			         SUM(dtt.so_luong * t.gia) AS tongTienThuoc,
+			        STRING_AGG(CAST(dtt.so_luong AS VARCHAR), CHAR(10)) AS soLuong
 			    FROM ho_so_benh hs
 			    JOIN bac_si bs ON hs.bac_si_id = bs.bac_si_id
 			    LEFT JOIN don_thuoc dt ON hs.ho_so_id = dt.ho_so_id

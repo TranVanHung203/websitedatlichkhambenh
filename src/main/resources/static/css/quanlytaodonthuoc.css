@@ -125,7 +125,7 @@ td:nth-child(2) {
 
 th:nth-child(3),
 td:nth-child(3) {
-	width: 20%;
+	width: 10%;
 	/* Cột Thời Gian Tạo */
 }
 
@@ -150,11 +150,17 @@ td:nth-child(6) {
 th:nth-child(7),
 td:nth-child(7) {
 	width: 10%;
-	/* Cột Tổng Tiền */
+	/* Cột Tần Suất */
 }
 
 th:nth-child(8),
 td:nth-child(8) {
+	width: 10%;
+	/* Cột Tổng Tiền */
+}
+
+th:nth-child(9),
+td:nth-child(9) {
 	width: 10%;
 	/* Cột Hành Động */
 }

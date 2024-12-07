@@ -38,7 +38,8 @@ label {
 }
 
 input[type="text"],
-input[type="number"] {
+input[type="number"],
+textarea {
     width: 100%;
     padding: 12px; /* Tăng padding để trường nhập liệu thoải mái hơn */
     border: 1px solid #ccc;
@@ -46,9 +47,14 @@ input[type="number"] {
     font-size: 16px; /* Tăng kích thước font để dễ đọc hơn */
 }
 
-input:focus {
+input:focus,
+textarea:focus {
     border-color: #28a745; /* Thay đổi màu border khi focus */
     outline: none; /* Xóa viền mặc định */
+}
+
+textarea {
+    resize: none; /* Ngăn người dùng thay đổi kích thước của textarea */
 }
 
 .btn-update {

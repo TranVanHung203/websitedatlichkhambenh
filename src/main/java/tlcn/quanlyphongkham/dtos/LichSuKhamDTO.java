@@ -18,6 +18,7 @@ public class LichSuKhamDTO {
     private String lieu;
     private String tanSuat;
     private BigDecimal tongTienThuoc;  // Thêm trường tổng tiền thuốc
+    private String soLuong; 
     public String getFormattedTongTienThuoc() {
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
         return formatter.format(tongTienThuoc) + " VNĐ";

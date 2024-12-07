@@ -27,11 +27,11 @@ import lombok.NoArgsConstructor;
 @Table(name = "Thuoc")
 public class Thuoc implements Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "thuoc_id", length = 36)
     private Long thuocId;
@@ -44,6 +44,9 @@ public class Thuoc implements Serializable {
 
     @Column(name = "gia", nullable = false)
     private BigDecimal gia;
+    
+    @Column(name = "so_luong", nullable = false, columnDefinition = "int default 0")
+    private int soLuong;
 
     @OneToMany(mappedBy = "thuoc", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DonThuocThuoc> donThuocThuocs;
