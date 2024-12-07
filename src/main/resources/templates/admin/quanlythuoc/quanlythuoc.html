@@ -18,14 +18,14 @@
 
 	<!-- Main Content -->
 	<div class="main-content">
-<h1>Quản lý thuốc</h1>
+		<h1>Quản lý thuốc</h1>
 		<form th:action="@{/admin/qlt}" method="get" id="searchForm">
 			<input type="text" name="ten" id="searchInput" placeholder="Tìm kiếm thuốc theo tên"
 				style="padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px;"
 				th:value="${searchQuery}" />
 			<button type="submit" style="display:none;">Search</button>
 		</form>
-		
+
 		<!-- Display No Results Message -->
 		<div th:if="${noResults}" class="no-results-message">
 			<p>Không tìm thấy thuốc nào với từ khóa tìm kiếm.</p>
@@ -38,6 +38,7 @@
 					<th>Tên</th>
 					<th>Mô Tả</th>
 					<th>Giá</th>
+					<th>Số Lượng</th> <!-- Thêm cột số lượng -->
 					<th>Thao Tác</th>
 				</tr>
 			</thead>
@@ -47,6 +48,8 @@
 					<td th:text="${thuoc.ten}"></td>
 					<td th:text="${thuoc.moTa}"></td>
 					<td th:text="${thuoc.gia} + ' VND'"></td>
+					<td th:text="${thuoc.soLuong != null ? thuoc.soLuong : 0}"></td>
+					<!-- Hiển thị 0 nếu soLuong là null -->
 					<td>
 						<form th:action="@{/admin/edit-thuoc}" method="get" style="display:inline;">
 							<input type="hidden" name="thuocId" th:value="${thuoc.thuocId}" />
@@ -61,6 +64,7 @@
 				</tr>
 			</tbody>
 		</table>
+
 
 		<!-- Thêm Thuốc Mới -->
 		<form th:action="@{/admin/add-thuoc}" method="get" style="display:inline;">

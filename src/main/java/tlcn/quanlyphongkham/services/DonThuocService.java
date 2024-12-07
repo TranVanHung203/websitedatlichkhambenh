@@ -91,87 +91,107 @@ public class DonThuocService {
 
 	@Transactional
 	public void updateDonThuoc(Long donThuocId, String hoSoId, String chanDoan, String benhNhanId, List<Long> drugIds,
-			List<String> lieu, List<String> tanSuat, List<Long> removedDrugIds) {
-		// 1. Lấy đơn thuốc từ cơ sở dữ liệu
-		DonThuoc donThuoc = donThuocRepository.findById(donThuocId)
-				.orElseThrow(() -> new RuntimeException("Không tìm thấy đơn thuốc với ID: " + donThuocId));
+	                           List<String> lieu, List<String> tanSuat, List<Integer> soLuong, List<Long> removedDrugIds) {
+	    // 1. Lấy đơn thuốc từ cơ sở dữ liệu
+	    DonThuoc donThuoc = donThuocRepository.findById(donThuocId)
+	            .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn thuốc với ID: " + donThuocId));
 
-		// 2. Xử lý hồ sơ bệnh (Không thay đổi)
-		HoSoBenh hoSoBenh = null;
-		if (hoSoId != null) {
-			hoSoBenh = hoSoBenhRepository.findById(hoSoId)
-					.orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ bệnh với ID: " + hoSoId));
-			donThuoc.setHoSoBenh(hoSoBenh);
-		}
+	    // 2. Xử lý hồ sơ bệnh
+	    HoSoBenh hoSoBenh = null;
+	    if (hoSoId != null) {
+	        hoSoBenh = hoSoBenhRepository.findById(hoSoId)
+	                .orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ bệnh với ID: " + hoSoId));
+	        donThuoc.setHoSoBenh(hoSoBenh);
+	    }
 
-		// 3. Cập nhật thông tin bệnh nhân (Không thay đổi)
-		if (benhNhanId != null && hoSoBenh != null) {
-			BenhNhan newBenhNhan = benhNhanRepository.findById(benhNhanId)
-					.orElseThrow(() -> new RuntimeException("Không tìm thấy bệnh nhân với ID: " + benhNhanId));
-			if (!newBenhNhan.getBenhNhanId().equals(hoSoBenh.getBenhNhan().getBenhNhanId())) {
-				hoSoBenh.setBenhNhan(newBenhNhan);
-			}
-		}
+	    // 3. Cập nhật thông tin bệnh nhân
+	    if (benhNhanId != null && hoSoBenh != null) {
+	        BenhNhan newBenhNhan = benhNhanRepository.findById(benhNhanId)
+	                .orElseThrow(() -> new RuntimeException("Không tìm thấy bệnh nhân với ID: " + benhNhanId));
+	        if (!newBenhNhan.getBenhNhanId().equals(hoSoBenh.getBenhNhan().getBenhNhanId())) {
+	            hoSoBenh.setBenhNhan(newBenhNhan);
+	        }
+	    }
 
-		// 4. Cập nhật chẩn đoán (Không thay đổi)
-		if (chanDoan != null && !chanDoan.isEmpty() && hoSoBenh != null) {
-			hoSoBenh.setChanDoan(chanDoan);
-		}
-		System.out.println(removedDrugIds.size() + "hahahaha");
-		// 5. Xóa các thuốc bị loại bỏ
-		if (removedDrugIds != null && !removedDrugIds.isEmpty()) {
-			List<DonThuocThuoc> drugsToRemove = donThuoc.getDonThuocThuocs().stream()
-					.filter(dtt -> removedDrugIds.contains(dtt.getThuoc().getThuocId())).collect(Collectors.toList());
+	    // 4. Cập nhật chẩn đoán
+	    if (chanDoan != null && !chanDoan.isEmpty() && hoSoBenh != null) {
+	        hoSoBenh.setChanDoan(chanDoan);
+	    }
 
-			// Xóa thuốc khỏi cơ sở dữ liệu
-			donThuocThuocRepository.deleteAll(drugsToRemove);
+	    // 5. Xử lý các thuốc bị loại bỏ
+	    if (removedDrugIds != null && !removedDrugIds.isEmpty()) {
+	        List<DonThuocThuoc> drugsToRemove = donThuoc.getDonThuocThuocs().stream()
+	                .filter(dtt -> removedDrugIds.contains(dtt.getThuoc().getThuocId())).collect(Collectors.toList());
 
-			// Loại bỏ thuốc khỏi danh sách của DonThuoc
-			donThuoc.getDonThuocThuocs().removeAll(drugsToRemove);
-		}
+	        for (DonThuocThuoc dtt : drugsToRemove) {
+	            Thuoc thuoc = dtt.getThuoc();
+	            thuoc.setSoLuong(thuoc.getSoLuong() + dtt.getSoLuong()); // Cộng lại số lượng khi xóa thuốc
+	            thuocRepository.save(thuoc); // Lưu lại số lượng trong kho
+	        }
 
-		// 6. Cập nhật hoặc thêm thuốc mới
-		if (drugIds != null && lieu != null && tanSuat != null) {
-			if (drugIds.size() != lieu.size() || drugIds.size() != tanSuat.size()) {
-				throw new RuntimeException("Danh sách thuốc, liều và tần suất phải có cùng kích thước!");
-			}
+	        // Xóa thuốc khỏi cơ sở dữ liệu và danh sách
+	        donThuocThuocRepository.deleteAll(drugsToRemove);
+	        donThuoc.getDonThuocThuocs().removeAll(drugsToRemove);
+	    }
 
-			Map<Long, DonThuocThuoc> existingDrugMap = donThuoc.getDonThuocThuocs().stream()
-					.collect(Collectors.toMap(dtt -> dtt.getThuoc().getThuocId(), dtt -> dtt));
+	    // 6. Xử lý thêm hoặc cập nhật thuốc mới
+	    if (drugIds != null && lieu != null && tanSuat != null && soLuong != null) {
+	        if (drugIds.size() != lieu.size() || drugIds.size() != tanSuat.size() || drugIds.size() != soLuong.size()) {
+	            throw new RuntimeException("Danh sách thuốc, liều, tần suất và số lượng phải có cùng kích thước!");
+	        }
 
-			for (int i = 0; i < drugIds.size(); i++) {
-				Long drugId = drugIds.get(i);
-				String lieuThuoc = lieu.get(i);
-				String tanSuatThuoc = tanSuat.get(i);
+	        Map<Long, DonThuocThuoc> existingDrugMap = donThuoc.getDonThuocThuocs().stream()
+	                .collect(Collectors.toMap(dtt -> dtt.getThuoc().getThuocId(), dtt -> dtt));
 
-				Thuoc thuoc = thuocRepository.findById(drugId)
-						.orElseThrow(() -> new RuntimeException("Không tìm thấy thuốc với ID: " + drugId));
+	        for (int i = 0; i < drugIds.size(); i++) {
+	            Long drugId = drugIds.get(i);
+	            String lieuThuoc = lieu.get(i);
+	            String tanSuatThuoc = tanSuat.get(i);
+	            Integer quantity = soLuong.get(i);  // Lấy số lượng thuốc
 
-				DonThuocThuoc existingDrug = existingDrugMap.get(drugId);
-				if (existingDrug != null) {
-					// Cập nhật thuốc đã có
-					existingDrug.setLieu(lieuThuoc);
-					existingDrug.setTanSuat(tanSuatThuoc);
-				} else {
-					// Thêm thuốc mới
-					DonThuocThuoc newDrug = new DonThuocThuoc();
-					newDrug.setThuoc(thuoc);
-					newDrug.setLieu(lieuThuoc);
-					newDrug.setTanSuat(tanSuatThuoc);
-					newDrug.setDonThuoc(donThuoc);
-					donThuoc.getDonThuocThuocs().add(newDrug);
-				}
-			}
-		}
+	            Thuoc thuoc = thuocRepository.findById(drugId)
+	                    .orElseThrow(() -> new RuntimeException("Không tìm thấy thuốc với ID: " + drugId));
 
-		// 7. Lưu hồ sơ bệnh nếu có thay đổi (Không thay đổi)
-		if (hoSoBenh != null) {
-			hoSoBenhRepository.save(hoSoBenh);
-		}
+	            if (thuoc.getSoLuong() < quantity) {
+	                throw new RuntimeException("Thuốc " + thuoc.getTen() + " không đủ số lượng trong kho.");
+	            }
 
-		// 8. Lưu đơn thuốc
-		donThuocRepository.save(donThuoc);
+	            DonThuocThuoc existingDrug = existingDrugMap.get(drugId);
+	            if (existingDrug != null) {
+	                // Cập nhật thuốc đã có
+	                int oldQuantity = existingDrug.getSoLuong();
+	                existingDrug.setLieu(lieuThuoc);
+	                existingDrug.setTanSuat(tanSuatThuoc);
+	                existingDrug.setSoLuong(quantity);
+
+	                // Điều chỉnh số lượng trong kho
+	                thuoc.setSoLuong(thuoc.getSoLuong() + oldQuantity - quantity);
+	            } else {
+	                // Thêm thuốc mới
+	                DonThuocThuoc newDrug = new DonThuocThuoc();
+	                newDrug.setThuoc(thuoc);
+	                newDrug.setLieu(lieuThuoc);
+	                newDrug.setTanSuat(tanSuatThuoc);
+	                newDrug.setDonThuoc(donThuoc);
+	                newDrug.setSoLuong(quantity);
+	                donThuoc.getDonThuocThuocs().add(newDrug);
+
+	                // Trừ số lượng trong kho
+	                thuoc.setSoLuong(thuoc.getSoLuong() - quantity);
+	            }
+	            thuocRepository.save(thuoc); // Lưu lại thay đổi số lượng trong kho
+	        }
+	    }
+
+	    // 7. Lưu hồ sơ bệnh nếu có thay đổi
+	    if (hoSoBenh != null) {
+	        hoSoBenhRepository.save(hoSoBenh);
+	    }
+
+	    // 8. Lưu đơn thuốc
+	    donThuocRepository.save(donThuoc);
 	}
+
 
 	
 

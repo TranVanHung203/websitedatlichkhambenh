@@ -28,10 +28,13 @@ public class DonThuocThuoc implements Serializable {
     @JoinColumn(name = "thuoc_id")
     private Thuoc thuoc;
 
-    // Thêm trường lieu và tanSuat
     @Column(name = "lieu")
     private String lieu;
 
     @Column(name = "tan_suat")
     private String tanSuat;
+
+    // Thêm cột số lượng
+    @Column(name = "so_luong",nullable = false, columnDefinition = "int default 0")
+    private int soLuong; // Kiểu số lượng, có thể sử dụng int hoặc Long tùy vào yêu cầu.
 }

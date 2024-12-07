@@ -81,6 +81,7 @@ public class BacSiService {
 				chiTiet.setHoiNghiNuocNgoai(updatedChiTiet.getHoiNghiNuocNgoai());
 				chiTiet.setChungChi(updatedChiTiet.getChungChi());
 				chiTiet.setDaoTaoChuyenNganh(updatedChiTiet.getDaoTaoChuyenNganh());
+				chiTiet.setLinhVucChuyenSau(updatedChiTiet.getLinhVucChuyenSau());
 				chiTiet.setGioiThieu(updatedChiTiet.getGioiThieu());
 				bacSiRepository.save(existingDoctor); // Lưu lại cập nhật
 			}

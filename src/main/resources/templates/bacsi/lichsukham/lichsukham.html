@@ -40,6 +40,7 @@
 					<th>Tên Thuốc</th>
 					<th>Liều Lượng/cử</th>
 					<th>Tần Suất/lần</th>
+					<th>Số Lượng</th> <!-- Cột số lượng -->
 					<th>Tổng Tiền Thuốc</th>
 				</tr>
 			</thead>
@@ -57,6 +58,10 @@
 					<td>
 						<pre th:text="${hoSoBenh.tanSuat}"></pre>
 					</td>
+					<td>
+						<pre th:text="${hoSoBenh.soLuong}"></pre>
+					</td>
+					
 					<td th:text="${hoSoBenh.formattedTongTienThuoc}"></td>
 				</tr>
 			</tbody>

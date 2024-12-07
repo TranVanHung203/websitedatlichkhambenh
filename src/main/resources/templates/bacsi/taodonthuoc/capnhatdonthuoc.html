@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Cập Nhật Đơn Thuốc</title>
-	<link th:href="@{/css/taodonthuoc.css}" rel="stylesheet">
+	<link th:href="@{/css/capnhatdonthuoc.css}" rel="stylesheet">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -74,6 +74,8 @@
 					<input type="text" name="lieu[]" th:value="${drug.lieu}" required />
 					<label>Tần Suất:</label>
 					<input type="text" name="tanSuat[]" th:value="${drug.tanSuat}" required />
+					<label>Số Lượng:</label>
+					<input type="number" name="soLuong[]" th:value="${drug.soLuong}" min="1" required />
 					<button type="button" th:onclick="'removeDrug(' + ${drug.thuoc.thuocId} + ')'">Xóa</button>
 				</div>
 			</div>
@@ -197,15 +199,17 @@
 			if (!selectedDrugs.has(drugId)) {
 				selectedDrugs.add(drugId);
 				const drugItem = `
-					<div class="selected-drug" id="selectedDrug_${drugId}">
-						<p><strong>${drugName}</strong></p>
-						<input type="hidden" name="drugIds[]" value="${drugId}">
-						<label>Liều Lượng:</label>
-						<input type="text" name="lieu[]" required />
-						<label>Tần Suất:</label>
-						<input type="text" name="tanSuat[]" required />
-						<button type="button" onclick="removeDrug(${drugId})">Xóa</button>
-					</div>`;
+            <div class="selected-drug" id="selectedDrug_${drugId}">
+                <p><strong>${drugName}</strong></p>
+                <input type="hidden" name="drugIds[]" value="${drugId}">
+                <label>Liều Lượng:</label>
+                <input type="text" name="lieu[]" required />
+                <label>Tần Suất:</label>
+                <input type="text" name="tanSuat[]" required />
+                <label>Số Lượng:</label>
+                <input type="number" name="soLuong[]" min="1" value="1" required />
+                <button type="button" onclick="removeDrug(${drugId})">Xóa</button>
+            </div>`;
 				$('#selectedDrugsList').append(drugItem);
 				$(`#drugCard_${drugId}`).remove();
 			}

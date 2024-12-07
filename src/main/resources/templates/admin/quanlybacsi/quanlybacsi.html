@@ -43,6 +43,7 @@
 					<th>Hội nghị nước ngoài</th>
 					<th>Chứng chỉ</th>
 					<th>Đào tạo chuyên ngành</th>
+					<th>Lĩnh vực chuyên sâu</th>
 					<th>Hành động</th>
 				</tr>
 			</thead>
@@ -61,6 +62,9 @@
 					<td th:text="${doctor.chiTietBacSi.hoiNghiNuocNgoai}"></td>
 					<td th:text="${doctor.chiTietBacSi.chungChi}"></td>
 					<td th:text="${doctor.chiTietBacSi.daoTaoChuyenNganh}"></td>
+					<td th:text="${doctor.chiTietBacSi.linhVucChuyenSau}"></td>
+					
+					
 					<td>
 						<a th:href="@{/admin/qlbs/edit-bacsi/{bacSiId}(bacSiId=${doctor.bacSiId})}"
 							class="btn-edit">Chỉnh Sửa</a>

@@ -291,14 +291,14 @@ public class BacSiController {
 		String bacSiId = bacSi.getBacSiId(); // Lấy id bác sĩ từ thông tin bác sĩ
 
 		// Tạo Pageable để phân trang
-		Pageable pageable = PageRequest.of(page, 5);
+		Pageable pageable = PageRequest.of(page, 4);
 
 		// Tìm kiếm đơn thuốc theo bác sĩ và tên bệnh nhân nếu có từ search
 		Page<DonThuoc> donThuocPage;
 		if (search != null && !search.trim().isEmpty()) {
-			donThuocPage = donThuocService.findByBacSiIdAndBenhNhanNameContaining(bacSiId, search, pageable);
+		    donThuocPage = donThuocService.findByBacSiIdAndBenhNhanNameContaining(bacSiId, search.trim(), pageable);
 		} else {
-			donThuocPage = donThuocService.getAllDonThuocByBacSiId(bacSiId, pageable);
+		    donThuocPage = donThuocService.getAllDonThuocByBacSiId(bacSiId, pageable);
 		}
 
 		// Xử lý dữ liệu đơn thuốc trước khi hiển thị
@@ -319,14 +319,14 @@ public class BacSiController {
 
 	@PostMapping("/bacsi/xoadonthuoc/{id}")
 	public String deletePrescription(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-		try {
-			// Gọi service để xóa đơn thuốc và hồ sơ bệnh
-			donThuocService.deleteDonThuocAndHoSoBenhById(id);
-			redirectAttributes.addFlashAttribute("message", "Xóa đơn thuốc và hồ sơ bệnh thành công!");
-		} catch (Exception e) {
-			redirectAttributes.addFlashAttribute("error", "Xóa đơn thuốc hoặc hồ sơ bệnh thất bại!");
-		}
-		return "redirect:/bacsi/quanlytaodonthuoc";
+	    try {
+	        // Gọi service để xóa đơn thuốc và hồ sơ bệnh
+	        donThuocService.deleteDonThuocAndHoSoBenhById(id);
+	        redirectAttributes.addFlashAttribute("successMessage", "Xóa đơn thuốc và hồ sơ bệnh thành công!");
+	    } catch (Exception e) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Xóa đơn thuốc hoặc hồ sơ bệnh thất bại!");
+	    }
+	    return "redirect:/bacsi/quanlytaodonthuoc";
 	}
 
 	@GetMapping("/bacsi/capnhatdonthuoc")
@@ -349,28 +349,31 @@ public class BacSiController {
 
 	@PostMapping("/bacsi/capnhatdonthuoc")
 	@ResponseBody
-	public ResponseEntity<Map<String, String>> updateDonThuoc(@RequestParam("donThuocId") Long donThuocId,
-			@RequestParam("hoSoId") String hoSoId, @RequestParam("chanDoan") String chanDoan,
-			@RequestParam("benhNhanId") String benhNhanId, // Thêm tham số này
-			@RequestParam(value = "drugIds[]", required = false) List<Long> drugIds,
-			@RequestParam(value = "lieu[]", required = false) List<String> lieu,
-			@RequestParam(value = "tanSuat[]", required = false) List<String> tanSuat,
-			@RequestParam(value = "removedDrugIds", required = false) List<Long> removedDrugIds) {
+	public ResponseEntity<Map<String, String>> updateDonThuoc(
+	        @RequestParam("donThuocId") Long donThuocId,
+	        @RequestParam("hoSoId") String hoSoId,
+	        @RequestParam("chanDoan") String chanDoan,
+	        @RequestParam("benhNhanId") String benhNhanId,
+	        @RequestParam(value = "drugIds[]", required = false) List<Long> drugIds,
+	        @RequestParam(value = "lieu[]", required = false) List<String> lieu,
+	        @RequestParam(value = "tanSuat[]", required = false) List<String> tanSuat,
+	        @RequestParam(value = "soLuong[]", required = false) List<Integer> soLuong, // Thêm số lượng
+	        @RequestParam(value = "removedDrugIds", required = false) List<Long> removedDrugIds) {
 
-		Map<String, String> response = new HashMap<>();
-		try {
-			// Gọi service để cập nhật đơn thuốc
-			donThuocService.updateDonThuoc(donThuocId, hoSoId, chanDoan, benhNhanId, drugIds, lieu, tanSuat,
-					removedDrugIds);
-			response.put("status", "success");
-			response.put("message", "Cập nhật đơn thuốc thành công.");
-			return ResponseEntity.ok(response);
-		} catch (Exception e) {
-			response.put("status", "error");
-			response.put("message", "Có lỗi xảy ra: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-		}
+	    Map<String, String> response = new HashMap<>();
+	    try {
+	        // Gọi service để cập nhật đơn thuốc
+	        donThuocService.updateDonThuoc(donThuocId, hoSoId, chanDoan, benhNhanId, drugIds, lieu, tanSuat, soLuong, removedDrugIds);
+	        response.put("status", "success");
+	        response.put("message", "Cập nhật đơn thuốc thành công.");
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        response.put("status", "error");
+	        response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	    }
 	}
+
 
 	@GetMapping("/bacsi/taodonthuoc")
 	public String showCreatePrescriptionPage(Model model) {
@@ -387,64 +390,84 @@ public class BacSiController {
 
 	@PostMapping("/bacsi/taodonthuoc")
 	@ResponseBody
-	public ResponseEntity<Map<String, String>> createPrescription(@RequestParam("chanDoan") String chanDoan,
-			@RequestParam("drugIds") List<Long> drugIds, @RequestParam("lieu") List<String> lieu,
-			@RequestParam("tanSuat") List<String> tanSuat, @RequestParam("benhNhanId") String benhNhanId) {
+	public ResponseEntity<Map<String, String>> createPrescription(
+	        @RequestParam("chanDoan") String chanDoan,
+	        @RequestParam("drugIds") List<Long> drugIds,
+	        @RequestParam("lieu") List<String> lieu,
+	        @RequestParam("tanSuat") List<String> tanSuat,
+	        @RequestParam("soLuong") List<Integer> soLuong,
+	        @RequestParam("benhNhanId") String benhNhanId) {
 
-		nguoiDungId = getNguoiDungId();
-		BacSi bacSi1 = bacSiService.findByNguoiDungId(nguoiDungId);
-		String fixedBacSiId = bacSi1.getBacSiId();
-		BacSi bacSi = bacSiService.findById(fixedBacSiId);
+	    nguoiDungId = getNguoiDungId();
+	    BacSi bacSi1 = bacSiService.findByNguoiDungId(nguoiDungId);
+	    String fixedBacSiId = bacSi1.getBacSiId();
+	    BacSi bacSi = bacSiService.findById(fixedBacSiId);
 
-		Map<String, String> response = new HashMap<>();
+	    Map<String, String> response = new HashMap<>();
 
-		// Kiểm tra bệnh nhân
-		BenhNhan benhNhan = hoSoBenhService.findPatientById(benhNhanId);
-		if (benhNhan == null) {
-			response.put("status", "error");
-			response.put("message", "Không tìm thấy thông tin bệnh nhân, Kiểm tra lại số điện thoại!");
-			return ResponseEntity.badRequest().body(response);
-		}
+	    // Kiểm tra bệnh nhân
+	    BenhNhan benhNhan = hoSoBenhService.findPatientById(benhNhanId);
+	    if (benhNhan == null) {
+	        response.put("status", "error");
+	        response.put("message", "Không tìm thấy thông tin bệnh nhân, Kiểm tra lại số điện thoại!");
+	        return ResponseEntity.badRequest().body(response);
+	    }
 
-		try {
-			// Tạo hồ sơ bệnh
-			HoSoBenh hoSoBenh = new HoSoBenh();
-			hoSoBenh.setHoSoId(UUID.randomUUID().toString());
-			hoSoBenh.setChanDoan(chanDoan);
-			hoSoBenh.setBenhNhan(benhNhan);
-			hoSoBenh.setBacSi(bacSi);
-			hoSoBenhService.save(hoSoBenh);
+	    try {
+	        // Tạo hồ sơ bệnh
+	        HoSoBenh hoSoBenh = new HoSoBenh();
+	        hoSoBenh.setHoSoId(UUID.randomUUID().toString());
+	        hoSoBenh.setChanDoan(chanDoan);
+	        hoSoBenh.setBenhNhan(benhNhan);
+	        hoSoBenh.setBacSi(bacSi);
+	        hoSoBenhService.save(hoSoBenh);
 
-			// Tạo đơn thuốc
-			DonThuoc donThuoc = new DonThuoc();
-			donThuoc.setHoSoBenh(hoSoBenh);
+	        // Tạo đơn thuốc
+	        DonThuoc donThuoc = new DonThuoc();
+	        donThuoc.setHoSoBenh(hoSoBenh);
 
-			List<DonThuocThuoc> donThuocThuocs = new ArrayList<>();
-			for (int i = 0; i < drugIds.size(); i++) {
-				Long thuocId = drugIds.get(i);
-				Thuoc thuoc = thuocService.findThuocById(thuocId);
+	        List<DonThuocThuoc> donThuocThuocs = new ArrayList<>();
+	        for (int i = 0; i < drugIds.size(); i++) {
+	            Long thuocId = drugIds.get(i);
+	            Thuoc thuoc = thuocService.findThuocById(thuocId);
 
-				DonThuocThuoc donThuocThuoc = new DonThuocThuoc();
-				donThuocThuoc.setDonThuoc(donThuoc);
-				donThuocThuoc.setThuoc(thuoc);
-				donThuocThuoc.setLieu(lieu.get(i));
-				donThuocThuoc.setTanSuat(tanSuat.get(i));
+	            // Kiểm tra số lượng thuốc trong kho
+	            Integer requestedQuantity = soLuong.get(i);
+	            if (thuoc.getSoLuong() < requestedQuantity) {
+	                response.put("status", "error");
+	                response.put("message", "Số lượng thuốc " + thuoc.getTen() + " trong kho không đủ.");
+	                return ResponseEntity.badRequest().body(response);
+	            }
 
-				donThuocThuocs.add(donThuocThuoc);
-			}
-			donThuoc.setDonThuocThuocs(donThuocThuocs);
-			donThuocService.save(donThuoc);
+	            // Giảm số lượng thuốc trong kho
+	            thuoc.setSoLuong(thuoc.getSoLuong() - requestedQuantity);
+	            thuocService.updateThuoc(thuoc);
 
-			response.put("status", "success");
-			response.put("message", "Đơn thuốc đã được tạo thành công!");
-			return ResponseEntity.ok(response);
+	            // Thêm thuốc vào đơn thuốc
+	            DonThuocThuoc donThuocThuoc = new DonThuocThuoc();
+	            donThuocThuoc.setDonThuoc(donThuoc);
+	            donThuocThuoc.setThuoc(thuoc);
+	            donThuocThuoc.setLieu(lieu.get(i));
+	            donThuocThuoc.setTanSuat(tanSuat.get(i));
+	            donThuocThuoc.setSoLuong(requestedQuantity);
 
-		} catch (Exception e) {
-			response.put("status", "error");
-			response.put("message", "Đã xảy ra lỗi trong quá trình tạo đơn thuốc.");
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-		}
+	            donThuocThuocs.add(donThuocThuoc);
+	        }
+
+	        donThuoc.setDonThuocThuocs(donThuocThuocs);
+	        donThuocService.save(donThuoc);
+
+	        response.put("status", "success");
+	        response.put("message", "Đơn thuốc đã được tạo thành công!");
+	        return ResponseEntity.ok(response);
+
+	    } catch (Exception e) {
+	        response.put("status", "error");
+	        response.put("message", "Đã xảy ra lỗi trong quá trình tạo đơn thuốc.");
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	    }
 	}
+
 
 	@GetMapping("/bacsi/searchpatient")
 	public String searchPatientById(@RequestParam("id") String patientId, Model model) {

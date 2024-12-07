@@ -23,6 +23,7 @@ public class HoSoBenhDTO {
     private String lieu;
     private String tanSuat;
     private BigDecimal tongTienThuoc;
+    private String soLuong;  // Thay đổi từ int sang String
     public String getFormattedTongTienThuoc() {
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
         return formatter.format(tongTienThuoc) + " VNĐ";
