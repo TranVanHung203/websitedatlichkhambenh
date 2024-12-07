@@ -140,7 +140,8 @@ public class BacSiService {
 			bacSi.setGioiTinh(profileDTO.getGioiTinh());
 			bacSi.setDienThoai(profileDTO.getDienThoai());
 			bacSi.setDiaChi(profileDTO.getDiaChi());
-			bacSi.setUrlAvatar(profileDTO.getAvatarurl());
+			if(profileDTO.getAvatarurl()!=null)
+				bacSi.setUrlAvatar(profileDTO.getAvatarurl());
 
 			bacSi.getNguoiDung().setEmail(profileDTO.getEmail());
 			bacSi.getNguoiDung().setTenDangNhap(profileDTO.getTenDangNhap());
