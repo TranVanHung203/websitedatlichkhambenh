@@ -295,7 +295,7 @@ public class NguoiDungController {
 		// Fetch list of specialties and pass it to the view
 		List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa();
 		model.addAttribute("chuyenKhoaList", chuyenKhoaList);
-		return "benhnhan/dangkylichkham/buoc1"; // Return to Step 1 view
+		return "benhnhan/dangkylichkham/buoc2"; // Return to Step 1 view
 	}
 
 	@PostMapping("/user/dangkylichkham/doctor")
