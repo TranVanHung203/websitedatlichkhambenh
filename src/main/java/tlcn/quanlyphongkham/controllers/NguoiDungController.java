@@ -311,9 +311,9 @@ public class NguoiDungController {
 	public String proceedToStep2(@RequestParam("doctor") String doctorId, @RequestParam("service") String serviceId,
 			Model model) {
 
-		
+		model.addAttribute("doctorId", doctorId);
 
-		return "/benhnhan/dangkylichkham/buoc1";
+		return "/benhnhan/dangkylichkham/buoc2";
 	}
 
 	public LocalDate parseDate(String dateStr) {
