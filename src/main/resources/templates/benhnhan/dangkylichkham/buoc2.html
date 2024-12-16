@@ -39,8 +39,13 @@
 				<div class="dk-actions">
 					<button type="button" class="dk-btn dk-btn-secondary"
 						th:onclick="window.location.href='/user/dangkylichkham'">TRỞ LẠI</button>
-					<!-- Sửa nút tiếp theo để gửi POST -->
-					<button type="button" class="dk-btn dk-btn-primary" th:onclick="proceedToStep3()">TIẾP THEO</button>
+					<div class="dk-actions">
+						<a id="next-step-link" class="dk-btn dk-btn-primary" th:href="@{/user/dangkylichkham/buoc3}"
+							style="display: none;">TIẾP THEO</a>
+						<button type="button" class="dk-btn dk-btn-primary" onclick="proceedToStep3()">TIẾP
+							THEO</button>
+					</div>
+
 				</div>
 			</form>
 		</div>
@@ -179,24 +184,16 @@
 					return;
 				}
 
-				// Xây dựng URL cho request GET
-				const url = new URL('/user/dangkylichkham/buoc3', window.location.origin);
-				const params = new URLSearchParams();
-				params.append("doctorId", doctorId);  // doctorId cần được xác định từ đâu đó
-				params.append("selectedDate", selectedDate);  // selectedDate cần được xác định từ đâu đó
-				params.append("selectedTime", selectedTimeValue);
-				params.append("ca", ca);  // Gán giá trị của ca vào tham số
-
-				// Thêm tham số vào URL
-				url.search = params.toString();
-
-				// Chuyển hướng tới URL đã xây dựng
-				window.location.href = url.toString();
+				// Cập nhật giá trị href của thẻ `a` với các tham số
+				const nextStepLink = document.getElementById("next-step-link");
+				nextStepLink.href = `/user/dangkylichkham/buoc3?doctorId=${doctorId}&selectedDate=${selectedDate}&selectedTime=${selectedTimeValue}&ca=${encodeURIComponent(ca)}`;
+				nextStepLink.style.display = "inline-block"; // Hiển thị nút nếu chưa hiển thị
+				nextStepLink.click(); // Chuyển hướng tới bước tiếp theo
 			} else {
 				alert('Vui lòng chọn giờ khám!');
 			}
-
 		}
+
 
 
 	</script>
