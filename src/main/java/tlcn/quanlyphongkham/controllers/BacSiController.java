@@ -210,7 +210,7 @@ public class BacSiController {
 			// Generate a new filename
 			String fileName = bacSiId + "-" + avatar.getOriginalFilename();
 			// Path where the file will be stored
-			String uploadDir = System.getProperty("user.dir") + "/uploads/";
+			String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/images/";
 
 			// Create the directory if it doesn't exist
 			File directory = new File(uploadDir);
@@ -223,7 +223,7 @@ public class BacSiController {
 			Files.copy(avatar.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
 			// Set the URL of the uploaded image
-			profileDTO.setAvatarurl("/uploads/" + fileName); // Store the relative URL
+			profileDTO.setAvatarurl("/images/" + fileName); // Store the relative URL
 		}
 		
 
