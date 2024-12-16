@@ -202,37 +202,39 @@ public class BacSiController {
 	
 
 	@PostMapping("/updateProfile")
-	public String updateProfile(@ModelAttribute EditProfileBSDTO profileDTO, @ModelAttribute ChiTietBacSiDTO detailDTO,
-			@RequestParam("avatar") MultipartFile avatar, Model model) throws IOException {
-		String bacSiId = profileDTO.getBacSiId(); // Get the doctor ID
+	public String updateProfile(@ModelAttribute EditProfileBSDTO profileDTO,
+	                            @ModelAttribute ChiTietBacSiDTO detailDTO,
+	                            @RequestParam("avatar") MultipartFile avatar,
+	                            Model model) throws IOException {
+	    String bacSiId = profileDTO.getBacSiId();
 
-		if (!avatar.isEmpty()) {
-			// Generate a new filename
-			String fileName = bacSiId + "-" + avatar.getOriginalFilename();
-			// Path where the file will be stored
-			String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/images/";
+	    if (!avatar.isEmpty()) {
+	        // Tạo tên file mới
+	        String fileName = bacSiId + "-" + avatar.getOriginalFilename();
 
-			// Create the directory if it doesn't exist
-			File directory = new File(uploadDir);
-			if (!directory.exists()) {
-				directory.mkdirs();
-			}
+	        // Đường dẫn lưu file: thư mục /uploads nằm cùng cấp với file .jar
+	        String uploadDir = new File("uploads").getAbsolutePath();
 
-			// Save the file to the server
-			java.nio.file.Path filePath = Paths.get(uploadDir, fileName);
-			Files.copy(avatar.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+	        // Tạo thư mục nếu chưa tồn tại
+	        File directory = new File(uploadDir);
+	        if (!directory.exists()) {
+	            directory.mkdirs();
+	        }
 
-			// Set the URL of the uploaded image
-			profileDTO.setAvatarurl("/images/" + fileName); // Store the relative URL
-		}
-		
+	        // Lưu file vào thư mục uploads
+	        java.nio.file.Path filePath = Paths.get(uploadDir, fileName);
+	        Files.copy(avatar.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-		// Update the profile and details
-		bacSiService.updateProfile(profileDTO);
-		bacSiService.updateDetail(detailDTO);
+	        // Đặt URL để load ảnh
+	        profileDTO.setAvatarurl("/uploads/" + fileName);
+	    }
 
-		return "redirect:/bacsi/editprofile";
+	    bacSiService.updateProfile(profileDTO);
+	    bacSiService.updateDetail(detailDTO);
+
+	    return "redirect:/bacsi/editprofile";
 	}
+
 
 	// Helper method to save the avatar image and return its URL
 
