@@ -155,48 +155,59 @@
 		}
 
 		function proceedToStep3() {
-			const selectedTime = document.querySelector('input[name="time"]:checked');
+    const selectedTime = document.querySelector('input[name="time"]:checked'); // Lấy giờ khám đã chọn
 
-			if (selectedTime) {
-				const selectedTimeValue = selectedTime.value;  // Giá trị giờ đã chọn
-				const selectedTimeHour = parseInt(selectedTimeValue.split(':')[0], 10);  // Lấy giờ từ giá trị giờ (ví dụ: "13:00" -> 13)
-				const selectedTimeMinute = parseInt(selectedTimeValue.split(':')[1], 10);  // Lấy phút từ giá trị giờ (ví dụ: "13:30" -> 30)
+    if (selectedTime) {
+        const selectedTimeValue = selectedTime.value; // Giá trị giờ đã chọn
+        const selectedTimeHour = parseInt(selectedTimeValue.split(':')[0], 10); // Lấy giờ từ giá trị giờ (ví dụ: "13:00" -> 13)
+        const selectedTimeMinute = parseInt(selectedTimeValue.split(':')[1], 10); // Lấy phút từ giá trị giờ (ví dụ: "13:30" -> 30)
 
-				// Xác định ca dựa trên giờ và phút
-				let ca = '';
+        // Xác định ca dựa trên giờ và phút
+        let ca = '';
 
-				if ((selectedTimeHour > 7 || (selectedTimeHour === 7 && selectedTimeMinute >= 30)) && (selectedTimeHour < 12 || (selectedTimeHour === 11 && selectedTimeMinute <= 30))) {
-					// 7h30 - 11h30 => Ca Sáng
-					ca = 'Sáng';
-				} else if ((selectedTimeHour >= 13 && selectedTimeHour < 17) || (selectedTimeHour === 16 && selectedTimeMinute <= 30)) {
-					// 13h - 16h30 => Ca Chiều
-					ca = 'Chiều';
-				} else if ((selectedTimeHour >= 17 && selectedTimeHour < 20) || (selectedTimeHour === 19 && selectedTimeMinute <= 30)) {
-					// 17h - 19h30 => Ca Tối
-					ca = 'Tối';
-				} else {
-					alert('Giờ khám không hợp lệ! Vui lòng chọn lại!');
-					return;
-				}
+        if (
+            (selectedTimeHour > 7 || (selectedTimeHour === 7 && selectedTimeMinute >= 30)) &&
+            (selectedTimeHour < 12 || (selectedTimeHour === 11 && selectedTimeMinute <= 30))
+        ) {
+            // 7h30 - 11h30 => Ca Sáng
+            ca = 'Sáng';
+        } else if (
+            (selectedTimeHour >= 13 && selectedTimeHour < 17) ||
+            (selectedTimeHour === 16 && selectedTimeMinute <= 30)
+        ) {
+            // 13h - 16h30 => Ca Chiều
+            ca = 'Chiều';
+        } else if (
+            (selectedTimeHour >= 17 && selectedTimeHour < 20) ||
+            (selectedTimeHour === 19 && selectedTimeMinute <= 30)
+        ) {
+            // 17h - 19h30 => Ca Tối
+            ca = 'Tối';
+        } else {
+            alert('Giờ khám không hợp lệ! Vui lòng chọn lại!');
+            return;
+        }
 
-				// Xây dựng URL cho request GET
-				const url = new URL('/user/dangkylichkham/buoc3', window.location.origin);
-				const params = new URLSearchParams();
-				params.append("doctorId", doctorId);  // doctorId cần được xác định từ đâu đó
-				params.append("selectedDate", selectedDate);  // selectedDate cần được xác định từ đâu đó
-				params.append("selectedTime", selectedTimeValue);
-				params.append("ca", ca);  // Gán giá trị của ca vào tham số
+        // Sử dụng Thymeleaf để tạo base URL
+        const baseUrl = /*[[@{/user/dangkylichkham/buoc3}]]*/ '/user/dangkylichkham/buoc3';
 
-				// Thêm tham số vào URL
-				url.search = params.toString();
+        // Xây dựng URL với các tham số
+        const params = new URLSearchParams();
+        params.append("doctorId", doctorId); // doctorId lấy từ hidden input
+        params.append("selectedDate", selectedDate); // selectedDate là ngày đã chọn
+        params.append("selectedTime", selectedTimeValue); // selectedTime là giờ đã chọn
+        params.append("ca", ca); // Gán ca khám (Sáng, Chiều, Tối)
 
-				// Chuyển hướng tới URL đã xây dựng
-				window.location.href = url.toString();
-			} else {
-				alert('Vui lòng chọn giờ khám!');
-			}
+        // Gắn tham số vào URL
+        const fullUrl = `${baseUrl}?${params.toString()}`;
 
-		}
+        // Chuyển hướng tới URL
+        window.location.href = fullUrl;
+    } else {
+        alert('Vui lòng chọn giờ khám!');
+    }
+}
+
 
 
 	</script>
