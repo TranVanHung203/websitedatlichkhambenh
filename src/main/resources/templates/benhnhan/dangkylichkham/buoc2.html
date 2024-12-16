@@ -11,7 +11,6 @@
 
 <body>
 	<div th:replace="benhnhan/fragments/header :: header"></div> <!-- Header -->
-	<input type="hidden" name="doctor-id" id="doctor-id" th:value="${doctorId}">
 
 	<!-- Step 2 -->
 	<div class="dk-container">
@@ -23,7 +22,13 @@
 					<li>Bước 2: Chọn ngày và giờ bạn muốn khám để đặt hẹn khám bệnh.</li>
 				</ul>
 			</div>
-			<form class="dk-form">
+			<form class="dk-form" th:action="@{/user/dangkylichkham/buoc3}" method="get">
+				<input type="hidden" name="doctorId" id="hidden-doctorId" th:value="${doctorId}">
+				<input type="hidden" name="selectedDate" id="hidden-selectedDate">
+				<input type="hidden" name="selectedTime" id="hidden-selectedTime">
+				<input type="hidden" name="ca" id="hidden-ca">
+
+
 				<div class="dk-schedule-container">
 					<!-- Calendar -->
 					<div class="dk-calendar" id="calendar">
@@ -38,24 +43,16 @@
 				</div>
 				<div class="dk-actions">
 					<button type="button" class="dk-btn dk-btn-secondary"
-						th:onclick="window.location.href='/user/dangkylichkham'">TRỞ LẠI</button>
-					<div class="dk-actions">
-						<a id="next-step-link" class="dk-btn dk-btn-primary" th:href="@{/user/dangkylichkham/buoc3}"
-							style="display: none;">TIẾP THEO</a>
-						<button type="button" class="dk-btn dk-btn-primary" onclick="proceedToStep3()">TIẾP
-							THEO</button>
-					</div>
-
+						th:onclick="window.location.href='@{/user/dangkylichkham}'">TRỞ LẠI</button>
+					<button type="button" class="dk-btn dk-btn-primary" onclick="proceedToStep3()">TIẾP THEO</button>
 				</div>
 			</form>
 		</div>
 	</div>
 
-	<!-- Inline JavaScript for Step 2 -->
 	<script>
 		let selectedDate = null;
-		let selectedTime = null;
-		let doctorId = document.getElementById("doctor-id").value;
+		let doctorId = document.getElementById("hidden-doctorId").value;
 
 		// Initialize the current month and year
 		const today = new Date();
@@ -163,38 +160,34 @@
 			const selectedTime = document.querySelector('input[name="time"]:checked');
 
 			if (selectedTime) {
-				const selectedTimeValue = selectedTime.value;  // Giá trị giờ đã chọn
-				const selectedTimeHour = parseInt(selectedTimeValue.split(':')[0], 10);  // Lấy giờ từ giá trị giờ (ví dụ: "13:00" -> 13)
-				const selectedTimeMinute = parseInt(selectedTimeValue.split(':')[1], 10);  // Lấy phút từ giá trị giờ (ví dụ: "13:30" -> 30)
+				const selectedTimeValue = selectedTime.value;
+				const selectedTimeHour = parseInt(selectedTimeValue.split(':')[0], 10);
+				const selectedTimeMinute = parseInt(selectedTimeValue.split(':')[1], 10);
 
-				// Xác định ca dựa trên giờ và phút
 				let ca = '';
-
 				if ((selectedTimeHour > 7 || (selectedTimeHour === 7 && selectedTimeMinute >= 30)) && (selectedTimeHour < 12 || (selectedTimeHour === 11 && selectedTimeMinute <= 30))) {
-					// 7h30 - 11h30 => Ca Sáng
 					ca = 'Sáng';
 				} else if ((selectedTimeHour >= 13 && selectedTimeHour < 17) || (selectedTimeHour === 16 && selectedTimeMinute <= 30)) {
-					// 13h - 16h30 => Ca Chiều
 					ca = 'Chiều';
 				} else if ((selectedTimeHour >= 17 && selectedTimeHour < 20) || (selectedTimeHour === 19 && selectedTimeMinute <= 30)) {
-					// 17h - 19h30 => Ca Tối
 					ca = 'Tối';
 				} else {
 					alert('Giờ khám không hợp lệ! Vui lòng chọn lại!');
 					return;
 				}
 
-				// Cập nhật giá trị href của thẻ `a` với các tham số
-				const nextStepLink = document.getElementById("next-step-link");
-				nextStepLink.href = `/user/dangkylichkham/buoc3?doctorId=${doctorId}&selectedDate=${selectedDate}&selectedTime=${selectedTimeValue}&ca=${encodeURIComponent(ca)}`;
-				nextStepLink.style.display = "inline-block"; // Hiển thị nút nếu chưa hiển thị
-				nextStepLink.click(); // Chuyển hướng tới bước tiếp theo
+				// Gán giá trị vào các input ẩn
+				document.getElementById("hidden-doctorId").value = doctorId;
+				document.getElementById("hidden-selectedDate").value = selectedDate;
+				document.getElementById("hidden-selectedTime").value = selectedTimeValue;
+				document.getElementById("hidden-ca").value = ca;
+
+				// Submit form
+				document.querySelector(".dk-form").submit();
 			} else {
 				alert('Vui lòng chọn giờ khám!');
 			}
 		}
-
-
 
 	</script>
 </body>
