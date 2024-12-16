@@ -321,8 +321,11 @@ public class NguoiDungController {
 	    model.addAttribute("doctorId", doctorId);
 	    model.addAttribute("serviceId", serviceId);
 
+	 
+
 	    return "benhnhan/dangkylichkham/buoc2";
 	}
+
 
 
 	public LocalDate parseDate(String dateStr) {
