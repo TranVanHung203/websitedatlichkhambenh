@@ -23,7 +23,7 @@
 				</ul>
 			</div>
 			<form class="dk-form" th:action="@{/user/dangkylichkham/buoc3}" method="get">
-				<input type="hidden" name="doctorId" id="hidden-doctorId" th:value="${doctorId}">
+				<input type="hidden" name="doctorId" id="hidden-doctorId" th:value="${doctorId ?: ''}">
 				<input type="hidden" name="selectedDate" id="hidden-selectedDate">
 				<input type="hidden" name="selectedTime" id="hidden-selectedTime">
 				<input type="hidden" name="ca" id="hidden-ca">
@@ -176,8 +176,13 @@
 					return;
 				}
 
-				// Gán giá trị vào các input ẩn
-				document.getElementById("hidden-doctorId").value = doctorId;
+				// **Đảm bảo tất cả các hidden input đều có giá trị**
+				const doctorId = document.getElementById("hidden-doctorId").value;
+				if (!doctorId || !selectedDate || !selectedTimeValue || !ca) {
+					alert('Dữ liệu không đầy đủ, vui lòng chọn lại!');
+					return;
+				}
+
 				document.getElementById("hidden-selectedDate").value = selectedDate;
 				document.getElementById("hidden-selectedTime").value = selectedTimeValue;
 				document.getElementById("hidden-ca").value = ca;
@@ -188,6 +193,7 @@
 				alert('Vui lòng chọn giờ khám!');
 			}
 		}
+
 
 	</script>
 </body>

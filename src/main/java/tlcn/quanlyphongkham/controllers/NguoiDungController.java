@@ -385,7 +385,8 @@ public class NguoiDungController {
 
 	@GetMapping("/user/dangkylichkham/buoc3")
 	public String proceedToStep3(@RequestParam("doctorId") String doctorId,
-			@RequestParam("selectedDate") String selectedDate, @RequestParam("selectedTime") String selectedTime,
+			@RequestParam("selectedDate") String selectedDate, 
+			@RequestParam("selectedTime") String selectedTime,
 			@RequestParam("ca") String ca, Model model) {
 
 		// Fetch the doctor information using doctorId
