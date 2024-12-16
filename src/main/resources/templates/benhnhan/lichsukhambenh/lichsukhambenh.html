@@ -27,42 +27,49 @@
 					<button type="submit">Lọc</button>
 				</form>
 
-				<table class="medical-history-table">
-					<thead>
-						<tr>
-							<th>Tên Bác Sĩ</th>
-							<th>Ngày Khám</th>
-							<th>Chẩn Đoán</th>
-							<th>Thuốc</th>
-							<th>Liều Lượng/cử</th>
-							<th>Tần Suất/lần</th>
-							<th>Số Lượng</th> <!-- Thêm cột số lượng -->
-							<th>Tổng Tiền Thuốc</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr th:each="lichSu : ${lichSuKhams.content}">
-							<td th:text="${lichSu.tenBacSi}"></td>
-							<td th:text="${lichSu.ngayKham}"></td>
-							<td th:text="${lichSu.chanDoan}"></td>
-							<td>
-								<pre th:text="${lichSu.thuoc}"></pre>
-							</td>
-							<td>
-								<pre th:text="${lichSu.lieu}"></pre>
-							</td>
-							<td>
-								<pre th:text="${lichSu.tanSuat}"></pre>
-							</td>
-							<td>
-								<pre th:text="${lichSu.soLuong}"></pre>
-							</td>
+				<!-- Check if there is no medical history -->
+				<div th:if="${#lists.isEmpty(lichSuKhams.content)}">
+					<p>Không có lịch sử khám bệnh</p>
+				</div>
 
-							<td th:text="${lichSu.formattedTongTienThuoc}"></td>
-						</tr>
-					</tbody>
+				<!-- Display the medical history table if data exists -->
+				<div th:if="${!#lists.isEmpty(lichSuKhams.content)}">
+					<table class="medical-history-table">
+						<thead>
+							<tr>
+								<th>Tên Bác Sĩ</th>
+								<th>Ngày Khám</th>
+								<th>Chẩn Đoán</th>
+								<th>Thuốc</th>
+								<th>Liều Lượng</th>
+								<th>Tần Suất</th>
+								<th>Số Lượng</th> <!-- Thêm cột số lượng -->
+								<th>Tổng Tiền Thuốc</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="lichSu : ${lichSuKhams.content}">
+								<td th:text="${lichSu.tenBacSi}"></td>
+								<td th:text="${lichSu.ngayKham}"></td>
+								<td th:text="${lichSu.chanDoan}"></td>
+								<td>
+									<pre th:text="${lichSu.thuoc}"></pre>
+								</td>
+								<td>
+									<pre th:text="${lichSu.lieu}"></pre>
+								</td>
+								<td>
+									<pre th:text="${lichSu.tanSuat}"></pre>
+								</td>
+								<td>
+									<pre th:text="${lichSu.soLuong}"></pre>
+								</td>
 
-				</table>
+								<td th:text="${lichSu.formattedTongTienThuoc}"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 
 				<!-- Phân trang -->
 				<div class="pagination-container">
