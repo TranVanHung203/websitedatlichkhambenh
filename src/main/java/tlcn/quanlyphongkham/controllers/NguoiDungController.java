@@ -308,13 +308,22 @@ public class NguoiDungController {
 	}
 
 	@PostMapping("/user/dangkylichkham/next")
-	public String proceedToStep2(@RequestParam("doctor") String doctorId, @RequestParam("service") String serviceId,
-			Model model) {
+	public String proceedToStep2(@RequestParam("service") String serviceId, 
+	                             @RequestParam("doctor") String doctorId, 
+	                             Model model) {
+	    if (serviceId == null || serviceId.isEmpty()) {
+	        throw new IllegalArgumentException("Chuyên khoa không được để trống.");
+	    }
+	    if (doctorId == null || doctorId.isEmpty()) {
+	        throw new IllegalArgumentException("Bác sĩ không được để trống.");
+	    }
 
-		model.addAttribute("doctorId", doctorId);
+	    model.addAttribute("doctorId", doctorId);
+	    model.addAttribute("serviceId", serviceId);
 
-		return "/benhnhan/dangkylichkham/buoc2";
+	    return "benhnhan/dangkylichkham/buoc2";
 	}
+
 
 	public LocalDate parseDate(String dateStr) {
 
