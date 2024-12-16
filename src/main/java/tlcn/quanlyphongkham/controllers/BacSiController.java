@@ -198,8 +198,8 @@ public class BacSiController {
 		return "bacsi/chinhsuathongtinbs/chinhsuathongtinbs"; // Your Thymeleaf template
 	}
 
-	@Value("${upload.path}")
-	private String uploadDir;
+	
+	
 
 	@PostMapping("/updateProfile")
 	public String updateProfile(@ModelAttribute EditProfileBSDTO profileDTO, @ModelAttribute ChiTietBacSiDTO detailDTO,
