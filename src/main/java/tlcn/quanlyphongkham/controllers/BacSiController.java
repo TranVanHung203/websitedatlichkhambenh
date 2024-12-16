@@ -225,6 +225,7 @@ public class BacSiController {
 			// Set the URL of the uploaded image
 			profileDTO.setAvatarurl("/uploads/" + fileName); // Store the relative URL
 		}
+		
 
 		// Update the profile and details
 		bacSiService.updateProfile(profileDTO);
