@@ -307,7 +307,7 @@ public class NguoiDungController {
 		return "benhnhan/dangkylichkham/buoc1"; // Return to the same view with updated doctors list
 	}
 
-	@PostMapping("/user/dangkylichkham/next")
+	@GetMapping("/user/dangkylichkham/next")
 	public String proceedToStep2(@RequestParam("doctor") String doctorId, @RequestParam("service") String serviceId,
 			Model model) {
 
