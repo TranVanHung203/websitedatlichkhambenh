@@ -59,7 +59,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/nhanvien/**").hasRole("NhanVien")
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/home", "/view/schedule", "/findbs", "/departments/**", "/chitietbacsi/**", "/user/dangkylichkham").permitAll()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
