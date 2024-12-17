@@ -161,7 +161,7 @@ public class WebController {
 
 			// Gửi email xác nhận với đường dẫn đặt lại mật khẩu
 			String emailBody = "Để đặt lại mật khẩu của bạn, vui lòng nhấn vào đường dẫn sau: "
-					+ "http://localhost:8181/reset-password?token=" + token;
+					+ "http://localhost:8080/reset-password?token=" + token;
 			emailService.sendEmail(nguoiDung.getEmail(), "Đặt lại mật khẩu", emailBody);
 			model.addAttribute("message", "Vui lòng kiểm tra email của bạn để đặt lại mật khẩu.");
 		} else {
