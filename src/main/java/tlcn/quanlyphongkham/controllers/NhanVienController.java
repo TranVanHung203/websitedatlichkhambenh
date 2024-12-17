@@ -241,9 +241,12 @@ public class NhanVienController {
 	        benhnhan = existingPatient;
 	    }
 
-	    // Tìm lịch khám bệnh
+	    // Tìm lịch khám bệnha
 	    MaLichKhamBenhDTO lichKhamBenh = lichKhamBenhService.findByDoctorIdAndDateAndCa(doctorId, selectedDates, ca);
+	    
+	    
 	    Optional<LichKhamBenh> lichkham = lichKhamBenhService.findById(lichKhamBenh.getMaLichKhamBenh());
+
 	    SlotThoiGian existingSlot = slotThoiGianService.findExist(
 	        calculateStartTime(selectedTime), 
 	        benhnhan.getBenhNhanId(),
