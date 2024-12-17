@@ -109,7 +109,7 @@ public class WebController {
 
 		// Gửi email xác nhận
 		String emailBody = "Cảm ơn bạn đã đăng ký tài khoản. Vui lòng nhấn vào đường dẫn sau để xác nhận tài khoản của bạn: "
-				+ "http://localhost:8181/confirm?token=" + token;
+				+ "http://localhost:8080/confirm?token=" + token;
 		emailService.sendEmail(nguoiDung.getEmail(), "Xác nhận đăng ký tài khoản", emailBody);
 
 		return "/web/dangky/yeucauxacthuc";

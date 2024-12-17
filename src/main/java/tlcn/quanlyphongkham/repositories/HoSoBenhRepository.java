@@ -22,7 +22,7 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 	            hs.ho_so_id AS hoSoId,
 	            bn.ten AS tenBenhNhan,
 	            hs.chan_doan AS chanDoan,
-	            DATE_FORMAT(hs.thoi_gian_tao, '%Y-%m-%d %H:%i:%s') AS thoiGianTao,
+	            DATE_FORMAT(hs.thoi_gian_tao, '%Y-%m-%d') AS thoiGianTao,
 	            GROUP_CONCAT(CONCAT('- ', t.ten) SEPARATOR '\\n') AS tenThuoc,
 	            GROUP_CONCAT(dtt.lieu SEPARATOR '\\n') AS lieu,
 	            GROUP_CONCAT(dtt.tan_suat SEPARATOR '\\n') AS tanSuat,

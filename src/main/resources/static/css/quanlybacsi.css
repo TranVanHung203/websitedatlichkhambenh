@@ -2,8 +2,7 @@
 .main-content {
 	margin-left: 230px;
 	padding: 20px;
-	padding-top: 80px;
-	/* to avoid overlapping with the header */
+	padding-top: 80px; /* to avoid overlapping with the header */
 	width: calc(100% - 250px);
 }
 
@@ -11,6 +10,7 @@ h1 {
     text-align: left;
     color: #333;
 }
+
 button {
 	margin-top: 30px;
 	margin-bottom: 20px;
@@ -41,8 +41,7 @@ button {
 	transition: background-color 0.3s, color 0.3s, transform 0.2s;
 	text-decoration: none;
 	display: inline-block;
-	font-size: 12px;
-	/* Chỉnh cỡ chữ nhỏ hơn */
+	font-size: 12px; /* Chỉnh cỡ chữ nhỏ hơn */
 }
 
 .btn-edit:hover {
@@ -55,38 +54,33 @@ button {
 table {
 	width: 100%;
 	border-collapse: collapse;
-	/* Loại bỏ khoảng cách giữa các ô */
 	margin-top: 20px;
 	border: 1px solid #ddd;
-	/* Viền bao toàn bảng */
 	table-layout: auto;
-	/* Cho phép cột tự động điều chỉnh độ rộng */
 }
 
 table th,
 table td {
 	padding: 10px;
-	/* Giảm padding để trông rộng rãi hơn */
 	border: 1px solid #ddd;
-	/* Viền bao quanh từng ô */
-	text-align: center;
-	/* Căn giữa theo chiều ngang */
 	vertical-align: middle;
-	/* Căn giữa theo chiều dọc */
 	font-size: 12px;
-	/* Chỉnh cỡ chữ nhỏ hơn */
 }
 
+/* Căn giữa tiêu đề cột */
 table th {
 	background-color: #007bff;
 	color: #fff;
 	font-size: 12px;
+	text-align: center;
 }
 
+/* Căn lề trái nội dung trong bảng */
 table td {
 	background-color: #fff;
 	color: #333;
 	font-size: 12px;
+	text-align: left;
 }
 
 table tr:nth-child(even) {
@@ -97,91 +91,66 @@ table tr:hover {
 	background-color: #f1f1f1;
 }
 
-/* Tăng độ rộng của cột để trông rộng rãi hơn */
-table th:nth-child(1),
-table td:nth-child(1) {
-	width: 10%;
-	/* Cột Tên */
+/* Điều chỉnh độ rộng từng cột */
+table th:nth-child(1), table td:nth-child(1) {
+	width: 10%; /* Tên */
 }
 
-table th:nth-child(2),
-table td:nth-child(2) {
-	width: 8%;
-	/* Cột Giới tính */
+table th:nth-child(2), table td:nth-child(2) {
+	width: 5%; /* Giới tính */
 }
 
-table th:nth-child(3),
-table td:nth-child(3) {
-	width: 10%;
-	/* Cột Ngày sinh */
+table th:nth-child(3), table td:nth-child(3) {
+	width: 7%; /* Ngày sinh */
 }
 
-table th:nth-child(4),
-table td:nth-child(4) {
-	width: 10%;
-	/* Cột Địa chỉ */
+table th:nth-child(4), table td:nth-child(4) {
+	width: 10%; /* Địa chỉ */
 }
 
-table th:nth-child(5),
-table td:nth-child(5) {
-	width: 10%;
-	/* Cột Số điện thoại */
+table th:nth-child(5), table td:nth-child(5) {
+	width: 7%; /* Số điện thoại */
 }
 
-table th:nth-child(6),
-table td:nth-child(6) {
-	width: 10%;
-	/* Cột Chuyên khoa */
+table th:nth-child(6), table td:nth-child(6) {
+	width: 10%; /* Chuyên khoa */
 }
 
-table th:nth-child(7),
-table td:nth-child(7) {
-	width: 10%;
-	/* Cột Bằng cấp */
+table th:nth-child(7), table td:nth-child(7) {
+	width: 10%; /* Bằng cấp */
 }
 
-table th:nth-child(8),
-table td:nth-child(8) {
-	width: 10%;
-	/* Cột Hội nghị nước ngoài */
+table th:nth-child(8), table td:nth-child(8) {
+	width: 10%; /* Hội nghị nước ngoài */
 }
 
-table th:nth-child(9),
-table td:nth-child(9) {
-	width: 10%;
-	/* Cột Chứng chỉ */
+table th:nth-child(9), table td:nth-child(9) {
+	width: 10%; /* Chứng chỉ */
 }
 
-table th:nth-child(10),
-table td:nth-child(10) {
-	width: 10%;
-	/* Cột Đào tạo chuyên ngành */
-}
-table th:nth-child(11),
-table td:nth-child(11) {
-	width: 10%;
-	/* Cột Đào tạo chuyên ngành */
+table th:nth-child(10), table td:nth-child(10) {
+	width: 10%; /* Đào tạo chuyên ngành */
 }
 
-table th:nth-child(12),
-table td:nth-child(12) {
-	width: 7%;
-	/* Cột Hành động */
+table th:nth-child(11), table td:nth-child(11) {
+	width: 18%; /* Lĩnh vực chuyên sâu */
 }
 
-/* CSS cho phân trang */
+table th:nth-child(12), table td:nth-child(12) {
+	width: 7%; /* Hành động */
+}
+
+/* Pagination Styles */
 .pagination {
 	margin-top: 20px;
 	text-align: center;
 	font-size: 14px;
 	display: flex;
 	justify-content: center;
-	/* Center the pagination horizontally */
 	align-items: center;
-	/* Center the pagination vertically */
 }
 
-.pagination a{
+.pagination a {
 	margin: 0 0px;
 	padding: 8px 12px;
 	text-decoration: none;
@@ -190,6 +159,7 @@ table td:nth-child(12) {
 	background-color: #fff;
 	transition: color 0.3s, background-color 0.3s, transform 0.2s;
 }
+
 .pagination span {
 	margin: 0 0px;
 	padding: 8px 12px;
@@ -221,10 +191,8 @@ table td:nth-child(12) {
 .pagination-container {
 	display: flex;
 	justify-content: center;
-	/* Center the pagination container */
 	padding: 10px;
 	border: 1px solid #ddd;
-	/* Viền bao quanh toàn bộ phân trang */
 	border-radius: 5px;
 	background-color: #f9f9f9;
 }
@@ -233,7 +201,6 @@ form {
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	/* Khoảng cách giữa ô input và nút */
 }
 
 form input {
