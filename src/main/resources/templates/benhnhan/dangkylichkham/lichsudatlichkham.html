@@ -9,7 +9,7 @@
     <link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
 </head>
 <body>
-	<div th:replace="benhnhan/fragments/header :: header"></div>
+    <div th:replace="benhnhan/fragments/header :: header"></div>
     <div class="history-container">
         <h1>Lịch Sử Đặt Lịch Khám Bệnh</h1>
 
@@ -32,7 +32,7 @@
                     <th>Bác Sĩ</th>
                     <th>Ngày</th>
                     <th>Giờ</th>
-                    <th>Hủy</th>
+                    <th>Trạng thái</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,12 +41,17 @@
                     <td th:text="${slot.lichKhamBenh.ngayThangNam}">10/12/2024</td>
                     <td th:text="${slot.thoiGianBatDau}">08:00</td>
                     <td>
-                        <form th:action="@{/user/cancel}" method="post" style="display:inline;">
-                            <input type="hidden" name="slotId" th:value="${slot.slotId}" />
-                            <input type="hidden" name="date" th:value="${date}" />
-                            <input type="hidden" name="page" th:value="${currentPage}" />
-                            <button type="submit" class="history-cancel-btn">Hủy</button>
-                        </form>
+                        <div th:if="${slot.trangThai == 'pending'}">
+                            <form th:action="@{/user/cancel}" method="post" style="display:inline;">
+                                <input type="hidden" name="slotId" th:value="${slot.slotId}" />
+                                <input type="hidden" name="date" th:value="${date}" />
+                                <input type="hidden" name="page" th:value="${currentPage}" />
+                                <button type="submit" class="history-cancel-btn">Hủy</button>
+                            </form>
+                        </div>
+                        <div th:unless="${slot.trangThai == 'pending'}" th:text="${slot.trangThai}">
+                            <!-- Slot status like 'confirmed', 'completed', etc. -->
+                        </div>
                     </td>
                 </tr>
             </tbody>
@@ -88,7 +93,6 @@
             if (page < 0 || page >= totalPages) {
                 return; // Do nothing if page is out of range
             }
-
             window.location.href = '/user/lichsudatlich?date=' + date + '&page=' + page;
         }
     </script>
