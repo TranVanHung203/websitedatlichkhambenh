@@ -104,17 +104,11 @@ public class NhanVienController {
 	}
 
 	public LocalDate parseDate(String dateStr) {
-
-		if (dateStr != null && !dateStr.isEmpty()) {
-
-			if (dateStr.matches("\\d{4}-\\d{2}-\\d{1}$")) {
-				dateStr = dateStr.substring(0, 8) + "0" + dateStr.charAt(8);
-			}
-
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-			return LocalDate.parse(dateStr, formatter);
-		}
-		return null;
+	    if (dateStr != null && !dateStr.isEmpty()) {
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
+	        return LocalDate.parse(dateStr, formatter);
+	    }
+	    return null;
 	}
 
 	@PostMapping("/nhanvien/dangkylichkham/getAvailableSlots")
