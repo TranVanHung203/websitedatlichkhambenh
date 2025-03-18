@@ -278,28 +278,34 @@ public class AdminController {
 
 
 	@GetMapping("/admin/qlt")
-	public String qlt(@RequestParam(defaultValue = "0") int page, 
-	                  @RequestParam(defaultValue = "") String ten, 
+	public String qlt(@RequestParam(defaultValue = "0") int page,
+	                  @RequestParam(required = false) String searchType,
+	                  @RequestParam(defaultValue = "") String query,
 	                  Model model) {
-	    int pageSize = 10; // Number of drugs per page
+	    int pageSize = 10; // Số thuốc mỗi trang
 	    Page<Thuoc> thuocPage;
 
-	    if (ten.isEmpty()) {
+	    if (query.isEmpty()) {
 	        thuocPage = thuocService.getThuocsPaginated(page, pageSize);
 	    } else {
-	        thuocPage = thuocService.searchThuocsPaginated(ten, page, pageSize);
+	        if ("nhaCungCap".equals(searchType)) {
+	            thuocPage = thuocService.searchThuocsByNhaCungCapPaginated(query, page, pageSize);
+	        } else {
+	            thuocPage = thuocService.searchThuocsPaginated(query, page, pageSize);
+	        }
 	    }
 
 	    model.addAttribute("thuocs", thuocPage.getContent());
 	    model.addAttribute("currentPage", page);
 	    model.addAttribute("totalPages", thuocPage.getTotalPages());
-	    model.addAttribute("searchQuery", ten); // Add the search query to the model
-
-	    // Add a flag for no results
-	    model.addAttribute("noResults", thuocPage.isEmpty()); // Indicate no results were found
+	    model.addAttribute("searchQuery", "ten".equals(searchType) ? query : "");
+	    model.addAttribute("searchNhaCungCap", "nhaCungCap".equals(searchType) ? query : "");
+	    model.addAttribute("noResults", thuocPage.isEmpty());
 
 	    return "admin/quanlythuoc/quanlythuoc";
 	}
+
+
 
 
 

@@ -19,5 +19,8 @@ public interface ThuocRepository extends JpaRepository<Thuoc, Long> {
 
 	@Query("SELECT t FROM Thuoc t WHERE t.ten LIKE %:ten%")
 	Page<Thuoc> findByTenContaining(@Param("ten") String ten, Pageable pageable);
+	
+	@Query("SELECT t FROM Thuoc t WHERE t.nhaCungCap LIKE %:nhaCungCap%")
+    Page<Thuoc> findByNhaCungCapContaining(@Param("nhaCungCap") String nhaCungCap, Pageable pageable);
 
 }

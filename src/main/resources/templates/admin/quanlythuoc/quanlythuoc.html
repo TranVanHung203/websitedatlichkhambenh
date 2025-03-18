@@ -2,103 +2,123 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Quản Lý Thuốc</title>
-	<link th:href="@{/css/quanlythuoc.css}" rel="stylesheet">
-	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
-	<link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Thuốc</title>
+    <link th:href="@{/css/quanlythuoc.css}" rel="stylesheet">
+    <link th:href="@{/css/headeradmin.css}" rel="stylesheet">
+    <link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
-	<div th:replace="admin/fragments/header :: header"></div>
-	<div th:replace="admin/fragments/sidebar :: sidebar"></div>
+    <div th:replace="admin/fragments/header :: header"></div>
+    <div th:replace="admin/fragments/sidebar :: sidebar"></div>
 
-	<!-- Main Content -->
-	<div class="main-content">
-		<h1>Quản lý thuốc</h1>
-		<form th:action="@{/admin/qlt}" method="get" id="searchForm">
-			<input type="text" name="ten" id="searchInput" placeholder="Tìm kiếm thuốc theo tên"
-				style="padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px;"
-				th:value="${searchQuery}" />
-			<button type="submit" style="display:none;">Search</button>
-		</form>
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1>Quản lý thuốc</h1>
 
-		<!-- Display No Results Message -->
-		<div th:if="${noResults}" class="no-results-message">
-			<p>Không tìm thấy thuốc nào với từ khóa tìm kiếm.</p>
-		</div>
+        <!-- Search Form -->
+        <form id="searchForm" method="get" th:action="@{/admin/qlt}">
+            <select id="searchType" name="searchType" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="ten" th:selected="${searchQuery != ''}">Tìm theo tên thuốc</option>
+                <option value="nhaCungCap" th:selected="${searchNhaCungCap != ''}">Tìm theo nhà cung cấp</option>
+            </select>
+            <input type="text" id="searchInput" name="query" placeholder="Nhập từ khóa tìm kiếm"
+                   style="padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px;"
+                   th:value="${searchQuery != '' ? searchQuery : searchNhaCungCap}" />
+            <button type="submit" style="display:none;">Search</button>
+        </form>
 
-		<table th:if="${!noResults}">
-			<thead>
-				<tr>
-					<th>Mã Thuốc</th>
-					<th>Tên</th>
-					<th>Mô Tả</th>
-					<th>Giá</th>
-					<th>Số Lượng</th> <!-- Thêm cột số lượng -->
-					<th>Thao Tác</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="thuoc : ${thuocs}">
-					<td th:text="${thuoc.thuocId}"></td>
-					<td th:text="${thuoc.ten}"></td>
-					<td th:text="${thuoc.moTa}"></td>
-					<td th:text="${thuoc.gia} + ' VND'"></td>
-					<td th:text="${thuoc.soLuong != null ? thuoc.soLuong : 0}"></td>
-					<!-- Hiển thị 0 nếu soLuong là null -->
-					<td>
-						<form th:action="@{/admin/edit-thuoc}" method="get" style="display:inline;">
-							<input type="hidden" name="thuocId" th:value="${thuoc.thuocId}" />
-							<button type="submit" class="btn-edit">Sửa</button>
-						</form>
-						<form th:action="@{/admin/delete-thuoc}" method="post" style="display:inline;">
-							<input type="hidden" name="thuocId" th:value="${thuoc.thuocId}" />
-							<button type="submit" class="btn-delete"
-								onclick="return confirm('Bạn có chắc chắn muốn xóa thuốc này không?')">Xóa</button>
-						</form>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+        <!-- Display No Results Message -->
+        <div th:if="${noResults}" class="no-results-message">
+            <p>Không tìm thấy thuốc nào với từ khóa tìm kiếm.</p>
+        </div>
 
+        <table th:if="${!noResults}">
+            <thead>
+                <tr>
+                    <th>Mã Thuốc</th>
+                    <th>Tên</th>
+                    <th>Mô Tả</th>
+                    <th>Giá</th>
+                    <th>Số Lượng</th>
+                    <th>Nhà Cung Cấp</th> <!-- Hiển thị Nhà Cung Cấp -->
+                    <th>Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="thuoc : ${thuocs}">
+                    <td th:text="${thuoc.thuocId}"></td>
+                    <td th:text="${thuoc.ten}"></td>
+                    <td th:text="${thuoc.moTa}"></td>
+                    <td th:text="${thuoc.gia} + ' VND'"></td>
+                    <td th:text="${thuoc.soLuong != null ? thuoc.soLuong : 0}"></td>
+                    <td th:text="${thuoc.nhaCungCap}"></td>
+                    <td>
+                        <form th:action="@{/admin/edit-thuoc}" method="get" style="display:inline;">
+                            <input type="hidden" name="thuocId" th:value="${thuoc.thuocId}" />
+                            <button type="submit" class="btn-edit">Sửa</button>
+                        </form>
+                        <form th:action="@{/admin/delete-thuoc}" method="post" style="display:inline;">
+                            <input type="hidden" name="thuocId" th:value="${thuoc.thuocId}" />
+                            <button type="submit" class="btn-delete"
+                                    onclick="return confirm('Bạn có chắc chắn muốn xóa thuốc này không?')">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
-		<!-- Thêm Thuốc Mới -->
-		<form th:action="@{/admin/add-thuoc}" method="get" style="display:inline;">
-			<button type="submit" class="btn-add">Thêm Thuốc Mới</button>
-		</form>
+        <!-- Thêm Thuốc Mới -->
+        <form th:action="@{/admin/add-thuoc}" method="get" style="display:inline;">
+            <button type="submit" class="btn-add">Thêm Thuốc Mới</button>
+        </form>
 
-		<!-- Pagination -->
-		<div th:if="${!noResults}" class="pagination">
-			<a th:if="${currentPage > 0}" th:href="@{/admin/qlt(page=${currentPage - 1}, ten=${searchQuery})}"
-				class="prev">Trang trước</a>
+        <!-- Pagination -->
+        <div th:if="${!noResults}" class="pagination">
+            <a th:if="${currentPage > 0}" 
+               th:href="@{/admin/qlt(page=${currentPage - 1}, ten=${searchQuery}, nhaCungCap=${searchNhaCungCap})}" 
+               class="prev">Trang trước</a>
 
-			<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-				<a th:href="@{/admin/qlt(page=${i}, ten=${searchQuery})}" th:text="${i + 1}"
-					th:classappend="${i == currentPage ? 'active' : ''}"></a>
-			</span>
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:href="@{/admin/qlt(page=${i}, ten=${searchQuery}, nhaCungCap=${searchNhaCungCap})}" 
+                   th:text="${i + 1}" 
+                   th:classappend="${i == currentPage ? 'active' : ''}"></a>
+            </span>
 
-			<a th:if="${currentPage < totalPages - 1}"
-				th:href="@{/admin/qlt(page=${currentPage + 1}, ten=${searchQuery})}" class="next">Trang sau</a>
-		</div>
-	</div>
-	<script>
-		$(document).ready(function () {
-			$('#searchInput').on('input', function () {
-				var searchQuery = $(this).val();
-				var url = '/admin/qlt?ten=' + searchQuery + '&page=0'; // Reset to first page
+            <a th:if="${currentPage < totalPages - 1}" 
+               th:href="@{/admin/qlt(page=${currentPage + 1}, ten=${searchQuery}, nhaCungCap=${searchNhaCungCap})}" 
+               class="next">Trang sau</a>
+        </div>
+    </div>
 
-				// Perform AJAX request to fetch results
-				$.get(url, function (data) {
-					var content = $(data).find('.main-content').html();
-					$('.main-content').html(content); // Replace content with the new search results
-				});
-			});
-		});
-	</script>
+    <script>
+        $(document).ready(function () {
+            $('#searchInput').on('input', function () {
+                var searchQuery = $(this).val();
+                var searchType = $('#searchType').val();
+                var url = '/admin/qlt?page=0';
+
+                if (searchType === "ten") {
+                    url += '&ten=' + searchQuery + '&nhaCungCap=';
+                } else {
+                    url += '&nhaCungCap=' + searchQuery + '&ten=';
+                }
+
+                $.get(url, function (data) {
+                    var content = $(data).find('.main-content').html();
+                    $('.main-content').html(content);
+                });
+            });
+
+            $('#searchType').on('change', function () {
+                $('#searchInput').val('');
+            });
+        });
+    </script>
 </body>
 
 </html>
