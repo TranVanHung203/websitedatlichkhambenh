@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -268,30 +269,30 @@ public class NguoiDungController {
 	}
 
 	@GetMapping("/chitietbacsi/{bacSiId}")
-	public String viewChiTietBacSi(@PathVariable("bacSiId") String bacSiId, Model model) {
-		// Lấy thông tin bác sĩ từ service
-		BacSi bacSi = bacSiService.findById(bacSiId);
+	public String viewChiTietBacSi(@PathVariable("bacSiId") String bacSiId,
+	                               @RequestParam(value = "ngay", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngay,
+	                               Model model) {
+	    BacSi bacSi = bacSiService.findById(bacSiId);
+	    if (bacSi == null) {
+	        model.addAttribute("errorMessage", "Bác sĩ không tồn tại");
+	        return "error";
+	    }
 
-		if (bacSi == null) {
-			// Xử lý nếu bác sĩ không tồn tại
-			model.addAttribute("errorMessage", "Bác sĩ không tồn tại");
-			return "error"; // Trả về trang lỗi
-		}
-		// Kiểm tra nếu ngaySinh là null
-		if (bacSi.getNgaySinh() != null) {
-			// Định dạng ngày sinh từ LocalDate
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-			String formattedDate = bacSi.getNgaySinh().format(formatter);
-			model.addAttribute("formattedDate", formattedDate);
-		} else {
-			model.addAttribute("formattedDate", "Không có thông tin");
-		}
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	    model.addAttribute("formattedDate", bacSi.getNgaySinh() != null ? bacSi.getNgaySinh().format(formatter) : "Không có thông tin");
 
-		// Thêm thông tin bác sĩ vào model để hiển thị trên trang chi tiết
-		model.addAttribute("bacSi", bacSi);
+	    if (ngay == null) {
+	        ngay = LocalDate.now();
+	    }
+	    List<LichKhamBenh> lichKhamBenhList = lichKhamBenhService.findByBacSiAndNgay(bacSi, ngay);
 
-		return "benhnhan/viewbs/chitietbs"; // Trả về view chi tiết bác sĩ
+	    model.addAttribute("bacSi", bacSi);
+	    model.addAttribute("lichKhamBenhList", lichKhamBenhList);
+	    model.addAttribute("selectedDate", ngay);
+
+	    return "benhnhan/viewbs/chitietbs";
 	}
+
 
 	@GetMapping("/user/dangkylichkham")
     public String registerSchedule(Model model) {
