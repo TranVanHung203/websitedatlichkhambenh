@@ -1,9 +1,12 @@
+
 package tlcn.quanlyphongkham.controllers;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -291,21 +294,33 @@ public class NguoiDungController {
 	}
 
 	@GetMapping("/user/dangkylichkham")
-	public String registerSchedule(Model model) {
-		// Fetch list of specialties and pass it to the view
-		List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa();
-		model.addAttribute("chuyenKhoaList", chuyenKhoaList);
-		return "benhnhan/dangkylichkham/buoc1"; // Return to Step 1 view
-	}
+    public String registerSchedule(Model model) {
+        List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa();
+        model.addAttribute("chuyenKhoaList", chuyenKhoaList);
+        return "benhnhan/dangkylichkham/buoc1"; 
+    }
 
-	@PostMapping("/user/dangkylichkham/doctor")
-	public String getDoctorsBySpecialty(@RequestParam("service") String serviceId, Model model) {
+    // API lấy danh sách bác sĩ theo chuyên khoa
+    @PostMapping("/user/dangkylichkham/doctor")
+    @ResponseBody
+    public String getDoctorsBySpecialty(@RequestParam("service") String serviceId) {
+        System.out.println("Service ID nhận được: " + serviceId); // Debug
 
-		List<BacSiDTO> bacSiList = bacSiService.getBacSiByChuyenKhoa(serviceId);
-		model.addAttribute("bacSiList", bacSiList);
-		model.addAttribute("selectedService", serviceId); // Add selected service to model
-		return "benhnhan/dangkylichkham/buoc1"; // Return to the same view with updated doctors list
-	}
+        List<BacSiDTO> bacSiList = bacSiService.getBacSiByChuyenKhoa(serviceId);
+
+        if (bacSiList == null || bacSiList.isEmpty()) {
+            System.out.println("Không tìm thấy bác sĩ cho chuyên khoa: " + serviceId);
+            return "<option value=''>Không có bác sĩ</option>";
+        }
+
+        StringBuilder options = new StringBuilder();
+        for (BacSiDTO bacSi : bacSiList) {
+            options.append("<option value='").append(bacSi.getId()).append("'>")
+                   .append(bacSi.getTen()).append("</option>");
+        }
+
+        return options.toString();
+    }
 
 	@PostMapping("/user/dangkylichkham/next")
 	public String proceedToStep2(@RequestParam("service") String serviceId, 
@@ -329,17 +344,11 @@ public class NguoiDungController {
 
 
 	public LocalDate parseDate(String dateStr) {
-
-		if (dateStr != null && !dateStr.isEmpty()) {
-
-			if (dateStr.matches("\\d{4}-\\d{2}-\\d{1}$")) {
-				dateStr = dateStr.substring(0, 8) + "0" + dateStr.charAt(8);
-			}
-
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-			return LocalDate.parse(dateStr, formatter);
-		}
-		return null;
+	    if (dateStr != null && !dateStr.isEmpty()) {
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
+	        return LocalDate.parse(dateStr, formatter);
+	    }
+	    return null;
 	}
 
 	@PostMapping("/user/dangkylichkham/getAvailableSlots")
@@ -417,58 +426,70 @@ public class NguoiDungController {
 
 	@PostMapping("/user/dangkylichkham/confirm")
 	public ResponseEntity<Map<String, String>> confirmBooking(@RequestBody Map<String, String> requestData) {
-		String doctorId = requestData.get("doctorId");
-		String selectedDate = requestData.get("selectedDate");
-		String selectedTime = requestData.get("selectedTime");
-		String ca = requestData.get("selectedCa");
-		LocalDate selectedDates;
-		nguoiDungId = getNguoiDungId();
-		try {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-			selectedDates = LocalDate.parse(selectedDate, formatter);
-		} catch (DateTimeParseException e) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-d");
-			selectedDates = LocalDate.parse(selectedDate, formatter);
-		}
+	    String doctorId = requestData.get("doctorId");
+	    String selectedDate = requestData.get("selectedDate");
+	    String selectedTime = requestData.get("selectedTime");
+	    String ca = requestData.get("selectedCa");
+	    LocalDate selectedDates;
+	    nguoiDungId = getNguoiDungId();
+	    
+	    try {
+	        DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+	            .appendPattern("yyyy")
+	            .appendLiteral('-')
+	            .appendPattern("M")
+	            .appendLiteral('-')
+	            .appendPattern("d")
+	            .parseDefaulting(ChronoField.MONTH_OF_YEAR, 1)
+	            .parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
+	            .toFormatter();
+	        
+	        selectedDates = LocalDate.parse(selectedDate, formatter);
+	    } catch (DateTimeParseException e) {
+	        Map<String, String> response = new HashMap<>();
+	        response.put("status", "error");
+	        response.put("message", "Định dạng ngày không hợp lệ. Vui lòng nhập đúng định dạng yyyy-MM-dd.");
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	    }
 
-		// Tìm Lịch Khám Bệnh theo doctorId, selectedDate và ca
-		MaLichKhamBenhDTO lichKhamBenh = lichKhamBenhService.findByDoctorIdAndDateAndCa(doctorId, selectedDates, ca);
-		BenhNhan benhnhan = benhNhanService.findById(nguoiDungId);
-		Optional<LichKhamBenh> lichkham = lichKhamBenhService.findById(lichKhamBenh.getMaLichKhamBenh());
-		SlotThoiGian check = slotThoiGianService.findExist(calculateStartTime(selectedTime), benhnhan.getBenhNhanId(),
-				lichKhamBenh.getMaLichKhamBenh());
+	    // Tìm Lịch Khám Bệnh theo doctorId, selectedDate và ca
+	    MaLichKhamBenhDTO lichKhamBenh = lichKhamBenhService.findByDoctorIdAndDateAndCa(doctorId, selectedDates, ca);
+	    BenhNhan benhnhan = benhNhanService.findById(nguoiDungId);
+	    Optional<LichKhamBenh> lichkham = lichKhamBenhService.findById(lichKhamBenh.getMaLichKhamBenh());
+	    SlotThoiGian check = slotThoiGianService.findExist(calculateStartTime(selectedTime), benhnhan.getBenhNhanId(),
+	            lichKhamBenh.getMaLichKhamBenh());
 
-		if (lichKhamBenh != null && check == null) {
-			SlotThoiGian slotThoiGian = new SlotThoiGian();
-			slotThoiGian.setSlotId(UUID.randomUUID().toString()); // Tạo ID ngẫu nhiên cho Slot
-			slotThoiGian.setLichKhamBenh(lichkham.get()); // Liên kết với lịch khám bệnh đã tìm được
+	    if (lichKhamBenh != null && check == null) {
+	        SlotThoiGian slotThoiGian = new SlotThoiGian();
+	        slotThoiGian.setSlotId(UUID.randomUUID().toString()); // Tạo ID ngẫu nhiên cho Slot
+	        slotThoiGian.setLichKhamBenh(lichkham.get()); // Liên kết với lịch khám bệnh đã tìm được
 
-			// Xác định giờ bắt đầu và kết thúc dựa trên `ca` và `selectedTime`
-			LocalTime thoiGianBatDau = calculateStartTime(selectedTime);
-			LocalTime thoiGianKetThuc = calculateEndTime(selectedTime);
+	        // Xác định giờ bắt đầu và kết thúc dựa trên `ca` và `selectedTime`
+	        LocalTime thoiGianBatDau = calculateStartTime(selectedTime);
+	        LocalTime thoiGianKetThuc = calculateEndTime(selectedTime);
 
-			slotThoiGian.setThoiGianBatDau(thoiGianBatDau);
-			slotThoiGian.setThoiGianKetThuc(thoiGianKetThuc);
-			slotThoiGian.setTrangThai("pending");
-			slotThoiGian.setBenhNhan(benhnhan);
+	        slotThoiGian.setThoiGianBatDau(thoiGianBatDau);
+	        slotThoiGian.setThoiGianKetThuc(thoiGianKetThuc);
+	        slotThoiGian.setTrangThai("pending");
+	        slotThoiGian.setBenhNhan(benhnhan);
 
-			// Lưu SlotThoiGian vào cơ sở dữ liệu
-			slotThoiGianService.save(slotThoiGian);
+	        // Lưu SlotThoiGian vào cơ sở dữ liệu
+	        slotThoiGianService.save(slotThoiGian);
 
-			// Return a response with a success message
-			Map<String, String> response = new HashMap<>();
-			response.put("status", "success");
-			response.put("message", "Booking confirmed successfully");
+	        // Return a response with a success message
+	        Map<String, String> response = new HashMap<>();
+	        response.put("status", "success");
+	        response.put("message", "Booking confirmed successfully");
 
-			return ResponseEntity.ok(response);
-		} else {
-			// Return a response with a failure message
-			Map<String, String> response = new HashMap<>();
-			response.put("status", "failure");
-			response.put("message", "Đã có người đặt khung giờ này vui lòng thực hiện lại");
+	        return ResponseEntity.ok(response);
+	    } else {
+	        // Return a response with a failure message
+	        Map<String, String> response = new HashMap<>();
+	        response.put("status", "failure");
+	        response.put("message", "Đã có người đặt khung giờ này, vui lòng thực hiện lại");
 
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-		}
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	    }
 	}
 
 	@GetMapping("/user/lichsudatlich")
