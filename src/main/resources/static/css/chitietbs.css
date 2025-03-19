@@ -98,3 +98,99 @@
         opacity: 1;
     }
 }
+/* Tiêu đề lịch làm việc */
+.schedule-header {
+    font-size: 24px;
+    color: #007bff;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Bố cục chọn ngày */
+.date-picker-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* Ô chọn ngày */
+.date-picker {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+.date-picker:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Nút xem lịch */
+.btn-view-schedule {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn-view-schedule:hover {
+    background-color: #0056b3;
+}
+
+/* Bảng lịch làm việc */
+.schedule-table {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-table thead {
+    background-color: #007bff;
+    color: white;
+    font-size: 18px;
+}
+
+.schedule-table th, .schedule-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Hàng lịch khám bệnh */
+.schedule-row:nth-child(odd) {
+    background-color: #f8f9fa;
+}
+
+.schedule-row:nth-child(even) {
+    background-color: #e9ecef;
+}
+
+.schedule-row:hover {
+    background-color: #d1e7ff;
+    transition: background 0.3s ease-in-out;
+}
+
+/* Cột ca làm việc */
+.shift {
+    font-weight: bold;
+}
+
+/* Cột giờ làm việc */
+.time {
+    font-style: italic;
+}
+

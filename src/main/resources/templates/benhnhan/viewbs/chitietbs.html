@@ -2,111 +2,117 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thông Tin Bác Sĩ</title>
-    <link rel="stylesheet" href="/css/chitietbs.css">
-    <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
-    <link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Thông Tin Bác Sĩ</title>
+	<link rel="stylesheet" href="/css/chitietbs.css">
+	<link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+	<link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
 </head>
 
 <body>
-    <!-- Include Header -->
-    <div th:replace="benhnhan/fragments/header :: header"></div>
-    <div class="doctor-tabs-container">
-        <!-- Avatar and Basic Info -->
-        <div class="doctor-profile">
-            <div class="avatar-container">
-                <img th:src="@{${bacSi.urlAvatar}}" alt="Ảnh Đại Diện Bác Sĩ" class="doctor-avatar" />
-            </div>
-            <div class="doctor-info">
-                <h1 th:text="${bacSi.ten}">Hoàng Lương</h1>
-                <p><strong>Chuyên Khoa:</strong> <span th:text="${bacSi.chuyenKhoa != null ? bacSi.chuyenKhoa.ten : ''}"></span></p>
-                <p><strong>Điện Thoại:</strong> <span th:text="${bacSi.dienThoai != null ? bacSi.dienThoai : ''}"></span></p>
-                <p><strong>Địa Chỉ:</strong> <span th:text="${bacSi.diaChi != null ? bacSi.diaChi : ''}"></span></p>
-            </div>
-        </div>
+	<!-- Include Header -->
+	<div th:replace="benhnhan/fragments/header :: header"></div>
+	<div class="doctor-tabs-container">
+		<!-- Avatar and Basic Info -->
+		<div class="doctor-profile">
+			<div class="avatar-container">
+				<img th:src="@{${bacSi.urlAvatar}}" alt="Ảnh Đại Diện Bác Sĩ" class="doctor-avatar" />
+			</div>
+			<div class="doctor-info">
+				<h1 th:text="${bacSi.ten}">Hoàng Lương</h1>
+				<p><strong>Chuyên Khoa:</strong> <span
+						th:text="${bacSi.chuyenKhoa != null ? bacSi.chuyenKhoa.ten : ''}"></span></p>
+				<p><strong>Điện Thoại:</strong> <span
+						th:text="${bacSi.dienThoai != null ? bacSi.dienThoai : ''}"></span></p>
+				<p><strong>Địa Chỉ:</strong> <span th:text="${bacSi.diaChi != null ? bacSi.diaChi : ''}"></span></p>
+			</div>
+		</div>
 
-        <!-- Tab menu -->
-        <div class="tabs">
-            <button class="tab-link active" onclick="openTab(event, 'basic-info')">Thông Tin Cơ Bản</button>
-            <button class="tab-link" onclick="openTab(event, 'details-info')">Thông Tin Chi Tiết</button>
-            <button class="tab-link" onclick="openTab(event, 'schedule-info')">Lịch Làm Việc</button>
-        </div>
+		<!-- Tab menu -->
+		<div class="tabs">
+			<button class="tab-link active" onclick="openTab(event, 'basic-info')">Thông Tin Cơ Bản</button>
+			<button class="tab-link" onclick="openTab(event, 'details-info')">Thông Tin Chi Tiết</button>
+			<button class="tab-link" onclick="openTab(event, 'schedule-info')">Lịch Làm Việc</button>
+		</div>
 
-        <!-- Thông Tin Cơ Bản -->
-        <div id="basic-info" class="tab-content active">
-            <h2>Thông Tin Cơ Bản</h2>
-            <p><strong>Họ và Tên:</strong> <span th:text="${bacSi.ten}"></span></p>
-            <p><strong>Ngày Sinh:</strong> <span th:text="${formattedDate}"></span></p>
-            <p><strong>Giới Tính:</strong> <span th:text="${bacSi.gioiTinh}"></span></p>
-            <p><strong>Điện Thoại:</strong> <span th:text="${bacSi.dienThoai}"></span></p>
-            <p><strong>Địa Chỉ:</strong> <span th:text="${bacSi.diaChi}"></span></p>
-            <p><strong>Chuyên Khoa:</strong> <span th:text="${bacSi.chuyenKhoa.ten}"></span></p>
-        </div>
+		<!-- Thông Tin Cơ Bản -->
+		<div id="basic-info" class="tab-content active">
+			<h2>Thông Tin Cơ Bản</h2>
+			<p><strong>Họ và Tên:</strong> <span th:text="${bacSi.ten}"></span></p>
+			<p><strong>Ngày Sinh:</strong> <span th:text="${formattedDate}"></span></p>
+			<p><strong>Giới Tính:</strong> <span th:text="${bacSi.gioiTinh}"></span></p>
+			<p><strong>Điện Thoại:</strong> <span th:text="${bacSi.dienThoai}"></span></p>
+			<p><strong>Địa Chỉ:</strong> <span th:text="${bacSi.diaChi}"></span></p>
+			<p><strong>Chuyên Khoa:</strong> <span th:text="${bacSi.chuyenKhoa.ten}"></span></p>
+		</div>
 
-        <!-- Thông Tin Chi Tiết -->
-        <div id="details-info" class="tab-content">
-            <h2>Thông Tin Chi Tiết</h2>
-            <p><strong>Bằng Cấp:</strong> <span th:text="${bacSi.chiTietBacSi.bangCap}"></span></p>
-            <p><strong>Hội Nghị Nước Ngoài:</strong> <span th:text="${bacSi.chiTietBacSi.hoiNghiNuocNgoai}"></span></p>
-            <p><strong>Chứng Chỉ:</strong> <span th:text="${bacSi.chiTietBacSi.chungChi}"></span></p>
-            <p><strong>Đào Tạo Chuyên Ngành:</strong> <span th:text="${bacSi.chiTietBacSi.daoTaoChuyenNganh}"></span></p>
-            <p><strong>Lĩnh Vực Chuyên Sâu:</strong> <span th:text="${bacSi.chiTietBacSi.linhVucChuyenSau}"></span></p>
-        </div>
+		<!-- Thông Tin Chi Tiết -->
+		<div id="details-info" class="tab-content">
+			<h2>Thông Tin Chi Tiết</h2>
+			<p><strong>Bằng Cấp:</strong> <span th:text="${bacSi.chiTietBacSi.bangCap}"></span></p>
+			<p><strong>Hội Nghị Nước Ngoài:</strong> <span th:text="${bacSi.chiTietBacSi.hoiNghiNuocNgoai}"></span></p>
+			<p><strong>Chứng Chỉ:</strong> <span th:text="${bacSi.chiTietBacSi.chungChi}"></span></p>
+			<p><strong>Đào Tạo Chuyên Ngành:</strong> <span th:text="${bacSi.chiTietBacSi.daoTaoChuyenNganh}"></span>
+			</p>
+			<p><strong>Lĩnh Vực Chuyên Sâu:</strong> <span th:text="${bacSi.chiTietBacSi.linhVucChuyenSau}"></span></p>
+		</div>
 
-        <!-- Lịch Làm Việc -->
-        <div id="schedule-info" class="tab-content">
-            <h2>Lịch Làm Việc</h2>
-            <form id="dateForm">
-                <label for="ngay">Chọn ngày:</label>
-                <input type="date" id="ngay" name="ngay" th:value="${selectedDate}" />
-                <button type="submit">Xem Lịch</button>
-            </form>
-            
-            <table class="schedule-table">
-                <thead>
-                    <tr>
-                        <th>Ca</th>
-                        <th>Giờ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="lich : ${lichKhamBenhList}">
-                        <td th:text="${lich.ca}"></td>
-                        <td>
-                            <span th:if="${lich.ca == 'Sáng'}">07:30 - 11:30</span>
-                            <span th:if="${lich.ca == 'Chiều'}">13:00 - 16:30</span>
-                            <span th:if="${lich.ca == 'Ngoài Giờ'}">17:00 - 19:30</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    
-    <!-- Include Footer -->
-    <div th:replace="benhnhan/fragments/footer :: footer"></div>
+		<!-- Lịch Làm Việc -->
+		<div id="schedule-info" class="tab-content">
+			<h2 class="schedule-header">📅 Lịch Làm Việc</h2>
 
-    <script>
-        function openTab(event, tabId) {
-            const tabContents = document.querySelectorAll(".tab-content");
-            tabContents.forEach((content) => content.classList.remove("active"));
-            
-            const tabLinks = document.querySelectorAll(".tab-link");
-            tabLinks.forEach((link) => link.classList.remove("active"));
-            
-            document.getElementById(tabId).classList.add("active");
-            event.currentTarget.classList.add("active");
-        }
+			<div class="date-picker-container">
+				<label for="ngay">🗓 Chọn ngày:</label>
+				<input type="date" id="ngay" name="ngay" th:value="${selectedDate}" class="date-picker" />
+				<button type="submit" class="btn-view-schedule">Xem Lịch</button>
+			</div>
 
-        document.getElementById("dateForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            let selectedDate = document.getElementById("ngay").value;
-            if (selectedDate) {
-                window.location.href = window.location.pathname + "?ngay=" + selectedDate;
-            }
-        });
-    </script>
+			<table class="schedule-table">
+				<thead>
+					<tr>
+						<th>Ca</th>
+						<th>Giờ</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="lich : ${lichKhamBenhList}" class="schedule-row">
+						<td th:text="${lich.ca}" class="shift"></td>
+						<td class="time">
+							<span th:if="${lich.ca == 'Sáng'}">☀️ 07:30 - 11:30</span>
+							<span th:if="${lich.ca == 'Chiều'}">🌤 13:00 - 16:30</span>
+							<span th:if="${lich.ca == 'Ngoài Giờ'}">🌙 17:00 - 19:30</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+
+	<!-- Include Footer -->
+	<div th:replace="benhnhan/fragments/footer :: footer"></div>
+
+	<script>
+		function openTab(event, tabId) {
+			const tabContents = document.querySelectorAll(".tab-content");
+			tabContents.forEach((content) => content.classList.remove("active"));
+
+			const tabLinks = document.querySelectorAll(".tab-link");
+			tabLinks.forEach((link) => link.classList.remove("active"));
+
+			document.getElementById(tabId).classList.add("active");
+			event.currentTarget.classList.add("active");
+		}
+
+		document.getElementById("dateForm").addEventListener("submit", function (event) {
+			event.preventDefault();
+			let selectedDate = document.getElementById("ngay").value;
+			if (selectedDate) {
+				window.location.href = window.location.pathname + "?ngay=" + selectedDate;
+			}
+		});
+	</script>
 </body>
+
 </html>
