@@ -33,6 +33,7 @@
 		<table th:if="${!noResults}">
 			<thead>
 				<tr>
+					<th>Avatar</th>
 					<th>Tên</th>
 					<th>Giới tính</th>
 					<th>Ngày sinh</th>
@@ -40,15 +41,15 @@
 					<th>Số điện thoại</th>
 					<th>Chuyên khoa</th>
 					<th>Bằng cấp</th>
-					<th>Hội nghị nước ngoài</th>
-					<th>Chứng chỉ</th>
-					<th>Đào tạo chuyên ngành</th>
-					<th>Lĩnh vực chuyên sâu</th>
 					<th>Hành động</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr th:each="doctor : ${doctors}">
+					<td>
+						<img th:src="@{${doctor.urlAvatar}}" alt="Avatar"
+							style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+					</td>
 					<td th:text="${doctor.ten}"></td>
 					<td th:text="${doctor.gioiTinh}"></td>
 					<td th:text="${doctor.ngaySinh}"></td>
@@ -59,12 +60,7 @@
 						<span th:if="${doctor.chuyenKhoa != null}" th:text="${doctor.chuyenKhoa.ten}"></span>
 					</td>
 					<td th:text="${doctor.chiTietBacSi.bangCap}"></td>
-					<td th:text="${doctor.chiTietBacSi.hoiNghiNuocNgoai}"></td>
-					<td th:text="${doctor.chiTietBacSi.chungChi}"></td>
-					<td th:text="${doctor.chiTietBacSi.daoTaoChuyenNganh}"></td>
-					<td th:text="${doctor.chiTietBacSi.linhVucChuyenSau}"></td>
-					
-					
+
 					<td>
 						<a th:href="@{/admin/qlbs/edit-bacsi/{bacSiId}(bacSiId=${doctor.bacSiId})}"
 							class="btn-edit">Chỉnh Sửa</a>
@@ -73,19 +69,23 @@
 			</tbody>
 		</table>
 
-		<!-- Pagination -->
-		<div class="pagination" th:if="${!noResults}">
-			<a th:if="${currentPage > 0}" th:href="@{/admin/qlbs(page=${currentPage - 1})}" class="prev">Trang trước</a>
+		<div class="pagination" th:if="${totalPages > 1}">
+			<a th:if="${currentPage > 0}" th:href="@{/admin/qlbs(page=${currentPage - 1}, search=${search})}"
+				class="prev">Trang trước</a>
 
-			<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-				<a th:href="@{/admin/qlbs(page=${i})}" th:text="${i + 1}"
+			<span th:each="i : ${#numbers.sequence(startPage, endPage)}">
+				<a th:href="@{/admin/qlbs(page=${i}, search=${search})}" th:text="${i + 1}"
 					th:classappend="${i == currentPage ? 'active' : ''}"></a>
 			</span>
 
-			<a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/qlbs(page=${currentPage + 1})}"
-				class="next">Trang sau</a>
+			<a th:if="${currentPage < totalPages - 1}"
+				th:href="@{/admin/qlbs(page=${currentPage + 1}, search=${search})}" class="next">Trang sau</a>
 		</div>
+
 	</div>
 </body>
 
 </html>
+
+
+

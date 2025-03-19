@@ -229,34 +229,49 @@ public class AdminController {
 	}
 
 	@GetMapping("/admin/qlbs")
-	public String qlbs(@RequestParam(defaultValue = "0") int page, @RequestParam(required = false) String search,
-			Model model) {
-		int pageSize = 10; // Số bác sĩ trên mỗi trang
+	public String qlbs(@RequestParam(defaultValue = "0") int page, 
+	                   @RequestParam(required = false) String search,
+	                   Model model) {
+	    int pageSize = 10; // Số bác sĩ trên mỗi trang
+	    int visiblePages = 4; // Số trang hiển thị trên thanh phân trang
 
-		Page<BacSi> doctorPage;
-		if (search != null && !search.isEmpty()) {
-			// Tìm kiếm theo số điện thoại
-			doctorPage = bacSiService.searchByPhone(search, PageRequest.of(page, pageSize));
-		} else {
-			// Hiển thị danh sách mặc định
-			doctorPage = bacSiService.getDoctorsPaginated(page, pageSize);
-		}
+	    Page<BacSi> doctorPage;
+	    if (search != null && !search.isEmpty()) {
+	        doctorPage = bacSiService.searchByPhone(search, PageRequest.of(page, pageSize));
+	    } else {
+	        doctorPage = bacSiService.getDoctorsPaginated(page, pageSize);
+	    }
 
-		model.addAttribute("doctors", doctorPage.getContent());
-		model.addAttribute("currentPage", page);
-		model.addAttribute("totalPages", doctorPage.getTotalPages());
-		model.addAttribute("search", search); // Giữ giá trị ô tìm kiếm sau khi tìm
-		
-		 // Thêm thông báo nếu không tìm thấy kết quả
-	    model.addAttribute("noResults", doctorPage.getTotalElements() == 0);
+	    int totalPages = doctorPage.getTotalPages();
 	    
-		return "admin/quanlybacsi/quanlybacsi";
+	    // Tính toán startPage và endPage để cố định số trang hiển thị
+	    int startPage = Math.max(0, page - visiblePages / 2);
+	    int endPage = Math.min(startPage + visiblePages - 1, totalPages - 1);
+	    
+	    // Điều chỉnh nếu ở cuối danh sách trang
+	    if (endPage - startPage < visiblePages - 1) {
+	        startPage = Math.max(0, endPage - visiblePages + 1);
+	    }
+
+	    model.addAttribute("doctors", doctorPage.getContent());
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", totalPages);
+	    model.addAttribute("startPage", startPage);
+	    model.addAttribute("endPage", endPage);
+	    model.addAttribute("search", search);
+	    model.addAttribute("noResults", doctorPage.getTotalElements() == 0);
+
+	    return "admin/quanlybacsi/quanlybacsi";
 	}
 
+
 	@GetMapping("/admin/qlck")
-	public String qlck(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "") String ten,
+	public String qlck(@RequestParam(defaultValue = "0") int page,
+	                   @RequestParam(defaultValue = "") String ten,
 	                   Model model) {
-	    int pageSize = 10; // Số chuyên khoa mỗi trang
+	    int pageSize = 7; // Số chuyên khoa mỗi trang
+	    int visiblePages = 4; // Số trang hiển thị trên thanh phân trang
+
 	    Page<ChuyenKhoa> chuyenKhoaPage;
 
 	    if (ten.isEmpty()) {
@@ -265,16 +280,29 @@ public class AdminController {
 	        chuyenKhoaPage = chuyenKhoaService.searchChuyenKhoasPaginated(ten, page, pageSize);
 	    }
 
+	    int totalPages = chuyenKhoaPage.getTotalPages();
+
+	    // Tính toán startPage và endPage để cố định số trang hiển thị
+	    int startPage = Math.max(0, page - visiblePages / 2);
+	    int endPage = Math.min(startPage + visiblePages - 1, totalPages - 1);
+
+	    // Điều chỉnh nếu ở cuối danh sách trang
+	    if (endPage - startPage < visiblePages - 1) {
+	        startPage = Math.max(0, endPage - visiblePages + 1);
+	    }
+
 	    model.addAttribute("chuyenkhoas", chuyenKhoaPage.getContent());
 	    model.addAttribute("currentPage", page);
-	    model.addAttribute("totalPages", chuyenKhoaPage.getTotalPages());
+	    model.addAttribute("totalPages", totalPages);
+	    model.addAttribute("startPage", startPage);
+	    model.addAttribute("endPage", endPage);
 	    model.addAttribute("searchQuery", ten);
-
-	    // Add the noResults attribute
 	    model.addAttribute("noResults", chuyenKhoaPage.getTotalElements() == 0);
 
 	    return "admin/quanlychuyenkhoa/quanlychuyenkhoa";
 	}
+
+
 
 
 	@GetMapping("/admin/qlt")
