@@ -51,6 +51,18 @@
 			Không tìm thấy thông tin bệnh nhân.
 		</div>
 		<input type="hidden" name="benhNhanPhone" id="benhNhanPhone" th:value="${benhNhan.dienThoai}" />
+		<!-- Thêm Triệu Chứng -->
+
+		<div>
+			<label for="trieuChung">Triệu Chứng:</label>
+			<input type="text" name="trieuChung" id="trieuChung" th:value="${donThuoc.hoSoBenh.trieuChung ?: ''}"
+				required />
+
+		</div>
+
+
+
+
 
 		<!-- Tìm kiếm thuốc -->
 		<div>
@@ -175,14 +187,14 @@
 					$('#drugResults').empty();
 					if (drugs.length > 0) {
 						drugs.forEach(drug => {
-							// Kiểm tra thuốc đã được thêm vào danh sách hiển thị hay chưa
 							if (!selectedDrugs.has(drug.thuocId) && !$(`#selectedDrug_${drug.thuocId}`).length) {
 								drugCache.set(drug.thuocId, drug.ten); // Lưu vào cache
 								$('#drugResults').append(`
-                            <div class="drug-card" id="drugCard_${drug.thuocId}" onclick="selectDrug(${drug.thuocId}, '${drug.ten}')">
-                                <p><strong>${drug.ten}</strong></p>
-                            </div>
-                        `);
+                        <div class="drug-card" id="drugCard_${drug.thuocId}" onclick="selectDrug(${drug.thuocId}, '${drug.ten}')">
+                            <p><strong>${drug.ten}</strong></p>
+                            <p style="font-size: 12px; color: gray;">Nhà cung cấp: ${drug.nhaCungCap || 'Không rõ'}</p>
+                        </div>
+                    `);
 							}
 						});
 					} else {
@@ -193,6 +205,7 @@
 					Swal.fire("Lỗi", "Có lỗi xảy ra khi tìm kiếm thuốc.", "error");
 				}
 			});
+
 		}
 
 		function selectDrug(drugId, drugName) {
@@ -304,12 +317,14 @@
 
 						$('#patientDob').text(formattedDate);
 						$('#patientGender').text(patient.gioitinh);
+
 						$('#patientDetails').show();
 						$('#errorMessage').hide();
 					} else {
 						$('#benhNhanId').val(''); // Xóa giá trị bệnh nhân khi không tìm thấy
 						$('#patientName').text("Không tìm thấy bệnh nhân");
 						$('#patientDob').text('');
+
 						$('#patientGender').text('');
 						$('#patientDetails').show();
 						$('#errorMessage').show();
