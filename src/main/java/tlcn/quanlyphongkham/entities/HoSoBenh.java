@@ -29,7 +29,7 @@ public class HoSoBenh implements Serializable {
     @Column(name = "chan_doan", columnDefinition = "nvarchar(100)", nullable = false)
     private String chanDoan;
     
-    @Column(name = "trieu_chung", columnDefinition = "nvarchar(100)", nullable = false)
+    @Column(name = "trieu_chung", columnDefinition = "nvarchar(100)", nullable = true)
     private String trieuChung;
 
 

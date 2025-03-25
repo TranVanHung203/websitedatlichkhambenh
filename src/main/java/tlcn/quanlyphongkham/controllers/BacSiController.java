@@ -356,6 +356,7 @@ public class BacSiController {
 	        @RequestParam("donThuocId") Long donThuocId,
 	        @RequestParam("hoSoId") String hoSoId,
 	        @RequestParam("chanDoan") String chanDoan,
+	        @RequestParam("trieuChung") String trieuChung,
 	        @RequestParam("benhNhanId") String benhNhanId,
 	        @RequestParam(value = "drugIds[]", required = false) List<Long> drugIds,
 	        @RequestParam(value = "lieu[]", required = false) List<String> lieu,
@@ -366,7 +367,7 @@ public class BacSiController {
 	    Map<String, String> response = new HashMap<>();
 	    try {
 	        // Gọi service để cập nhật đơn thuốc
-	        donThuocService.updateDonThuoc(donThuocId, hoSoId, chanDoan, benhNhanId, drugIds, lieu, tanSuat, soLuong, removedDrugIds);
+	        donThuocService.updateDonThuoc(donThuocId, hoSoId, chanDoan, benhNhanId, drugIds, lieu, tanSuat, soLuong, removedDrugIds,trieuChung);
 	        response.put("status", "success");
 	        response.put("message", "Cập nhật đơn thuốc thành công.");
 	        return ResponseEntity.ok(response);
@@ -397,6 +398,7 @@ public class BacSiController {
 	        @RequestParam("chanDoan") String chanDoan,
 	        @RequestParam("drugIds") List<Long> drugIds,
 	        @RequestParam("lieu") List<String> lieu,
+	        @RequestParam("trieuChung") String trieuChung,	
 	        @RequestParam("tanSuat") List<String> tanSuat,
 	        @RequestParam("soLuong") List<Integer> soLuong,
 	        @RequestParam("benhNhanId") String benhNhanId) {
@@ -422,6 +424,7 @@ public class BacSiController {
 	        hoSoBenh.setHoSoId(UUID.randomUUID().toString());
 	        hoSoBenh.setChanDoan(chanDoan);
 	        hoSoBenh.setBenhNhan(benhNhan);
+	        hoSoBenh.setTrieuChung(trieuChung);
 	        hoSoBenh.setBacSi(bacSi);
 	        hoSoBenhService.save(hoSoBenh);
 

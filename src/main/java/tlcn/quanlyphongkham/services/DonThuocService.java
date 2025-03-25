@@ -91,7 +91,7 @@ public class DonThuocService {
 
 	@Transactional
 	public void updateDonThuoc(Long donThuocId, String hoSoId, String chanDoan, String benhNhanId, List<Long> drugIds,
-	                           List<String> lieu, List<String> tanSuat, List<Integer> soLuong, List<Long> removedDrugIds) {
+	                           List<String> lieu, List<String> tanSuat, List<Integer> soLuong, List<Long> removedDrugIds,String trieuChung) {
 	    // 1. Lấy đơn thuốc từ cơ sở dữ liệu
 	    DonThuoc donThuoc = donThuocRepository.findById(donThuocId)
 	            .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn thuốc với ID: " + donThuocId));
@@ -118,6 +118,9 @@ public class DonThuocService {
 	        hoSoBenh.setChanDoan(chanDoan);
 	    }
 
+	    if (trieuChung != null && !trieuChung.isEmpty() && hoSoBenh != null) {
+	        hoSoBenh.setTrieuChung(trieuChung);
+	    }
 	    // 5. Xử lý các thuốc bị loại bỏ
 	    if (removedDrugIds != null && !removedDrugIds.isEmpty()) {
 	        List<DonThuocThuoc> drugsToRemove = donThuoc.getDonThuocThuocs().stream()
