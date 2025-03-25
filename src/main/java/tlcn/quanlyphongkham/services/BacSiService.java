@@ -46,31 +46,39 @@ public class BacSiService {
 	}
 
 	public void updateDoctor(String bacSiId, BacSi updatedDoctor, ChiTietBacSi updatedChiTiet) {
-		BacSi existingDoctor = bacSiRepository.findById(bacSiId).orElse(null);
-		if (existingDoctor != null) {
-			// Cập nhật các trường thông tin cơ bản của bác sĩ nếu có thay đổi
-			if (updatedDoctor.getTen() != null) {
-				existingDoctor.setTen(updatedDoctor.getTen());
-			}
-			if (updatedDoctor.getDiaChi() != null) {
-				existingDoctor.setDiaChi(updatedDoctor.getDiaChi());
-			}
-			if (updatedDoctor.getDienThoai() != null) {
-				existingDoctor.setDienThoai(updatedDoctor.getDienThoai());
-			}
-			if (updatedDoctor.getChuyenKhoa() != null) {
-				existingDoctor.setChuyenKhoa(updatedDoctor.getChuyenKhoa());
-			}
-			if (updatedDoctor.getGioiTinh() != null) {
-				existingDoctor.setGioiTinh(updatedDoctor.getGioiTinh());
-			}
-			if (updatedDoctor.getNgaySinh() != null) {
-				existingDoctor.setNgaySinh(updatedDoctor.getNgaySinh());
-			}
+	    BacSi existingDoctor = bacSiRepository.findById(bacSiId).orElse(null);
+	    
+	    if (existingDoctor != null) {
+	        // Cập nhật thông tin bác sĩ nếu có thay đổi
+	        if (updatedDoctor.getTen() != null) {
+	            existingDoctor.setTen(updatedDoctor.getTen());
+	        }
+	        if (updatedDoctor.getDiaChi() != null) {
+	            existingDoctor.setDiaChi(updatedDoctor.getDiaChi());
+	        }
+	        if (updatedDoctor.getDienThoai() != null) {
+	            existingDoctor.setDienThoai(updatedDoctor.getDienThoai());
+	        }
+	        if (updatedDoctor.getChuyenKhoa() != null) {
+	            existingDoctor.setChuyenKhoa(updatedDoctor.getChuyenKhoa());
+	        }
+	        if (updatedDoctor.getGioiTinh() != null) {
+	            existingDoctor.setGioiTinh(updatedDoctor.getGioiTinh());
+	        }
+	        if (updatedDoctor.getNgaySinh() != null) {
+	            existingDoctor.setNgaySinh(updatedDoctor.getNgaySinh());
+	        }
 
-			bacSiRepository.save(existingDoctor);
-		}
+	        // Cập nhật avatar nếu có ảnh mới
+	        if (updatedDoctor.getUrlAvatar() != null && !updatedDoctor.getUrlAvatar().isEmpty()) {
+	            existingDoctor.setUrlAvatar(updatedDoctor.getUrlAvatar());
+	        }
+
+	        // Lưu thông tin đã cập nhật vào database
+	        bacSiRepository.save(existingDoctor);
+	    }
 	}
+
 
 	public void updateDoctorDetails(String bacSiId, ChiTietBacSi updatedChiTiet) {
 		BacSi existingDoctor = bacSiRepository.findById(bacSiId).orElse(null);

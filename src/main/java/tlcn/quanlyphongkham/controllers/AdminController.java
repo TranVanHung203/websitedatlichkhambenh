@@ -1,5 +1,10 @@
 package tlcn.quanlyphongkham.controllers;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +29,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import tlcn.quanlyphongkham.dtos.LichKhamBenhDTO;
 import tlcn.quanlyphongkham.dtos.NguoiDungDTO;
@@ -349,13 +355,41 @@ public class AdminController {
 		return "admin/quanlybacsi/editbacsi";
 	}
 
-	// Cập nhật thông tin bác sĩ và chi tiết bác sĩ
 	@PostMapping("/admin/qlbs/update/{bacSiId}")
-	public String updateDoctor(@PathVariable("bacSiId") String bacSiId, BacSi updatedDoctor,
-			ChiTietBacSi updatedChiTiet) {
-		bacSiService.updateDoctor(bacSiId, updatedDoctor, updatedChiTiet);
-		return "redirect:/admin/qlbs";
+	public String updateDoctor(@PathVariable("bacSiId") String bacSiId,
+	                           @ModelAttribute BacSi updatedDoctor,
+	                           @ModelAttribute ChiTietBacSi updatedChiTiet,
+	                           @RequestParam(value = "avatar", required = false) MultipartFile avatarFile,
+	                           @RequestParam(value = "redirect", required = false) String redirectPage) {
+	    try {
+	        // Kiểm tra và lưu file ảnh nếu có
+	        if (avatarFile != null && !avatarFile.isEmpty()) {
+	            String uploadDir = "uploads/";
+	            Path uploadPath = Paths.get(uploadDir);
+	            if (!Files.exists(uploadPath)) {
+	                Files.createDirectories(uploadPath);
+	            }
+	            String fileName = UUID.randomUUID().toString() + "_" + avatarFile.getOriginalFilename();
+	            Path filePath = uploadPath.resolve(fileName);
+	            Files.copy(avatarFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+	            updatedDoctor.setUrlAvatar("/uploads/" + fileName);
+	        }
+
+	        // Cập nhật thông tin bác sĩ và chi tiết bác sĩ
+	        bacSiService.updateDoctor(bacSiId, updatedDoctor, updatedChiTiet);
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return "error";
+	    }
+
+	    // Kiểm tra nếu cần chuyển hướng đến trang edit chi tiết
+	    if ("edit-details".equals(redirectPage)) {
+	        return "redirect:/admin/qlbs/edit-chitiet/" + bacSiId;
+	    }
+
+	    return "redirect:/admin/qlbs";
 	}
+
 
 	@PostMapping("/admin/delete-thuoc")
 	public String deleteThuoc(@RequestParam Long thuocId) {
