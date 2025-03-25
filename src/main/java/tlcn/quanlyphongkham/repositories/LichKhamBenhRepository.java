@@ -70,7 +70,7 @@ public interface LichKhamBenhRepository extends JpaRepository<LichKhamBenh, Stri
 
 
 
-	
+	  List<LichKhamBenh> findByBacSiAndNgayThangNam(BacSi bacSi, LocalDate ngayThangNam);
 
 
 

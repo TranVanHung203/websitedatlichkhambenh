@@ -115,6 +115,11 @@ public class LichKhamBenhService {
 		return lichKhamBenhRepository.findById(chuyenKhoaId);
 	}
 
+	public List<LichKhamBenh> findByBacSiAndNgay(BacSi bacSi, LocalDate ngay) {
+		// TODO Auto-generated method stub
+		return lichKhamBenhRepository.findByBacSiAndNgayThangNam(bacSi, ngay);
+	}
+
 	
 
 
