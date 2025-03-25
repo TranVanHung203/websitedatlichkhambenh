@@ -12,7 +12,7 @@ import tlcn.quanlyphongkham.entities.Thuoc;
 
 public interface ThuocRepository extends JpaRepository<Thuoc, Long> {
 
-	@Query(value = "SELECT thuoc_id,gia,mo_ta,ten,so_luong FROM thuoc WHERE ten LIKE %:ten%", nativeQuery = true)
+	@Query(value = "SELECT thuoc_id,gia,mo_ta,ten,so_luong,nha_cung_cap FROM thuoc WHERE ten LIKE %:ten%", nativeQuery = true)
 	List<Thuoc> findByTenContaining(@Param("ten") String ten);
 
 	List<Thuoc> findByTen(String ten);

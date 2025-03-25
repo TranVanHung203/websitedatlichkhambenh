@@ -28,6 +28,9 @@ public class HoSoBenh implements Serializable {
 
     @Column(name = "chan_doan", columnDefinition = "nvarchar(100)", nullable = false)
     private String chanDoan;
+    
+    @Column(name = "trieu_chung", columnDefinition = "nvarchar(100)", nullable = false)
+    private String trieuChung;
 
 
     @Column(name = "thoi_gian_tao", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
