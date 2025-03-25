@@ -11,26 +11,26 @@
 <body>
     <div class="main-content">
         <h1>Thêm Chuyên Khoa Mới</h1>
+
         <form th:action="@{/admin/add-chuyenkhoa}" method="post">
-            <!-- Trường tên chuyên khoa -->
+            <!-- Trường Tên Chuyên Khoa -->
             <div class="form-group">
                 <label for="ten">Tên Chuyên Khoa:</label>
                 <input type="text" id="ten" name="ten" required />
             </div>
 
-            <!-- Trường mô tả -->
+            <!-- Trường Mô Tả -->
             <div class="form-group">
                 <label for="moTa">Mô Tả:</label>
-                <textarea id="moTa" name="moTa" rows="4" cols="50" 
-                          placeholder="Nhập mô tả cho chuyên khoa..." 
-                          style="resize: none;"></textarea>
+                <textarea id="moTa" name="moTa" rows="6" 
+                          placeholder="Nhập mô tả chi tiết chuyên khoa..."></textarea>
             </div>
 
-            <!-- Nút thêm -->
+            <!-- Nút Thêm -->
             <button type="submit" class="btn-add">Thêm Chuyên Khoa</button>
         </form>
 
-        <!-- Nút quay lại -->
+        <!-- Nút Quay Lại -->
         <a href="/admin/qlck" class="btn-back">Quay lại danh sách chuyên khoa</a>
     </div>
 </body>

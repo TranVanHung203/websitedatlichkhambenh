@@ -11,6 +11,12 @@
 <body>
     <div class="main-content">
         <h1>Cập Nhật Chuyên Khoa</h1>
+
+        <!-- Hiển thị thông báo thành công nếu có -->
+        <div th:if="${successMessage}" class="alert alert-success">
+            <span th:text="${successMessage}"></span>
+        </div>
+
         <form th:action="@{/admin/qlck/update-chuyenkhoa}" method="post">
             <!-- ID ẩn để gửi thông tin -->
             <input type="hidden" name="chuyenKhoaId" th:value="${chuyenKhoa.chuyenKhoaId}" />
@@ -24,10 +30,9 @@
             <!-- Trường Mô Tả -->
             <div class="form-group">
                 <label for="moTa">Mô Tả:</label>
-                <textarea id="moTa" name="moTa" rows="4" cols="50" 
-                          style="resize: none;" 
-                          th:text="${chuyenKhoa.moTa}"
-                          placeholder="Nhập mô tả cho chuyên khoa..."></textarea>
+                <textarea id="moTa" name="moTa" rows="5" 
+                          placeholder="Nhập mô tả cho chuyên khoa..."
+                          th:text="${chuyenKhoa.moTa}"></textarea>
             </div>
 
             <!-- Nút cập nhật -->

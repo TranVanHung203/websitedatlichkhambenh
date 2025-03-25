@@ -1,75 +1,105 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+/* Reset CSS */
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-.main-content {
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    margin: 30px auto;
+/* Căn giữa trang */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
+/* Main content với chiều rộng lớn hơn */
+.main-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+    width: 1000px; 
+    max-width: 100%;
+}
+
+/* Tiêu đề */
 h1 {
     text-align: center;
     color: #333;
+    margin-bottom: 25px;
 }
 
-.add-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;  /* Space between form fields */
-}
-
+/* Form nhóm */
 .form-group {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 20px;
 }
 
+/* Nhãn */
 label {
-    margin-bottom: 5px;
-    color: #666;
-}
-
-input[type="text"],
-input[type="number"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;  /* Ensure padding doesn't affect width */
-}
-
-.btn-add {
     display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #444;
+}
+
+/* Input và Textarea */
+input[type="text"],
+textarea {
     width: 100%;
-    padding: 10px;
+    padding: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 18px;
+    background: #f9f9f9;
+}
+
+/* Hiệu ứng focus */
+input:focus,
+textarea:focus {
+    border-color: #007bff;
+    outline: none;
+    background: #fff;
+}
+
+/* Textarea lớn hơn */
+textarea {
+    resize: vertical;
+    min-height: 150px;
+}
+
+/* Nút Thêm */
+.btn-add {
+    width: 100%;
+    padding: 16px;
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 18px;
     cursor: pointer;
-    font-size: 16px;
-    margin-top: 20px;  /* Adds spacing before the button */
+    transition: background-color 0.3s, transform 0.2s;
 }
 
+/* Hover */
 .btn-add:hover {
     background-color: #0056b3;
+    transform: scale(1.03);
 }
 
+/* Nút Quay Lại */
 .btn-back {
-    display: inline-block;
-    margin-top: 10px;
-    text-decoration: none;
-    color: #007bff;
+    display: block;
     text-align: center;
-    width: 100%;
+    margin-top: 20px;
+    font-size: 16px;
+    color: #007bff;
+    text-decoration: none;
 }
 
+/* Hover cho nút quay lại */
 .btn-back:hover {
     text-decoration: underline;
 }

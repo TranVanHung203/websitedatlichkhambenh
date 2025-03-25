@@ -56,9 +56,7 @@ public class NhanVienController {
 
 	@Autowired
 	SlotThoiGianService slotThoiGianService;
-	
-	
-	
+
 	public String getNguoiDungId() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication != null && authentication.isAuthenticated()) {
@@ -73,9 +71,8 @@ public class NhanVienController {
 		} else
 			return null;
 	}
-	
+
 	String nguoiDungId;
-	
 
 	@GetMapping("/nhanvien/dangkylichkham")
 	public String registerSchedule(Model model) {
@@ -86,29 +83,47 @@ public class NhanVienController {
 	}
 
 	@PostMapping("/nhanvien/dangkylichkham/doctor")
-	public String getDoctorsBySpecialty(@RequestParam("service") String serviceId, Model model) {
+	@ResponseBody
+	public String getDoctorsBySpecialty(@RequestParam("service") String serviceId) {
 
 		List<BacSiDTO> bacSiList = bacSiService.getBacSiByChuyenKhoa(serviceId);
-		model.addAttribute("bacSiList", bacSiList);
-		model.addAttribute("selectedService", serviceId); // Add selected service to model
-		return "nhanvien/dangkylichkhamchobenhnhan/dkbuoc1"; // Return to the same view with updated doctors list
+
+		if (bacSiList == null || bacSiList.isEmpty()) {
+			System.out.println("Không tìm thấy bác sĩ cho chuyên khoa: " + serviceId);
+			return "<option value=''>Không có bác sĩ</option>";
+		}
+
+		StringBuilder options = new StringBuilder();
+		for (BacSiDTO bacSi : bacSiList) {
+			options.append("<option value='").append(bacSi.getId()).append("'>").append(bacSi.getTen())
+					.append("</option>");
+		}
+
+		return options.toString();
 	}
 
 	@PostMapping("/nhanvien/dangkylichkham/next")
-	public String proceedToStep2(@RequestParam("doctor") String doctorId, @RequestParam("service") String serviceId,
+	public String proceedToStep2(@RequestParam("service") String serviceId, @RequestParam("doctor") String doctorId,
 			Model model) {
+		if (serviceId == null || serviceId.isEmpty()) {
+			throw new IllegalArgumentException("Chuyên khoa không được để trống.");
+		}
+		if (doctorId == null || doctorId.isEmpty()) {
+			throw new IllegalArgumentException("Bác sĩ không được để trống.");
+		}
 
 		model.addAttribute("doctorId", doctorId);
+		model.addAttribute("serviceId", serviceId);
 
-		return "/nhanvien/dangkylichkhamchobenhnhan/dkbuoc2";
+		return "nhanvien/dangkylichkhamchobenhnhan/dkbuoc2";
 	}
 
 	public LocalDate parseDate(String dateStr) {
-	    if (dateStr != null && !dateStr.isEmpty()) {
-	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
-	        return LocalDate.parse(dateStr, formatter);
-	    }
-	    return null;
+		if (dateStr != null && !dateStr.isEmpty()) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
+			return LocalDate.parse(dateStr, formatter);
+		}
+		return null;
 	}
 
 	@PostMapping("/nhanvien/dangkylichkham/getAvailableSlots")
@@ -183,97 +198,96 @@ public class NhanVienController {
 		return startTime.plusMinutes(30); // Cộng thêm 30 phút vào giờ bắt đầu
 	}
 
-
-
 	@GetMapping("/nhanvien/dangkylichkham/buoc4")
 	public String showPatientForm(Model model) {
-	    model.addAttribute("benhNhan", new BenhNhan());
-	    return "/nhanvien/dangkylichkhamchobenhnhan/dkbuoc4"; // View name phải khớp với tên tệp
+		model.addAttribute("benhNhan", new BenhNhan());
+		return "/nhanvien/dangkylichkhamchobenhnhan/dkbuoc4"; // View name phải khớp với tên tệp
 	}
-	
+
 	@PostMapping("/nhanvien/dangkylichkham/confirm")
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> confirmBooking(@RequestBody Map<String, String> requestData) {
-	    String doctorId = requestData.get("doctorId");
-	    String selectedDate = requestData.get("selectedDate");
-	    String selectedTime = requestData.get("selectedTime");
-	    String ca = requestData.get("selectedCa");
+		Map<String, String> response = new HashMap<>();
+		try {
+			String doctorId = requestData.get("doctorId");
+			String selectedDate = requestData.get("selectedDate");
+			String selectedTime = requestData.get("selectedTime");
+			String ca = requestData.get("selectedCa");
 
-	    // Thông tin bệnh nhân từ yêu cầu
-	    String patientName = requestData.get("patientName");
-	    String patientPhone = requestData.get("patientPhone");
-	    String patientAddress = requestData.get("patientAddress");
-	    String patientGender = requestData.get("patientGender");
-	    String patientBirthDate = requestData.get("patientBirthDate");
+			// Thông tin bệnh nhân
+			String patientName = requestData.get("patientName");
+			String patientPhone = requestData.get("patientPhone");
+			String patientAddress = requestData.get("patientAddress");
+			String patientGender = requestData.get("patientGender");
+			String patientBirthDate = requestData.get("patientBirthDate");
 
-	    LocalDate selectedDates;
-	    try {
-	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	        selectedDates = LocalDate.parse(selectedDate, formatter);
-	    } catch (DateTimeParseException e) {
-	        DateTimeFormatter fallbackFormatter = DateTimeFormatter.ofPattern("yyyy-MM-d");
-	        selectedDates = LocalDate.parse(selectedDate, fallbackFormatter);
-	    }
+			// Xử lý định dạng ngày tháng linh hoạt
+			LocalDate selectedDates;
+			try {
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
+				selectedDates = LocalDate.parse(selectedDate, formatter);
+			} catch (DateTimeParseException e) {
+				response.put("status", "error");
+				response.put("message", "Định dạng ngày không hợp lệ!");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+			}
 
-	    // Kiểm tra xem bệnh nhân đã tồn tại chưa
-	    BenhNhan existingPatient = benhNhanService.findByPhone(patientPhone);
-	    BenhNhan benhnhan;
-	    if (existingPatient == null) {
-	        // Tạo bệnh nhân mới
-	        benhnhan = new BenhNhan();
-	        benhnhan.setBenhNhanId(UUID.randomUUID().toString());
-	        benhnhan.setTen(patientName);
-	        benhnhan.setDienThoai(patientPhone);
-	        benhnhan.setDiaChi(patientAddress);
-	        benhnhan.setGioiTinh(patientGender);
-	        benhnhan.setNgaySinh(LocalDate.parse(patientBirthDate, DateTimeFormatter.ISO_DATE));
+			// Kiểm tra bệnh nhân
+			BenhNhan existingPatient = benhNhanService.findByPhone(patientPhone);
+			BenhNhan benhnhan;
+			if (existingPatient == null) {
+				benhnhan = new BenhNhan();
+				benhnhan.setBenhNhanId(UUID.randomUUID().toString());
+				benhnhan.setTen(patientName);
+				benhnhan.setDienThoai(patientPhone);
+				benhnhan.setDiaChi(patientAddress);
+				benhnhan.setGioiTinh(patientGender);
+				benhnhan.setNgaySinh(LocalDate.parse(patientBirthDate, DateTimeFormatter.ISO_DATE));
 
-	        // Lưu thông tin bệnh nhân vào cơ sở dữ liệu
-	        benhNhanService.save(benhnhan);
-	    } else {
-	        // Sử dụng thông tin bệnh nhân đã tồn tại
-	        benhnhan = existingPatient;
-	    }
+				benhNhanService.save(benhnhan);
+			} else {
+				benhnhan = existingPatient;
+			}
 
-	    // Tìm lịch khám bệnha
-	    MaLichKhamBenhDTO lichKhamBenh = lichKhamBenhService.findByDoctorIdAndDateAndCa(doctorId, selectedDates, ca);
-	    
-	    
-	    Optional<LichKhamBenh> lichkham = lichKhamBenhService.findById(lichKhamBenh.getMaLichKhamBenh());
+			// Tìm lịch khám bệnh
+			MaLichKhamBenhDTO lichKhamBenh = lichKhamBenhService.findByDoctorIdAndDateAndCa(doctorId, selectedDates,
+					ca);
+			if (lichKhamBenh == null) {
+				response.put("status", "error");
+				response.put("message", "Không tìm thấy lịch khám!");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+			}
 
-	    SlotThoiGian existingSlot = slotThoiGianService.findExist(
-	        calculateStartTime(selectedTime), 
-	        benhnhan.getBenhNhanId(),
-	        lichKhamBenh.getMaLichKhamBenh()
-	    );
+			Optional<LichKhamBenh> lichkham = lichKhamBenhService.findById(lichKhamBenh.getMaLichKhamBenh());
 
-	    if (lichKhamBenh != null && existingSlot == null) {
-	        // Tạo slot thời gian mới
-	        SlotThoiGian slotThoiGian = new SlotThoiGian();
-	        slotThoiGian.setSlotId(UUID.randomUUID().toString());
-	        slotThoiGian.setLichKhamBenh(lichkham.get());
-	        slotThoiGian.setThoiGianBatDau(calculateStartTime(selectedTime));
-	        slotThoiGian.setThoiGianKetThuc(calculateEndTime(selectedTime));
-	        slotThoiGian.setTrangThai("pending");
-	        slotThoiGian.setBenhNhan(benhnhan);
+			// Kiểm tra xem slot có tồn tại không
+			SlotThoiGian existingSlot = slotThoiGianService.findExist(calculateStartTime(selectedTime),
+					benhnhan.getBenhNhanId(), lichKhamBenh.getMaLichKhamBenh());
 
-	        // Lưu slot vào cơ sở dữ liệu
-	        slotThoiGianService.save(slotThoiGian);
+			if (existingSlot == null) {
+				SlotThoiGian slotThoiGian = new SlotThoiGian();
+				slotThoiGian.setSlotId(UUID.randomUUID().toString());
+				slotThoiGian.setLichKhamBenh(lichkham.get());
+				slotThoiGian.setThoiGianBatDau(calculateStartTime(selectedTime));
+				slotThoiGian.setThoiGianKetThuc(calculateEndTime(selectedTime));
+				slotThoiGian.setTrangThai("pending");
+				slotThoiGian.setBenhNhan(benhnhan);
 
-	        // Phản hồi thành công
-	        Map<String, String> response = new HashMap<>();
-	        response.put("status", "success");
-	        response.put("message", "Lịch khám đã được xác nhận thành công!");
-	        return ResponseEntity.ok(response);
-	    } else {
-	        // Phản hồi thất bại
-	        Map<String, String> response = new HashMap<>();
-	        response.put("status", "failure");
-	        response.put("message", "Khung giờ này đã được đặt, vui lòng chọn khung giờ khác.");
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-	    }
+				slotThoiGianService.save(slotThoiGian);
+
+				response.put("status", "success");
+				response.put("message", "Lịch khám đã được xác nhận thành công!");
+				return ResponseEntity.ok(response);
+			} else {
+				response.put("status", "failure");
+				response.put("message", "Khung giờ này đã được đặt, vui lòng chọn khung giờ khác.");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+			}
+		} catch (Exception e) {
+			response.put("status", "error");
+			response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		}
 	}
 
-
-	
 }
