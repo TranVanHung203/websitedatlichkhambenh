@@ -103,8 +103,9 @@ public class HoSoBenhService {
 	            (String) obj[3], // thuoc
 	            (String) obj[4], // lieu
 	            (String) obj[5], // tanSuat
-	            (BigDecimal) obj[6], // tongTienThuoc
-	            (String) obj[7] // soLuong
+	            (String) obj[6],
+	            (BigDecimal) obj[7], // tongTienThuoc
+	            (String) obj[8] // soLuong
 	    ));
 	}
 
@@ -118,10 +119,13 @@ public class HoSoBenhService {
 	            (String) obj[3], // thuoc
 	            (String) obj[4], // lieu
 	            (String) obj[5], // tanSuat
-	            (BigDecimal) obj[6], // tongTienThuoc
-	            (String) obj[7] // soLuong
+	            (String) obj[6],
+	            (BigDecimal) obj[7], // tongTienThuoc
+	            (String) obj[8] // soLuong
 	    ));
 	}
+	
+	
 
 
 }
