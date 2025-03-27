@@ -1,247 +1,221 @@
-/* Cấu hình chung cho body */
+/* Định dạng chung */
 body {
-	font-family: Arial, sans-serif;
-	background-color: #f4f4f4;
-	margin: 0;
-	padding: 0;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
 }
 
-/* Định dạng chung cho phần tử bảng */
-table {
-	width: 90%;
-	/* Tăng chiều rộng bảng */
-	margin: 30px auto;
-	border-collapse: collapse;
-	background-color: #fff;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	table-layout: fixed;
-	/* Đặt chiều rộng cố định cho các cột */
+.container {
+    max-width: 1200px;
+    margin: 80px auto 20px; /* Dịch xuống dưới tránh header */
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
 }
 
-/* Định dạng tiêu đề của bảng */
-th {
-	background-color: #4CAF50;
-	color: white;
-	padding: 12px;
-	text-align: center;
-	/* Căn giữa theo chiều ngang */
-	vertical-align: middle;
-	/* Căn giữa theo chiều dọc */
-	font-size: 16px;
+/* Bên trái: Form tìm kiếm & thông tin bệnh nhân */
+.left-section {
+    flex: 1;
 }
 
-/* Định dạng các ô dữ liệu trong bảng */
-td {
-	padding: 12px;
-	text-align: center;
-	/* Căn giữa theo chiều ngang */
-	vertical-align: middle;
-	/* Căn giữa theo chiều dọc */
-	font-size: 14px;
-	border-bottom: 1px solid #ddd;
+/* Bên phải: Lịch sử đơn thuốc */
+.right-section {
+    flex: 2;
 }
 
-/* Định dạng khi hover trên các hàng trong bảng */
-tr:hover {
-	background-color: #f1f1f1;
+/* Tiêu đề */
+h1, h2 {
+    color: #333;
+    text-align: center;
 }
 
-/* Định dạng cho các nút trong bảng */
-table button,
-table a.edit-button {
-	color: white;
-	border: none;
-	border-radius: 4px;
-	padding: 8px 12px;
-	font-size: 14px;
-	cursor: pointer;
-	margin: 2px;
-	transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-/* Định dạng cho nút Xóa */
-table button {
-	background-color: #dc3545;
-	/* Màu nền cho nút Xóa */
-}
-
-table button:hover {
-	background-color: #c82333;
-	/* Hiệu ứng hover cho nút Xóa */
-}
-
-/* Định dạng cho nút Sửa */
-a.edit-button {
-	background-color: #ffc107;
-	/* Màu nền cho nút Sửa */
-	text-decoration: none;
-	/* Bỏ đường gạch chân */
-	display: inline-block;
-	/* Hiển thị dưới dạng khối nội tuyến */
-}
-
-a.edit-button:hover {
-	background-color: #e0a800;
-	/* Hiệu ứng hover cho nút Sửa */
-	transform: scale(1.05);
-	/* Hiệu ứng phóng to nhẹ khi hover */
-}
-
-/* Định dạng cho nút tạo đơn thuốc */
-button.create-button {
-	display: block;
-	width: 200px;
-	margin-top: 30px;
-	margin-bottom: -40px;
-	margin-left: 1000px;
-	padding: 12px;
-	background-color: #28a745;
-	color: white;
-	font-size: 16px;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-	transition: background-color 0.3s ease;
-	text-align: center;
-}
-
-/* Hiệu ứng khi hover trên nút tạo đơn thuốc */
-button.create-button:hover {
-	background-color: #218838;
-}
-
-/* Định dạng cột trong bảng cho các thẻ tiêu đề và ô dữ liệu */
-th:nth-child(1),
-td:nth-child(1) {
-	width: 10%;
-	/* Cột Bệnh Nhân */
-}
-
-th:nth-child(2),
-td:nth-child(2) {
-	width: 15%;
-	/* Cột Chẩn Đoán */
-}
-
-th:nth-child(3),
-td:nth-child(3) {
-	width: 10%;
-	/* Cột Thời Gian Tạo */
-}
-
-th:nth-child(4),
-td:nth-child(4) {
-	width: 15%;
-	/* Cột Tên Thuốc */
-}
-
-th:nth-child(5),
-td:nth-child(5) {
-	width: 10%;
-	/* Cột Liều */
-}
-
-th:nth-child(6),
-td:nth-child(6) {
-	width: 10%;
-	/* Cột Tần Suất */
-}
-
-th:nth-child(7),
-td:nth-child(7) {
-	width: 10%;
-	/* Cột Tần Suất */
-}
-
-th:nth-child(8),
-td:nth-child(8) {
-	width: 10%;
-	/* Cột Tổng Tiền */
-}
-
-th:nth-child(9),
-td:nth-child(9) {
-	width: 10%;
-	/* Cột Hành Động */
-}
-
-/* Canh đều các nút trong cột Hành Động */
-td form {
-	display: inline-block;
-	margin: 0;
-}
-
-td form button,
-td button.edit-button {
-	display: inline-block;
-	margin: 2px;
-	padding: 8px 12px;
-}
-
-/* Style for the pagination container */
-.pagination {
-	display: flex;
-	justify-content: center;
-	/* Center the pagination */
-	align-items: center;
-	margin-top: 20px;
-	margin-bottom: 20px;
-}
-
-/* Style for each page link */
-.pagination a {
-	text-decoration: none;
-	color: #007bff;
-	padding: 8px 16px;
-	margin: 0 -5px;
-	border: 1px solid #007bff;
-	border-radius: 5px;
-	background-color: #f1f1f1;
-	transition: background-color 0.3s, color 0.3s;
-}
-
-/* Hover effect on page links */
-.pagination a:hover {
-	background-color: #007bff;
-	color: #fff;
-}
-
-/* Style for current page number */
-.pagination span {
-	padding: 8px 16px;
-	margin: 0 -5px;
-	border-radius: 5px;
-	background-color: #f1f1f1;
-}
-
-/* Style for active page number */
-.pagination .active {
-	background-color: #007bff;
-	color: #fff;
-	border-color: #007bff;
-}
-
+/* Form tìm kiếm */
 form {
-	display: flex;
-	align-items: center;
-	gap: 15px;
-	/* Increased gap between input and button */
-	margin-left: 65px;
-	/* Increased left margin */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-form input {
-	font-size: 14px;
-	/* Increased font size for better readability */
-	padding: 8px;
-	/* Increased padding for the input field */
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
 }
 
+input[type="text"], input[type="date"] {
+    padding: 10px;
+    width: 80%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
 
+button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+/* Thanh lọc theo ngày */
+.filter-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.filter-section input {
+    width: auto;
+}
+
+/* Thông tin bệnh nhân */
+.patient-info {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.patient-info p {
+    margin: 5px 0;
+}
+
+/* Thông tin bổ sung của bệnh nhân */
+.patient-info .additional-info {
+    font-style: italic;
+    color: #555;
+}
+
+/* Bảng lịch sử đơn thuốc */
+.history table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.history th, .history td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.history th {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Danh sách thuốc trong đơn */
+.medicine-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Hành động */
+.edit-button {
+    background-color: #ffc107;
+    padding: 8px 12px;
+    color: black;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.edit-button:hover {
+    background-color: #e0a800;
+}
+
+button[type="submit"] {
+    background-color: #dc3545;
+}
+
+button[type="submit"]:hover {
+    background-color: #c82333;
+}
+
+/* Không tìm thấy dữ liệu */
 .no-results {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	font-weight: bold;
+    text-align: center;
+    color: red;
+    font-style: italic;
+    margin-top: 10px;
+}
+
+/* Triệu chứng */
+.symptom-info {
+    background: #fff3cd;
+    padding: 10px;
+    border-left: 5px solid #ffc107;
+    margin-top: 15px;
+    border-radius: 5px;
+}
+
+.symptom-info p {
+    margin: 0;
+    color: #856404;
+}
+.create-prescription {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.btn-create {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    display: inline-block;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn-create:hover {
+    background-color: #0056b3;
+}
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination ul li {
+    margin: 0 5px;
+}
+
+.pagination ul li a {
+    display: inline-block;
+    padding: 8px 12px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.pagination ul li a:hover {
+    background: #0056b3;
+}
+
+.pagination ul li a.active {
+    background: #28a745;
+    font-weight: bold;
 }

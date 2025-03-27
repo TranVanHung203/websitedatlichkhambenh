@@ -1,5 +1,6 @@
 package tlcn.quanlyphongkham.repositories;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,6 +37,21 @@ public interface DonThuocRepository extends JpaRepository<DonThuoc, Long> {
 	        "WHERE hs.bac_si_id = :bacSiId",
 	        nativeQuery = true)
 	Page<DonThuoc> findAllByBacSiId(@Param("bacSiId") String bacSiId, Pageable pageable);
+	
+	@Query(value = "SELECT dt.* FROM don_thuoc dt " +
+	        "JOIN ho_so_benh hs ON dt.ho_so_id = hs.ho_so_id " +
+	        "WHERE hs.benh_nhan_id = :benhNhanId",
+	        countQuery = "SELECT COUNT(dt.don_thuoc_id) FROM don_thuoc dt " +
+	        "JOIN ho_so_benh hs ON dt.ho_so_id = hs.ho_so_id " +
+	        "WHERE hs.benh_nhan_id = :benhNhanId",
+	        nativeQuery = true)
+	Page<DonThuoc> findByBenhNhanId(@Param("benhNhanId") String benhNhanId, Pageable pageable);
+
+	
+	@Query("SELECT d FROM DonThuoc d WHERE d.hoSoBenh.benhNhan.benhNhanId = :benhNhanId AND DATE(d.hoSoBenh.thoiGianTao) = :filterDate")
+	Page<DonThuoc> findByBenhNhanIdAndDate(@Param("benhNhanId") String benhNhanId, 
+	                                       @Param("filterDate") LocalDate filterDate, 
+	                                       Pageable pageable);
 
 
 }

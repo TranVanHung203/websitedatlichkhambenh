@@ -1,5 +1,6 @@
 package tlcn.quanlyphongkham.services;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -193,6 +194,16 @@ public class DonThuocService {
 
 	    // 8. Lưu đơn thuốc
 	    donThuocRepository.save(donThuoc);
+	}
+
+	public Page<DonThuoc> findByBenhNhanId(String benhNhanId, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return donThuocRepository.findByBenhNhanId(benhNhanId, pageable);
+	}
+
+	public Page<DonThuoc> findByBenhNhanIdAndDate(String benhNhanId, LocalDate filterDate, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return donThuocRepository.findByBenhNhanIdAndDate(benhNhanId, filterDate, pageable);
 	}
 
 

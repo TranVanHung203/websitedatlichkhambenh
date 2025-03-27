@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,7 @@ import tlcn.quanlyphongkham.entities.Thuoc;
 import tlcn.quanlyphongkham.security.CustomUserDetails;
 import tlcn.quanlyphongkham.services.AppointmentService;
 import tlcn.quanlyphongkham.services.BacSiService;
+import tlcn.quanlyphongkham.services.BenhNhanService;
 import tlcn.quanlyphongkham.services.ChuyenKhoaService;
 import tlcn.quanlyphongkham.services.DonThuocService;
 import tlcn.quanlyphongkham.services.HoSoBenhService;
@@ -80,6 +82,9 @@ public class BacSiController {
 	private ThuocService thuocService;
 	@Autowired
 	private DonThuocService donThuocService;
+	
+	@Autowired
+	private BenhNhanService benhNhanService;
 
 	public String getNguoiDungId() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -283,42 +288,60 @@ public class BacSiController {
 		return ResponseEntity.ok(response);
 	}
 
-	// Quản lý đơn thuốc theo bác sĩ
+	
 	@GetMapping("/bacsi/quanlytaodonthuoc")
-	public String getAllPrescriptions(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "search", required = false) String search) {
+	public String getAllPrescriptions(Model model, 
+	        @RequestParam(value = "phone", required = false) String phone,
+	        @RequestParam(value = "filterDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate filterDate,
+	        @RequestParam(value = "page", defaultValue = "0") int page) {
 
-		// Lấy id bác sĩ từ người dùng hiện tại
-		String nguoiDungId = getNguoiDungId();
-		BacSi bacSi = bacSiService.findByNguoiDungId(nguoiDungId);
-		String bacSiId = bacSi.getBacSiId(); // Lấy id bác sĩ từ thông tin bác sĩ
+	    if (phone == null || phone.trim().isEmpty()) {
+	        // Nếu chưa nhập số điện thoại, không hiển thị thông tin
+	        model.addAttribute("donThuocs", Collections.emptyList());
+	        model.addAttribute("selectedBenhNhan", null);
+	        return "bacsi/taodonthuoc/quanlytaodonthuoc";
+	    }
 
-		// Tạo Pageable để phân trang
-		Pageable pageable = PageRequest.of(page, 4);
+	    // Tìm bệnh nhân theo số điện thoại
+	    BenhNhan benhNhan = benhNhanService.findByPhone(phone.trim());
+	    if (benhNhan == null) {
+	        // Không tìm thấy bệnh nhân
+	        model.addAttribute("donThuocs", Collections.emptyList());
+	        model.addAttribute("selectedBenhNhan", null);
+	        model.addAttribute("errorMessage", "Không tìm thấy bệnh nhân với số điện thoại này.");
+	        return "bacsi/taodonthuoc/quanlytaodonthuoc";
+	    }
 
-		// Tìm kiếm đơn thuốc theo bác sĩ và tên bệnh nhân nếu có từ search
-		Page<DonThuoc> donThuocPage;
-		if (search != null && !search.trim().isEmpty()) {
-		    donThuocPage = donThuocService.findByBacSiIdAndBenhNhanNameContaining(bacSiId, search.trim(), pageable);
-		} else {
-		    donThuocPage = donThuocService.getAllDonThuocByBacSiId(bacSiId, pageable);
-		}
+	    // Thiết lập phân trang
+	    Pageable pageable = PageRequest.of(page, 4);
+	    
+	    // Lọc theo ngày tháng năm nếu có chọn
+	    Page<DonThuoc> donThuocPage;
+	    if (filterDate != null) {
+	        donThuocPage = donThuocService.findByBenhNhanIdAndDate(benhNhan.getBenhNhanId(), filterDate, pageable);
+	    } else {
+	        donThuocPage = donThuocService.findByBenhNhanId(benhNhan.getBenhNhanId(), pageable);
+	    }
 
-		// Xử lý dữ liệu đơn thuốc trước khi hiển thị
-		for (DonThuoc donThuoc : donThuocPage.getContent()) {
-			donThuoc.calculateTongTien();
-			donThuoc.setFormattedDate(
-					donThuoc.getHoSoBenh().getThoiGianTao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-		}
+	    // Xử lý dữ liệu đơn thuốc trước khi hiển thị
+	    for (DonThuoc donThuoc : donThuocPage.getContent()) {
+	        donThuoc.calculateTongTien();
+	        donThuoc.setFormattedDate(
+	                donThuoc.getHoSoBenh().getThoiGianTao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+	    }
 
-		// Thêm dữ liệu vào model
-		model.addAttribute("donThuocs", donThuocPage.getContent());
-		model.addAttribute("currentPage", page);
-		model.addAttribute("totalPages", donThuocPage.getTotalPages());
-		model.addAttribute("search", search); // Để giữ lại giá trị tìm kiếm
+	    // Thêm dữ liệu vào model
+	    model.addAttribute("selectedBenhNhan", benhNhan);
+	    model.addAttribute("donThuocs", donThuocPage.getContent());
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", donThuocPage.getTotalPages());
+	    model.addAttribute("phone", phone); // Giữ lại số điện thoại khi tìm kiếm
+	    model.addAttribute("filterDate", filterDate); // Giữ lại ngày lọc khi tìm kiếm
 
-		return "bacsi/taodonthuoc/quanlytaodonthuoc";
+	    return "bacsi/taodonthuoc/quanlytaodonthuoc";
 	}
+
+
 
 	@PostMapping("/bacsi/xoadonthuoc/{id}")
 	public String deletePrescription(@PathVariable Long id, RedirectAttributes redirectAttributes) {
