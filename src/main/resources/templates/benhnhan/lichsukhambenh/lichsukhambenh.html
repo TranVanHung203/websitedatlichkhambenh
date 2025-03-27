@@ -4,10 +4,11 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Lịch sử khám bệnh</title>
+	<title>Lịch Sử Khám Bệnh</title>
 	<link rel="stylesheet" th:href="@{/css/lichsukhambenh.css}">
 	<link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
 	<link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
@@ -15,42 +16,49 @@
 
 	<!-- Main Container -->
 	<div class="medical-history-container">
-		<!-- Lịch sử khám bệnh -->
 		<section class="medical-history-content">
 			<div id="medical-history">
-				<h3 class="section-title">Lịch sử khám bệnh</h3>
+				<h3 class="section-title"><i class="fas fa-history"></i> Lịch Sử Khám Bệnh</h3>
+				<p class="section-subtitle">Theo dõi chi tiết các lần khám và đơn thuốc của bạn</p>
 
-				<!-- Lọc theo ngày -->
+				<!-- Filter Form -->
 				<form action="#" th:action="@{/user/lichsukhambenh}" method="get" class="filter-form">
-					<label for="date-filter">Lọc theo ngày:</label>
+					<label for="date-filter"><i class="fas fa-calendar-alt"></i> Lọc theo ngày:</label>
 					<input type="date" id="date-filter" name="date" th:value="${param.date}" />
-					<button type="submit">Lọc</button>
+					<button type="submit" class="filter-btn"><i class="fas fa-filter"></i> Lọc</button>
+					<button type="button" class="download-btn"
+						onclick="window.location.href='/user/lichsukhambenh/download-pdf?date=' + document.getElementById('date-filter').value">
+						<i class="fas fa-download"></i> Tải xuống
+					</button>
 				</form>
 
-				<!-- Check if there is no medical history -->
-				<div th:if="${#lists.isEmpty(lichSuKhams.content)}">
-					<p>Không có lịch sử khám bệnh</p>
+				<!-- Medical History Table -->
+				<div th:if="${#lists.isEmpty(lichSuKhams.content)}" class="no-data">
+					<i class="fas fa-exclamation-circle"></i>
+					<p>Không có lịch sử khám bệnh nào được tìm thấy</p>
 				</div>
 
-				<!-- Display the medical history table if data exists -->
-				<div th:if="${!#lists.isEmpty(lichSuKhams.content)}">
+				<div th:if="${!#lists.isEmpty(lichSuKhams.content)}" class="table-wrapper">
 					<table class="medical-history-table">
 						<thead>
 							<tr>
-								<th>Tên Bác Sĩ</th>
-								<th>Ngày Khám</th>
-								<th>Chẩn Đoán</th>
-								<th>Thuốc</th>
-								<th>Liều Lượng</th>
-								<th>Tần Suất</th>
-								<th>Số Lượng</th> <!-- Thêm cột số lượng -->
-								<th>Tổng Tiền Thuốc</th>
+								<th style="width: 16%;"><i class="fas fa-user-md"></i> Tên Bác Sĩ</th>
+								<th style="width: 15%;"><i class="fas fa-calendar-day"></i> Ngày Khám</th>
+								<th style="width: 15%;"><i class="fas fa-stethoscope"></i> Triệu Chứng</th>
+								<th style="width: 13%;"><i class="fas fa-diagnoses"></i> Chẩn Đoán</th>
+								<th style="width: 13%;"><i class="fas fa-pills"></i> Thuốc</th>
+								<th style="width: 5%;"><i class="fas fa-prescription-bottle"></i> Liều Lượng</th>
+								<th style="width: 8%;"><i class="fas fa-clock"></i> Tần Suất</th>
+								<th><i class="fas fa-sort-numeric-up"></i> Số Lượng</th>
+								<th style="width: 12%;"><i class="fas fa-money-bill-wave"></i> Tổng Tiền Thuốc</th>
 							</tr>
 						</thead>
+
 						<tbody>
 							<tr th:each="lichSu : ${lichSuKhams.content}">
 								<td th:text="${lichSu.tenBacSi}"></td>
 								<td th:text="${lichSu.ngayKham}"></td>
+								<td th:text="${lichSu.trieuChung}"></td>
 								<td th:text="${lichSu.chanDoan}"></td>
 								<td>
 									<pre th:text="${lichSu.thuoc}"></pre>
@@ -64,35 +72,31 @@
 								<td>
 									<pre th:text="${lichSu.soLuong}"></pre>
 								</td>
-
 								<td th:text="${lichSu.formattedTongTienThuoc}"></td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
 
-				<!-- Phân trang -->
-				<div class="pagination-container">
-					<span th:if="${currentPage > 0}" class="pagination-prev">
-						<a th:href="@{/user/lichsukhambenh(page=${currentPage-1}, size=${size}, date=${param.date})}">Trang
-							Trước</a>
-					</span>
-
-					<span class="pagination-info">
-						Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span>
-					</span>
-
-					<span th:if="${currentPage < totalPages - 1}" class="pagination-next">
-						<a th:href="@{/user/lichsukhambenh(page=${currentPage+1}, size=${size}, date=${param.date})}">Trang
-							Sau</a>
-					</span>
+				<!-- Pagination -->
+				<div class="pagination-container" th:if="${!#lists.isEmpty(lichSuKhams.content)}">
+					<a th:if="${currentPage > 0}"
+						th:href="@{/user/lichsukhambenh(page=${currentPage-1}, size=${size}, date=${param.date})}"
+						class="pagination-btn"><i class="fas fa-chevron-left"></i> Trang Trước</a>
+					<div class="pagination-numbers">
+						<a th:each="i : ${#numbers.sequence(0, totalPages-1)}"
+							th:href="@{/user/lichsukhambenh(page=${i}, size=${size}, date=${param.date})}"
+							th:classappend="${i == currentPage} ? 'active'" th:text="${i + 1}"></a>
+					</div>
+					<a th:if="${currentPage < totalPages - 1}"
+						th:href="@{/user/lichsukhambenh(page=${currentPage+1}, size=${size}, date=${param.date})}"
+						class="pagination-btn">Trang Sau <i class="fas fa-chevron-right"></i></a>
 				</div>
 			</div>
 		</section>
 	</div>
 
 	<div th:replace="benhnhan/fragments/footer :: footer"></div>
-
 </body>
 
 </html>

@@ -17,6 +17,7 @@ public class LichSuKhamDTO {
     private String thuoc;
     private String lieu;
     private String tanSuat;
+    private String trieuChung;
     private BigDecimal tongTienThuoc;  // Thêm trường tổng tiền thuốc
     private String soLuong; 
     public String getFormattedTongTienThuoc() {

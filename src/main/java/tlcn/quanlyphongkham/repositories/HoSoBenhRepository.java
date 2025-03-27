@@ -62,6 +62,7 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 	            GROUP_CONCAT(CONCAT('- ', t.ten) SEPARATOR '\\n') AS thuoc,
 	            GROUP_CONCAT(dtt.lieu SEPARATOR '\\n') AS lieu,
 	            GROUP_CONCAT(dtt.tan_suat SEPARATOR '\\n') AS tanSuat,
+	            hs.trieu_chung AS trieuChung,  
 	            SUM(dtt.so_luong * t.gia) AS tongTienThuoc,
 	            GROUP_CONCAT(CAST(dtt.so_luong AS CHAR) SEPARATOR '\\n') AS soLuong
 	        FROM ho_so_benh hs
@@ -70,13 +71,11 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 	        LEFT JOIN don_thuoc_thuoc dtt ON dt.don_thuoc_id = dtt.don_thuoc_id
 	        LEFT JOIN thuoc t ON dtt.thuoc_id = t.thuoc_id
 	        WHERE hs.benh_nhan_id = :benhNhanId
-	        GROUP BY hs.ho_so_id, bs.ten, hs.thoi_gian_tao, hs.chan_doan
+	        GROUP BY hs.ho_so_id, bs.ten, hs.thoi_gian_tao, hs.chan_doan, hs.trieu_chung
 	        ORDER BY hs.thoi_gian_tao DESC
 	        """, nativeQuery = true)
 	Page<Object[]> findLichSuKhamByBenhNhanIdRaw(@Param("benhNhanId") String benhNhanId, Pageable pageable);
 
-	
-	
 	
 	
 	
@@ -91,6 +90,7 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 	            GROUP_CONCAT(CONCAT('- ', t.ten) SEPARATOR '\\n') AS thuoc,
 	            GROUP_CONCAT(dtt.lieu SEPARATOR '\\n') AS lieu,
 	            GROUP_CONCAT(dtt.tan_suat SEPARATOR '\\n') AS tanSuat,
+	            hs.trieu_chung AS trieuChung, 
 	            SUM(dtt.so_luong * t.gia) AS tongTienThuoc,
 	            GROUP_CONCAT(CAST(dtt.so_luong AS CHAR) SEPARATOR '\\n') AS soLuong
 	        FROM ho_so_benh hs
@@ -100,12 +100,11 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 	        LEFT JOIN thuoc t ON dtt.thuoc_id = t.thuoc_id
 	        WHERE hs.benh_nhan_id = :benhNhanId
 	        AND DATE_FORMAT(hs.thoi_gian_tao, '%Y-%m-%d') = :date
-	        GROUP BY hs.ho_so_id, bs.ten, hs.thoi_gian_tao, hs.chan_doan
+	        GROUP BY hs.ho_so_id, bs.ten, hs.thoi_gian_tao, hs.chan_doan, hs.trieu_chung
 	        ORDER BY hs.thoi_gian_tao DESC
 	        """, nativeQuery = true)
 	Page<Object[]> findLichSuKhamByBenhNhanIdAndDateRaw(@Param("benhNhanId") String benhNhanId,
 	                                                   @Param("date") String date,
 	                                                   Pageable pageable);
-
 
 }
