@@ -15,4 +15,7 @@ public class LichBacSiDTO {
     private String thoiGianBatDau;
     private String thoiGianKetThuc;
     private String trangThai; // Chỉ "Đã đặt"
+    private String tenBenhNhan;
+    private String soDienThoai;
+    private String slotId;
 }

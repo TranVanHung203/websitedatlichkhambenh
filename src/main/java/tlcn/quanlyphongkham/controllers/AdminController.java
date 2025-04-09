@@ -64,13 +64,29 @@ public class AdminController {
 	        @RequestParam(defaultValue = "1") int page, 
 	        @RequestParam(defaultValue = "") String search) {
 	    
+	    int pageSize = 5; // Số bản ghi mỗi trang (đã định nghĩa trong service)
+	    int visiblePages = 4; // Số trang hiển thị trên thanh phân trang (giống qlbs)
+
 	    // Lấy danh sách người dùng với phân trang và tìm kiếm
 	    Page<NguoiDungDTO> nguoiDungPage = nguoiDungService.getAllNguoiDungQLTK(search, page);
 	    
+	    int totalPages = nguoiDungPage.getTotalPages();
+
+	    // Tính toán startPage và endPage để cố định số trang hiển thị
+	    int startPage = Math.max(0, page - 1 - visiblePages / 2); // page bắt đầu từ 1 nên trừ 1
+	    int endPage = Math.min(startPage + visiblePages - 1, totalPages - 1);
+
+	    // Điều chỉnh nếu ở cuối danh sách trang
+	    if (endPage - startPage < visiblePages - 1) {
+	        startPage = Math.max(0, endPage - visiblePages + 1);
+	    }
+
 	    // Thêm dữ liệu vào model
 	    model.addAttribute("nguoiDungPage", nguoiDungPage);
 	    model.addAttribute("currentPage", page);
-	    model.addAttribute("totalPages", nguoiDungPage.getTotalPages());
+	    model.addAttribute("totalPages", totalPages);
+	    model.addAttribute("startPage", startPage + 1); // +1 vì frontend hiển thị từ 1
+	    model.addAttribute("endPage", endPage + 1);     // +1 vì frontend hiển thị từ 1
 	    model.addAttribute("search", search);
 
 	    return "admin/quanlytaikhoan/quanlytaikhoan"; // Tên của trang giao diện Thymeleaf
@@ -316,7 +332,9 @@ public class AdminController {
 	                  @RequestParam(required = false) String searchType,
 	                  @RequestParam(defaultValue = "") String query,
 	                  Model model) {
-	    int pageSize = 10; // Số thuốc mỗi trang
+	    int pageSize = 8; // Số thuốc mỗi trang
+	    int visiblePages = 4; // Số trang hiển thị trên thanh phân trang (giống qlbs)
+
 	    Page<Thuoc> thuocPage;
 
 	    if (query.isEmpty()) {
@@ -329,9 +347,22 @@ public class AdminController {
 	        }
 	    }
 
+	    int totalPages = thuocPage.getTotalPages();
+
+	    // Tính toán startPage và endPage để cố định số trang hiển thị
+	    int startPage = Math.max(0, page - visiblePages / 2);
+	    int endPage = Math.min(startPage + visiblePages - 1, totalPages - 1);
+
+	    // Điều chỉnh nếu ở cuối danh sách trang
+	    if (endPage - startPage < visiblePages - 1) {
+	        startPage = Math.max(0, endPage - visiblePages + 1);
+	    }
+
 	    model.addAttribute("thuocs", thuocPage.getContent());
 	    model.addAttribute("currentPage", page);
-	    model.addAttribute("totalPages", thuocPage.getTotalPages());
+	    model.addAttribute("totalPages", totalPages);
+	    model.addAttribute("startPage", startPage);
+	    model.addAttribute("endPage", endPage);
 	    model.addAttribute("searchQuery", "ten".equals(searchType) ? query : "");
 	    model.addAttribute("searchNhaCungCap", "nhaCungCap".equals(searchType) ? query : "");
 	    model.addAttribute("noResults", thuocPage.isEmpty());

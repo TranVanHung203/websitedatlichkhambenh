@@ -33,7 +33,7 @@ public class SlotThoiGian implements Serializable {
     @Column(name = "thoi_gian_ket_thuc", nullable = false)
     private LocalTime thoiGianKetThuc;
     
-    @Column(name = "trang_thai", length = 10, nullable = false)
+    @Column(name = "trang_thai", length = 20, nullable = false)
     private String trangThai; // "Trống" hoặc "Đã đặt"
     
     @ManyToOne

@@ -62,8 +62,6 @@ public class NhanVienController {
 
 	@Autowired
 	SlotThoiGianService slotThoiGianService;
-	
-
 
 	public String getNguoiDungId() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -207,9 +205,21 @@ public class NhanVienController {
 	}
 
 	@GetMapping("/nhanvien/dangkylichkham/buoc4")
-	public String showPatientForm(Model model) {
+	public String showPatientForm(@RequestParam(value = "doctorId", required = false) String doctorId,
+			@RequestParam(value = "date", required = false) String date,
+			@RequestParam(value = "ca", required = false) String ca,
+			@RequestParam(value = "startTime", required = false) String startTime, Model model) {
+
+		// Tạo đối tượng BenhNhan để binding với form
 		model.addAttribute("benhNhan", new BenhNhan());
-		return "/nhanvien/dangkylichkhamchobenhnhan/dkbuoc4"; // View name phải khớp với tên tệp
+
+		// Truyền các tham số vào model để sử dụng trong view
+		model.addAttribute("doctorId", doctorId);
+		model.addAttribute("selectedDate", date);
+		model.addAttribute("selectedCa", ca);
+		model.addAttribute("selectedTime", startTime);
+
+		return "/nhanvien/dangkylichkhamchobenhnhan/dkbuoc4";
 	}
 
 	@PostMapping("/nhanvien/dangkylichkham/confirm")
@@ -297,8 +307,7 @@ public class NhanVienController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 		}
 	}
-	
-	
+
 //	@GetMapping("/nhanvien/xemlichbacsi")
 //	public String viewDoctorSchedule(Model model) {
 //	    try {
@@ -371,38 +380,39 @@ public class NhanVienController {
 //	}
 	@GetMapping("/nhanvien/xemlichbacsi")
 	public String viewDoctorSchedule(Model model) {
-	    try {
-	        // Lấy danh sách bác sĩ
-	        List<BacSi> bacSiList = bacSiService.getAllDoctors();
-	        if (bacSiList == null) {
-	            model.addAttribute("errorMessage", "Không thể tải danh sách bác sĩ.");
-	            return "error";
-	        }
+		try {
+			// Lấy danh sách bác sĩ
+			List<BacSi> bacSiList = bacSiService.getAllDoctors();
+			if (bacSiList == null) {
+				model.addAttribute("errorMessage", "Không thể tải danh sách bác sĩ.");
+				return "error";
+			}
 
-	        // Lấy danh sách chuyên khoa
-	        List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa(); // Giả sử bạn có service này
-	        if (chuyenKhoaList == null) {
-	            model.addAttribute("errorMessage", "Không thể tải danh sách chuyên khoa.");
-	            return "error";
-	        }
+			// Lấy danh sách chuyên khoa
+			List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa(); // Giả sử bạn có service này
+			if (chuyenKhoaList == null) {
+				model.addAttribute("errorMessage", "Không thể tải danh sách chuyên khoa.");
+				return "error";
+			}
 
-	        model.addAttribute("bacSiList", bacSiList);
-	        model.addAttribute("chuyenKhoaList", chuyenKhoaList);
-	        return "nhanvien/xemlichbacsi/xemlichbacsi";
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        model.addAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
-	        return "error";
-	    }
+			model.addAttribute("bacSiList", bacSiList);
+			model.addAttribute("chuyenKhoaList", chuyenKhoaList);
+			return "nhanvien/xemlichbacsi/xemlichbacsi";
+		} catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
+			return "error";
+		}
 	}
+
 	@GetMapping("/nhanvien/xemlichbacsi/doctors-by-specialty")
 	@ResponseBody
 	public List<BacSi> getDoctorsBySpecialty1(@RequestParam("chuyenKhoaId") String chuyenKhoaId) {
-	    ChuyenKhoa chuyenKhoa = chuyenKhoaService.findById(chuyenKhoaId); // Giả sử bạn có service này
-	    if (chuyenKhoa == null) {
-	        return Collections.emptyList();
-	    }
-	    return bacSiService.getDoctorsByChuyenKhoa(chuyenKhoaId); // Giả sử bạn có method này trong service
+		ChuyenKhoa chuyenKhoa = chuyenKhoaService.findById(chuyenKhoaId); // Giả sử bạn có service này
+		if (chuyenKhoa == null) {
+			return Collections.emptyList();
+		}
+		return bacSiService.getDoctorsByChuyenKhoa(chuyenKhoaId); // Giả sử bạn có method này trong service
 	}
 
 	@GetMapping("/nhanvien/xemlichbacsi/schedule")
@@ -443,6 +453,8 @@ public class NhanVienController {
 	            dto.setThoiGianBatDau("---");
 	            dto.setThoiGianKetThuc("---");
 	            dto.setTrangThai("Chưa có slot");
+	            dto.setTenBenhNhan("---");
+	            dto.setSoDienThoai("---");
 	            result.add(dto);
 	        } else {
 	            for (SlotThoiGian slot : existingSlots) {
@@ -452,17 +464,38 @@ public class NhanVienController {
 	                dto.setThoiGianBatDau(slot.getThoiGianBatDau().toString());
 	                dto.setThoiGianKetThuc(slot.getThoiGianKetThuc().toString());
 
-	                String trangThai = (slot.getTrangThai() != null && !slot.getTrangThai().isBlank()) ? "Đã đặt" : "Chưa đặt";
-	                dto.setTrangThai(trangThai);
+	                // Kiểm tra trạng thái
+	                String trangThai = slot.getTrangThai();
+	                if ("checked-in".equals(trangThai)) {
+	                    dto.setTrangThai("Đã đến khám");
+	                } else if (trangThai != null && !trangThai.isBlank()) {
+	                    dto.setTrangThai("Đã đặt");
+	                } else {
+	                    dto.setTrangThai("Chưa đặt");
+	                }
+
+	                // Lấy thông tin bệnh nhân nếu slot đã được đặt
+	                if (("Đã đặt".equals(dto.getTrangThai()) || "Đã đến khám".equals(dto.getTrangThai())) && slot.getBenhNhan() != null) {
+	                    BenhNhan benhNhan = slot.getBenhNhan();
+	                    dto.setTenBenhNhan(benhNhan.getTen() != null ? benhNhan.getTen() : "Không xác định");
+	                    dto.setSoDienThoai(benhNhan.getDienThoai() != null ? benhNhan.getDienThoai() : "Không xác định");
+	                } else {
+	                    dto.setTenBenhNhan("---");
+	                    dto.setSoDienThoai("---");
+	                }
+
+	                // Lưu slotId để sử dụng khi check-in
+	                dto.setSlotId(slot.getSlotId());
 
 	                result.add(dto);
 	            }
 	        }
 	    }
 
-	    // Sắp xếp theo thứ tự ca và thời gian
+	    // Sắp xếp theo thứ tự ca, trạng thái (ưu tiên "Đã đến khám"), và thời gian
 	    result.sort(Comparator
 	        .comparingInt((LichBacSiDTO dto) -> getCaPriority(dto.getCaKham()))
+	        .thenComparing((LichBacSiDTO dto) -> "Đã đến khám".equals(dto.getTrangThai()) ? 0 : 1) // Ưu tiên "Đã đến khám"
 	        .thenComparing(dto -> {
 	            try {
 	                return LocalTime.parse(dto.getThoiGianBatDau());
@@ -474,7 +507,6 @@ public class NhanVienController {
 	    return result;
 	}
 
-
 	private int getCaPriority(String ca) {
 	    return switch (ca.toLowerCase()) {
 	        case "sáng" -> 1;
@@ -483,4 +515,38 @@ public class NhanVienController {
 	        default -> 4;
 	    };
 	}
+	@PostMapping("/nhanvien/xemlichbacsi/checkin")
+	@ResponseBody
+	public ResponseEntity<Map<String, String>> checkInPatient(@RequestParam("slotId") String slotId) {
+	    Map<String, String> response = new HashMap<>();
+	    try {
+	        // Tìm slot theo slotId
+	        SlotThoiGian slot = slotThoiGianService.findById(slotId);
+	        if (slot == null) {
+	            response.put("status", "error");
+	            response.put("message", "Không tìm thấy slot!");
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+	        }
+
+	        // Kiểm tra trạng thái hiện tại
+	        if (!"Đã đặt".equals(slot.getTrangThai()) && !"pending".equals(slot.getTrangThai())) {
+	            response.put("status", "error");
+	            response.put("message", "Slot không ở trạng thái có thể check-in!");
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	        }
+
+	        // Cập nhật trạng thái
+	        slot.setTrangThai("checked-in");
+	        slotThoiGianService.save(slot);
+
+	        response.put("status", "success");
+	        response.put("message", "Check-in thành công!");
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        response.put("status", "error");
+	        response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	    }
+	}
+	
 }
