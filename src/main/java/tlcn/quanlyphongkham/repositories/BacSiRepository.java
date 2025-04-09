@@ -30,5 +30,5 @@ public interface BacSiRepository extends JpaRepository<BacSi, String> {
 
 	BacSi findByNguoiDung_NguoiDungId(String nguoiDungId);
 
-
+	List<BacSi> findByChuyenKhoaChuyenKhoaId(String chuyenKhoaId);
 }

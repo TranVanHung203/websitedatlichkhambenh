@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Xem Lịch Bác Sĩ</title>
+	<link rel="stylesheet" th:href="@{/css/xemlichbacsi.css}">
+	<link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
+</head>
+
+<body>
+	<!-- Header nhân viên -->
+	<div th:replace="~{nhanvien/fragments/header :: header}"></div>
+
+	<div class="container">
+		<h1>Xem Lịch Làm Việc Của Bác Sĩ</h1>
+
+		<!-- Chọn chuyên khoa, bác sĩ và ngày -->
+		<div class="doctor-select">
+			<select id="chuyenKhoaSelect" onchange="loadDoctorsBySpecialty()">
+				<option value="">Chọn chuyên khoa</option>
+				<option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.chuyenKhoaId}"
+					th:text="${chuyenKhoa.ten}"></option>
+			</select>
+
+			<select id="doctorSelect" onchange="loadSchedule()">
+				<option value="">Chọn bác sĩ</option>
+			</select>
+
+			<input type="date" id="dateSelect" onchange="loadSchedule()" />
+		</div>
+
+		<!-- Phân trang theo ca khám -->
+		<div class="pagination-controls">
+			<!-- Nút phân trang sẽ hiển thị theo dữ liệu -->
+			<div id="paginationButtons"></div>
+		</div>
+
+		<!-- Bảng lịch khám -->
+		<table class="schedule-table" id="scheduleTable">
+			<thead>
+				<tr>
+					<th>Giờ bắt đầu</th>
+					<th>Giờ kết thúc</th>
+					<th>Trạng thái</th>
+				</tr>
+			</thead>
+			<tbody id="scheduleBody">
+				<tr>
+					<td colspan="4" class="no-data">Vui lòng chọn chuyên khoa, bác sĩ và ngày để xem lịch</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<!-- Script -->
+	<script>
+		let fullScheduleData = [];
+		let availableCaList = [];
+
+		function loadDoctorsBySpecialty() {
+			const chuyenKhoaId = document.getElementById('chuyenKhoaSelect').value;
+			const doctorSelect = document.getElementById('doctorSelect');
+			const tbody = document.getElementById('scheduleBody');
+
+			doctorSelect.innerHTML = '<option value="">Đang tải...</option>';
+			tbody.innerHTML = '<tr><td colspan="4" class="no-data">Vui lòng chọn chuyên khoa, bác sĩ và ngày để xem lịch</td></tr>';
+
+			if (!chuyenKhoaId) {
+				doctorSelect.innerHTML = '<option value="">Chọn bác sĩ</option>';
+				return;
+			}
+
+			fetch('/nhanvien/xemlichbacsi/doctors-by-specialty?chuyenKhoaId=' + chuyenKhoaId)
+				.then(response => response.json())
+				.then(data => {
+					doctorSelect.innerHTML = '<option value="">Chọn bác sĩ</option>';
+					if (!Array.isArray(data) || data.length === 0) {
+						doctorSelect.innerHTML = '<option value="">Không có bác sĩ trong chuyên khoa này</option>';
+						return;
+					}
+					data.forEach(doctor => {
+						const option = document.createElement('option');
+						option.value = doctor.bacSiId;
+						option.textContent = doctor.ten;
+						doctorSelect.appendChild(option);
+					});
+				})
+				.catch(error => {
+					console.error('Lỗi:', error);
+					doctorSelect.innerHTML = '<option value="">Đã xảy ra lỗi khi tải danh sách bác sĩ</option>';
+				});
+		}
+
+		function loadSchedule() {
+			const doctorId = document.getElementById('doctorSelect').value;
+			const selectedDate = document.getElementById('dateSelect').value;
+			const tbody = document.getElementById('scheduleBody');
+
+			if (!doctorId || !selectedDate) {
+				tbody.innerHTML = '<tr><td colspan="4" class="no-data">Vui lòng chọn chuyên khoa, bác sĩ và ngày để xem lịch</td></tr>';
+				return;
+			}
+
+			fetch(`/nhanvien/xemlichbacsi/schedule?doctorId=${doctorId}&date=${selectedDate}`)
+				.then(response => response.json())
+				.then(data => {
+					fullScheduleData = data;
+					availableCaList = [...new Set(data.map(item => item.caKham))];
+					createPaginationButtons();
+					if (availableCaList.length > 0) {
+						showPage(availableCaList[0]);
+					} else {
+						tbody.innerHTML = '<tr><td colspan="4" class="no-data">Không có lịch khám cho bác sĩ trong ngày này</td></tr>';
+					}
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					tbody.innerHTML = '<tr><td colspan="4" class="no-data">Đã xảy ra lỗi khi tải lịch</td></tr>';
+				});
+		}
+
+		function createPaginationButtons() {
+			const paginationContainer = document.getElementById('paginationButtons');
+			paginationContainer.innerHTML = '';
+			availableCaList.forEach(ca => {
+				const button = document.createElement('button');
+				button.textContent = 'Ca ' + ca;
+				button.onclick = () => showPage(ca);
+				paginationContainer.appendChild(button);
+			});
+		}
+
+		function showPage(ca) {
+			const tbody = document.getElementById('scheduleBody');
+			tbody.innerHTML = '';
+
+			// Khung giờ mặc định cho từng ca
+			const khungGioCa = {
+				"Sáng": ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"],
+				"Chiều": ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"],
+				"Ngoài Giờ": ["17:00", "17:30", "18:00", "18:30", "19:00", "19:30"]
+			};
+
+			// Cập nhật trạng thái active cho các nút
+			const buttons = document.querySelectorAll('.pagination-controls button');
+			buttons.forEach(btn => {
+				btn.classList.toggle('active', btn.textContent === 'Ca ' + ca);
+			});
+
+			const timeSlots = khungGioCa[ca];
+			if (!timeSlots) {
+				tbody.innerHTML = `<tr><td colspan="4" class="no-data">Không có khung giờ mặc định cho ca ${ca}</td></tr>`;
+				return;
+			}
+
+			// Tạo map từ giờ bắt đầu -> thông tin slot
+			const slotMap = {};
+			fullScheduleData
+				.filter(item => item.caKham === ca && item.thoiGianBatDau !== "---")
+				.forEach(item => {
+					slotMap[item.thoiGianBatDau] = item;
+				});
+
+			// Duyệt qua khung giờ mặc định
+			for (let i = 0; i < timeSlots.length - 1; i++) {
+				const start = timeSlots[i];
+				const end = timeSlots[i + 1];
+				const slot = slotMap[start];
+
+				const row = document.createElement('tr');
+				row.innerHTML = `
+			<td>${start}</td>
+			<td>${end}</td>
+			<td>${slot ? slot.trangThai : 'Chưa có slot'}</td>
+		`;
+				tbody.appendChild(row);
+			}
+		}
+	</script>
+</body>
+
+</html>

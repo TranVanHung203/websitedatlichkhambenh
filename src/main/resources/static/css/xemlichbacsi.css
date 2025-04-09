@@ -1,0 +1,139 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #eef2f7;
+  margin: 0;
+  padding: 30px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+h1 {
+  color: #1a3c5e;
+  text-align: center;
+  margin-bottom: 35px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.doctor-select {
+  margin-bottom: 30px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+select, input[type="date"] {
+  padding: 12px 15px;
+  width: 200px;
+  border-radius: 8px;
+  border: 2px solid #d1dbe3;
+  font-size: 16px;
+  background-color: #f9fafc;
+  color: #34495e;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+select:hover, input[type="date"]:hover {
+  border-color: #3498db;
+}
+
+select:focus, input[type="date"]:focus {
+  border-color: #2980b9;
+  box-shadow: 0 0 8px rgba(41, 128, 185, 0.3);
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+}
+
+.schedule-table th {
+  background-color: #3498db;
+  color: #ffffff;
+  padding: 15px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.schedule-table td {
+  padding: 15px;
+  border-bottom: 1px solid #e8ecef;
+  font-size: 15px;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.schedule-table tr:last-child td {
+  border-bottom: none;
+}
+
+.schedule-table tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.schedule-table tr:hover {
+  background-color: #eef4fa;
+  transition: background-color 0.2s ease;
+}
+
+.no-data {
+  text-align: center;
+  color: #95a5a6;
+  padding: 25px;
+  font-style: italic;
+  font-size: 16px;
+  background-color: #f4f7f9;
+  border-radius: 8px;
+}
+
+.pagination-controls {
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+.pagination-controls button.active {
+  background-color: #1d6fa5;
+  color: #fff;
+  font-weight: bold;
+  cursor: default;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+}
+.pagination-controls button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.pagination-controls button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-controls button:hover {
+  background-color: #2980b9;
+}

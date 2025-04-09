@@ -1,9 +1,17 @@
 package tlcn.quanlyphongkham.entities;
 
-import lombok.Data;
-import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Data;
 
 @Data
 @Entity
@@ -16,6 +24,7 @@ public class SlotThoiGian implements Serializable {
     
     @ManyToOne
     @JoinColumn(name = "maLichKhamBenh", nullable = false)
+    @JsonIgnore
     private LichKhamBenh lichKhamBenh; // Liên kết đến lịch khám bệnh
     
     @Column(name = "thoi_gian_bat_dau", nullable = false)

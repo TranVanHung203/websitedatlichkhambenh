@@ -5,13 +5,17 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
+import tlcn.quanlyphongkham.dtos.LichBacSiDTO;
+import tlcn.quanlyphongkham.dtos.LichKhamBenhDTO;
 import tlcn.quanlyphongkham.dtos.MaLichKhamBenhDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.BenhNhan;
@@ -56,6 +62,8 @@ public class NhanVienController {
 
 	@Autowired
 	SlotThoiGianService slotThoiGianService;
+	
+
 
 	public String getNguoiDungId() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -289,5 +297,190 @@ public class NhanVienController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 		}
 	}
+	
+	
+//	@GetMapping("/nhanvien/xemlichbacsi")
+//	public String viewDoctorSchedule(Model model) {
+//	    try {
+//	        List<BacSi> bacSiList = bacSiService.getAllDoctors();
+//	        if (bacSiList == null) {
+//	            model.addAttribute("errorMessage", "Không thể tải danh sách bác sĩ.");
+//	            return "error";
+//	        }
+//	        model.addAttribute("bacSiList", bacSiList);
+//	        return "nhanvien/xemlichbacsi/xemlichbacsi";
+//	    } catch (Exception e) {
+//	        e.printStackTrace();
+//	        model.addAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
+//	        return "error";
+//	    }
+//	}
+//
+//
+//	@GetMapping("/nhanvien/xemlichbacsi/schedule")
+//	@ResponseBody
+//	public List<LichBacSiDTO> getDoctorScheduleSlots(
+//	        @RequestParam("doctorId") String doctorId,
+//	        @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+//
+//	    BacSi bacSi = bacSiService.findById(doctorId);
+//	    if (bacSi == null) {
+//	        return Collections.emptyList();
+//	    }
+//
+//	    List<LichKhamBenh> lichList = lichKhamBenhService.getLichKhamBenhByBacSi(doctorId);
+//
+//	    if (date != null) {
+//	        lichList = lichList.stream()
+//	                .filter(lich -> lich.getNgayThangNam().isEqual(date))
+//	                .collect(Collectors.toList());
+//	    }
+//
+//	    List<LichBacSiDTO> result = new ArrayList<>();
+//
+//	    for (LichKhamBenh lich : lichList) {
+//	        for (SlotThoiGian slot : lich.getSlotThoiGian()) {
+//	            String trangThai = (slot.getTrangThai() != null && !slot.getTrangThai().trim().isEmpty())
+//	                    ? "Đã đặt" : "Chưa đặt";
+//
+//	            LichBacSiDTO dto = new LichBacSiDTO();
+//	            dto.setNgayThangNam(lich.getNgayThangNam());
+//	            dto.setCaKham(lich.getCa());
+//	            dto.setThoiGianBatDau(slot.getThoiGianBatDau().toString());
+//	            dto.setThoiGianKetThuc(slot.getThoiGianKetThuc().toString());
+//	            dto.setTrangThai(trangThai);
+//
+//	            result.add(dto);
+//	        }
+//	    }
+//
+//	    result.sort(Comparator
+//	        .comparingInt((LichBacSiDTO dto) -> getCaPriority(dto.getCaKham()))
+//	        .thenComparing(dto -> LocalTime.parse(dto.getThoiGianBatDau())));
+//
+//	    return result;
+//	}
+//
+//	private int getCaPriority(String ca) {
+//	    return switch (ca.toLowerCase()) {
+//	        case "sáng" -> 1;
+//	        case "chiều" -> 2;
+//	        case "ngoài giờ" -> 3;
+//	        default -> 4;
+//	    };
+//	}
+	@GetMapping("/nhanvien/xemlichbacsi")
+	public String viewDoctorSchedule(Model model) {
+	    try {
+	        // Lấy danh sách bác sĩ
+	        List<BacSi> bacSiList = bacSiService.getAllDoctors();
+	        if (bacSiList == null) {
+	            model.addAttribute("errorMessage", "Không thể tải danh sách bác sĩ.");
+	            return "error";
+	        }
 
+	        // Lấy danh sách chuyên khoa
+	        List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa(); // Giả sử bạn có service này
+	        if (chuyenKhoaList == null) {
+	            model.addAttribute("errorMessage", "Không thể tải danh sách chuyên khoa.");
+	            return "error";
+	        }
+
+	        model.addAttribute("bacSiList", bacSiList);
+	        model.addAttribute("chuyenKhoaList", chuyenKhoaList);
+	        return "nhanvien/xemlichbacsi/xemlichbacsi";
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        model.addAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
+	        return "error";
+	    }
+	}
+	@GetMapping("/nhanvien/xemlichbacsi/doctors-by-specialty")
+	@ResponseBody
+	public List<BacSi> getDoctorsBySpecialty1(@RequestParam("chuyenKhoaId") String chuyenKhoaId) {
+	    ChuyenKhoa chuyenKhoa = chuyenKhoaService.findById(chuyenKhoaId); // Giả sử bạn có service này
+	    if (chuyenKhoa == null) {
+	        return Collections.emptyList();
+	    }
+	    return bacSiService.getDoctorsByChuyenKhoa(chuyenKhoaId); // Giả sử bạn có method này trong service
+	}
+
+	@GetMapping("/nhanvien/xemlichbacsi/schedule")
+	@ResponseBody
+	public List<LichBacSiDTO> getDoctorScheduleSlots(
+	        @RequestParam("doctorId") String doctorId,
+	        @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+	    BacSi bacSi = bacSiService.findById(doctorId);
+	    if (bacSi == null || date == null) {
+	        return Collections.emptyList();
+	    }
+
+	    // Lấy lịch khám theo bác sĩ và ngày
+	    List<LichKhamBenh> lichList = lichKhamBenhService.getLichKhamBenhByBacSi(doctorId).stream()
+	            .filter(lich -> lich.getNgayThangNam().isEqual(date))
+	            .collect(Collectors.toList());
+
+	    // Khung giờ mặc định
+	    Map<String, List<String>> timeFrames = Map.of(
+	        "Sáng", List.of("07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"),
+	        "Chiều", List.of("13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"),
+	        "Ngoài Giờ", List.of("17:00", "17:30", "18:00", "18:30", "19:00", "19:30")
+	    );
+
+	    List<LichBacSiDTO> result = new ArrayList<>();
+
+	    for (LichKhamBenh lich : lichList) {
+	        String ca = lich.getCa();
+	        List<String> timeList = timeFrames.getOrDefault(ca, new ArrayList<>());
+	        List<SlotThoiGian> existingSlots = lich.getSlotThoiGian();
+
+	        if (existingSlots == null || existingSlots.isEmpty()) {
+	            // Có ca nhưng chưa tạo slot nào
+	            LichBacSiDTO dto = new LichBacSiDTO();
+	            dto.setNgayThangNam(date);
+	            dto.setCaKham(ca);
+	            dto.setThoiGianBatDau("---");
+	            dto.setThoiGianKetThuc("---");
+	            dto.setTrangThai("Chưa có slot");
+	            result.add(dto);
+	        } else {
+	            for (SlotThoiGian slot : existingSlots) {
+	                LichBacSiDTO dto = new LichBacSiDTO();
+	                dto.setNgayThangNam(date);
+	                dto.setCaKham(ca);
+	                dto.setThoiGianBatDau(slot.getThoiGianBatDau().toString());
+	                dto.setThoiGianKetThuc(slot.getThoiGianKetThuc().toString());
+
+	                String trangThai = (slot.getTrangThai() != null && !slot.getTrangThai().isBlank()) ? "Đã đặt" : "Chưa đặt";
+	                dto.setTrangThai(trangThai);
+
+	                result.add(dto);
+	            }
+	        }
+	    }
+
+	    // Sắp xếp theo thứ tự ca và thời gian
+	    result.sort(Comparator
+	        .comparingInt((LichBacSiDTO dto) -> getCaPriority(dto.getCaKham()))
+	        .thenComparing(dto -> {
+	            try {
+	                return LocalTime.parse(dto.getThoiGianBatDau());
+	            } catch (Exception e) {
+	                return LocalTime.MIN;
+	            }
+	        }));
+
+	    return result;
+	}
+
+
+	private int getCaPriority(String ca) {
+	    return switch (ca.toLowerCase()) {
+	        case "sáng" -> 1;
+	        case "chiều" -> 2;
+	        case "ngoài giờ" -> 3;
+	        default -> 4;
+	    };
+	}
 }
