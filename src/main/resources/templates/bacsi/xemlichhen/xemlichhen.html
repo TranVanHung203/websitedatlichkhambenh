@@ -56,6 +56,7 @@
 					<label><strong>Trạng thái:</strong></label>
 					<select class="status-select">
 						<option value="pending" th:selected="${slot.trangThai == 'pending'}">Đang chờ</option>
+						<option value="checked-in" th:selected="${slot.trangThai == 'checked-in'}">Đang khám</option>
 						<option value="completed" th:selected="${slot.trangThai == 'completed'}">Đã khám</option>
 						<option value="cancelled" th:selected="${slot.trangThai == 'cancelled'}">Đã hủy</option>
 					</select>
@@ -170,6 +171,24 @@
 					});
 				});
 		}
+
+		setInterval(() => {
+			const date = document.getElementById('search-date').value;
+
+			fetch(`/bacsi/xemlichhen/data?date=${date}`)
+				.then(res => res.json())
+				.then(data => {
+					data.forEach(slot => {
+						const card = document.querySelector(`.appointment-card[data-slot-id="${slot.slotId}"]`);
+						if (card) {
+							const select = card.querySelector('.status-select');
+							if (select && select.value !== slot.trangThai) {
+								select.value = slot.trangThai;
+							}
+						}
+					});
+				});
+		}, 5000);
 
 	</script>
 </body>

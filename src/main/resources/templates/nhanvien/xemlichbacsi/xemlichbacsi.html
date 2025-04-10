@@ -180,7 +180,7 @@
 				const row = document.createElement('tr');
 				if (slot) {
 					// Nếu đã có slot, hiển thị trạng thái và thông tin bệnh nhân
-					if (slot.trangThai === "Đã đặt") {
+					if (slot.trangThai === "Đã đặt"||slot.trangThai=="Đang chờ") {
 						row.innerHTML = `
                         <td>${start}</td>
                         <td>${end}</td>
@@ -193,7 +193,7 @@
                         <td>${slot.tenBenhNhan}</td>
                         <td>${slot.soDienThoai}</td>
                     `;
-					} else if (slot.trangThai === "Đã đến khám") {
+					} else if (slot.trangThai === "Đã khám xong") {
 						row.innerHTML = `
                         <td>${start}</td>
                         <td>${end}</td>
@@ -203,15 +203,32 @@
                         <td>${slot.tenBenhNhan}</td>
                         <td>${slot.soDienThoai}</td>
                     `;
+					} else if (slot.trangThai === "Đang khám") {
+						row.innerHTML = `
+	<td>${start}</td>
+	<td>${end}</td>
+	<td><span class="status-in-progress">🩺 ${slot.trangThai}</span></td>
+	<td>${slot.tenBenhNhan}</td>
+	<td>${slot.soDienThoai}</td>
+	`;
+					} else if (slot.trangThai === "Đã hủy") {
+						row.innerHTML = `
+	<td>${start}</td>
+	<td>${end}</td>
+	<td><span class="status-cancelled">❌ ${slot.trangThai}</span></td>
+	<td>${slot.tenBenhNhan}</td>
+	<td>${slot.soDienThoai}</td>
+	`;
 					} else {
 						row.innerHTML = `
-                        <td>${start}</td>
-                        <td>${end}</td>
-                        <td>${slot.trangThai}</td>
-                        <td>${slot.tenBenhNhan}</td>
-                        <td>${slot.soDienThoai}</td>
-                    `;
+	<td>${start}</td>
+	<td>${end}</td>
+	<td>${slot.trangThai}</td>
+	<td>${slot.tenBenhNhan}</td>
+	<td>${slot.soDienThoai}</td>
+	`;
 					}
+
 				} else {
 					// Nếu chưa có slot, thêm nút "Đăng ký"
 					row.innerHTML = `
@@ -306,6 +323,28 @@
 				});
 		}
 	</script>
+	<script>
+	// Hàm lấy ca hiện tại đang hiển thị (dựa trên nút đang active)
+	function getCurrentCa() {
+		const activeButton = document.querySelector('.pagination-controls button.active');
+		if (activeButton) {
+			return activeButton.textContent.replace('Ca ', '').trim();
+		}
+		return null;
+	}
+
+	// Cập nhật lịch định kỳ mỗi 10 giây
+	setInterval(() => {
+		const currentCa = getCurrentCa();
+		if (currentCa) {
+			loadSchedule(); // Gọi lại API để cập nhật dữ liệu fullScheduleData
+			setTimeout(() => {
+				showPage(currentCa); // Sau khi load xong thì hiển thị lại đúng ca đang xem
+			}, 300); // đợi một chút cho dữ liệu kịp cập nhật
+		}
+	}, 5000); // 10000ms = 10 giây
+</script>
+
 </body>
 
 </html>
