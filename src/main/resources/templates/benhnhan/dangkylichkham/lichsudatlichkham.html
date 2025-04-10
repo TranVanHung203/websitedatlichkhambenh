@@ -1,100 +1,108 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lịch sử Đặt Lịch Khám Bệnh</title>
-    <link th:href="@{/css/lichsudatlichkham.css}" rel="stylesheet">
-    <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
-    <link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Lịch sử Đặt Lịch Khám Bệnh</title>
+	<link th:href="@{/css/lichsudatlichkham.css}" rel="stylesheet">
+	<link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+	<link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
 </head>
+
 <body>
-    <div th:replace="benhnhan/fragments/header :: header"></div>
-    <div class="history-container">
-        <h1>Lịch Sử Đặt Lịch Khám Bệnh</h1>
+	<div th:replace="benhnhan/fragments/header :: header"></div>
+	<div class="history-container">
+		<h1>Lịch Sử Đặt Lịch Khám Bệnh</h1>
 
-        <!-- Bộ lọc tìm kiếm theo ngày -->
-        <div class="history-filter-container">
-            <label for="date">Ngày:</label>
-            <input type="date" id="date" name="date" th:value="${date}" />
-            <button class="history-filter-btn" onclick="filterDate(event)">Lọc</button>
-        </div>
+		<!-- Bộ lọc tìm kiếm theo ngày -->
+		<div class="history-filter-container">
+			<label for="date">Ngày:</label>
+			<input type="date" id="date" name="date" th:value="${date}" />
+			<button class="history-filter-btn" onclick="filterDate(event)">Lọc</button>
+		</div>
 
-        <!-- Kiểm tra nếu không có lịch sử -->
-        <div th:if="${#lists.isEmpty(slots)}" class="no-history-message">
-            <p>Không có lịch sử đặt lịch khám bệnh!</p>
-        </div>
+		<!-- Kiểm tra nếu không có lịch sử -->
+		<div th:if="${#lists.isEmpty(slots)}" class="no-history-message">
+			<p>Không có lịch sử đặt lịch khám bệnh!</p>
+		</div>
 
-        <!-- Bảng lịch sử đặt lịch khám bệnh -->
-        <table th:if="${!#lists.isEmpty(slots)}" class="history-table">
-            <thead>
-                <tr>
-                    <th>Bác Sĩ</th>
-                    <th>Ngày</th>
-                    <th>Giờ</th>
-                    <th>Trạng thái</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="slot : ${slots}">
-                    <td th:text="${slot.lichKhamBenh.bacSi.ten}">Dr. Nguyễn Văn A</td>
-                    <td th:text="${slot.lichKhamBenh.ngayThangNam}">10/12/2024</td>
-                    <td th:text="${slot.thoiGianBatDau}">08:00</td>
-                    <td>
-                        <div th:if="${slot.trangThai == 'pending'}">
-                            <form th:action="@{/user/cancel}" method="post" style="display:inline;">
-                                <input type="hidden" name="slotId" th:value="${slot.slotId}" />
-                                <input type="hidden" name="date" th:value="${date}" />
-                                <input type="hidden" name="page" th:value="${currentPage}" />
-                                <button type="submit" class="history-cancel-btn">Hủy</button>
-                            </form>
-                        </div>
-                        <div th:unless="${slot.trangThai == 'pending'}" th:text="${slot.trangThai}">
-                            <!-- Slot status like 'confirmed', 'completed', etc. -->
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+		<!-- Bảng lịch sử đặt lịch khám bệnh -->
+		<table th:if="${!#lists.isEmpty(slots)}" class="history-table">
+			<thead>
+				<tr>
+					<th>Bác Sĩ</th>
+					<th>Ngày</th>
+					<th>Giờ</th>
+					<th>Trạng thái</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="slot : ${slots}">
+					<td>
+						<span th:text="${slot.lichKhamBenh.bacSi.ten}">Dr. Nguyễn Văn A</span>
+						<form th:action="@{/chat/bacsi}" method="get" style="display:inline;">
+							<input type="hidden" name="bacSiId" th:value="${slot.lichKhamBenh.bacSi.bacSiId}" />
+							<button type="submit" class="history-chat-btn">💬Nhắn tin</button>
+						</form>
+					</td>
 
-        <!-- Phân trang -->
-        <div th:if="${!#lists.isEmpty(slots)}" class="history-pagination">
-            <!-- Previous Button (only visible if not on the first page) -->
-            <button th:if="${currentPage > 0}" 
-                    th:data-page="${currentPage - 1}" 
-                    onclick="navigatePage(event)">« Trước</button>
+					<td th:text="${slot.lichKhamBenh.ngayThangNam}">10/12/2024</td>
+					<td th:text="${slot.thoiGianBatDau}">08:00</td>
+					<td>
+						<div th:if="${slot.trangThai == 'pending'}">
+							<form th:action="@{/user/cancel}" method="post" style="display:inline;">
+								<input type="hidden" name="slotId" th:value="${slot.slotId}" />
+								<input type="hidden" name="date" th:value="${date}" />
+								<input type="hidden" name="page" th:value="${currentPage}" />
+								<button type="submit" class="history-cancel-btn">Hủy</button>
+							</form>
+						</div>
+						<div th:unless="${slot.trangThai == 'pending'}" th:text="${slot.trangThai}">
+							<!-- Slot status like 'confirmed', 'completed', etc. -->
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 
-            <span>Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
-            
-            <!-- Next Button (only visible if not on the last page) -->
-            <button th:if="${currentPage < totalPages - 1}" 
-                    th:data-page="${currentPage + 1}" 
-                    onclick="navigatePage(event)">Tiếp »</button>
-        </div>
-    </div>
-    <div th:replace="benhnhan/fragments/footer :: footer"></div>
+		<!-- Phân trang -->
+		<div th:if="${!#lists.isEmpty(slots)}" class="history-pagination">
+			<!-- Previous Button (only visible if not on the first page) -->
+			<button th:if="${currentPage > 0}" th:data-page="${currentPage - 1}" onclick="navigatePage(event)">«
+				Trước</button>
 
-    <script>
-        function filterDate(event) {
-            var date = document.getElementById('date').value;
-            if (date) {
-                window.location.href = '/user/lichsudatlich?date=' + date;
-            } else {
-                alert('Vui lòng chọn ngày!');
-            }
-        }
+			<span>Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
 
-        function navigatePage(event) {
-            var page = event.target.getAttribute('data-page');
-            var totalPages = parseInt('${totalPages}', 10); // Total pages from Thymeleaf
-            var date = document.getElementById('date').value || '${date}'; // Use default date if not selected
+			<!-- Next Button (only visible if not on the last page) -->
+			<button th:if="${currentPage < totalPages - 1}" th:data-page="${currentPage + 1}"
+				onclick="navigatePage(event)">Tiếp »</button>
+		</div>
+	</div>
+	<div th:replace="benhnhan/fragments/footer :: footer"></div>
 
-            // Ensure the page number is valid
-            if (page < 0 || page >= totalPages) {
-                return; // Do nothing if page is out of range
-            }
-            window.location.href = '/user/lichsudatlich?date=' + date + '&page=' + page;
-        }
-    </script>
+	<script>
+		function filterDate(event) {
+			var date = document.getElementById('date').value;
+			if (date) {
+				window.location.href = '/user/lichsudatlich?date=' + date;
+			} else {
+				alert('Vui lòng chọn ngày!');
+			}
+		}
+
+		function navigatePage(event) {
+			var page = event.target.getAttribute('data-page');
+			var totalPages = parseInt('${totalPages}', 10); // Total pages from Thymeleaf
+			var date = document.getElementById('date').value || '${date}'; // Use default date if not selected
+
+			// Ensure the page number is valid
+			if (page < 0 || page >= totalPages) {
+				return; // Do nothing if page is out of range
+			}
+			window.location.href = '/user/lichsudatlich?date=' + date + '&page=' + page;
+		}
+	</script>
 </body>
+
 </html>
