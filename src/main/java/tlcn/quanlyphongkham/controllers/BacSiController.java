@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,13 +37,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.persistence.criteria.Path;
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
 import tlcn.quanlyphongkham.dtos.BenhNhanOfTaoDonThuocDTO;
 import tlcn.quanlyphongkham.dtos.ChiTietBacSiDTO;
 import tlcn.quanlyphongkham.dtos.EditProfileBSDTO;
 import tlcn.quanlyphongkham.dtos.HoSoBenhDTO;
 import tlcn.quanlyphongkham.dtos.LichHenKhamDTO;
+import tlcn.quanlyphongkham.dtos.SlotDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.BenhNhan;
 import tlcn.quanlyphongkham.entities.ChuyenKhoa;
@@ -287,6 +286,35 @@ public class BacSiController {
 		response.put("success", success ? "true" : "false");
 		return ResponseEntity.ok(response);
 	}
+
+	@GetMapping("/bacsi/xemlichhen/data")
+	@ResponseBody
+	public List<SlotDTO> getLichHenRealTime(
+	        @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+	    if (date == null) {
+	        date = LocalDate.now(); // Mặc định ngày hiện tại nếu không có
+	    }
+
+	    String nguoiDungId = getNguoiDungId(); // Lấy từ session hoặc token
+	    BacSi bacSi = bacSiService.findByNguoiDungId(nguoiDungId);
+	    String bacSiId = bacSi.getBacSiId();
+
+	    // Lấy lịch khám của bác sĩ theo ngày
+	    List<LichKhamBenh> lichKhamList = lichKhamBenhService.getLichKhamByBacSiAndDate(bacSiId, date);
+
+	    // Chuẩn bị danh sách slot trả về
+	    List<SlotDTO> result = new ArrayList<>();
+	    for (LichKhamBenh lichKham : lichKhamList) {
+	        List<SlotThoiGian> slotList = lichKhamBenhService.getSlotThoiGianByLichKham(lichKham.getMaLichKhamBenh());
+	        for (SlotThoiGian slot : slotList) {
+	            result.add(new SlotDTO(slot.getSlotId(), slot.getThoiGianBatDau(), slot.getTrangThai()));
+	        }
+	    }
+
+	    return result;
+	}
+
 
 	
 	@GetMapping("/bacsi/quanlytaodonthuoc")

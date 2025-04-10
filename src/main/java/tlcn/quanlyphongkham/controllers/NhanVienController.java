@@ -467,16 +467,23 @@ public class NhanVienController {
 	                // Kiểm tra trạng thái
 	                String trangThai = slot.getTrangThai();
 	                if ("checked-in".equals(trangThai)) {
-	                    dto.setTrangThai("Đã đến khám");
+	                    dto.setTrangThai("Đang khám");
+	                } else if ("pending".equals(trangThai)) {
+	                    dto.setTrangThai("Đang chờ");
+	                } else if ("completed".equals(trangThai)) {
+	                    dto.setTrangThai("Đã khám xong");
+	                } else if ("cancelled".equals(trangThai)) {
+	                    dto.setTrangThai("Đã hủy");
 	                } else if (trangThai != null && !trangThai.isBlank()) {
 	                    dto.setTrangThai("Đã đặt");
 	                } else {
 	                    dto.setTrangThai("Chưa đặt");
 	                }
 
+
 	                // Lấy thông tin bệnh nhân nếu slot đã được đặt
-	                if (("Đã đặt".equals(dto.getTrangThai()) || "Đã đến khám".equals(dto.getTrangThai())) && slot.getBenhNhan() != null) {
-	                    BenhNhan benhNhan = slot.getBenhNhan();
+	                if ((List.of("Đã đặt", "Đã khám xong", "Đang khám","Đang chờ","Đã hủy").contains(dto.getTrangThai())) && slot.getBenhNhan() != null) {
+ 	                    BenhNhan benhNhan = slot.getBenhNhan();
 	                    dto.setTenBenhNhan(benhNhan.getTen() != null ? benhNhan.getTen() : "Không xác định");
 	                    dto.setSoDienThoai(benhNhan.getDienThoai() != null ? benhNhan.getDienThoai() : "Không xác định");
 	                } else {
