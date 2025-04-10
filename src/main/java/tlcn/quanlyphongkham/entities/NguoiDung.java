@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,8 +39,10 @@ public class NguoiDung implements Serializable {
     private String token;
     
     @OneToMany(mappedBy = "nguoiDung", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<BacSi> bacSis;
 
     @OneToMany(mappedBy = "nguoiDung", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<BenhNhan> benhNhans;
 }

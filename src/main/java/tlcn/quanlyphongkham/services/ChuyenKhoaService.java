@@ -41,7 +41,9 @@ public class ChuyenKhoaService {
 		return chuyenKhoaRepository.getChuyenKhoaBychuyenKhoaId(chuyenKhoaId);
 	}
 
-	
+    public ChuyenKhoa findById(String chuyenKhoaId) {
+        return chuyenKhoaRepository.findById(chuyenKhoaId).orElse(null);
+    }
 
    
 }

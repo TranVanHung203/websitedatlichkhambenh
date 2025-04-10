@@ -116,8 +116,12 @@ public class LichKhamBenhService {
 	}
 
 	public List<LichKhamBenh> findByBacSiAndNgay(BacSi bacSi, LocalDate ngay) {
-		// TODO Auto-generated method stub
+
 		return lichKhamBenhRepository.findByBacSiAndNgayThangNam(bacSi, ngay);
+	}
+
+	public List<LichKhamBenh> getLichKhamBenhByBacSi(String doctorId) {
+		return lichKhamBenhRepository.findByBacSi_BacSiId(doctorId);
 	}
 
 	

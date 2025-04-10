@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,6 +20,7 @@ public class ChiTietBacSi implements Serializable {
 
     @OneToOne
     @JoinColumn(name = "bac_si_id", nullable = false)
+    @JsonIgnore
     private BacSi bacSi;
 
     @Column(name = "bang_cap", length = 255,columnDefinition = "nvarchar(500)")

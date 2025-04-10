@@ -30,7 +30,10 @@ public class BacSiService {
 	private ChuyenKhoaRepository chuyenKhoaRepository; // Thay đổi này
 	@Autowired
 	private ChiTietBacSiRepository chiTietBacSiRepository; // Thay đổi này
-
+	
+	public List<BacSi> getDoctorsByChuyenKhoa(String chuyenKhoaId) {
+        return bacSiRepository.findByChuyenKhoaChuyenKhoaId(chuyenKhoaId);
+    }
 	public List<BacSi> getAllDoctors() {
 		return bacSiRepository.findAll();
 	}
@@ -214,5 +217,7 @@ public class BacSiService {
 		// TODO Auto-generated method stub
 		return bacSiRepository.findByNguoiDung_NguoiDungId(nguoiDungId);
 	}
+
+	
 
 }

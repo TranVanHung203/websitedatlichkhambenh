@@ -5,13 +5,17 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
+import tlcn.quanlyphongkham.dtos.LichBacSiDTO;
+import tlcn.quanlyphongkham.dtos.LichKhamBenhDTO;
 import tlcn.quanlyphongkham.dtos.MaLichKhamBenhDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.BenhNhan;
@@ -199,9 +205,21 @@ public class NhanVienController {
 	}
 
 	@GetMapping("/nhanvien/dangkylichkham/buoc4")
-	public String showPatientForm(Model model) {
+	public String showPatientForm(@RequestParam(value = "doctorId", required = false) String doctorId,
+			@RequestParam(value = "date", required = false) String date,
+			@RequestParam(value = "ca", required = false) String ca,
+			@RequestParam(value = "startTime", required = false) String startTime, Model model) {
+
+		// Tạo đối tượng BenhNhan để binding với form
 		model.addAttribute("benhNhan", new BenhNhan());
-		return "/nhanvien/dangkylichkhamchobenhnhan/dkbuoc4"; // View name phải khớp với tên tệp
+
+		// Truyền các tham số vào model để sử dụng trong view
+		model.addAttribute("doctorId", doctorId);
+		model.addAttribute("selectedDate", date);
+		model.addAttribute("selectedCa", ca);
+		model.addAttribute("selectedTime", startTime);
+
+		return "/nhanvien/dangkylichkhamchobenhnhan/dkbuoc4";
 	}
 
 	@PostMapping("/nhanvien/dangkylichkham/confirm")
@@ -290,4 +308,245 @@ public class NhanVienController {
 		}
 	}
 
+//	@GetMapping("/nhanvien/xemlichbacsi")
+//	public String viewDoctorSchedule(Model model) {
+//	    try {
+//	        List<BacSi> bacSiList = bacSiService.getAllDoctors();
+//	        if (bacSiList == null) {
+//	            model.addAttribute("errorMessage", "Không thể tải danh sách bác sĩ.");
+//	            return "error";
+//	        }
+//	        model.addAttribute("bacSiList", bacSiList);
+//	        return "nhanvien/xemlichbacsi/xemlichbacsi";
+//	    } catch (Exception e) {
+//	        e.printStackTrace();
+//	        model.addAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
+//	        return "error";
+//	    }
+//	}
+//
+//
+//	@GetMapping("/nhanvien/xemlichbacsi/schedule")
+//	@ResponseBody
+//	public List<LichBacSiDTO> getDoctorScheduleSlots(
+//	        @RequestParam("doctorId") String doctorId,
+//	        @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+//
+//	    BacSi bacSi = bacSiService.findById(doctorId);
+//	    if (bacSi == null) {
+//	        return Collections.emptyList();
+//	    }
+//
+//	    List<LichKhamBenh> lichList = lichKhamBenhService.getLichKhamBenhByBacSi(doctorId);
+//
+//	    if (date != null) {
+//	        lichList = lichList.stream()
+//	                .filter(lich -> lich.getNgayThangNam().isEqual(date))
+//	                .collect(Collectors.toList());
+//	    }
+//
+//	    List<LichBacSiDTO> result = new ArrayList<>();
+//
+//	    for (LichKhamBenh lich : lichList) {
+//	        for (SlotThoiGian slot : lich.getSlotThoiGian()) {
+//	            String trangThai = (slot.getTrangThai() != null && !slot.getTrangThai().trim().isEmpty())
+//	                    ? "Đã đặt" : "Chưa đặt";
+//
+//	            LichBacSiDTO dto = new LichBacSiDTO();
+//	            dto.setNgayThangNam(lich.getNgayThangNam());
+//	            dto.setCaKham(lich.getCa());
+//	            dto.setThoiGianBatDau(slot.getThoiGianBatDau().toString());
+//	            dto.setThoiGianKetThuc(slot.getThoiGianKetThuc().toString());
+//	            dto.setTrangThai(trangThai);
+//
+//	            result.add(dto);
+//	        }
+//	    }
+//
+//	    result.sort(Comparator
+//	        .comparingInt((LichBacSiDTO dto) -> getCaPriority(dto.getCaKham()))
+//	        .thenComparing(dto -> LocalTime.parse(dto.getThoiGianBatDau())));
+//
+//	    return result;
+//	}
+//
+//	private int getCaPriority(String ca) {
+//	    return switch (ca.toLowerCase()) {
+//	        case "sáng" -> 1;
+//	        case "chiều" -> 2;
+//	        case "ngoài giờ" -> 3;
+//	        default -> 4;
+//	    };
+//	}
+	@GetMapping("/nhanvien/xemlichbacsi")
+	public String viewDoctorSchedule(Model model) {
+		try {
+			// Lấy danh sách bác sĩ
+			List<BacSi> bacSiList = bacSiService.getAllDoctors();
+			if (bacSiList == null) {
+				model.addAttribute("errorMessage", "Không thể tải danh sách bác sĩ.");
+				return "error";
+			}
+
+			// Lấy danh sách chuyên khoa
+			List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa(); // Giả sử bạn có service này
+			if (chuyenKhoaList == null) {
+				model.addAttribute("errorMessage", "Không thể tải danh sách chuyên khoa.");
+				return "error";
+			}
+
+			model.addAttribute("bacSiList", bacSiList);
+			model.addAttribute("chuyenKhoaList", chuyenKhoaList);
+			return "nhanvien/xemlichbacsi/xemlichbacsi";
+		} catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
+			return "error";
+		}
+	}
+
+	@GetMapping("/nhanvien/xemlichbacsi/doctors-by-specialty")
+	@ResponseBody
+	public List<BacSi> getDoctorsBySpecialty1(@RequestParam("chuyenKhoaId") String chuyenKhoaId) {
+		ChuyenKhoa chuyenKhoa = chuyenKhoaService.findById(chuyenKhoaId); // Giả sử bạn có service này
+		if (chuyenKhoa == null) {
+			return Collections.emptyList();
+		}
+		return bacSiService.getDoctorsByChuyenKhoa(chuyenKhoaId); // Giả sử bạn có method này trong service
+	}
+
+	@GetMapping("/nhanvien/xemlichbacsi/schedule")
+	@ResponseBody
+	public List<LichBacSiDTO> getDoctorScheduleSlots(
+	        @RequestParam("doctorId") String doctorId,
+	        @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+	    BacSi bacSi = bacSiService.findById(doctorId);
+	    if (bacSi == null || date == null) {
+	        return Collections.emptyList();
+	    }
+
+	    // Lấy lịch khám theo bác sĩ và ngày
+	    List<LichKhamBenh> lichList = lichKhamBenhService.getLichKhamBenhByBacSi(doctorId).stream()
+	            .filter(lich -> lich.getNgayThangNam().isEqual(date))
+	            .collect(Collectors.toList());
+
+	    // Khung giờ mặc định
+	    Map<String, List<String>> timeFrames = Map.of(
+	        "Sáng", List.of("07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"),
+	        "Chiều", List.of("13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"),
+	        "Ngoài Giờ", List.of("17:00", "17:30", "18:00", "18:30", "19:00", "19:30")
+	    );
+
+	    List<LichBacSiDTO> result = new ArrayList<>();
+
+	    for (LichKhamBenh lich : lichList) {
+	        String ca = lich.getCa();
+	        List<String> timeList = timeFrames.getOrDefault(ca, new ArrayList<>());
+	        List<SlotThoiGian> existingSlots = lich.getSlotThoiGian();
+
+	        if (existingSlots == null || existingSlots.isEmpty()) {
+	            // Có ca nhưng chưa tạo slot nào
+	            LichBacSiDTO dto = new LichBacSiDTO();
+	            dto.setNgayThangNam(date);
+	            dto.setCaKham(ca);
+	            dto.setThoiGianBatDau("---");
+	            dto.setThoiGianKetThuc("---");
+	            dto.setTrangThai("Chưa có slot");
+	            dto.setTenBenhNhan("---");
+	            dto.setSoDienThoai("---");
+	            result.add(dto);
+	        } else {
+	            for (SlotThoiGian slot : existingSlots) {
+	                LichBacSiDTO dto = new LichBacSiDTO();
+	                dto.setNgayThangNam(date);
+	                dto.setCaKham(ca);
+	                dto.setThoiGianBatDau(slot.getThoiGianBatDau().toString());
+	                dto.setThoiGianKetThuc(slot.getThoiGianKetThuc().toString());
+
+	                // Kiểm tra trạng thái
+	                String trangThai = slot.getTrangThai();
+	                if ("checked-in".equals(trangThai)) {
+	                    dto.setTrangThai("Đã đến khám");
+	                } else if (trangThai != null && !trangThai.isBlank()) {
+	                    dto.setTrangThai("Đã đặt");
+	                } else {
+	                    dto.setTrangThai("Chưa đặt");
+	                }
+
+	                // Lấy thông tin bệnh nhân nếu slot đã được đặt
+	                if (("Đã đặt".equals(dto.getTrangThai()) || "Đã đến khám".equals(dto.getTrangThai())) && slot.getBenhNhan() != null) {
+	                    BenhNhan benhNhan = slot.getBenhNhan();
+	                    dto.setTenBenhNhan(benhNhan.getTen() != null ? benhNhan.getTen() : "Không xác định");
+	                    dto.setSoDienThoai(benhNhan.getDienThoai() != null ? benhNhan.getDienThoai() : "Không xác định");
+	                } else {
+	                    dto.setTenBenhNhan("---");
+	                    dto.setSoDienThoai("---");
+	                }
+
+	                // Lưu slotId để sử dụng khi check-in
+	                dto.setSlotId(slot.getSlotId());
+
+	                result.add(dto);
+	            }
+	        }
+	    }
+
+	    // Sắp xếp theo thứ tự ca, trạng thái (ưu tiên "Đã đến khám"), và thời gian
+	    result.sort(Comparator
+	        .comparingInt((LichBacSiDTO dto) -> getCaPriority(dto.getCaKham()))
+	        .thenComparing((LichBacSiDTO dto) -> "Đã đến khám".equals(dto.getTrangThai()) ? 0 : 1) // Ưu tiên "Đã đến khám"
+	        .thenComparing(dto -> {
+	            try {
+	                return LocalTime.parse(dto.getThoiGianBatDau());
+	            } catch (Exception e) {
+	                return LocalTime.MIN;
+	            }
+	        }));
+
+	    return result;
+	}
+
+	private int getCaPriority(String ca) {
+	    return switch (ca.toLowerCase()) {
+	        case "sáng" -> 1;
+	        case "chiều" -> 2;
+	        case "ngoài giờ" -> 3;
+	        default -> 4;
+	    };
+	}
+	@PostMapping("/nhanvien/xemlichbacsi/checkin")
+	@ResponseBody
+	public ResponseEntity<Map<String, String>> checkInPatient(@RequestParam("slotId") String slotId) {
+	    Map<String, String> response = new HashMap<>();
+	    try {
+	        // Tìm slot theo slotId
+	        SlotThoiGian slot = slotThoiGianService.findById(slotId);
+	        if (slot == null) {
+	            response.put("status", "error");
+	            response.put("message", "Không tìm thấy slot!");
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+	        }
+
+	        // Kiểm tra trạng thái hiện tại
+	        if (!"Đã đặt".equals(slot.getTrangThai()) && !"pending".equals(slot.getTrangThai())) {
+	            response.put("status", "error");
+	            response.put("message", "Slot không ở trạng thái có thể check-in!");
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	        }
+
+	        // Cập nhật trạng thái
+	        slot.setTrangThai("checked-in");
+	        slotThoiGianService.save(slot);
+
+	        response.put("status", "success");
+	        response.put("message", "Check-in thành công!");
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        response.put("status", "error");
+	        response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	    }
+	}
+	
 }
