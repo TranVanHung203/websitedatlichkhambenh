@@ -1,5 +1,6 @@
 package tlcn.quanlyphongkham.services;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -91,7 +92,7 @@ public class DonThuocService {
 
 	@Transactional
 	public void updateDonThuoc(Long donThuocId, String hoSoId, String chanDoan, String benhNhanId, List<Long> drugIds,
-	                           List<String> lieu, List<String> tanSuat, List<Integer> soLuong, List<Long> removedDrugIds) {
+	                           List<String> lieu, List<String> tanSuat, List<Integer> soLuong, List<Long> removedDrugIds,String trieuChung) {
 	    // 1. Lấy đơn thuốc từ cơ sở dữ liệu
 	    DonThuoc donThuoc = donThuocRepository.findById(donThuocId)
 	            .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn thuốc với ID: " + donThuocId));
@@ -118,6 +119,9 @@ public class DonThuocService {
 	        hoSoBenh.setChanDoan(chanDoan);
 	    }
 
+	    if (trieuChung != null && !trieuChung.isEmpty() && hoSoBenh != null) {
+	        hoSoBenh.setTrieuChung(trieuChung);
+	    }
 	    // 5. Xử lý các thuốc bị loại bỏ
 	    if (removedDrugIds != null && !removedDrugIds.isEmpty()) {
 	        List<DonThuocThuoc> drugsToRemove = donThuoc.getDonThuocThuocs().stream()
@@ -190,6 +194,16 @@ public class DonThuocService {
 
 	    // 8. Lưu đơn thuốc
 	    donThuocRepository.save(donThuoc);
+	}
+
+	public Page<DonThuoc> findByBenhNhanId(String benhNhanId, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return donThuocRepository.findByBenhNhanId(benhNhanId, pageable);
+	}
+
+	public Page<DonThuoc> findByBenhNhanIdAndDate(String benhNhanId, LocalDate filterDate, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return donThuocRepository.findByBenhNhanIdAndDate(benhNhanId, filterDate, pageable);
 	}
 
 

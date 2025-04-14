@@ -110,4 +110,20 @@ button.disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }
+ .history-chat-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    margin-left: 8px;
+    font-size: 0.9em;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .history-chat-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+  }
 

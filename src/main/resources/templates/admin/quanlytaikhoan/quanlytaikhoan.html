@@ -2,184 +2,185 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link th:href="@{/css/quanlytaikhoan.css}" rel="stylesheet">
-    <link th:href="@{/css/headeradmin.css}" rel="stylesheet">
-    <link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin Dashboard</title>
+	<link th:href="@{/css/quanlytaikhoan.css}" rel="stylesheet">
+	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
+	<link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
 
-    <!-- SweetAlert2 for beautiful popups -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<!-- SweetAlert2 for beautiful popups -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
 
-    <div th:replace="admin/fragments/header :: header"></div>
-    <div th:replace="admin/fragments/sidebar :: sidebar"></div>
+	<div th:replace="admin/fragments/header :: header"></div>
+	<div th:replace="admin/fragments/sidebar :: sidebar"></div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <h1>Quản lý tài khoản người dùng</h1>
+	<!-- Main Content -->
+	<div class="main-content">
+		<h1>Quản lý tài khoản người dùng</h1>
 
-        <!-- Search Box -->
-        <form action="#" th:action="@{/admin/qltk}" method="get">
-            <input type="text" id="searchInput" name="search" placeholder="Tìm kiếm tài khoản người dùng..." 
-                   th:value="${search}" onkeyup="filterTable()" autocomplete="off" />
-           
-        </form>
- <button class="btn-add" onclick="window.location.href='/admin/qltk/add'">Add New User</button>
-        <!-- User Table -->
-        <table id="userTable">
-            <thead>
-                <tr>
-                    <th>Email</th>
-                    <th>Tên đăng nhập</th>
-                    <th>Vai trò</th>
-                    <th>Trạng thái</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="nguoiDung : ${nguoiDungPage.content}" th:data-nguid="${nguoiDung.nguoiDungId}">
-                    <td><input type="text" th:value="${nguoiDung.email}" readonly /></td>
-                    <td><input type="text" th:value="${nguoiDung.tenDangNhap}" readonly /></td>
-                    <td>
-                        <select disabled>
-                            <option th:value="'Admin'" th:text="'Admin'" th:selected="${nguoiDung.vaiTro == 'Admin'}"></option>
-                            <option th:value="'Bác sĩ'" th:text="'Bác sĩ'" th:selected="${nguoiDung.vaiTro == 'BacSi'}"></option>
-                            <option th:value="'Bệnh nhân'" th:text="'Bệnh nhân'" th:selected="${nguoiDung.vaiTro == 'BenhNhan'}"></option>
-                            <option th:value="'Nhân Viên'" th:text="'Nhân Viên'" th:selected="${nguoiDung.vaiTro == 'NhanVien'}"></option>
-                        </select>
-                    </td>
-                    <td>
-                        <select disabled>
-                            <option th:value="'ACTIVE'" th:text="'Kích hoạt'" th:selected="${nguoiDung.trangthai == 'ACTIVE'}"></option>
-                            <option th:value="'INACTIVE'" th:text="'Chưa kích hoạt'" th:selected="${nguoiDung.trangthai == null or nguoiDung.trangthai == 'INACTIVE'}"></option>
-                        </select>
-                    </td>
-                    <td>
-                        <button class="btn-edit" onclick="toggleEdit(this)">Edit</button>
-                        <button class="btn-delete" onclick="deleteUser(this)">Delete</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+		<!-- Search Box -->
+		<form action="#" th:action="@{/admin/qltk}" method="get">
+			<input type="text" id="searchInput" name="search" placeholder="Tìm kiếm tài khoản người dùng..."
+				th:value="${search}" onkeyup="filterTable()" autocomplete="off" />
 
-        <!-- Pagination -->
-        <div class="pagination">
-            <span th:if="${currentPage > 1}">
-                <a th:href="@{/admin/qltk(page=${currentPage - 1}, search=${search})}">Previous</a>
-            </span>
+		</form>
+		<button class="btn-add" onclick="window.location.href='/admin/qltk/add'">Add New User</button>
+		<!-- User Table -->
+		<table id="userTable">
+			<thead>
+				<tr>
+					<th>Email</th>
+					<th>Tên đăng nhập</th>
+					<th>Vai trò</th>
+					<th>Trạng thái</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="nguoiDung : ${nguoiDungPage.content}" th:data-nguid="${nguoiDung.nguoiDungId}">
+					<td><input type="text" th:value="${nguoiDung.email}" readonly /></td>
+					<td><input type="text" th:value="${nguoiDung.tenDangNhap}" readonly /></td>
+					<td>
+						<select disabled>
+							<option th:value="'Admin'" th:text="'Admin'" th:selected="${nguoiDung.vaiTro == 'Admin'}">
+							</option>
+							<option th:value="'Bác sĩ'" th:text="'Bác sĩ'" th:selected="${nguoiDung.vaiTro == 'BacSi'}">
+							</option>
+							<option th:value="'Bệnh nhân'" th:text="'Bệnh nhân'"
+								th:selected="${nguoiDung.vaiTro == 'BenhNhan'}"></option>
+							<option th:value="'Nhân Viên'" th:text="'Nhân Viên'"
+								th:selected="${nguoiDung.vaiTro == 'NhanVien'}"></option>
+						</select>
+					</td>
+					<td>
+						<select disabled>
+							<option th:value="'ACTIVE'" th:text="'Kích hoạt'"
+								th:selected="${nguoiDung.trangthai == 'ACTIVE'}"></option>
+							<option th:value="'INACTIVE'" th:text="'Chưa kích hoạt'"
+								th:selected="${nguoiDung.trangthai == null or nguoiDung.trangthai == 'INACTIVE'}">
+							</option>
+						</select>
+					</td>
+					<td>
+						<button class="btn-edit" onclick="toggleEdit(this)">Edit</button>
+						<button class="btn-delete" onclick="deleteUser(this)">Delete</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 
-            <!-- Page Numbers -->
-            <span th:each="i : ${#numbers.sequence(1, totalPages)}">
-                <a th:href="@{/admin/qltk(page=${i}, search=${search})}" 
-                   th:text="${i}" 
-                   class="page-number" 
-                   th:classappend="${i == currentPage} ? 'active' : ''">
-                </a>
-            </span>
+		<!-- Pagination -->
+		<div th:if="${totalPages > 1}" class="pagination">
+			<a th:if="${currentPage > 1}" th:href="@{/admin/qltk(page=${currentPage - 1}, search=${search})}"
+				class="prev">Trang trước</a>
 
-            <span th:if="${currentPage < totalPages}">
-                <a th:href="@{/admin/qltk(page=${currentPage + 1}, search=${search})}">Next</a>
-            </span>
-        </div>
-    </div>
+			<span th:each="i : ${#numbers.sequence(startPage, endPage)}">
+				<a th:href="@{/admin/qltk(page=${i}, search=${search})}" th:text="${i}"
+					th:classappend="${i == currentPage ? 'active' : ''}"></a>
+			</span>
 
-    <script>
-        // JavaScript to filter table based on search input
-        function filterTable() {
-            var input, filter, table, tr, td, i, j, txtValue;
-            input = document.getElementById("searchInput");
-            filter = input.value.toLowerCase();
-            table = document.getElementById("userTable");
-            tr = table.getElementsByTagName("tr");
+			<a th:if="${currentPage < totalPages}" th:href="@{/admin/qltk(page=${currentPage + 1}, search=${search})}"
+				class="next">Trang sau</a>
+		</div>
+	</div>
 
-            for (i = 1; i < tr.length; i++) { // Start from 1 to skip the table header
-                tr[i].style.display = "none"; // Initially hide the row
-                td = tr[i].getElementsByTagName("td");
-                for (j = 0; j < td.length; j++) {
-                    if (td[j]) {
-                        txtValue = td[j].textContent || td[j].innerText;
-                        if (txtValue.toLowerCase().indexOf(filter) > -1) {
-                            tr[i].style.display = ""; // Show the row if a match is found
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+	<script>
+		// JavaScript to filter table based on search input
+		function filterTable() {
+			var input, filter, table, tr, td, i, j, txtValue;
+			input = document.getElementById("searchInput");
+			filter = input.value.toLowerCase();
+			table = document.getElementById("userTable");
+			tr = table.getElementsByTagName("tr");
 
-        // Edit/Save functionality
-        function toggleEdit(button) {
-            var row = button.closest('tr');
-            var inputs = row.querySelectorAll('input');
-            var selectBoxes = row.querySelectorAll('select');
+			for (i = 1; i < tr.length; i++) { // Start from 1 to skip the table header
+				tr[i].style.display = "none"; // Initially hide the row
+				td = tr[i].getElementsByTagName("td");
+				for (j = 0; j < td.length; j++) {
+					if (td[j]) {
+						txtValue = td[j].textContent || td[j].innerText;
+						if (txtValue.toLowerCase().indexOf(filter) > -1) {
+							tr[i].style.display = ""; // Show the row if a match is found
+							break;
+						}
+					}
+				}
+			}
+		}
 
-            var nguoiDungId = row.getAttribute('data-nguid');
+		// Edit/Save functionality
+		function toggleEdit(button) {
+			var row = button.closest('tr');
+			var inputs = row.querySelectorAll('input');
+			var selectBoxes = row.querySelectorAll('select');
 
-            // Check if we're in edit mode or save mode
-            if (button.innerText === "Edit") {
-                // Store original values as data attributes on the row element
-                row.dataset.originalEmail = inputs[0].value;
-                row.dataset.originalTenDangNhap = inputs[1].value;
-                row.dataset.originalTrangThai = selectBoxes[1].value;
+			var nguoiDungId = row.getAttribute('data-nguid');
 
-                // Enable editing of fields except role (vaiTro)
-                button.innerText = "Lưu";
-                inputs.forEach(input => input.removeAttribute('readonly'));
-                selectBoxes[1].removeAttribute('disabled'); // Enable 'trangthai' (status), keep 'vaiTro' disabled
-            } else {
-                // Save changes
-                button.innerText = "Edit";
-                inputs.forEach(input => input.setAttribute('readonly', true));
-                selectBoxes[1].setAttribute('disabled', true); // Disable 'trangthai' again
+			// Check if we're in edit mode or save mode
+			if (button.innerText === "Edit") {
+				// Store original values as data attributes on the row element
+				row.dataset.originalEmail = inputs[0].value;
+				row.dataset.originalTenDangNhap = inputs[1].value;
+				row.dataset.originalTrangThai = selectBoxes[1].value;
 
-                var email = inputs[0].value;
-                var tenDangNhap = inputs[1].value;
-                var trangThai = selectBoxes[1].value;
+				// Enable editing of fields except role (vaiTro)
+				button.innerText = "Lưu";
+				inputs.forEach(input => input.removeAttribute('readonly'));
+				selectBoxes[1].removeAttribute('disabled'); // Enable 'trangthai' (status), keep 'vaiTro' disabled
+			} else {
+				// Save changes
+				button.innerText = "Edit";
+				inputs.forEach(input => input.setAttribute('readonly', true));
+				selectBoxes[1].setAttribute('disabled', true); // Disable 'trangthai' again
 
-                var userData = {
-                    nguoiDungId: nguoiDungId,
-                    email: email,
-                    tenDangNhap: tenDangNhap,
-                    trangthai: trangThai
-                };
+				var email = inputs[0].value;
+				var tenDangNhap = inputs[1].value;
+				var trangThai = selectBoxes[1].value;
 
-                // Send data to the server
-                fetch('/admin/qltk/update', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(userData)
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Thành công!',
-                                text: 'Cập nhật thành công!',
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                        } else {
-                            // On failure, revert the fields to the original values
-                            inputs[0].value = row.dataset.originalEmail;
-                            inputs[1].value = row.dataset.originalTenDangNhap;
-                            selectBoxes[1].value = row.dataset.originalTrangThai;
+				var userData = {
+					nguoiDungId: nguoiDungId,
+					email: email,
+					tenDangNhap: tenDangNhap,
+					trangthai: trangThai
+				};
 
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi!',
-                                text: 'Không thể cập nhật người dùng!',
-                            });
-                        }
-                    });
-            }
-        }
-        function deleteUser(button) {
+				// Send data to the server
+				fetch('/admin/qltk/update', {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(userData)
+				})
+					.then(response => {
+						if (response.ok) {
+							Swal.fire({
+								icon: 'success',
+								title: 'Thành công!',
+								text: 'Cập nhật thành công!',
+								timer: 1500,
+								showConfirmButton: false
+							});
+						} else {
+							// On failure, revert the fields to the original values
+							inputs[0].value = row.dataset.originalEmail;
+							inputs[1].value = row.dataset.originalTenDangNhap;
+							selectBoxes[1].value = row.dataset.originalTrangThai;
+
+							Swal.fire({
+								icon: 'error',
+								title: 'Lỗi!',
+								text: 'Không thể cập nhật người dùng!',
+							});
+						}
+					});
+			}
+		}
+		function deleteUser(button) {
 			var row = button.closest('tr');
 			var userId = row.getAttribute('data-nguid');
 
@@ -214,7 +215,8 @@
 				}
 			});
 		}
-    </script>
+	</script>
 
 </body>
+
 </html>

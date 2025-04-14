@@ -1,208 +1,139 @@
+
+
 /* Main Content Styles */
 .main-content {
-	margin-left: 230px;
-	padding: 20px;
-	padding-top: 80px; /* to avoid overlapping with the header */
-	width: calc(100% - 250px);
+    margin-left: 230px;
+    padding: 20px;
+    padding-top: 80px; /* to avoid overlapping with the header */
+    width: calc(100% - 250px);
 }
 
 h1 {
-    text-align: left;
+    text-align: center;
     color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
 }
 
 button {
-	margin-top: 30px;
-	margin-bottom: 20px;
-	padding: 20px 20px;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	transition: background-color 0.3s, transform 0.2s;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 .btn-add {
-	background-color: #28a745;
-	color: #fff;
-	float: right;
+    background-color: #28a745;
+    color: #fff;
+    float: right;
 }
 
 .btn-add:hover {
-	background-color: #218838;
-	transform: scale(1.05);
+    background-color: #218838;
+    transform: scale(1.05);
 }
 
 .btn-edit {
-	color: #007bff;
-	padding: 6px 12px;
-	background-color: #fff;
-	border: 1px solid #007bff;
-	border-radius: 4px;
-	transition: background-color 0.3s, color 0.3s, transform 0.2s;
-	text-decoration: none;
-	display: inline-block;
-	font-size: 12px; /* Chỉnh cỡ chữ nhỏ hơn */
+    color: #007bff;
+    padding: 6px 12px;
+    background-color: #fff;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    transition: background-color 0.3s, color 0.3s, transform 0.2s;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
 }
 
 .btn-edit:hover {
-	background-color: #007bff;
-	color: #fff;
-	transform: scale(1.05);
+    background-color: #007bff;
+    color: #fff;
+    transform: scale(1.05);
 }
 
 /* Table Styles */
 table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-top: 20px;
-	border: 1px solid #ddd;
-	table-layout: auto;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
 }
 
 table th,
 table td {
-	padding: 10px;
-	border: 1px solid #ddd;
-	vertical-align: middle;
-	font-size: 12px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    vertical-align: middle;
+    font-size: 14px;
+    text-align: center;
 }
 
-/* Căn giữa tiêu đề cột */
 table th {
-	background-color: #007bff;
-	color: #fff;
-	font-size: 12px;
-	text-align: center;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 14px;
 }
 
-/* Căn lề trái nội dung trong bảng */
 table td {
-	background-color: #fff;
-	color: #333;
-	font-size: 12px;
-	text-align: left;
+    color: #333;
 }
 
 table tr:nth-child(even) {
-	background-color: #f9f9f9;
+    background-color: #f9f9f9;
 }
 
 table tr:hover {
-	background-color: #f1f1f1;
+    background-color: #f1f1f1;
 }
 
-/* Điều chỉnh độ rộng từng cột */
-table th:nth-child(1), table td:nth-child(1) {
-	width: 10%; /* Tên */
+/* Avatar Styles */
+td img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s;
 }
 
-table th:nth-child(2), table td:nth-child(2) {
-	width: 5%; /* Giới tính */
+td img:hover {
+    transform: scale(1.1);
 }
-
-table th:nth-child(3), table td:nth-child(3) {
-	width: 7%; /* Ngày sinh */
-}
-
-table th:nth-child(4), table td:nth-child(4) {
-	width: 10%; /* Địa chỉ */
-}
-
-table th:nth-child(5), table td:nth-child(5) {
-	width: 7%; /* Số điện thoại */
-}
-
-table th:nth-child(6), table td:nth-child(6) {
-	width: 10%; /* Chuyên khoa */
-}
-
-table th:nth-child(7), table td:nth-child(7) {
-	width: 10%; /* Bằng cấp */
-}
-
-table th:nth-child(8), table td:nth-child(8) {
-	width: 10%; /* Hội nghị nước ngoài */
-}
-
-table th:nth-child(9), table td:nth-child(9) {
-	width: 10%; /* Chứng chỉ */
-}
-
-table th:nth-child(10), table td:nth-child(10) {
-	width: 10%; /* Đào tạo chuyên ngành */
-}
-
-table th:nth-child(11), table td:nth-child(11) {
-	width: 18%; /* Lĩnh vực chuyên sâu */
-}
-
-table th:nth-child(12), table td:nth-child(12) {
-	width: 7%; /* Hành động */
-}
-
-/* Pagination Styles */
 .pagination {
-	margin-top: 20px;
-	text-align: center;
-	font-size: 14px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+    position: fixed;
+    bottom: 20px;
+    left: 57%;
+    transform: translateX(-50%);
+    background: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
 .pagination a {
-	margin: 0 0px;
-	padding: 8px 12px;
-	text-decoration: none;
-	color: #007bff;
-	border-radius: 4px;
-	background-color: #fff;
-	transition: color 0.3s, background-color 0.3s, transform 0.2s;
-}
-
-.pagination span {
-	margin: 0 0px;
-	padding: 8px 12px;
-	text-decoration: none;
-	color: #007bff;
-	border-radius: 4px;
-	background-color: #fff;
-	transition: color 0.3s, background-color 0.3s, transform 0.2s;
-}
-
-.pagination a:hover,
-.pagination span:hover {
-	background-color: #f1f1f1;
-	border-color: #007bff;
-	color: #0056b3;
+    padding: 8px 12px;
+    margin: 0 5px;
+    text-decoration: none;
+    color: #007bff;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: all 0.3s;
 }
 
 .pagination a.active {
-	background-color: #007bff;
-	color: white;
-	font-weight: bold;
-	border: 1px solid #0056b3;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
 }
 
-.pagination a:active {
-	transform: scale(0.95);
+.pagination a:hover {
+    background-color: #0056b3;
+    color: white;
 }
 
-.pagination-container {
-	display: flex;
-	justify-content: center;
-	padding: 10px;
-	border: 1px solid #ddd;
-	border-radius: 5px;
-	background-color: #f9f9f9;
-}
-
-form {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-}
-
-form input {
-	font-size: 14px;
-}

@@ -9,13 +9,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,13 +37,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.persistence.criteria.Path;
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
 import tlcn.quanlyphongkham.dtos.BenhNhanOfTaoDonThuocDTO;
 import tlcn.quanlyphongkham.dtos.ChiTietBacSiDTO;
 import tlcn.quanlyphongkham.dtos.EditProfileBSDTO;
 import tlcn.quanlyphongkham.dtos.HoSoBenhDTO;
 import tlcn.quanlyphongkham.dtos.LichHenKhamDTO;
+import tlcn.quanlyphongkham.dtos.SlotDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.BenhNhan;
 import tlcn.quanlyphongkham.entities.ChuyenKhoa;
@@ -56,6 +56,7 @@ import tlcn.quanlyphongkham.entities.Thuoc;
 import tlcn.quanlyphongkham.security.CustomUserDetails;
 import tlcn.quanlyphongkham.services.AppointmentService;
 import tlcn.quanlyphongkham.services.BacSiService;
+import tlcn.quanlyphongkham.services.BenhNhanService;
 import tlcn.quanlyphongkham.services.ChuyenKhoaService;
 import tlcn.quanlyphongkham.services.DonThuocService;
 import tlcn.quanlyphongkham.services.HoSoBenhService;
@@ -80,6 +81,9 @@ public class BacSiController {
 	private ThuocService thuocService;
 	@Autowired
 	private DonThuocService donThuocService;
+	
+	@Autowired
+	private BenhNhanService benhNhanService;
 
 	public String getNguoiDungId() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -283,42 +287,89 @@ public class BacSiController {
 		return ResponseEntity.ok(response);
 	}
 
-	// Quản lý đơn thuốc theo bác sĩ
-	@GetMapping("/bacsi/quanlytaodonthuoc")
-	public String getAllPrescriptions(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "search", required = false) String search) {
+	@GetMapping("/bacsi/xemlichhen/data")
+	@ResponseBody
+	public List<SlotDTO> getLichHenRealTime(
+	        @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-		// Lấy id bác sĩ từ người dùng hiện tại
-		String nguoiDungId = getNguoiDungId();
-		BacSi bacSi = bacSiService.findByNguoiDungId(nguoiDungId);
-		String bacSiId = bacSi.getBacSiId(); // Lấy id bác sĩ từ thông tin bác sĩ
+	    if (date == null) {
+	        date = LocalDate.now(); // Mặc định ngày hiện tại nếu không có
+	    }
 
-		// Tạo Pageable để phân trang
-		Pageable pageable = PageRequest.of(page, 4);
+	    String nguoiDungId = getNguoiDungId(); // Lấy từ session hoặc token
+	    BacSi bacSi = bacSiService.findByNguoiDungId(nguoiDungId);
+	    String bacSiId = bacSi.getBacSiId();
 
-		// Tìm kiếm đơn thuốc theo bác sĩ và tên bệnh nhân nếu có từ search
-		Page<DonThuoc> donThuocPage;
-		if (search != null && !search.trim().isEmpty()) {
-		    donThuocPage = donThuocService.findByBacSiIdAndBenhNhanNameContaining(bacSiId, search.trim(), pageable);
-		} else {
-		    donThuocPage = donThuocService.getAllDonThuocByBacSiId(bacSiId, pageable);
-		}
+	    // Lấy lịch khám của bác sĩ theo ngày
+	    List<LichKhamBenh> lichKhamList = lichKhamBenhService.getLichKhamByBacSiAndDate(bacSiId, date);
 
-		// Xử lý dữ liệu đơn thuốc trước khi hiển thị
-		for (DonThuoc donThuoc : donThuocPage.getContent()) {
-			donThuoc.calculateTongTien();
-			donThuoc.setFormattedDate(
-					donThuoc.getHoSoBenh().getThoiGianTao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-		}
+	    // Chuẩn bị danh sách slot trả về
+	    List<SlotDTO> result = new ArrayList<>();
+	    for (LichKhamBenh lichKham : lichKhamList) {
+	        List<SlotThoiGian> slotList = lichKhamBenhService.getSlotThoiGianByLichKham(lichKham.getMaLichKhamBenh());
+	        for (SlotThoiGian slot : slotList) {
+	            result.add(new SlotDTO(slot.getSlotId(), slot.getThoiGianBatDau(), slot.getTrangThai()));
+	        }
+	    }
 
-		// Thêm dữ liệu vào model
-		model.addAttribute("donThuocs", donThuocPage.getContent());
-		model.addAttribute("currentPage", page);
-		model.addAttribute("totalPages", donThuocPage.getTotalPages());
-		model.addAttribute("search", search); // Để giữ lại giá trị tìm kiếm
-
-		return "bacsi/taodonthuoc/quanlytaodonthuoc";
+	    return result;
 	}
+
+
+	
+	@GetMapping("/bacsi/quanlytaodonthuoc")
+	public String getAllPrescriptions(Model model, 
+	        @RequestParam(value = "phone", required = false) String phone,
+	        @RequestParam(value = "filterDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate filterDate,
+	        @RequestParam(value = "page", defaultValue = "0") int page) {
+
+	    if (phone == null || phone.trim().isEmpty()) {
+	        // Nếu chưa nhập số điện thoại, không hiển thị thông tin
+	        model.addAttribute("donThuocs", Collections.emptyList());
+	        model.addAttribute("selectedBenhNhan", null);
+	        return "bacsi/taodonthuoc/quanlytaodonthuoc";
+	    }
+
+	    // Tìm bệnh nhân theo số điện thoại
+	    BenhNhan benhNhan = benhNhanService.findByPhone(phone.trim());
+	    if (benhNhan == null) {
+	        // Không tìm thấy bệnh nhân
+	        model.addAttribute("donThuocs", Collections.emptyList());
+	        model.addAttribute("selectedBenhNhan", null);
+	        model.addAttribute("errorMessage", "Không tìm thấy bệnh nhân với số điện thoại này.");
+	        return "bacsi/taodonthuoc/quanlytaodonthuoc";
+	    }
+
+	    // Thiết lập phân trang
+	    Pageable pageable = PageRequest.of(page, 4);
+	    
+	    // Lọc theo ngày tháng năm nếu có chọn
+	    Page<DonThuoc> donThuocPage;
+	    if (filterDate != null) {
+	        donThuocPage = donThuocService.findByBenhNhanIdAndDate(benhNhan.getBenhNhanId(), filterDate, pageable);
+	    } else {
+	        donThuocPage = donThuocService.findByBenhNhanId(benhNhan.getBenhNhanId(), pageable);
+	    }
+
+	    // Xử lý dữ liệu đơn thuốc trước khi hiển thị
+	    for (DonThuoc donThuoc : donThuocPage.getContent()) {
+	        donThuoc.calculateTongTien();
+	        donThuoc.setFormattedDate(
+	                donThuoc.getHoSoBenh().getThoiGianTao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+	    }
+
+	    // Thêm dữ liệu vào model
+	    model.addAttribute("selectedBenhNhan", benhNhan);
+	    model.addAttribute("donThuocs", donThuocPage.getContent());
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", donThuocPage.getTotalPages());
+	    model.addAttribute("phone", phone); // Giữ lại số điện thoại khi tìm kiếm
+	    model.addAttribute("filterDate", filterDate); // Giữ lại ngày lọc khi tìm kiếm
+
+	    return "bacsi/taodonthuoc/quanlytaodonthuoc";
+	}
+
+
 
 	@PostMapping("/bacsi/xoadonthuoc/{id}")
 	public String deletePrescription(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -356,6 +407,7 @@ public class BacSiController {
 	        @RequestParam("donThuocId") Long donThuocId,
 	        @RequestParam("hoSoId") String hoSoId,
 	        @RequestParam("chanDoan") String chanDoan,
+	        @RequestParam("trieuChung") String trieuChung,
 	        @RequestParam("benhNhanId") String benhNhanId,
 	        @RequestParam(value = "drugIds[]", required = false) List<Long> drugIds,
 	        @RequestParam(value = "lieu[]", required = false) List<String> lieu,
@@ -366,7 +418,7 @@ public class BacSiController {
 	    Map<String, String> response = new HashMap<>();
 	    try {
 	        // Gọi service để cập nhật đơn thuốc
-	        donThuocService.updateDonThuoc(donThuocId, hoSoId, chanDoan, benhNhanId, drugIds, lieu, tanSuat, soLuong, removedDrugIds);
+	        donThuocService.updateDonThuoc(donThuocId, hoSoId, chanDoan, benhNhanId, drugIds, lieu, tanSuat, soLuong, removedDrugIds,trieuChung);
 	        response.put("status", "success");
 	        response.put("message", "Cập nhật đơn thuốc thành công.");
 	        return ResponseEntity.ok(response);
@@ -397,6 +449,7 @@ public class BacSiController {
 	        @RequestParam("chanDoan") String chanDoan,
 	        @RequestParam("drugIds") List<Long> drugIds,
 	        @RequestParam("lieu") List<String> lieu,
+	        @RequestParam("trieuChung") String trieuChung,	
 	        @RequestParam("tanSuat") List<String> tanSuat,
 	        @RequestParam("soLuong") List<Integer> soLuong,
 	        @RequestParam("benhNhanId") String benhNhanId) {
@@ -422,6 +475,7 @@ public class BacSiController {
 	        hoSoBenh.setHoSoId(UUID.randomUUID().toString());
 	        hoSoBenh.setChanDoan(chanDoan);
 	        hoSoBenh.setBenhNhan(benhNhan);
+	        hoSoBenh.setTrieuChung(trieuChung);
 	        hoSoBenh.setBacSi(bacSi);
 	        hoSoBenhService.save(hoSoBenh);
 

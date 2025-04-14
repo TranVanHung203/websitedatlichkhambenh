@@ -19,10 +19,16 @@
 	<!-- Main Content -->
 	<div class="main-content">
 		<h1>Quản lý thuốc</h1>
-		<form th:action="@{/admin/qlt}" method="get" id="searchForm">
-			<input type="text" name="ten" id="searchInput" placeholder="Tìm kiếm thuốc theo tên"
+
+		<!-- Search Form -->
+		<form id="searchForm" method="get" th:action="@{/admin/qlt}">
+			<select id="searchType" name="searchType" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+				<option value="ten" th:selected="${searchQuery != ''}">Tìm theo tên thuốc</option>
+				<option value="nhaCungCap" th:selected="${searchNhaCungCap != ''}">Tìm theo nhà cung cấp</option>
+			</select>
+			<input type="text" id="searchInput" name="query" placeholder="Nhập từ khóa tìm kiếm"
 				style="padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px;"
-				th:value="${searchQuery}" />
+				th:value="${searchQuery != '' ? searchQuery : searchNhaCungCap}" />
 			<button type="submit" style="display:none;">Search</button>
 		</form>
 
@@ -38,7 +44,8 @@
 					<th>Tên</th>
 					<th>Mô Tả</th>
 					<th>Giá</th>
-					<th>Số Lượng</th> <!-- Thêm cột số lượng -->
+					<th>Số Lượng</th>
+					<th>Nhà Cung Cấp</th> <!-- Hiển thị Nhà Cung Cấp -->
 					<th>Thao Tác</th>
 				</tr>
 			</thead>
@@ -49,7 +56,7 @@
 					<td th:text="${thuoc.moTa}"></td>
 					<td th:text="${thuoc.gia} + ' VND'"></td>
 					<td th:text="${thuoc.soLuong != null ? thuoc.soLuong : 0}"></td>
-					<!-- Hiển thị 0 nếu soLuong là null -->
+					<td th:text="${thuoc.nhaCungCap}"></td>
 					<td>
 						<form th:action="@{/admin/edit-thuoc}" method="get" style="display:inline;">
 							<input type="hidden" name="thuocId" th:value="${thuoc.thuocId}" />
@@ -65,37 +72,49 @@
 			</tbody>
 		</table>
 
-
 		<!-- Thêm Thuốc Mới -->
 		<form th:action="@{/admin/add-thuoc}" method="get" style="display:inline;">
 			<button type="submit" class="btn-add">Thêm Thuốc Mới</button>
 		</form>
 
 		<!-- Pagination -->
-		<div th:if="${!noResults}" class="pagination">
-			<a th:if="${currentPage > 0}" th:href="@{/admin/qlt(page=${currentPage - 1}, ten=${searchQuery})}"
+		<div th:if="${totalPages > 1}" class="pagination">
+			<a th:if="${currentPage > 0}"
+				th:href="@{/admin/qlt(page=${currentPage - 1}, searchType=${searchQuery != '' ? 'ten' : 'nhaCungCap'}, query=${searchQuery != '' ? searchQuery : searchNhaCungCap})}"
 				class="prev">Trang trước</a>
 
-			<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-				<a th:href="@{/admin/qlt(page=${i}, ten=${searchQuery})}" th:text="${i + 1}"
-					th:classappend="${i == currentPage ? 'active' : ''}"></a>
+			<span th:each="i : ${#numbers.sequence(startPage, endPage)}">
+				<a th:href="@{/admin/qlt(page=${i}, searchType=${searchQuery != '' ? 'ten' : 'nhaCungCap'}, query=${searchQuery != '' ? searchQuery : searchNhaCungCap})}"
+					th:text="${i + 1}" th:classappend="${i == currentPage ? 'active' : ''}"></a>
 			</span>
 
 			<a th:if="${currentPage < totalPages - 1}"
-				th:href="@{/admin/qlt(page=${currentPage + 1}, ten=${searchQuery})}" class="next">Trang sau</a>
+				th:href="@{/admin/qlt(page=${currentPage + 1}, searchType=${searchQuery != '' ? 'ten' : 'nhaCungCap'}, query=${searchQuery != '' ? searchQuery : searchNhaCungCap})}"
+				class="next">Trang sau</a>
 		</div>
 	</div>
+
 	<script>
 		$(document).ready(function () {
 			$('#searchInput').on('input', function () {
 				var searchQuery = $(this).val();
-				var url = '/admin/qlt?ten=' + searchQuery + '&page=0'; // Reset to first page
+				var searchType = $('#searchType').val();
+				var url = '/admin/qlt?page=0';
 
-				// Perform AJAX request to fetch results
+				if (searchType === "ten") {
+					url += '&ten=' + searchQuery + '&nhaCungCap=';
+				} else {
+					url += '&nhaCungCap=' + searchQuery + '&ten=';
+				}
+
 				$.get(url, function (data) {
 					var content = $(data).find('.main-content').html();
-					$('.main-content').html(content); // Replace content with the new search results
+					$('.main-content').html(content);
 				});
+			});
+
+			$('#searchType').on('change', function () {
+				$('#searchInput').val('');
 			});
 		});
 	</script>

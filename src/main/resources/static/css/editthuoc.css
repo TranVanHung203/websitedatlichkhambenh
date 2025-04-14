@@ -1,83 +1,103 @@
+/* Định dạng tổng thể */
 * {
-    box-sizing: border-box; /* Đảm bảo padding và border nằm trong kích thước tổng thể */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
+    background-color: #f4f7f6;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
 }
 
-.main-content {
+/* Container chính */
+.container {
+    width: 100%;
+    max-width: 450px;
+    background: #ffffff;
     padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    width: 100%;
-}
-
-h1 {
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
+}
+
+/* Tiêu đề */
+h1 {
+    font-size: 24px;
     color: #333;
+    margin-bottom: 20px;
 }
 
+/* Form */
+.edit-form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ô nhập liệu */
 .form-group {
-    margin-bottom: 20px; /* Tăng khoảng cách giữa các trường */
+    text-align: left;
+    margin-bottom: 15px;
 }
 
-label {
-    display: block;
+.form-group label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
     margin-bottom: 5px;
-    color: #666;
-}
-
-input[type="text"],
-input[type="number"] {
-    width: 100%;
-    padding: 12px; /* Tăng padding để trường nhập liệu thoải mái hơn */
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px; /* Tăng kích thước font để dễ đọc hơn */
-}
-
-input:focus {
-    border-color: #28a745; /* Thay đổi màu border khi focus */
-    outline: none; /* Xóa viền mặc định */
-}
-
-.btn-update {
     display: block;
+}
+
+.form-group input,
+.form-group textarea {
     width: 100%;
-    padding: 12px; /* Tăng padding cho button */
-    background-color: #28a745;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+/* Nút cập nhật */
+.btn-update {
+    width: 100%;
+    background: #3498db;
     color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    padding: 12px;
     font-size: 16px;
-    transition: background-color 0.3s; /* Thêm hiệu ứng chuyển tiếp */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
 .btn-update:hover {
-    background-color: #218838;
+    background: #217dbb;
 }
 
+/* Nút quay lại */
 .btn-back {
     display: inline-block;
     margin-top: 10px;
-    text-align: center;
-    width: 100%;
     text-decoration: none;
-    color: #007bff;
-    font-size: 16px; /* Tăng kích thước font cho nút quay lại */
+    font-size: 14px;
+    color: #3498db;
+    font-weight: bold;
+    transition: 0.3s;
 }
 
 .btn-back:hover {
+    color: #217dbb;
     text-decoration: underline;
 }

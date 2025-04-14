@@ -47,4 +47,9 @@ public class  ThuocService {
     public Thuoc findThuocById(Long thuocId) {
         return thuocRepository.findById(thuocId).orElse(null);
     }
+
+	public Page<Thuoc> searchThuocsByNhaCungCapPaginated(String nhaCungCap, int page, int pageSize) {
+		// TODO Auto-generated method stub
+		return thuocRepository.findByNhaCungCapContaining(nhaCungCap, PageRequest.of(page, pageSize));
+	}
 }

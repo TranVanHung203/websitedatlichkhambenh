@@ -2,133 +2,213 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Quản Lý Đơn Thuốc</title>
-	<link th:href="@{/css/headerbacsi.css}" rel="stylesheet">
-	<link th:href="@{/css/quanlytaodonthuoc.css}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Đơn Thuốc</title>
+    <link th:href="@{/css/headerbacsi.css}" rel="stylesheet">
+    <link th:href="@{/css/quanlytaodonthuoc.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.10/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.10/dist/sweetalert2.all.min.js"></script>
+    <style>
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
 
-	<!-- Add SweetAlert CSS and JS -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.10/dist/sweetalert2.min.css">
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.10/dist/sweetalert2.all.min.js"></script>
+        .popup-overlay.show {
+            display: block;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto; /* Thêm thanh cuộn nếu nội dung dài */
+        }
+
+        .popup .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .popup h3 {
+            margin-top: 10px;
+        }
+
+        .popup table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .popup table th,
+        .popup table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .popup table th {
+            background-color: #f4f4f4;
+        }
+
+        .popup-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .popup-actions .edit-button,
+        .popup-actions form {
+            display: inline-block;
+        }
+
+        .popup-actions form {
+            margin: 0;
+        }
+
+        .popup-actions a, .popup-actions button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .popup-actions a:hover, .popup-actions button:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        function showDetails(id) {
+            document.getElementById('popup-' + id).style.display = 'block';
+            document.getElementById('overlay').classList.add('show');
+        }
+
+        function closePopup(id) {
+            document.getElementById('popup-' + id).style.display = 'none';
+            document.getElementById('overlay').classList.remove('show');
+        }
+    </script>
 </head>
 
 <body>
-	<div th:replace="bacsi/fragments/header :: header"></div>
+    <div th:replace="bacsi/fragments/header :: header"></div>
 
-	<h1>Quản Lý Đơn Thuốc</h1>
+    <div class="container">
+        <h1>Quản Lý Đơn Thuốc</h1>
 
-	<button class="create-button" onclick="window.location.href='/bacsi/taodonthuoc'">Tạo Đơn Thuốc</button>
-	<form method="get" th:action="@{/bacsi/quanlytaodonthuoc}">
-		<input type="text" name="search" placeholder="Nhập tên bệnh nhân cần tìm" th:value="${search}" />
-	</form>
+        <div class="search-filter">
+            <form method="get" th:action="@{/bacsi/quanlytaodonthuoc}">
+                <label for="phone">Nhập SĐT bệnh nhân:</label>
+                <input type="text" id="phone" name="phone" placeholder="Nhập số điện thoại..." th:value="${phone}" required>
+                
+                <label for="filter-date">Lọc theo ngày:</label>
+                <input type="date" id="filter-date" name="filterDate" th:value="${filterDate}">
+                
+                <button type="submit">Tìm Kiếm</button>
+            </form>
 
-	<!-- Kiểm tra nếu không có đơn thuốc -->
-	<div th:if="${#lists.isEmpty(donThuocs)}" class="no-results">
-		<p>Không tìm thấy thông tin bệnh nhân.</p>
-	</div>
+            <div class="create-prescription">
+                <a th:href="@{/bacsi/taodonthuoc}" class="btn-create">Tạo Đơn Thuốc</a>
+            </div>
+        </div>
 
-	<!-- Hiển thị bảng đơn thuốc -->
-	<div th:unless="${#lists.isEmpty(donThuocs)}">
-		<table>
-			<thead>
-				<tr>
-					<th>Bệnh Nhân</th>
-					<th>Chẩn Đoán</th>
-					<th>Thời Gian Tạo Đơn</th>
-					<th>Tên Thuốc</th>
-					<th>Liều Lượng</th>
-					<th>Tần Suất / lần</th>
-					<th>Số Lượng</th> <!-- Thêm cột tiêu đề -->
-					<th>Tổng Tiền Thuốc</th>
-					<th>Hành Động</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="donThuoc : ${donThuocs}">
-					<td th:text="${donThuoc.hoSoBenh.benhNhan.ten}"></td>
-					<td th:text="${donThuoc.hoSoBenh.chanDoan}"></td>
-					<td th:text="${donThuoc.formattedDate}"></td>
-					<td>
-						<ul>
-							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.thuoc.ten}"></li>
-						</ul>
-					</td>
-					<td>
-						<ul>
-							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.lieu}"></li>
-						</ul>
-					</td>
-					<td>
-						<ul>
-							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.tanSuat}"></li>
-						</ul>
-					</td>
-					<td>
-						<ul>
-							<!-- Hiển thị số lượng thuốc -->
-							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.soLuong}"></li>
-						</ul>
-					</td>
-					<td th:text="${donThuoc.formattedTongTienThuoc}"></td>
-					<td>
-						<form th:action="@{|/bacsi/xoadonthuoc/${donThuoc.donThuocId}|}" method="post">
-							<button type="submit"
-								onclick="return confirm('Bạn có chắc chắn muốn xóa đơn thuốc này?')">Xóa</button>
-						</form>
-						<a th:href="@{|/bacsi/capnhatdonthuoc?id=${donThuoc.donThuocId}|}" class="edit-button">Sửa</a>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+        <div class="content-wrapper" th:if="${selectedBenhNhan != null}">
+            <div class="patient-info">
+                <h2>Thông Tin Bệnh Nhân</h2>
+                <p><strong>Tên:</strong> <span th:text="${selectedBenhNhan.ten}"></span></p>
+                <p><strong>Ngày Sinh:</strong> <span th:text="${selectedBenhNhan.ngaySinh}"></span></p>
+                <p><strong>Giới Tính:</strong> <span th:text="${selectedBenhNhan.gioiTinh}"></span></p>
+                <p><strong>Địa Chỉ:</strong> <span th:text="${selectedBenhNhan.diaChi}"></span></p>
+                <p><strong>Số Điện Thoại:</strong> <span th:text="${selectedBenhNhan.dienThoai}"></span></p>
+            </div>
 
+            <div class="history" th:if="${not #lists.isEmpty(donThuocs)}">
+                <h2>Lịch Sử Đơn Thuốc</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ngày Khám</th>
+                            <th>Chẩn Đoán</th>
+                            <th>Bác Sĩ</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="donThuoc : ${donThuocs}">
+                            <td th:text="${donThuoc.formattedDate}"></td>
+                            <td th:text="${donThuoc.hoSoBenh.chanDoan}"></td>
+                            <td th:text="${donThuoc.hoSoBenh.bacSi.ten}"></td>
+                            <td>
+                                <button type="button" th:attr="onclick='showDetails(' + ${donThuoc.donThuocId} + ')'">Xem Chi Tiết</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-		<!-- Pagination -->
-		<div class="pagination">
-			<!-- Link đến trang trước -->
-			<span th:if="${currentPage > 0}">
-				<a
-					th:href="@{|/bacsi/quanlytaodonthuoc?page=${currentPage - 1}&search=${search != null ? search : ''}|}">Trang
-					Trước</a>
-			</span>
+        <div class="popup-overlay" id="overlay" onclick="closePopup()"></div>
 
-			<!-- Danh sách các trang -->
-			<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-				<a th:href="@{|/bacsi/quanlytaodonthuoc?page=${i}&search=${search != null ? search : ''}|}"
-					th:classappend="${i == currentPage} ? 'active' : ''" th:text="${i + 1}"></a>
-			</span>
+        <div th:each="donThuoc : ${donThuocs}" th:id="'popup-' + ${donThuoc.donThuocId}" class="popup">
+            <span class="close" th:attr="onclick='closePopup(' + ${donThuoc.donThuocId} + ')'">&times;</span>
+            <h2>Chi Tiết Đơn Thuốc</h2>
+            <p><strong>Ngày Khám:</strong> <span th:text="${donThuoc.formattedDate}"></span></p>
+            <p><strong>Chẩn Đoán:</strong> <span th:text="${donThuoc.hoSoBenh.chanDoan}"></span></p>
+            <p><strong>Bác Sĩ:</strong> <span th:text="${donThuoc.hoSoBenh.bacSi.ten}"></span></p>
 
-			<!-- Link đến trang sau -->
-			<span th:if="${currentPage < totalPages - 1}">
-				<a
-					th:href="@{|/bacsi/quanlytaodonthuoc?page=${currentPage + 1}&search=${search != null ? search : ''}|}">Trang
-					Sau</a>
-			</span>
-		</div>
-	</div>
-	<script>
-		// Hiển thị thông báo thành công
-		let successMessage = /*[[${successMessage}]]*/ null;
-		if (successMessage) {
-			Swal.fire({
-				icon: 'success',
-				title: 'Thành công!',
-				text: successMessage,
-				confirmButtonText: 'OK'
-			});
-		}
+            <h3>Thuốc Kê Đơn:</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tên Thuốc</th>
+                        <th>Liều Lượng</th>
+                        <th>Tần Suất</th>
+                        <th>Số Lượng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="thuoc : ${donThuoc.donThuocThuocs}">
+                        <td th:text="${thuoc.thuoc.ten}"></td>
+                        <td th:text="${thuoc.lieu}"></td>
+                        <td th:text="${thuoc.tanSuat}"></td>
+                        <td th:text="${thuoc.soLuong}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><strong>Tổng Tiền:</strong> <span th:text="${donThuoc.formattedTongTienThuoc}"></span></p>
 
-		// Hiển thị thông báo lỗi
-		let errorMessage = /*[[${errorMessage}]]*/ null;
-		if (errorMessage) {
-			Swal.fire({
-				icon: 'error',
-				title: 'Thất bại!',
-				text: errorMessage,
-				confirmButtonText: 'OK'
-			});
-		}
-	</script>
+            <div class="popup-actions">
+                <a th:href="@{|/bacsi/capnhatdonthuoc?id=${donThuoc.donThuocId}|}" class="edit-button">Sửa</a>
+                <form th:action="@{|/bacsi/xoadonthuoc/${donThuoc.donThuocId}|}" method="post">
+                    <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa đơn thuốc này?')">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

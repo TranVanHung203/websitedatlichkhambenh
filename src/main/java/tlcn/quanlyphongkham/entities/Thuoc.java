@@ -6,15 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,9 +18,6 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties({"donThuocThuocs"})
 @Table(name = "Thuoc")
 public class Thuoc implements Serializable {
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -47,6 +36,10 @@ public class Thuoc implements Serializable {
     
     @Column(name = "so_luong", nullable = false, columnDefinition = "int default 0")
     private int soLuong;
+
+    @Column(name = "nha_cung_cap", nullable = true, length = 100)
+    private String nhaCungCap;
+
 
     @OneToMany(mappedBy = "thuoc", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DonThuocThuoc> donThuocThuocs;

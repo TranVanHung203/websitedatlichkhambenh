@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+
 import tlcn.quanlyphongkham.dtos.LichKhamBenhDTO;
 import tlcn.quanlyphongkham.dtos.MaLichKhamBenhDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
@@ -114,6 +115,17 @@ public class LichKhamBenhService {
 		
 		return lichKhamBenhRepository.findById(chuyenKhoaId);
 	}
+
+	public List<LichKhamBenh> findByBacSiAndNgay(BacSi bacSi, LocalDate ngay) {
+
+		return lichKhamBenhRepository.findByBacSiAndNgayThangNam(bacSi, ngay);
+	}
+
+	public List<LichKhamBenh> getLichKhamBenhByBacSi(String doctorId) {
+		return lichKhamBenhRepository.findByBacSi_BacSiId(doctorId);
+	}
+
+
 
 	
 

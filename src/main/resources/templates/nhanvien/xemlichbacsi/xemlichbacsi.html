@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Xem Lịch Bác Sĩ</title>
+	<link rel="stylesheet" th:href="@{/css/xemlichbacsi.css}">
+	<link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
+</head>
+
+<body>
+	<!-- Header nhân viên -->
+	<div th:replace="~{nhanvien/fragments/header :: header}"></div>
+
+	<div class="container">
+		<!-- Thông báo tùy chỉnh -->
+		<div class="notification" id="notification" style="display: none;"></div>
+
+		<h1>Xem Lịch Làm Việc Của Bác Sĩ</h1>
+
+		<!-- Chọn chuyên khoa, bác sĩ và ngày -->
+		<div class="doctor-select">
+			<select id="chuyenKhoaSelect" onchange="loadDoctorsBySpecialty()">
+				<option value="">Chọn chuyên khoa</option>
+				<option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.chuyenKhoaId}"
+					th:text="${chuyenKhoa.ten}"></option>
+			</select>
+
+			<select id="doctorSelect" onchange="loadSchedule()">
+				<option value="">Chọn bác sĩ</option>
+			</select>
+
+			<input type="date" id="dateSelect" onchange="loadSchedule()" />
+		</div>
+
+		<!-- Phân trang theo ca khám -->
+		<div class="pagination-controls">
+			<!-- Nút phân trang sẽ hiển thị theo dữ liệu -->
+			<div id="paginationButtons"></div>
+		</div>
+
+		<!-- Bảng lịch khám -->
+		<table class="schedule-table" id="scheduleTable">
+			<thead>
+				<tr>
+					<th>Giờ bắt đầu</th>
+					<th>Giờ kết thúc</th>
+					<th>Trạng thái</th>
+					<th>Tên bệnh nhân</th>
+					<th>Số điện thoại</th>
+				</tr>
+			</thead>
+			<tbody id="scheduleBody">
+				<tr>
+					<td colspan="5" class="no-data">Vui lòng chọn chuyên khoa, bác sĩ và ngày để xem lịch</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<!-- Script -->
+	<script>
+		let fullScheduleData = [];
+		let availableCaList = [];
+
+		function loadDoctorsBySpecialty() {
+			const chuyenKhoaId = document.getElementById('chuyenKhoaSelect').value;
+			const doctorSelect = document.getElementById('doctorSelect');
+			const tbody = document.getElementById('scheduleBody');
+
+			doctorSelect.innerHTML = '<option value="">Đang tải...</option>';
+			tbody.innerHTML = '<tr><td colspan="5" class="no-data">Vui lòng chọn chuyên khoa, bác sĩ và ngày để xem lịch</td></tr>';
+
+			if (!chuyenKhoaId) {
+				doctorSelect.innerHTML = '<option value="">Chọn bác sĩ</option>';
+				return;
+			}
+
+			fetch('/nhanvien/xemlichbacsi/doctors-by-specialty?chuyenKhoaId=' + chuyenKhoaId)
+				.then(response => response.json())
+				.then(data => {
+					doctorSelect.innerHTML = '<option value="">Chọn bác sĩ</option>';
+					if (!Array.isArray(data) || data.length === 0) {
+						doctorSelect.innerHTML = '<option value="">Không có bác sĩ trong chuyên khoa này</option>';
+						return;
+					}
+					data.forEach(doctor => {
+						const option = document.createElement('option');
+						option.value = doctor.bacSiId;
+						option.textContent = doctor.ten;
+						doctorSelect.appendChild(option);
+					});
+				})
+				.catch(error => {
+					console.error('Lỗi:', error);
+					doctorSelect.innerHTML = '<option value="">Đã xảy ra lỗi khi tải danh sách bác sĩ</option>';
+				});
+		}
+
+		function loadSchedule() {
+			const doctorId = document.getElementById('doctorSelect').value;
+			const selectedDate = document.getElementById('dateSelect').value;
+			const tbody = document.getElementById('scheduleBody');
+
+			if (!doctorId || !selectedDate) {
+				tbody.innerHTML = '<tr><td colspan="5" class="no-data">Vui lòng chọn chuyên khoa, bác sĩ và ngày để xem lịch</td></tr>';
+				return;
+			}
+
+			fetch(`/nhanvien/xemlichbacsi/schedule?doctorId=${doctorId}&date=${selectedDate}`)
+				.then(response => response.json())
+				.then(data => {
+					fullScheduleData = data;
+					availableCaList = [...new Set(data.map(item => item.caKham))];
+					createPaginationButtons();
+					if (availableCaList.length > 0) {
+						showPage(availableCaList[0]);
+					} else {
+						tbody.innerHTML = '<tr><td colspan="5" class="no-data">Không có lịch khám cho bác sĩ trong ngày này</td></tr>';
+					}
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					tbody.innerHTML = '<tr><td colspan="5" class="no-data">Đã xảy ra lỗi khi tải lịch</td></tr>';
+				});
+		}
+
+		function createPaginationButtons() {
+			const paginationContainer = document.getElementById('paginationButtons');
+			paginationContainer.innerHTML = '';
+			availableCaList.forEach(ca => {
+				const button = document.createElement('button');
+				button.textContent = 'Ca ' + ca;
+				button.onclick = () => showPage(ca);
+				paginationContainer.appendChild(button);
+			});
+		}
+
+		function showPage(ca) {
+			const tbody = document.getElementById('scheduleBody');
+			tbody.innerHTML = '';
+
+			// Khung giờ mặc định cho từng ca
+			const khungGioCa = {
+				"Sáng": ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"],
+				"Chiều": ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"],
+				"Ngoài Giờ": ["17:00", "17:30", "18:00", "18:30", "19:00", "19:30"]
+			};
+
+			// Cập nhật trạng thái active cho các nút
+			const buttons = document.querySelectorAll('.pagination-controls button');
+			buttons.forEach(btn => {
+				btn.classList.toggle('active', btn.textContent === 'Ca ' + ca);
+			});
+
+			const timeSlots = khungGioCa[ca];
+			if (!timeSlots) {
+				tbody.innerHTML = `<tr><td colspan="5" class="no-data">Không có khung giờ mặc định cho ca ${ca}</td></tr>`;
+				return;
+			}
+
+			// Tạo map từ giờ bắt đầu -> thông tin slot
+			const slotMap = {};
+			fullScheduleData
+				.filter(item => item.caKham === ca && item.thoiGianBatDau !== "---")
+				.forEach(item => {
+					slotMap[item.thoiGianBatDau] = item;
+				});
+
+			// Lấy thông tin doctorId và date từ các input
+			const doctorId = document.getElementById('doctorSelect').value;
+			const selectedDate = document.getElementById('dateSelect').value;
+
+			// Duyệt qua khung giờ mặc định
+			for (let i = 0; i < timeSlots.length - 1; i++) {
+				const start = timeSlots[i];
+				const end = timeSlots[i + 1];
+				const slot = slotMap[start];
+
+				const row = document.createElement('tr');
+				if (slot) {
+					// Nếu đã có slot, hiển thị trạng thái và thông tin bệnh nhân
+					if (slot.trangThai === "Đã đặt"||slot.trangThai=="Đang chờ") {
+						row.innerHTML = `
+                        <td>${start}</td>
+                        <td>${end}</td>
+                        <td>
+                            ${slot.trangThai}
+                            <button class="checkin-btn" onclick="checkInPatient('${slot.slotId}', '${ca}')">
+                                Check-in
+                            </button>
+                        </td>
+                        <td>${slot.tenBenhNhan}</td>
+                        <td>${slot.soDienThoai}</td>
+                    `;
+					} else if (slot.trangThai === "Đã khám xong") {
+						row.innerHTML = `
+                        <td>${start}</td>
+                        <td>${end}</td>
+                        <td>
+                            <span class="checked-in">✅ ${slot.trangThai}</span>
+                        </td>
+                        <td>${slot.tenBenhNhan}</td>
+                        <td>${slot.soDienThoai}</td>
+                    `;
+					} else if (slot.trangThai === "Đang khám") {
+						row.innerHTML = `
+	<td>${start}</td>
+	<td>${end}</td>
+	<td><span class="status-in-progress">🩺 ${slot.trangThai}</span></td>
+	<td>${slot.tenBenhNhan}</td>
+	<td>${slot.soDienThoai}</td>
+	`;
+					} else if (slot.trangThai === "Đã hủy") {
+						row.innerHTML = `
+	<td>${start}</td>
+	<td>${end}</td>
+	<td><span class="status-cancelled">❌ ${slot.trangThai}</span></td>
+	<td>${slot.tenBenhNhan}</td>
+	<td>${slot.soDienThoai}</td>
+	`;
+					} else {
+						row.innerHTML = `
+	<td>${start}</td>
+	<td>${end}</td>
+	<td>${slot.trangThai}</td>
+	<td>${slot.tenBenhNhan}</td>
+	<td>${slot.soDienThoai}</td>
+	`;
+					}
+
+				} else {
+					// Nếu chưa có slot, thêm nút "Đăng ký"
+					row.innerHTML = `
+                    <td>${start}</td>
+                    <td>${end}</td>
+                    <td>
+                        Chưa có slot
+                        <button class="register-btn" onclick="redirectToRegister('${doctorId}', '${selectedDate}', '${ca}', '${start}')">
+                            Đăng ký
+                        </button>
+                    </td>
+                    <td>---</td>
+                    <td>---</td>
+                `;
+				}
+				tbody.appendChild(row);
+			}
+		}
+
+		function showNotification(message, type) {
+			const notification = document.getElementById('notification');
+			if (!notification) {
+				console.error('Không tìm thấy phần tử notification!');
+				return;
+			}
+			notification.innerHTML = type === 'success' ? `✅ ${message}` : `❌ ${message}`;
+			notification.className = `notification ${type}`;
+			notification.style.display = 'block';
+
+			// Tự động ẩn sau 3 giây
+			setTimeout(() => {
+				notification.style.display = 'none';
+			}, 2000);
+		}
+
+		function checkInPatient(slotId, ca) {
+			fetch(`/nhanvien/xemlichbacsi/checkin?slotId=${slotId}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			})
+				.then(response => {
+					if (!response.ok) {
+						throw new Error('Phản hồi không thành công: ' + response.statusText);
+					}
+					return response.json();
+				})
+				.then(data => {
+					if (data.status === 'success') {
+						showNotification(data.message, 'success');
+						// Đợi thông báo hiển thị xong rồi mới làm mới bảng
+						setTimeout(() => {
+							loadSchedule();
+							showPage(ca);
+						}, 3000); // Đợi 3 giây (bằng thời gian hiển thị thông báo)
+					} else {
+						showNotification(data.message, 'error');
+					}
+				})
+				.catch(error => {
+					console.error('Lỗi:', error);
+					showNotification('Đã xảy ra lỗi khi check-in!', 'error');
+				});
+		}
+
+		function redirectToRegister(doctorId, date, ca, startTime) {
+			// Lưu dữ liệu vào sessionStorage
+			sessionStorage.setItem('doctorId', doctorId);
+			sessionStorage.setItem('selectedDate', date);
+			sessionStorage.setItem('selectedCa', ca);
+			sessionStorage.setItem('selectedTime', startTime);
+
+			// Lấy thông tin bác sĩ để lưu tên và chuyên khoa
+			fetch(`/nhanvien/xemlichbacsi/doctors-by-specialty?chuyenKhoaId=0`)
+				.then(response => response.json())
+				.then(data => {
+					const doctor = data.find(d => d.bacSiId === doctorId);
+					if (doctor) {
+						sessionStorage.setItem('doctorName', doctor.ten);
+						sessionStorage.setItem('doctorSpecialty', doctor.chuyenKhoa.ten);
+					}
+					// Tạo URL với các tham số và chuyển hướng
+					const url = `/nhanvien/dangkylichkham/buoc4?doctorId=${doctorId}&date=${date}&ca=${ca}&startTime=${startTime}`;
+					window.location.href = url;
+				})
+				.catch(error => {
+					console.error('Lỗi khi lấy thông tin bác sĩ:', error);
+					// Nếu có lỗi, vẫn chuyển hướng nhưng không có thông tin bác sĩ
+					const url = `/nhanvien/dangkylichkham/buoc4?doctorId=${doctorId}&date=${date}&ca=${ca}&startTime=${startTime}`;
+					window.location.href = url;
+				});
+		}
+	</script>
+	<script>
+	// Hàm lấy ca hiện tại đang hiển thị (dựa trên nút đang active)
+	function getCurrentCa() {
+		const activeButton = document.querySelector('.pagination-controls button.active');
+		if (activeButton) {
+			return activeButton.textContent.replace('Ca ', '').trim();
+		}
+		return null;
+	}
+
+	// Cập nhật lịch định kỳ mỗi 10 giây
+	setInterval(() => {
+		const currentCa = getCurrentCa();
+		if (currentCa) {
+			loadSchedule(); // Gọi lại API để cập nhật dữ liệu fullScheduleData
+			setTimeout(() => {
+				showPage(currentCa); // Sau khi load xong thì hiển thị lại đúng ca đang xem
+			}, 300); // đợi một chút cho dữ liệu kịp cập nhật
+		}
+	}, 5000); // 10000ms = 10 giây
+</script>
+
+</body>
+
+</html>
