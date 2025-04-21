@@ -1,390 +1,698 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-	<meta charset="UTF-8">
-	<title>Chat Phòng Khám</title>
-	<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
-	<script>
-		dayjs.extend(dayjs_plugin_relativeTime);
-		function formatFriendlyTime(timestamp) {
-			const now = dayjs();
-			const time = dayjs(timestamp);
-			if (!time.isValid()) return "";
-			const diffMinutes = now.diff(time, 'minute');
-			if (diffMinutes < 1) return "Vừa xong";
-			if (diffMinutes < 60) return `${diffMinutes} phút trước`;
-			if (now.isSame(time, 'day')) return `Hôm nay lúc ${time.format("HH:mm")}`;
-			if (now.subtract(1, 'day').isSame(time, 'day')) return `Hôm qua lúc ${time.format("HH:mm")}`;
-			return `${time.format("DD/MM/YYYY")} lúc ${time.format("HH:mm")}`;
-		}
-	</script>
-	<style>
-		body {
-			font-family: 'Segoe UI', sans-serif;
-			margin: 0;
-			padding: 0;
-			background: #f0f2f5;
-			height: 100vh;
-			display: flex;
-		}
+    <meta charset="UTF-8">
+    <title>Chat Phòng Khám</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
+    <script>
+        dayjs.extend(dayjs_plugin_relativeTime);
+        function formatFriendlyTime(timestamp) {
+            const now = dayjs();
+            const time = dayjs(timestamp);
+            if (!time.isValid()) return "";
+            const diffMinutes = now.diff(time, 'minute');
+            if (diffMinutes < 1) return "Vừa xong";
+            if (diffMinutes < 60) return `${diffMinutes} phút trước`;
+            if (now.isSame(time, 'day')) return `Hôm nay lúc ${time.format("HH:mm")}`;
+            if (now.subtract(1, 'day').isSame(time, 'day')) return `Hôm qua lúc ${time.format("HH:mm")}`;
+            return `${time.format("DD/MM/YYYY")} lúc ${time.format("HH:mm")}`;
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f2f5;
+            height: 100vh;
+            display: flex;
+        }
 
-		#sidebar {
-			width: 250px;
-			background: #fff;
-			border-right: 1px solid #ddd;
-			overflow-y: auto;
-			padding: 20px;
-		}
+        #sidebar {
+            width: 250px;
+            background: #fff;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            padding: 20px;
+        }
 
-		.doctor-card {
-			padding: 10px;
-			margin-bottom: 10px;
-			border-radius: 8px;
-			background: #f9f9f9;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			transition: background 0.2s, transform 0.3s;
-		}
+        .doctor-card {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s, transform 0.3s;
+        }
 
-		.doctor-card:hover {
-			background: #e9f0ff;
-			transform: scale(1.02);
-		}
+        .doctor-card:hover {
+            background: #e9f0ff;
+            transform: scale(1.02);
+        }
 
-		.avatar {
-			width: 40px;
-			height: 40px;
-			border-radius: 50%;
-			object-fit: cover;
-		}
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
 
-		.info {
-			flex: 1;
-		}
+        .info {
+            flex: 1;
+        }
 
-		.name {
-			font-weight: bold;
-			color: #007bff;
-		}
+        .name {
+            font-weight: bold;
+            color: #007bff;
+        }
 
-		.phone {
-			font-size: 0.85em;
-			color: #555;
-		}
+        .phone {
+            font-size: 0.85em;
+            color: #555;
+        }
 
-		#chat-container {
-			flex: 1;
-			display: flex;
-			flex-direction: column;
-			padding: 20px;
-			animation: fadeIn 0.4s ease;
-		}
+        #chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            animation: fadeIn 0.4s ease;
+            position: relative;
+        }
 
-		#chatTitle {
-			margin: 0 0 10px 0;
-			font-size: 1.2em;
-			color: #2c3e50;
-		}
+        #chatTitle {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
 
-		#messages {
-			flex: 1;
-			overflow-y: auto;
-			background: #fff;
-			padding: 10px;
-			border: 1px solid #ccc;
-			border-radius: 8px;
-			font-size: 14px;
-			display: flex;
-			flex-direction: column;
-		}
+        #searchMessages {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
 
+        #searchMessages:focus {
+            outline: none;
+            border-color: #007bff;
+        }
 
-		.msg {
-			display: flex;
-			margin: 10px 0;
-			opacity: 0;
-			transform: translateY(10px);
-			animation: slideUp 0.3s forwards;
-		}
+        #searchDoctors {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
 
-		.self {
-			justify-content: flex-end;
-		}
+        #searchDoctors:focus {
+            outline: none;
+            border-color: #007bff;
+        }
 
-		.other {
-			justify-content: flex-start;
-		}
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+        }
 
-		.bubble {
-			max-width: 45ch;
-			padding: 10px 14px;
-			border-radius: 20px;
-			background: #e2e3e5;
-			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-			position: relative;
-			animation: popIn 0.3s ease;
+        .msg {
+            display: flex;
+            margin: 10px 0;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: slideUp 0.3s forwards;
+        }
 
-			white-space: normal;
-			/* ✅ Đổi từ pre-line sang normal */
-			word-wrap: break-word;
-			overflow-wrap: break-word;
-			line-height: 1.4;
-		}
+        .self {
+            justify-content: flex-end;
+        }
 
+        .other {
+            justify-content: flex-start;
+        }
 
+        .bubble {
+            max-width: 45ch;
+            padding: 10px 14px;
+            border-radius: 20px;
+            background: #e2e3e5;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            animation: popIn 0.3s ease;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.4;
+        }
 
+        .bubble img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            display: block;
+        }
 
+        .self .bubble {
+            background: #007bff;
+            color: white;
+            border-bottom-right-radius: 0;
+        }
 
-		.self .bubble {
-			background: #007bff;
-			color: white;
-			border-bottom-right-radius: 0;
-		}
+        .other .bubble {
+            background: #e2e3e5;
+            color: black;
+            border-bottom-left-radius: 0;
+        }
 
-		.other .bubble {
-			background: #e2e3e5;
-			color: black;
-			border-bottom-left-radius: 0;
-		}
+        .meta {
+            font-size: 0.75em;
+            color: #666;
+            margin-bottom: 4px;
+            display: block;
+        }
 
-		.meta {
-			font-size: 0.75em;
-			color: #666;
-			margin-bottom: 4px;
-			display: block;
-		}
+        .time {
+            font-size: 0.7em;
+            color: #aaa;
+            text-align: right;
+            margin-top: 4px;
+        }
 
-		.time {
-			font-size: 0.7em;
-			color: #aaa;
-			text-align: right;
-			margin-top: 4px;
-		}
+        #input-container {
+            display: flex;
+            margin-top: 10px;
+            align-items: center;
+            gap: 8px;
+        }
 
-		#input-container {
-			display: flex;
-			margin-top: 10px;
-		}
+        #messageInput {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            transition: border-color 0.3s;
+            resize: none;
+            min-height: 38px;
+            max-height: 120px;
+            font-family: inherit;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
 
-		#messageInput {
-			flex: 1;
-			padding: 10px;
-			border-radius: 6px;
-			border: 1px solid #ccc;
-			transition: border-color 0.3s;
-			resize: none;
-			min-height: 38px;
-			max-height: 120px;
-			font-family: inherit;
-			overflow-y: auto;
-			line-height: 1.4;
-		}
+        #messageInput:focus {
+            outline: none;
+            border-color: #007bff;
+        }
 
-		#messageInput:focus {
-			outline: none;
-			border-color: #007bff;
-		}
+        button {
+            padding: 10px 16px;
+            background: #007bff;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
 
-		button {
-			padding: 10px 16px;
-			margin-left: 10px;
-			background: #007bff;
-			border: none;
-			color: white;
-			border-radius: 6px;
-			cursor: pointer;
-			transition: background 0.2s;
-		}
+        button:hover {
+            background: #0056b3;
+        }
 
-		button:hover {
-			background: #0056b3;
-		}
+        #warningText {
+            color: red;
+            font-size: 0.85em;
+            margin-top: 4px;
+            height: 1em;
+        }
 
-		#warningText {
-			color: red;
-			font-size: 0.85em;
-			margin-top: 4px;
-			height: 1em;
-		}
+        input[type="file"] {
+            display: none;
+        }
 
-		@keyframes slideUp {
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
-		}
+        input[type="file"]+label {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
 
-		@keyframes popIn {
-			0% {
-				transform: scale(0.9);
-				opacity: 0;
-			}
+        input[type="file"]+label:hover {
+            background-color: #218838;
+        }
 
-			100% {
-				transform: scale(1);
-				opacity: 1;
-			}
-		}
+        input[type="file"]+label:active {
+            background-color: #1e7e34;
+        }
 
-		@keyframes fadeIn {
-			from {
-				opacity: 0;
-				transform: translateX(10px);
-			}
+        #scrollToBottomBtn {
+            position: absolute;
+            bottom: 120px;
+            right: 40px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.3s, transform 0.2s;
+            opacity: 0;
+            pointer-events: none;
+        }
 
-			to {
-				opacity: 1;
-				transform: translateX(0);
-			}
-		}
-	</style>
+        #scrollToBottomBtn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
+        #scrollToBottomBtn:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+
+        #scrollToBottomBtn::after {
+            content: '↓';
+            font-size: 20px;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        #previewContainer {
+            margin-top: 10px;
+            display: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .preview-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            object-fit: cover;
+        }
+
+        .preview-item button {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff5e57;
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            line-height: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        #imageModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        #imageModal img {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            margin-top: 5%;
+            border-radius: 10px;
+            animation: popIn 0.3s ease;
+        }
+
+        #imageModal:target {
+            display: block;
+        }
+    </style>
 </head>
-
 <body>
-	<div id="sidebar">
-		<h3>Bác sĩ đã nhắn</h3>
-		<div id="contactList">Đang tải...</div>
-	</div>
+    <div id="sidebar">
+        <h3>Bác sĩ đã nhắn</h3>
+        <input type="text" id="searchDoctors" placeholder="Tìm kiếm bác sĩ...">
+        <div id="contactList">Đang tải...</div>
+    </div>
 
-	<div id="chat-container">
-		<h2 id="chatTitle">Chọn bác sĩ để bắt đầu</h2>
-		<div id="messages"></div>
-		<div id="input-container">
-			<textarea id="messageInput" placeholder="Nhập tin nhắn..." rows="2"></textarea>
-			<button onclick="sendMessage()">Gửi</button>
-		</div>
-		<div id="warningText"></div>
-	</div>
+    <div id="chat-container">
+        <h2 id="chatTitle">Chọn bác sĩ để bắt đầu</h2>
+        <input type="text" id="searchMessages" placeholder="Tìm kiếm tin nhắn...">
+        <div id="messages"></div>
+        <div id="scrollToBottomBtn" onclick="scrollToBottom()"></div>
 
-	<script>
-		let stompClient = null;
-		let chatContext = {};
+        <div id="previewContainer"></div>
 
-		function renderMessage(msg, isBenhNhan) {
-			const el = document.createElement("div");
-			const isSelf = (msg.tuBenhNhan === isBenhNhan);
-			const time = msg.thoiGian ? formatFriendlyTime(msg.thoiGian) : 'vừa xong';
+        <div id="input-container">
+            <textarea id="messageInput" placeholder="Nhập tin nhắn..." rows="2"></textarea>
+            <input type="file" id="imageInput" accept="image/*" multiple>
+            <label for="imageInput">Gửi ảnh</label>
+            <button onclick="sendMessage()">Gửi</button>
+        </div>
+        <div id="warningText"></div>
+    </div>
 
-			el.className = "msg " + (isSelf ? "self" : "other");
-			el.innerHTML = `
-		<div class="bubble">
-			<span class="meta">${isSelf ? "Bạn" : (isBenhNhan ? "Bác sĩ" : "Bệnh nhân")}</span>
-			${msg.noiDung.replace(/\n/g, '<br>')}
-			<div class="time">${time}</div>
-		</div>`;
-			document.getElementById("messages").appendChild(el);
-			scrollToBottom();
-		}
+    <div id="imageModal" onclick="this.style.display='none'">
+        <img id="modalImage" src="">
+    </div>
 
+    <script>
+        let stompClient = null;
+        let chatContext = {};
+        let selectedFiles = [];
+        let currentSubscription = null;
+        let doctorList = [];
 
-		function scrollToBottom() {
-			const div = document.getElementById("messages");
-			div.scrollTop = div.scrollHeight;
-		}
+        function renderMessage(msg, isBenhNhan, prepend = false) {
+            const el = document.createElement("div");
+            const isSelf = (msg.tuBenhNhan === isBenhNhan);
+            const time = msg.thoiGian ? formatFriendlyTime(msg.thoiGian) : 'vừa xong';
+            el.className = "msg " + (isSelf ? "self" : "other");
 
-		function sendMessage() {
-			const input = document.getElementById("messageInput");
-			const warning = document.getElementById("warningText");
-			const content = input.value.trim();
+            let contentHtml = msg.noiDung.replace(/\n/g, '<br>');
 
-			if (content === '') {
-				warning.innerText = "Tin nhắn không được để trống.";
-				return;
-			}
+            if (msg.noiDung.startsWith("/uploads/chat-images")) {
+                contentHtml = `<img src="${msg.noiDung}" style="max-width: 200px; border-radius: 8px; cursor: zoom-in;" onclick="showImageModal('${msg.noiDung}')">`;
+            }
 
-			warning.innerText = '';
-			const msg = {
-				noiDung: content,
-				tuBenhNhan: chatContext.isBenhNhan,
-				benhNhanId: chatContext.benhNhanId,
-				bacSiId: chatContext.bacSiId
-			};
-			stompClient.send("/app/chat", {}, JSON.stringify(msg));
-			input.value = '';
-			input.style.height = "auto"; // reset height
-			input.focus();
-		}
+            el.innerHTML = `
+            <div class="bubble">
+              <span class="meta">${isSelf ? "Bạn" : (isBenhNhan ? "Bác sĩ" : "Bệnh nhân")}</span>
+              ${contentHtml}
+              <div class="time">${time}</div>
+            </div>`;
+            const messagesDiv = document.getElementById("messages");
+            if (prepend) {
+                messagesDiv.insertBefore(el, messagesDiv.firstChild);
+            } else {
+                messagesDiv.appendChild(el);
+            }
+            if (!prepend) {
+                scrollToBottom();
+            }
+        }
 
-		function connectSocket(context) {
-			const socket = new SockJS('/ws');
-			stompClient = Stomp.over(socket);
-			stompClient.connect({}, function () {
-				stompClient.subscribe('/topic/messages', function (message) {
-					const msg = JSON.parse(message.body);
-					if (msg.benhNhanId === context.benhNhanId && msg.bacSiId === context.bacSiId) {
-						renderMessage(msg, context.isBenhNhan);
-					}
-				});
+        function showImageModal(url) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            modalImg.src = url;
+            modal.style.display = "block";
+        }
 
-				fetch(`/api/chat/history?benhNhanId=${context.benhNhanId}&bacSiId=${context.bacSiId}`)
-					.then(res => res.json())
-					.then(data => {
-						document.getElementById("messages").innerHTML = '';
-						data.forEach(m => renderMessage(m, context.isBenhNhan));
-					});
-			});
-		}
+        function clearPreview() {
+            const previewContainer = document.getElementById("previewContainer");
+            previewContainer.innerHTML = "";
+            previewContainer.style.display = "none";
+            document.getElementById("imageInput").value = '';
+            selectedFiles = [];
+        }
 
-		window.onload = () => {
-			fetch('/api/user/info')
-				.then(res => res.json())
-				.then(user => {
-					chatContext.isBenhNhan = user.isBenhNhan;
-					chatContext.benhNhanId = user.id;
+        function removePreview(index) {
+            selectedFiles.splice(index, 1);
+            updatePreview();
+        }
 
-					if (!user.isBenhNhan) {
-						document.getElementById("contactList").innerText = "Chức năng chỉ dành cho bệnh nhân.";
-						return;
-					}
+        function updatePreview() {
+            const previewContainer = document.getElementById("previewContainer");
+            previewContainer.innerHTML = "";
+            if (selectedFiles.length === 0) {
+                previewContainer.style.display = "none";
+                return;
+            }
+            previewContainer.style.display = "flex";
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const previewItem = document.createElement("div");
+                    previewItem.className = "preview-item";
+                    previewItem.innerHTML = `
+                        <img class="preview-image" src="${e.target.result}" alt="Preview">
+                        <button onclick="removePreview(${index})">×</button>
+                    `;
+                    previewContainer.appendChild(previewItem);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
 
-					fetch(`/api/chat/contacts?benhNhanId=${user.id}`)
-						.then(res => res.json())
-						.then(data => {
-							const container = document.getElementById("contactList");
-							container.innerHTML = '';
-							data.forEach(bacSi => {
-								const card = document.createElement("div");
-								card.className = "doctor-card";
-								card.innerHTML = `
-                  <img class="avatar" src="${bacSi.urlAvatar || '/images/default-doctor.png'}" alt="avatar">
-                  <div class="info">
-                    <div class="name">${bacSi.ten}</div>
-                    <div class="phone">${bacSi.dienThoai || ""}</div>
-                  </div>
-                `;
-								card.onclick = () => {
-									chatContext.bacSiId = bacSi.bacSiId;
-									document.getElementById("chatTitle").innerText = `Đang trò chuyện với ${bacSi.ten}`;
-									connectSocket(chatContext);
-								};
-								container.appendChild(card);
-							});
-						});
-				});
+        function scrollToBottom() {
+            const div = document.getElementById("messages");
+            setTimeout(() => {
+                div.scrollTop = div.scrollHeight;
+            }, 100);
+        }
 
-			// Enter để gửi, Shift + Enter để xuống dòng
-			const input = document.getElementById("messageInput");
-			input.addEventListener("keydown", function (e) {
-				if (e.key === "Enter" && !e.shiftKey) {
-					e.preventDefault();
-					sendMessage();
-				}
-			});
+        function updateScrollButtonVisibility() {
+            const messagesDiv = document.getElementById("messages");
+            const scrollBtn = document.getElementById("scrollToBottomBtn");
+            const isAtBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 50;
+            scrollBtn.classList.toggle("visible", !isAtBottom);
+        }
 
-			// Tự động điều chỉnh chiều cao khi gõ
-			input.addEventListener("input", function () {
-				input.style.height = "auto";
-				input.style.height = Math.min(input.scrollHeight, 120) + "px";
-			});
-		};
-	</script>
+        function sendMessage() {
+            const input = document.getElementById("messageInput");
+            const warning = document.getElementById("warningText");
+            const content = input.value.trim();
+
+            warning.innerText = '';
+
+            if (selectedFiles.length === 0 && content === '') {
+                warning.innerText = "Tin nhắn hoặc hình ảnh không được để trống.";
+                return;
+            }
+
+            if (content !== '') {
+                const msg = {
+                    noiDung: content,
+                    tuBenhNhan: chatContext.isBenhNhan,
+                    benhNhanId: chatContext.benhNhanId,
+                    bacSiId: chatContext.bacSiId
+                };
+                stompClient.send("/app/chat", {}, JSON.stringify(msg));
+            }
+
+            if (selectedFiles.length > 0) {
+                const uploadPromises = selectedFiles.map(file => {
+                    const formData = new FormData();
+                    formData.append("image", file);
+                    return fetch("/api/chat/upload", {
+                        method: "POST",
+                        body: formData
+                    }).then(res => res.text());
+                });
+
+                Promise.all(uploadPromises).then(urls => {
+                    urls.forEach(url => {
+                        const msg = {
+                            noiDung: url,
+                            tuBenhNhan: chatContext.isBenhNhan,
+                            benhNhanId: chatContext.benhNhanId,
+                            bacSiId: chatContext.bacSiId
+                        };
+                        stompClient.send("/app/chat", {}, JSON.stringify(msg));
+                    });
+                    clearPreview();
+                });
+            }
+
+            input.value = '';
+            input.style.height = "auto";
+            input.focus();
+        }
+
+        function connectSocket(context) {
+            if (stompClient !== null) {
+                if (currentSubscription) {
+                    currentSubscription.unsubscribe();
+                    currentSubscription = null;
+                }
+                stompClient.disconnect();
+                stompClient = null;
+            }
+
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function () {
+                currentSubscription = stompClient.subscribe('/topic/messages', function (message) {
+                    const msg = JSON.parse(message.body);
+                    if (msg.benhNhanId === context.benhNhanId && msg.bacSiId === context.bacSiId) {
+                        renderMessage(msg, context.isBenhNhan);
+                        updateScrollButtonVisibility();
+                    }
+                });
+
+                document.getElementById("messages").innerHTML = '';
+                fetch(`/api/chat/history?benhNhanId=${context.benhNhanId}&bacSiId=${context.bacSiId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        data.forEach(m => renderMessage(m, context.isBenhNhan));
+                        scrollToBottom();
+                        updateScrollButtonVisibility();
+                    });
+            });
+        }
+
+        function renderDoctorList(doctors) {
+            const container = document.getElementById("contactList");
+            container.innerHTML = '';
+            doctors.forEach(bacSi => {
+                const card = document.createElement("div");
+                card.className = "doctor-card";
+                card.innerHTML = `
+                    <img class="avatar" src="${bacSi.urlAvatar || '/images/default-doctor.png'}" alt="avatar">
+                    <div class="info">
+                        <div class="name">${bacSi.ten}</div>
+                        <div class="phone">${bacSi.dienThoai || ""}</div>
+                    </div>`;
+                card.onclick = () => {
+                    chatContext.bacSiId = bacSi.bacSiId;
+                    document.getElementById("chatTitle").innerText = `Đang trò chuyện với ${bacSi.ten}`;
+                    connectSocket(chatContext);
+                };
+                container.appendChild(card);
+            });
+        }
+
+        window.onload = () => {
+            fetch('/api/user/info')
+                .then(res => res.json())
+                .then(user => {
+                    chatContext.isBenhNhan = user.isBenhNhan;
+                    chatContext.benhNhanId = user.id;
+
+                    if (!user.isBenhNhan) {
+                        document.getElementById("contactList").innerText = "Chức năng chỉ dành cho bệnh nhân.";
+                        return;
+                    }
+
+                    fetch(`/api/chat/contacts?benhNhanId=${user.id}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            doctorList = data;
+                            renderDoctorList(data);
+                        });
+                });
+
+            const input = document.getElementById("messageInput");
+            input.addEventListener("keydown", function (e) {
+                if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            input.addEventListener("input", function () {
+                input.style.height = "auto";
+                input.style.height = Math.min(input.scrollHeight, 120) + "px";
+            });
+
+            document.getElementById("imageInput").addEventListener("change", function () {
+                const files = Array.from(this.files);
+                if (files.every(file => file.type.startsWith("image/"))) {
+                    selectedFiles = files;
+                    updatePreview();
+                } else {
+                    clearPreview();
+                    document.getElementById("warningText").innerText = "Vui lòng chỉ chọn tệp hình ảnh.";
+                }
+            });
+
+            document.getElementById("searchMessages").addEventListener("input", function () {
+                const keyword = this.value.toLowerCase();
+                const messages = document.querySelectorAll(".msg");
+                messages.forEach(msg => {
+                    const content = msg.querySelector(".bubble").textContent.toLowerCase();
+                    msg.style.display = content.includes(keyword) ? "flex" : "none";
+                });
+                updateScrollButtonVisibility();
+            });
+
+            document.getElementById("searchDoctors").addEventListener("input", function () {
+                const keyword = this.value.toLowerCase();
+                const filteredDoctors = doctorList.filter(bacSi =>
+                    bacSi.ten.toLowerCase().includes(keyword)
+                );
+                renderDoctorList(filteredDoctors);
+            });
+
+            const messagesDiv = document.getElementById("messages");
+            messagesDiv.addEventListener("scroll", updateScrollButtonVisibility);
+        };
+    </script>
 </body>
-
 </html>

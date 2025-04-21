@@ -28,4 +28,6 @@ public class TinNhan {
 
     @Column(nullable = false)
     private String bacSiId;
+
+
 }
