@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biểu đồ sức khỏe</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .coral-btn {
+            background-color: #FF6F61;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .coral-btn:hover {
+            background-color: #e55a4f;
+            transform: translateY(-1px);
+        }
+        .coral-btn:disabled {
+            background-color: #d1d5db;
+            cursor: not-allowed;
+        }
+        .warning, .error, .info {
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #b91c1c;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .error {
+            background-color: #fef2f2;
+            border-color: #dc2626;
+        }
+        .info {
+            background-color: #e0f2fe;
+            border-color: #0284c7;
+            color: #0c4a6e;
+        }
+        .form-container {
+            transition: all 0.3s ease;
+        }
+        .chart-container {
+            background: linear-gradient(to bottom, #ffffff, #f9fafb);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        select, input {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        select:focus, input:focus {
+            border-color: #FF6F61;
+            box-shadow: 0 0 0 3px rgba(255, 111, 97, 0.2);
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<div class="container mx-auto p-6 max-w-5xl">
+    <h1 class="text-4xl font-bold text-center text-gray-900 mb-8">Biểu đồ Sức Khỏe</h1>
+
+    <!-- Form nhập chỉ số -->
+    <div class="form-container bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Cập nhật Chỉ số Sức khỏe</h2>
+        <div th:if="${error}" class="error">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span th:text="${error}"></span>
+        </div>
+        <form id="healthForm" th:action="@{/health-chart}" th:object="${sucKhoeDuLieu}" method="post">
+            <input type="hidden" th:name="time" th:value="${time}"/>
+            <input type="hidden" th:field="*{nguon}" value="tay"/>
+            <div class="grid gap-6 sm:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Chọn chỉ số</label>
+                    <select id="chiSo" name="chiSo" class="mt-1 p-3 w-full border border-gray-300 rounded-lg bg-white text-gray-900"
+                            onchange="updateInputFields()">
+                        <option value="huyetAp" th:selected="${chiSo == 'huyetAp'}">Huyết áp</option>
+                        <option value="duongHuyet" th:selected="${chiSo == 'duongHuyet'}">Đường huyết</option>
+                        <option value="canNang" th:selected="${chiSo == 'canNang'}">Cân nặng</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Thời gian</label>
+                    <input type="datetime-local" th:field="*{thoiGian}" class="mt-1 p-3 w-full border border-gray-300 rounded-lg" required/>
+                </div>
+                <div id="inputFields" class="sm:col-span-2 grid gap-6">
+                    <!-- Input động sẽ được thêm bởi JavaScript -->
+                </div>
+                <div class="sm:col-span-2">
+                    <button id="submitBtn" type="submit" class="coral-btn text-white p-3 rounded-lg w-full font-medium">Cập nhật</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Biểu đồ và cảnh báo -->
+    <div class="chart-container p-8">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Xem Biểu đồ</h2>
+        <div th:if="${warning}" class="warning">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span th:text="${warning}"></span>
+        </div>
+        <div th:if="${error}" class="error">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span th:text="${error}"></span>
+        </div>
+        <div th:if="${info}" class="info">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span th:text="${info}"></span>
+        </div>
+        <form id="filterForm" th:action="@{/health-chart}" method="get" class="flex flex-wrap gap-4 mb-6">
+            <select name="chiSo" onchange="this.form.submit()" class="p-3 border border-gray-300 rounded-lg bg-white text-gray-900">
+                <option value="huyetAp" th:selected="${chiSo == 'huyetAp'}">Huyết áp</option>
+                <option value="duongHuyet" th:selected="${chiSo == 'duongHuyet'}">Đường huyết</option>
+                <option value="canNang" th:selected="${chiSo == 'canNang'}">Cân nặng</option>
+            </select>
+            <select name="time" onchange="this.form.submit()" class="p-3 border border-gray-300 rounded-lg bg-white text-gray-900">
+                <option value="7days" th:selected="${time == '7days'}">7 ngày</option>
+                <option value="30days" th:selected="${time == '30days'}">30 ngày</option>
+                <option value="90days" th:selected="${time == '90days'}">90 ngày</option>
+            </select>
+            <button type="button" onclick="downloadChart()" class="coral-btn text-white p-3 rounded-lg font-medium">Tải PNG</button>
+        </form>
+        <canvas id="healthChart" class="max-w-full"></canvas>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    let chartInstance = null;
+
+    // Động: Hiển thị input dựa trên chỉ số
+    function updateInputFields() {
+        const chiSo = document.getElementById('chiSo').value;
+        console.log('Selected chiSo:', chiSo);
+        const inputFields = document.getElementById('inputFields');
+        inputFields.innerHTML = '';
+        if (chiSo === 'huyetAp') {
+            inputFields.innerHTML = `
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tâm thu (mmHg)</label>
+                        <input type="number" name="tamThu" class="mt-1 p-3 w-full border border-gray-300 rounded-lg" step="any" required/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tâm trương (mmHg)</label>
+                        <input type="number" name="tamTruong" class="mt-1 p-3 w-full border border-gray-300 rounded-lg" step="any" required/>
+                    </div>
+                </div>`;
+        } else if (chiSo === 'duongHuyet') {
+            inputFields.innerHTML = `
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Đường huyết (mg/dL)</label>
+                        <input type="number" name="duongHuyet" class="mt-1 p-3 w-full border border-gray-300 rounded-lg" step="any" required/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Thời điểm</label>
+                        <select name="thoiDiemDuongHuyet" class="mt-1 p-3 w-full border border-gray-300 rounded-lg">
+                            <option value="truocAn">Trước ăn</option>
+                            <option value="sauAn">Sau ăn</option>
+                        </select>
+                    </div>
+                </div>`;
+        } else if (chiSo === 'canNang') {
+            inputFields.innerHTML = `
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cân nặng (kg)</label>
+                    <input type="number" name="canNang" class="mt-1 p-3 w-full border border-gray-300 rounded-lg" step="any" required/>
+                </div>`;
+        }
+    }
+
+    // Vẽ biểu đồ
+    function drawChart() {
+        const chiSo = /*[[${chiSo}]]*/ 'huyetAp';
+        const data = /*[[${data}]]*/ [];
+        console.log('Drawing chart with chiSo:', chiSo, 'data:', data);
+        if (!window.Chart) {
+            console.error('Chart.js not loaded');
+            return;
+        }
+        if (!data || data.length === 0) {
+            console.log('No data to draw chart');
+            return;
+        }
+        const labels = data.map(item => new Date(item.thoiGian).toLocaleDateString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }));
+        let datasets = [];
+
+        if (chiSo === 'huyetAp') {
+            datasets = [
+                {
+                    label: 'Tâm thu (mmHg)',
+                    data: data.map(item => item.tamThu || 0),
+                    borderColor: '#FF6F61',
+                    fill: false,
+                    tension: 0.4
+                },
+                {
+                    label: 'Tâm trương (mmHg)',
+                    data: data.map(item => item.tamTruong || 0),
+                    borderColor: '#4A90E2',
+                    fill: false,
+                    tension: 0.4
+                },
+            ];
+        } else if (chiSo === 'duongHuyet') {
+            datasets = [
+                {
+                    label: 'Đường huyết (mg/dL)',
+                    data: data.map(item => item.duongHuyet || 0),
+                    borderColor: '#FF6F61',
+                    fill: false,
+                    tension: 0.4
+                },
+            ];
+        } else if (chiSo === 'canNang') {
+            datasets = [
+                {
+                    label: 'Cân nặng (kg)',
+                    data: data.map(item => item.canNang || 0),
+                    borderColor: '#FF6F61',
+                    fill: false,
+                    tension: 0.4
+                },
+            ];
+        }
+
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(document.getElementById('healthChart'), {
+            type: 'line',
+            data: { labels, datasets },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: { display: true, text: chiSo === 'huyetAp' ? 'mmHg' : chiSo === 'duongHuyet' ? 'mg/dL' : 'kg', font: { size: 14 } }
+                    },
+                    x: { title: { display: true, text: 'Ngày', font: { size: 14 } } },
+                },
+                plugins: {
+                    legend: { position: 'top', labels: { font: { size: 14 } } },
+                    tooltip: { enabled: true, mode: 'index', intersect: false }
+                },
+            },
+        });
+    }
+
+    // Tải biểu đồ dưới dạng PNG
+    function downloadChart() {
+        if (!chartInstance) {
+            alert('Chưa có biểu đồ để tải. Vui lòng kiểm tra dữ liệu.');
+            return;
+        }
+        const link = document.createElement('a');
+        link.href = document.getElementById('healthChart').toDataURL('image/png');
+        link.download = 'bieu_do_suc_khoe.png';
+        link.click();
+    }
+
+    // Validation phía client và loading state
+    document.getElementById('healthForm').addEventListener('submit', function(e) {
+        const chiSo = document.getElementById('chiSo').value;
+        console.log('Submitting chiSo:', chiSo);
+        if (!['huyetAp', 'duongHuyet', 'canNang'].includes(chiSo)) {
+            e.preventDefault();
+            alert('Chỉ số không hợp lệ! Vui lòng chọn Huyết áp, Đường huyết hoặc Cân nặng.');
+            return;
+        }
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang lưu...';
+    });
+
+    // Khởi tạo
+    window.onload = function() {
+        updateInputFields();
+        drawChart();
+    };
+</script>
+</body>
+</html>
