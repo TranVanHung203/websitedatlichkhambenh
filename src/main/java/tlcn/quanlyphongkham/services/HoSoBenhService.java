@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import tlcn.quanlyphongkham.dtos.BenhNhanOfTaoDonThuocDTO;
 import tlcn.quanlyphongkham.dtos.HoSoBenhDTO;
 import tlcn.quanlyphongkham.dtos.LichSuKhamDTO;
+import tlcn.quanlyphongkham.dtos.LichSuKhamNhanVienDTO;
 import tlcn.quanlyphongkham.entities.BenhNhan;
 import tlcn.quanlyphongkham.entities.HoSoBenh;
 import tlcn.quanlyphongkham.repositories.BenhNhanRepository;
@@ -125,7 +126,47 @@ public class HoSoBenhService {
 	    ));
 	}
 	
-	
+	public Page<LichSuKhamNhanVienDTO> getLichSuKhamForNhanVien(Pageable pageable) {
+        Page<Object[]> rawData = hoSoBenhRepository.findLichSuKhamForNhanVienRaw(pageable);
+
+        return rawData.map(obj -> new LichSuKhamNhanVienDTO(
+                (String) obj[0], // tenBacSi
+                (String) obj[1], // tenBenhNhan
+                (String) obj[2], // dienThoai
+                (String) obj[3], // ngayKham
+                (String) obj[4], // chanDoan
+                (String) obj[5], // trieuChung
+                (String) obj[6], // thuoc
+                (String) obj[7], // lieu
+                (String) obj[8], // tanSuat
+                (String) obj[9], // soLuong
+                (BigDecimal) obj[10] // tongTienThuoc
+        ));
+    }
+
+    public Page<LichSuKhamNhanVienDTO> getLichSuKhamForNhanVienWithFilters(String date, String tenBenhNhan, String tenBacSi, Pageable pageable) {
+        // Chuyển hướng đến phương thức mới có tham số dienThoai
+        return getLichSuKhamForNhanVienWithFilters(date, tenBenhNhan, tenBacSi, null, pageable);
+    }
+
+    // Thêm phương thức mới để hỗ trợ lọc theo SĐT
+    public Page<LichSuKhamNhanVienDTO> getLichSuKhamForNhanVienWithFilters(String date, String tenBenhNhan, String tenBacSi, String dienThoai, Pageable pageable) {
+        Page<Object[]> rawData = hoSoBenhRepository.findLichSuKhamForNhanVienWithFiltersRaw(date, tenBenhNhan, tenBacSi, dienThoai, pageable);
+
+        return rawData.map(obj -> new LichSuKhamNhanVienDTO(
+                (String) obj[0], // tenBacSi
+                (String) obj[1], // tenBenhNhan
+                (String) obj[2], // dienThoai
+                (String) obj[3], // ngayKham
+                (String) obj[4], // chanDoan
+                (String) obj[5], // trieuChung
+                (String) obj[6], // thuoc
+                (String) obj[7], // lieu
+                (String) obj[8], // tanSuat
+                (String) obj[9], // soLuong
+                (BigDecimal) obj[10] // tongTienThuoc
+        ));
+    }
 
 
 }
