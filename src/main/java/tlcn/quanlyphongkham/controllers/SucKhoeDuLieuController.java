@@ -1,8 +1,12 @@
 package tlcn.quanlyphongkham.controllers;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,15 +14,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import tlcn.quanlyphongkham.entities.NguoiDung;
 import tlcn.quanlyphongkham.entities.SucKhoeDuLieu;
 import tlcn.quanlyphongkham.services.NguoiDungService;
 import tlcn.quanlyphongkham.services.SucKhoeDuLieuService;
-
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import java.util.Arrays;
-import java.util.List;
 
 @Controller
 public class SucKhoeDuLieuController {
@@ -79,6 +81,7 @@ public class SucKhoeDuLieuController {
                         throw new IllegalStateException("Email người dùng không được cấu hình");
                     }
                     String userEmail = nguoiDung.getEmail();
+                    System.out.println("Preparing to send warning email to: " + userEmail);
 
                     MimeMessage message = mailSender.createMimeMessage();
                     MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -110,18 +113,18 @@ public class SucKhoeDuLieuController {
                     body.append("<li><strong>Thời gian</strong>: ").append(savedData.getThoiGian()).append("</li>")
                         .append("</ul>")
                         .append("<p>Vui lòng liên hệ bác sĩ để được tư vấn thêm.</p>")
-                        .append("<p>Trân trọng");
+                        .append("<p>Trân trọng</p>");
 
                     helper.setTo(userEmail);
                     helper.setSubject(subject);
                     helper.setText(body.toString(), true);
-                    helper.setFrom("21110889@student.hcmute.edu.vn"); // Thay bằng email của bạn
+                  
 
                     mailSender.send(message);
-                    System.out.println("Sent email to: " + userEmail + ", subject: " + subject);
+                    System.out.println("Sent warning email to: " + userEmail + ", subject: " + subject);
                 } catch (MessagingException | IllegalStateException e) {
-                    System.err.println("Failed to send email: " + e.getMessage());
-                    redirectAttributes.addFlashAttribute("error", "Lưu dữ liệu thành công nhưng không thể gửi email cảnh báo.");
+                    System.err.println("Failed to send warning email: " + e.getMessage());
+                    redirectAttributes.addFlashAttribute("error", "Lưu dữ liệu thành công nhưng không thể gửi email cảnh báo: " + e.getMessage());
                 }
             }
         } catch (IllegalArgumentException e) {
@@ -129,5 +132,43 @@ public class SucKhoeDuLieuController {
             return "redirect:/health-chart?chiSo=" + chiSo + "&time=" + time;
         }
         return "redirect:/health-chart?chiSo=" + chiSo + "&time=" + time;
+    }
+
+    @Scheduled(cron = "0 0 8 * * ?") // 8:00 AM hàng ngày
+    public void sendDailyReminderEmails() {
+        try {
+            List<NguoiDung> benhNhans = nguoiDungService.findByVaiTro("benhNhan");
+            System.out.println("Sending daily reminders to " + benhNhans.size() + " patients");
+            for (NguoiDung benhNhan : benhNhans) {
+                if (benhNhan.getEmail() == null || benhNhan.getEmail().isEmpty()) {
+                    System.err.println("Skipping patient ID " + benhNhan.getNguoiDungId() + ": No email configured");
+                    continue;
+                }
+                String userEmail = benhNhan.getEmail();
+                System.out.println("Preparing to send reminder email to: " + userEmail);
+
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+                String subject = "Nhắc nhở: Cập nhật chỉ số sức khỏe hôm nay";
+                StringBuilder body = new StringBuilder();
+                body.append("<h2>Nhắc nhở Cập nhật Sức khỏe</h2>")
+                    .append("<p>Xin chào, </p>")
+                    .append("<p>Hãy cập nhật chỉ số sức khỏe của bạn (huyết áp, đường huyết, hoặc cân nặng) để theo dõi tình trạng sức khỏe hàng ngày.</p>")
+                    .append("<p><a href='http://localhost:8080/health-chart'>Cập nhật ngay tại đây</a></p>")
+                    .append("<p>Nếu bạn cần hỗ trợ, vui lòng liên hệ bác sĩ qua hệ thống chat.</p>")
+                    .append("<p>Trân trọng</p>");
+
+                helper.setTo(userEmail);
+                helper.setSubject(subject);
+                helper.setText(body.toString(), true);
+            
+
+                mailSender.send(message);
+                System.out.println("Sent reminder email to: " + userEmail + ", subject: " + subject);
+            }
+        } catch (MessagingException e) {
+            System.err.println("Failed to send reminder emails: " + e.getMessage());
+        }
     }
 }

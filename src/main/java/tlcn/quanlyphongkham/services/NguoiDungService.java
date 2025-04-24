@@ -232,4 +232,8 @@ public class NguoiDungService {
         return null;  // Or throw an exception, depending on your error handling strategy
     }
 
+	public List<NguoiDung> findByVaiTro(String string) {
+		 return nguoiDungRepository.findByVaiTro(string);
+	}
+
 }

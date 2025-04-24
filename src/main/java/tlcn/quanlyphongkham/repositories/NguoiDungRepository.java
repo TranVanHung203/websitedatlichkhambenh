@@ -1,5 +1,6 @@
 package tlcn.quanlyphongkham.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -30,6 +31,10 @@ public interface NguoiDungRepository extends JpaRepository<NguoiDung, String> {
 
 
     Page<NguoiDung> findByEmailContainingOrTenDangNhapContaining(String email, String tenDangNhap, Pageable pageable);
+
+
+    @Query("SELECT n FROM NguoiDung n WHERE n.vaiTro = :vaiTro")
+    List<NguoiDung> findByVaiTro(@Param("vaiTro") String vaiTro);
 
 
     
