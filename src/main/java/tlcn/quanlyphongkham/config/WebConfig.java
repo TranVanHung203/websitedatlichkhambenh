@@ -34,6 +34,9 @@ public class WebConfig implements WebMvcConfigurer {
         templateResolver.setCacheable(false); // Đặt true trong môi trường production nếu cần.
         return templateResolver;
     }
+    
+    
+    
 }
 
 

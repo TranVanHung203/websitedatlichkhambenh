@@ -26,6 +26,10 @@
 				<p><strong>Điện Thoại:</strong> <span
 						th:text="${bacSi.dienThoai != null ? bacSi.dienThoai : ''}"></span></p>
 				<p><strong>Địa Chỉ:</strong> <span th:text="${bacSi.diaChi != null ? bacSi.diaChi : ''}"></span></p>
+				<form th:action="@{/chat/bacsi}" method="get" style="display:inline;">
+					<input type="hidden" name="bacSiId" th:value="${bacSi.bacSiId}" />
+					<button type="submit" class="history-chat-btn">💬 Nhắn tin</button>
+				</form>
 			</div>
 		</div>
 
@@ -95,21 +99,54 @@
 
 	<script>
 		function openTab(event, tabId) {
+			// Remove active class from all tab contents and links
 			const tabContents = document.querySelectorAll(".tab-content");
 			tabContents.forEach((content) => content.classList.remove("active"));
 
 			const tabLinks = document.querySelectorAll(".tab-link");
 			tabLinks.forEach((link) => link.classList.remove("active"));
 
+			// Add active class to the selected tab content and link
 			document.getElementById(tabId).classList.add("active");
 			event.currentTarget.classList.add("active");
+
+			// Update URL with the selected tab
+			const url = new URL(window.location);
+			url.searchParams.set('tab', tabId);
+			window.history.pushState({}, '', url);
 		}
 
-		document.getElementById("dateForm").addEventListener("submit", function (event) {
-			event.preventDefault();
-			let selectedDate = document.getElementById("ngay").value;
+		// Handle form submission for date picker
+		document.querySelector('.btn-view-schedule').addEventListener('click', function () {
+			const selectedDate = document.getElementById('ngay').value;
 			if (selectedDate) {
-				window.location.href = window.location.pathname + "?ngay=" + selectedDate;
+				const url = new URL(window.location);
+				url.searchParams.set('ngay', selectedDate);
+				url.searchParams.set('tab', 'schedule-info'); // Ensure schedule-info tab is preserved
+				window.location.href = url;
+			} else {
+				alert('Vui lòng chọn ngày!');
+			}
+		});
+
+		// On page load, check for tab query parameter and activate the corresponding tab
+		document.addEventListener('DOMContentLoaded', function () {
+			const urlParams = new URLSearchParams(window.location.search);
+			const tabId = urlParams.get('tab') || 'basic-info'; // Default to basic-info if no tab parameter
+			const tabContent = document.getElementById(tabId);
+			const tabLinks = document.querySelectorAll(".tab-link");
+
+			if (tabContent) {
+				// Remove active class from all tab contents and links
+				document.querySelectorAll(".tab-content").forEach((content) => content.classList.remove("active"));
+				tabLinks.forEach((link) => link.classList.remove("active"));
+
+				// Add active class to the selected tab content and link
+				tabContent.classList.add("active");
+				const activeLink = Array.from(tabLinks).find(link => link.getAttribute('onclick').includes(tabId));
+				if (activeLink) {
+					activeLink.classList.add("active");
+				}
 			}
 		});
 	</script>
