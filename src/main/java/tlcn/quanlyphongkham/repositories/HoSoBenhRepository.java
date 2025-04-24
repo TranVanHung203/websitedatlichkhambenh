@@ -106,5 +106,63 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 	Page<Object[]> findLichSuKhamByBenhNhanIdAndDateRaw(@Param("benhNhanId") String benhNhanId,
 	                                                   @Param("date") String date,
 	                                                   Pageable pageable);
+	
+	
+	
+	@Query(value = """
+            SELECT
+                bs.ten AS tenBacSi,
+                bn.ten AS tenBenhNhan,
+                bn.dien_thoai AS dienThoai,  -- Thêm cột SĐT
+                DATE_FORMAT(hs.thoi_gian_tao, '%Y-%m-%d') AS ngayKham,
+                hs.chan_doan AS chanDoan,
+                hs.trieu_chung AS trieuChung,
+                GROUP_CONCAT(CONCAT('- ', t.ten) SEPARATOR '\\n') AS thuoc,
+                GROUP_CONCAT(dtt.lieu SEPARATOR '\\n') AS lieu,
+                GROUP_CONCAT(dtt.tan_suat SEPARATOR '\\n') AS tanSuat,
+                GROUP_CONCAT(CAST(dtt.so_luong AS CHAR) SEPARATOR '\\n') AS soLuong,
+                SUM(dtt.so_luong * t.gia) AS tongTienThuoc
+            FROM ho_so_benh hs
+            JOIN bac_si bs ON hs.bac_si_id = bs.bac_si_id
+            JOIN benh_nhan bn ON hs.benh_nhan_id = bn.benh_nhan_id
+            LEFT JOIN don_thuoc dt ON hs.ho_so_id = dt.ho_so_id
+            LEFT JOIN don_thuoc_thuoc dtt ON dt.don_thuoc_id = dtt.don_thuoc_id
+            LEFT JOIN thuoc t ON dtt.thuoc_id = t.thuoc_id
+            GROUP BY hs.ho_so_id, bs.ten, bn.ten, bn.dien_thoai, hs.thoi_gian_tao, hs.chan_doan, hs.trieu_chung
+            ORDER BY hs.thoi_gian_tao DESC
+            """, nativeQuery = true)
+    Page<Object[]> findLichSuKhamForNhanVienRaw(Pageable pageable);
 
+    @Query(value = """
+            SELECT
+                bs.ten AS tenBacSi,
+                bn.ten AS tenBenhNhan,
+                bn.dien_thoai AS dienThoai,
+                DATE_FORMAT(hs.thoi_gian_tao, '%Y-%m-%d') AS ngayKham,
+                hs.chan_doan AS chanDoan,
+                hs.trieu_chung AS trieuChung,
+                GROUP_CONCAT(CONCAT('- ', t.ten) SEPARATOR '\\n') AS thuoc,
+                GROUP_CONCAT(dtt.lieu SEPARATOR '\\n') AS lieu,
+                GROUP_CONCAT(dtt.tan_suat SEPARATOR '\\n') AS tanSuat,
+                GROUP_CONCAT(CAST(dtt.so_luong AS CHAR) SEPARATOR '\\n') AS soLuong,
+                SUM(dtt.so_luong * t.gia) AS tongTienThuoc
+            FROM ho_so_benh hs
+            JOIN bac_si bs ON hs.bac_si_id = bs.bac_si_id
+            JOIN benh_nhan bn ON hs.benh_nhan_id = bn.benh_nhan_id
+            LEFT JOIN don_thuoc dt ON hs.ho_so_id = dt.ho_so_id
+            LEFT JOIN don_thuoc_thuoc dtt ON dt.don_thuoc_id = dtt.don_thuoc_id
+            LEFT JOIN thuoc t ON dtt.thuoc_id = t.thuoc_id
+            WHERE (:date IS NULL OR DATE_FORMAT(hs.thoi_gian_tao, '%Y-%m-%d') = :date)
+            AND (:tenBenhNhan IS NULL OR bn.ten LIKE CONCAT('%', :tenBenhNhan, '%'))
+            AND (:tenBacSi IS NULL OR bs.ten LIKE CONCAT('%', :tenBacSi, '%'))
+            AND (:dienThoai IS NULL OR bn.dien_thoai LIKE CONCAT('%', :dienThoai, '%'))
+            GROUP BY hs.ho_so_id, bs.ten, bn.ten, bn.dien_thoai, hs.thoi_gian_tao, hs.chan_doan, hs.trieu_chung
+            ORDER BY hs.thoi_gian_tao DESC
+            """, nativeQuery = true)
+    Page<Object[]> findLichSuKhamForNhanVienWithFiltersRaw(
+            @Param("date") String date,
+            @Param("tenBenhNhan") String tenBenhNhan,
+            @Param("tenBacSi") String tenBacSi,
+            @Param("dienThoai") String dienThoai,
+            Pageable pageable);
 }

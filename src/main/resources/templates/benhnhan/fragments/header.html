@@ -24,14 +24,20 @@
             <li><a th:href="@{/user/dangkylichkham}">Đặt lịch khám</a></li>
             <li><a th:href="@{/user/lichsudatlich}">Xem lịch hẹn</a></li>
             <li><a th:href="@{/user/lichsukhambenh}">Lịch sử khám bệnh</a></li>
-           
             <li>
                 <a th:href="@{/user/editprofile}" class="edit-profile">
                     <img th:src="@{/images/logoeditprofile.png}" alt="Edit Profile" width="20px" class="edit-icon">
                     <span class="edit-text">Thông tin cá nhân</span>
                 </a>
             </li>
-            <li><a th:href="@{/logout}" class="logout">Đăng Xuất</a></li>
+            <li>
+                <div sec:authorize="isAuthenticated()">
+                    <a th:href="@{/logout}" class="logout">Đăng Xuất</a>
+                </div>
+                <div sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/login}" class="login">Đăng Nhập</a>
+                </div>
+            </li>
         </ul>
     </nav>
 </header>

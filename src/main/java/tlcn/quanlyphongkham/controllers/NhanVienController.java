@@ -15,6 +15,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +26,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
 import tlcn.quanlyphongkham.dtos.LichBacSiDTO;
 import tlcn.quanlyphongkham.dtos.LichKhamBenhDTO;
+import tlcn.quanlyphongkham.dtos.LichSuKhamNhanVienDTO;
 import tlcn.quanlyphongkham.dtos.MaLichKhamBenhDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.BenhNhan;
@@ -38,6 +43,7 @@ import tlcn.quanlyphongkham.security.CustomUserDetails;
 import tlcn.quanlyphongkham.services.BacSiService;
 import tlcn.quanlyphongkham.services.BenhNhanService;
 import tlcn.quanlyphongkham.services.ChuyenKhoaService;
+import tlcn.quanlyphongkham.services.HoSoBenhService;
 import tlcn.quanlyphongkham.services.LichKhamBenhService;
 import tlcn.quanlyphongkham.services.NguoiDungService;
 import tlcn.quanlyphongkham.services.SlotThoiGianService;
@@ -53,6 +59,9 @@ public class NhanVienController {
 
 	@Autowired
 	private ChuyenKhoaService chuyenKhoaService;
+	
+	@Autowired
+    private HoSoBenhService hoSoBenhService;
 
 	@Autowired
 	private BacSiService bacSiService;
@@ -555,5 +564,61 @@ public class NhanVienController {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 	    }
 	}
+	
+	
+	@GetMapping("/nhanvien/xemlichsukhambenh")
+    public String lichSuKhamNhanVien(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(required = false) String date,
+            @RequestParam(required = false) String tenBenhNhan,
+            @RequestParam(required = false) String tenBacSi,
+            @RequestParam(required = false) String dienThoai, // Thêm tham số SĐT
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<LichSuKhamNhanVienDTO> lichSuKhams;
+
+        // Áp dụng bộ lọc nếu có
+        if ((date != null && !date.isEmpty()) || (tenBenhNhan != null && !tenBenhNhan.isEmpty()) || 
+            (tenBacSi != null && !tenBacSi.isEmpty()) || (dienThoai != null && !dienThoai.isEmpty())) {
+            lichSuKhams = hoSoBenhService.getLichSuKhamForNhanVienWithFilters(date, tenBenhNhan, tenBacSi, dienThoai, pageable);
+        } else {
+            lichSuKhams = hoSoBenhService.getLichSuKhamForNhanVien(pageable);
+        }
+
+        // Kiểm tra nếu page vượt quá totalPages, chuyển hướng về trang hợp lệ
+        if (page >= lichSuKhams.getTotalPages() && lichSuKhams.getTotalPages() > 0) {
+            redirectAttributes.addAttribute("page", lichSuKhams.getTotalPages() - 1);
+            redirectAttributes.addAttribute("size", size);
+            redirectAttributes.addAttribute("date", date);
+            redirectAttributes.addAttribute("tenBenhNhan", tenBenhNhan);
+            redirectAttributes.addAttribute("tenBacSi", tenBacSi);
+            redirectAttributes.addAttribute("dienThoai", dienThoai); // Thêm tham số SĐT
+            return "redirect:/nhanvien/xemlichsukhambenh";
+        }
+
+        // Nếu page vượt quá và totalPages = 0 (không có dữ liệu), quay về trang 0
+        if (page > 0 && lichSuKhams.getTotalPages() == 0) {
+            redirectAttributes.addAttribute("page", 0);
+            redirectAttributes.addAttribute("size", size);
+            redirectAttributes.addAttribute("date", date);
+            redirectAttributes.addAttribute("tenBenhNhan", tenBenhNhan);
+            redirectAttributes.addAttribute("tenBacSi", tenBacSi);
+            redirectAttributes.addAttribute("dienThoai", dienThoai); // Thêm tham số SĐT
+            return "redirect:/nhanvien/xemlichsukhambenh";	
+        }
+
+        model.addAttribute("lichSuKhams", lichSuKhams.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", lichSuKhams.getTotalPages());
+        model.addAttribute("date", date);
+        model.addAttribute("tenBenhNhan", tenBenhNhan);
+        model.addAttribute("tenBacSi", tenBacSi);
+        model.addAttribute("dienThoai", dienThoai); // Thêm vào model
+
+        return "nhanvien/xemlichsukhambenh/xemlichsukhambenh";
+    }
 	
 }

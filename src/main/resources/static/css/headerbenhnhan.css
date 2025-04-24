@@ -141,6 +141,16 @@ nav ul li a.logout {
     left: 0;
     min-width: 200px; /* Độ rộng tối thiểu */
 }
+.logout, .login {
+    color: #fff; /* Adjust to match your design */
+    background-color: #dc3545; /* Example: red background */
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+}
 
+.logout:hover, .login:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
 
 

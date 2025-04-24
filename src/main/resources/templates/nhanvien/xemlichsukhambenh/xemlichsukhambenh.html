@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch Sử Khám Bệnh</title>
+    <link rel="stylesheet" th:href="@{/css/xemlichsukhambenh.css}">
+    <link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
+</head>
+
+<body>
+    <!-- Header nhân viên -->
+    <div th:replace="~{nhanvien/fragments/header :: header}"></div>
+
+    <div class="container">
+        <h1>Lịch Sử Khám Bệnh</h1>
+
+        <!-- Thanh tìm kiếm và lọc -->
+        <div class="search-bar">
+            <div>
+                <label for="search-date">Tìm theo ngày:</label>
+                <input type="date" id="search-date" name="search-date" th:value="${date}" />
+            </div>
+            <div>
+                <label for="search-benh-nhan">Tìm theo tên bệnh nhân:</label>
+                <input type="text" id="search-benh-nhan" placeholder="Nhập tên bệnh nhân..." th:value="${tenBenhNhan}" />
+            </div>
+            <div>
+                <label for="search-bac-si">Tìm theo tên bác sĩ:</label>
+                <input type="text" id="search-bac-si" placeholder="Nhập tên bác sĩ..." th:value="${tenBacSi}" />
+            </div>
+            <div>
+                <label for="search-dien-thoai">Tìm theo SĐT:</label>
+                <input type="text" id="search-dien-thoai" placeholder="Nhập SĐT..." th:value="${dienThoai}" />
+            </div>
+            <button onclick="applyFilters()">Lọc</button>
+        </div>
+
+        <!-- Bảng lịch sử khám -->
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Tên Bác Sĩ Khám</th>
+                    <th>Tên Bệnh Nhân</th>
+                    <th>Số Điện Thoại</th> <!-- Thêm cột SĐT -->
+                    <th>Ngày Khám</th>
+                    <th>Chẩn Đoán</th>
+                    <th>Triệu Chứng</th>
+                    <th>Thuốc</th>
+                    <th>Liều Lượng</th>
+                    <th>Tần Suất</th>
+                    <th>Số Lượng</th>
+                    <th>Tổng Tiền Thuốc</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="lichSu : ${lichSuKhams}">
+                    <td th:text="${lichSu.tenBacSi}"></td>
+                    <td th:text="${lichSu.tenBenhNhan}"></td>
+                    <td th:text="${lichSu.dienThoai}"></td> <!-- Hiển thị SĐT -->
+                    <td th:text="${lichSu.ngayKham}"></td>
+                    <td th:text="${lichSu.chanDoan}"></td>
+                    <td th:text="${lichSu.trieuChung}"></td>
+                    <td style="white-space: pre-line;" th:text="${lichSu.thuoc}"></td>
+                    <td style="white-space: pre-line;" th:text="${lichSu.lieu}"></td>
+                    <td style="white-space: pre-line;" th:text="${lichSu.tanSuat}"></td>
+                    <td style="white-space: pre-line;" th:text="${lichSu.soLuong}"></td>
+                    <td th:text="${lichSu.formattedTongTienThuoc}"></td>
+                </tr>
+                <tr th:if="${lichSuKhams.isEmpty()}">
+                    <td colspan="11" class="no-data">Không có lịch sử khám bệnh</td> <!-- Cập nhật colspan -->
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Phân trang -->
+        <div class="pagination" th:if="${totalPages > 1}">
+            <a th:if="${currentPage > 0}"
+               th:href="@{/nhanvien/xemlichsukhambenh(page=${currentPage - 1}, size=5, tenBenhNhan=${tenBenhNhan}, tenBacSi=${tenBacSi}, date=${date}, dienThoai=${dienThoai})}">Trang trước</a>
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:href="@{/nhanvien/xemlichsukhambenh(page=${i}, size=5, tenBenhNhan=${tenBenhNhan}, tenBacSi=${tenBacSi}, date=${date}, dienThoai=${dienThoai})}"
+                   th:class="${i == currentPage} ? 'active' : ''"
+                   th:text="${i + 1}"></a>
+            </span>
+            <a th:if="${currentPage < totalPages - 1}"
+               th:href="@{/nhanvien/xemlichsukhambenh(page=${currentPage + 1}, size=5, tenBenhNhan=${tenBenhNhan}, tenBacSi=${tenBacSi}, date=${date}, dienThoai=${dienThoai})}">Trang sau</a>
+        </div>
+    </div>
+
+    <script>
+        function applyFilters() {
+            const date = document.getElementById('search-date').value;
+            const tenBenhNhan = document.getElementById('search-benh-nhan').value;
+            const tenBacSi = document.getElementById('search-bac-si').value;
+            const dienThoai = document.getElementById('search-dien-thoai').value; // Lấy giá trị SĐT
+
+            let url = '/nhanvien/xemlichsukhambenh?page=0&size=5';
+            if (date) url += `&date=${date}`;
+            if (tenBenhNhan) url += `&tenBenhNhan=${encodeURIComponent(tenBenhNhan)}`;
+            if (tenBacSi) url += `&tenBacSi=${encodeURIComponent(tenBacSi)}`;
+            if (dienThoai) url += `&dienThoai=${encodeURIComponent(dienThoai)}`; // Thêm tham số SĐT
+
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>
