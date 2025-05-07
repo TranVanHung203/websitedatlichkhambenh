@@ -5,9 +5,9 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Thông Tin Bác Sĩ</title>
-	<link rel="stylesheet" href="/css/chitietbs.css">
 	<link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
 	<link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+	<link th:href="@{/css/chitietbs.css}" rel="stylesheet">
 </head>
 
 <body>
@@ -69,7 +69,7 @@
 			<div class="date-picker-container">
 				<label for="ngay">🗓 Chọn ngày:</label>
 				<input type="date" id="ngay" name="ngay" th:value="${selectedDate}" class="date-picker" />
-				<button type="submit" class="btn-view-schedule">Xem Lịch</button>
+				<button type="button" class="btn-view-schedule">Xem Lịch</button>
 			</div>
 
 			<table class="schedule-table">
@@ -77,6 +77,7 @@
 					<tr>
 						<th>Ca</th>
 						<th>Giờ</th>
+						<th>Hành Động</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -87,30 +88,45 @@
 							<span th:if="${lich.ca == 'Chiều'}">🌤 13:00 - 16:30</span>
 							<span th:if="${lich.ca == 'Ngoài Giờ'}">🌙 17:00 - 19:30</span>
 						</td>
+						<td>
+							<button class="book-now-btn"
+								th:attr="data-doctor-id=${bacSi.bacSiId}, data-date=${selectedDate}, data-ca=${lich.ca}"
+								onclick="showTimeSlots(this)">
+								Đặt Lịch
+							</button>
+						</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
-
 	</div>
 
+	<!-- Modal để chọn giờ -->
+	<div id="timeSlotModal" class="modal">
+		<div class="modal-content">
+			<span class="close" onclick="closeModal()">×</span>
+			<h3>Chọn Giờ Khám</h3>
+			<div id="timeSlotsContainer"></div>
+			<div class="modal-actions">
+				<button class="modal-btn modal-btn-secondary" onclick="closeModal()">Hủy</button>
+				<button class="modal-btn modal-btn-primary" onclick="proceedToStep3()">Xác Nhận</button>
+			</div>
+		</div>
+	</div>
 	<!-- Include Footer -->
 	<div th:replace="benhnhan/fragments/footer :: footer"></div>
 
 	<script>
 		function openTab(event, tabId) {
-			// Remove active class from all tab contents and links
 			const tabContents = document.querySelectorAll(".tab-content");
 			tabContents.forEach((content) => content.classList.remove("active"));
 
 			const tabLinks = document.querySelectorAll(".tab-link");
 			tabLinks.forEach((link) => link.classList.remove("active"));
 
-			// Add active class to the selected tab content and link
 			document.getElementById(tabId).classList.add("active");
 			event.currentTarget.classList.add("active");
 
-			// Update URL with the selected tab
 			const url = new URL(window.location);
 			url.searchParams.set('tab', tabId);
 			window.history.pushState({}, '', url);
@@ -122,7 +138,7 @@
 			if (selectedDate) {
 				const url = new URL(window.location);
 				url.searchParams.set('ngay', selectedDate);
-				url.searchParams.set('tab', 'schedule-info'); // Ensure schedule-info tab is preserved
+				url.searchParams.set('tab', 'schedule-info');
 				window.location.href = url;
 			} else {
 				alert('Vui lòng chọn ngày!');
@@ -132,23 +148,138 @@
 		// On page load, check for tab query parameter and activate the corresponding tab
 		document.addEventListener('DOMContentLoaded', function () {
 			const urlParams = new URLSearchParams(window.location.search);
-			const tabId = urlParams.get('tab') || 'basic-info'; // Default to basic-info if no tab parameter
+			const tabId = urlParams.get('tab') || 'basic-info';
 			const tabContent = document.getElementById(tabId);
 			const tabLinks = document.querySelectorAll(".tab-link");
 
 			if (tabContent) {
-				// Remove active class from all tab contents and links
 				document.querySelectorAll(".tab-content").forEach((content) => content.classList.remove("active"));
 				tabLinks.forEach((link) => link.classList.remove("active"));
 
-				// Add active class to the selected tab content and link
 				tabContent.classList.add("active");
 				const activeLink = Array.from(tabLinks).find(link => link.getAttribute('onclick').includes(tabId));
 				if (activeLink) {
 					activeLink.classList.add("active");
 				}
 			}
+
+			// Đảm bảo modal không hiện khi load trang
+			const modal = document.getElementById("timeSlotModal");
+			modal.classList.remove("show");
 		});
+
+		// Dữ liệu tạm thời để lưu thông tin khi chọn giờ
+		let currentDoctorId = null;
+		let currentDate = null;
+		let currentCa = null;
+
+		// Hiển thị modal chỉ khi nhấn nút đặt lịch
+		function showTimeSlots(button) {
+			currentDoctorId = button.getAttribute("data-doctor-id");
+			currentDate = button.getAttribute("data-date");
+			currentCa = button.getAttribute("data-ca");
+
+			// Xóa nội dung cũ của modal trước khi fetch dữ liệu mới
+			const timeSlotsContainer = document.getElementById("timeSlotsContainer");
+			timeSlotsContainer.innerHTML = '';
+
+			// Gọi API để lấy các khung giờ đã đặt
+			fetch(`/user/dangkylichkham/getAvailableSlots`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({doctorId: currentDoctorId, date: currentDate})
+			})
+				.then(response => response.json())
+				.then(data => {
+					updateTimeSlots(data, currentCa);
+
+					// Hiển thị modal
+					const modal = document.getElementById("timeSlotModal");
+					modal.classList.add("show");
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					alert('Đã có lỗi xảy ra, vui lòng thử lại!');
+				});
+		}
+
+		// Cập nhật danh sách giờ trong modal
+		function updateTimeSlots(data, ca) {
+			const bookedSlots = data.bookedSlots || [];
+			const timeSlotsContainer = document.getElementById("timeSlotsContainer");
+
+			const timeFrames = {
+				"Sáng": ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"],
+				"Chiều": ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"],
+				"Ngoài Giờ": ["17:00", "17:30", "18:00", "18:30", "19:00", "19:30"]
+			};
+
+			const timeSlots = timeFrames[ca];
+			const timeSlotContainer = document.createElement("div");
+			timeSlotContainer.classList.add("time-frame");
+
+			const timeFrameTitle = document.createElement("h4");
+			timeFrameTitle.textContent = ca;
+			timeSlotContainer.appendChild(timeFrameTitle);
+
+			timeSlots.forEach(time => {
+				const isBooked = bookedSlots.includes(time);
+				const label = document.createElement("label");
+				const input = document.createElement("input");
+				input.type = "radio";
+				input.name = "time";
+				input.value = time;
+
+				if (isBooked) {
+					label.style.textDecoration = 'line-through';
+					input.disabled = true;
+				}
+				label.appendChild(input);
+				label.appendChild(document.createTextNode(time));
+				timeSlotContainer.appendChild(label);
+			});
+
+			timeSlotsContainer.appendChild(timeSlotContainer);
+		}
+
+		// Đóng modal và reset nội dung
+		function closeModal() {
+			const modal = document.getElementById("timeSlotModal");
+			modal.classList.remove("show");
+
+			// Reset nội dung modal
+			const timeSlotsContainer = document.getElementById("timeSlotsContainer");
+			timeSlotsContainer.innerHTML = '';
+
+			// Reset lựa chọn radio (nếu có)
+			const checkedRadio = document.querySelector('input[name="time"]:checked');
+			if (checkedRadio) {
+				checkedRadio.checked = false;
+			}
+		}
+
+		// Chuyển đến Bước 3
+		function proceedToStep3() {
+			const selectedTime = document.querySelector('input[name="time"]:checked');
+
+			if (selectedTime) {
+				const selectedTimeValue = selectedTime.value;
+				const url = `/user/dangkylichkham/buoc3?doctorId=${currentDoctorId}&selectedDate=${currentDate}&selectedTime=${selectedTimeValue}&ca=${currentCa}`;
+				window.location.href = url;
+			} else {
+				alert('Vui lòng chọn giờ khám!');
+			}
+		}
+
+		// Đóng modal khi nhấp bên ngoài
+		window.onclick = function (event) {
+			const modal = document.getElementById("timeSlotModal");
+			if (event.target === modal) {
+				closeModal();
+			}
+		};
 	</script>
 </body>
 

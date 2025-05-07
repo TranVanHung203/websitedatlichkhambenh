@@ -48,6 +48,33 @@ import tlcn.quanlyphongkham.services.LichKhamBenhService;
 import tlcn.quanlyphongkham.services.NguoiDungService;
 import tlcn.quanlyphongkham.services.SlotThoiGianService;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.text.Normalizer;
+import com.itextpdf.text.BaseColor;
+
 @Controller
 public class NhanVienController {
 
@@ -317,76 +344,6 @@ public class NhanVienController {
 		}
 	}
 
-//	@GetMapping("/nhanvien/xemlichbacsi")
-//	public String viewDoctorSchedule(Model model) {
-//	    try {
-//	        List<BacSi> bacSiList = bacSiService.getAllDoctors();
-//	        if (bacSiList == null) {
-//	            model.addAttribute("errorMessage", "Không thể tải danh sách bác sĩ.");
-//	            return "error";
-//	        }
-//	        model.addAttribute("bacSiList", bacSiList);
-//	        return "nhanvien/xemlichbacsi/xemlichbacsi";
-//	    } catch (Exception e) {
-//	        e.printStackTrace();
-//	        model.addAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
-//	        return "error";
-//	    }
-//	}
-//
-//
-//	@GetMapping("/nhanvien/xemlichbacsi/schedule")
-//	@ResponseBody
-//	public List<LichBacSiDTO> getDoctorScheduleSlots(
-//	        @RequestParam("doctorId") String doctorId,
-//	        @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-//
-//	    BacSi bacSi = bacSiService.findById(doctorId);
-//	    if (bacSi == null) {
-//	        return Collections.emptyList();
-//	    }
-//
-//	    List<LichKhamBenh> lichList = lichKhamBenhService.getLichKhamBenhByBacSi(doctorId);
-//
-//	    if (date != null) {
-//	        lichList = lichList.stream()
-//	                .filter(lich -> lich.getNgayThangNam().isEqual(date))
-//	                .collect(Collectors.toList());
-//	    }
-//
-//	    List<LichBacSiDTO> result = new ArrayList<>();
-//
-//	    for (LichKhamBenh lich : lichList) {
-//	        for (SlotThoiGian slot : lich.getSlotThoiGian()) {
-//	            String trangThai = (slot.getTrangThai() != null && !slot.getTrangThai().trim().isEmpty())
-//	                    ? "Đã đặt" : "Chưa đặt";
-//
-//	            LichBacSiDTO dto = new LichBacSiDTO();
-//	            dto.setNgayThangNam(lich.getNgayThangNam());
-//	            dto.setCaKham(lich.getCa());
-//	            dto.setThoiGianBatDau(slot.getThoiGianBatDau().toString());
-//	            dto.setThoiGianKetThuc(slot.getThoiGianKetThuc().toString());
-//	            dto.setTrangThai(trangThai);
-//
-//	            result.add(dto);
-//	        }
-//	    }
-//
-//	    result.sort(Comparator
-//	        .comparingInt((LichBacSiDTO dto) -> getCaPriority(dto.getCaKham()))
-//	        .thenComparing(dto -> LocalTime.parse(dto.getThoiGianBatDau())));
-//
-//	    return result;
-//	}
-//
-//	private int getCaPriority(String ca) {
-//	    return switch (ca.toLowerCase()) {
-//	        case "sáng" -> 1;
-//	        case "chiều" -> 2;
-//	        case "ngoài giờ" -> 3;
-//	        default -> 4;
-//	    };
-//	}
 	@GetMapping("/nhanvien/xemlichbacsi")
 	public String viewDoctorSchedule(Model model) {
 		try {
@@ -620,5 +577,212 @@ public class NhanVienController {
 
         return "nhanvien/xemlichsukhambenh/xemlichsukhambenh";
     }
+	
+	@PostMapping("/nhanvien/xemlichsukhambenh/download-pdf")
+	public ResponseEntity<InputStreamResource> downloadXemLichSuKhamPdf(
+	        @RequestBody Map<String, Object> data) throws Exception {
+
+	    // Lấy dữ liệu từ request body
+	    String tenBacSi = (String) data.get("tenBacSi");
+	    String tenBenhNhan = (String) data.get("tenBenhNhan");
+	    String dienThoai = (String) data.get("dienThoai");
+	    String ngayKham = (String) data.get("ngayKham");
+	    String chanDoan = (String) data.get("chanDoan");
+	    String trieuChung = (String) data.get("trieuChung");
+	    List<String> thuoc = (List<String>) data.get("thuoc");
+	    List<String> lieu = (List<String>) data.get("lieu");
+	    List<String> tanSuat = (List<String>) data.get("tanSuat");
+	    List<String> soLuong = (List<String>) data.get("soLuong");
+	    String tongTien = (String) data.get("tongTien");
+
+	    // Tạo PDF
+	    ByteArrayOutputStream baos = generateXemLichSuKhamPdf(
+	            tenBacSi, tenBenhNhan, dienThoai, ngayKham, chanDoan, trieuChung, thuoc, lieu, tanSuat, soLuong, tongTien);
+
+	    // Chuẩn hóa tên bệnh nhân và bỏ dấu
+	    String tenBenhNhanChuanHoa = tenBenhNhan != null ? removeDiacritics(tenBenhNhan).replaceAll("\\s+", "_") : "KhongXacDinh";
+
+	    // Lấy ngày hiện tại
+	    String ngayHienTai = new SimpleDateFormat("ddMMyyyy").format(new Date());
+	    String fileName = "don_thuoc_" + tenBenhNhanChuanHoa + "_" + ngayHienTai + ".pdf";
+
+	    // Chuẩn bị response
+	    HttpHeaders headers = new HttpHeaders();
+	    // Mã hóa tên file để tránh lỗi Unicode trong header
+	    String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString()).replace("+", "%20");
+	    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName);
+	    headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
+	    headers.add(HttpHeaders.PRAGMA, "no-cache");
+	    headers.add(HttpHeaders.EXPIRES, "0");
+
+	    InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(baos.toByteArray()));
+
+	    return ResponseEntity.ok()
+	            .headers(headers)
+	            .contentLength(baos.size())
+	            .contentType(MediaType.APPLICATION_PDF)
+	            .body(resource);
+	}
+
+	// Hàm chuẩn hóa tên: bỏ dấu tiếng Việt
+	private String removeDiacritics(String str) {
+	    String normalized = Normalizer.normalize(str, Normalizer.Form.NFD);
+	    Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+	    return pattern.matcher(normalized).replaceAll("").replace("đ", "d").replace("Đ", "D");
+	}
+
+	// Hàm tạo PDF cho một dòng được chọn
+	private ByteArrayOutputStream generateXemLichSuKhamPdf(
+	        String tenBacSi, String tenBenhNhan, String dienThoai, String ngayKham,
+	        String chanDoan, String trieuChung, List<String> thuoc, List<String> lieu,
+	        List<String> tanSuat, List<String> soLuong, String tongTien) throws Exception {
+
+	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	    Document document = new Document();
+	    PdfWriter.getInstance(document, baos);
+	    document.open();
+
+	    // Tạo font hỗ trợ tiếng Việt với encoding Unicode
+	    BaseFont baseFont = BaseFont.createFont("C:/Windows/Fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+	    Font titleFont = new Font(baseFont, 18, Font.BOLD, BaseColor.BLACK);
+	    Font infoFont = new Font(baseFont, 12, Font.NORMAL, BaseColor.DARK_GRAY);
+	    Font headerFont = new Font(baseFont, 11, Font.BOLD, BaseColor.WHITE);
+	    Font cellFont = new Font(baseFont, 10, Font.NORMAL, BaseColor.BLACK);
+	    Font footerFont = new Font(baseFont, 10, Font.ITALIC, BaseColor.GRAY);
+
+	    // Tiêu đề
+	    Paragraph title = new Paragraph("ĐƠN THUỐC CỦA BỆNH NHÂN", titleFont);
+	    title.setAlignment(Element.ALIGN_CENTER);
+	    title.setSpacingAfter(15);
+	    document.add(title);
+
+	    // Ngày in
+	    String ngayIn = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
+	    Paragraph printDate = new Paragraph("Ngày in: " + ngayIn, infoFont);
+	    printDate.setAlignment(Element.ALIGN_CENTER);
+	    printDate.setSpacingAfter(10);
+	    document.add(printDate);
+
+	    // Thông tin bệnh nhân
+	    Paragraph info = new Paragraph(
+	            "Bệnh nhân: " + (tenBenhNhan != null ? tenBenhNhan : "Không xác định") +
+	            " | SĐT: " + (dienThoai != null ? dienThoai : "Không có") +
+	            " | Ngày khám: " + (ngayKham != null ? ngayKham : "Không xác định"),
+	            infoFont);
+	    info.setAlignment(Element.ALIGN_CENTER);
+	    info.setSpacingAfter(20);
+	    document.add(info);
+
+	    // Tạo bảng thông tin chính (bỏ cột Ngày Khám)
+	    PdfPTable mainTable = new PdfPTable(3); // Chỉ 3 cột: Tên Bác Sĩ, Chẩn Đoán, Triệu Chứng
+	    mainTable.setWidthPercentage(100);
+	    mainTable.setWidths(new float[]{2f, 2f, 2f});
+	    mainTable.setSpacingBefore(10);
+	    mainTable.setSpacingAfter(20);
+
+	    // Header bảng chính
+	    String[] mainHeaders = {"Tên Bác Sĩ", "Chẩn Đoán", "Triệu Chứng"};
+	    for (String header : mainHeaders) {
+	        PdfPCell cell = new PdfPCell(new Paragraph(header, headerFont));
+	        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	        cell.setPadding(8);
+	        cell.setBackgroundColor(new BaseColor(169, 169, 169)); // Màu xám nhạt cho header
+	        cell.setBorderWidth(1);
+	        mainTable.addCell(cell);
+	    }
+
+	    // Dữ liệu bảng chính (kiểm tra null để tránh lỗi)
+	    PdfPCell cellBacSi = new PdfPCell(new Paragraph(tenBacSi != null ? tenBacSi : "Không xác định", cellFont));
+	    cellBacSi.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    cellBacSi.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	    cellBacSi.setPadding(8);
+	    cellBacSi.setBorderWidth(1);
+	    mainTable.addCell(cellBacSi);
+
+	    PdfPCell cellChanDoan = new PdfPCell(new Paragraph(chanDoan != null ? chanDoan : "Không có", cellFont));
+	    cellChanDoan.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    cellChanDoan.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	    cellChanDoan.setPadding(8);
+	    cellChanDoan.setBorderWidth(1);
+	    mainTable.addCell(cellChanDoan);
+
+	    PdfPCell cellTrieuChung = new PdfPCell(new Paragraph(trieuChung != null ? trieuChung : "Không có", cellFont));
+	    cellTrieuChung.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    cellTrieuChung.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	    cellTrieuChung.setPadding(8);
+	    cellTrieuChung.setBorderWidth(1);
+	    mainTable.addCell(cellTrieuChung);
+
+	    document.add(mainTable);
+
+	    // Tạo bảng chi tiết đơn thuốc
+	    PdfPTable detailsTable = new PdfPTable(4); // 4 cột: Tên Thuốc, Liều Lượng, Tần Suất, Số Lượng
+	    detailsTable.setWidthPercentage(100);
+	    detailsTable.setWidths(new float[]{2f, 2f, 2f, 1.5f});
+	    detailsTable.setSpacingBefore(10);
+	    detailsTable.setSpacingAfter(20);
+
+	    // Header bảng chi tiết
+	    String[] detailHeaders = {"Tên Thuốc", "Liều Lượng", "Tần Suất", "Số Lượng"};
+	    for (String header : detailHeaders) {
+	        PdfPCell cell = new PdfPCell(new Paragraph(header, headerFont));
+	        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	        cell.setPadding(8);
+	        cell.setBackgroundColor(new BaseColor(169, 169, 169)); // Màu xám nhạt cho header
+	        cell.setBorderWidth(1);
+	        detailsTable.addCell(cell);
+	    }
+
+	    // Dữ liệu bảng chi tiết
+	    for (int i = 0; i < thuoc.size(); i++) {
+	        PdfPCell cellThuoc = new PdfPCell(new Paragraph(thuoc.get(i) != null ? thuoc.get(i).replace("- ", "") : "-", cellFont));
+	        cellThuoc.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        cellThuoc.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	        cellThuoc.setPadding(8);
+	        cellThuoc.setBorderWidth(1);
+	        detailsTable.addCell(cellThuoc);
+
+	        PdfPCell cellLieu = new PdfPCell(new Paragraph(lieu.get(i) != null ? lieu.get(i) : "-", cellFont));
+	        cellLieu.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        cellLieu.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	        cellLieu.setPadding(8);
+	        cellLieu.setBorderWidth(1);
+	        detailsTable.addCell(cellLieu);
+
+	        PdfPCell cellTanSuat = new PdfPCell(new Paragraph(tanSuat.get(i) != null ? tanSuat.get(i) : "-", cellFont));
+	        cellTanSuat.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        cellTanSuat.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	        cellTanSuat.setPadding(8);
+	        cellTanSuat.setBorderWidth(1);
+	        detailsTable.addCell(cellTanSuat);
+
+	        PdfPCell cellSoLuong = new PdfPCell(new Paragraph(soLuong.get(i) != null ? soLuong.get(i) : "-", cellFont));
+	        cellSoLuong.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        cellSoLuong.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	        cellSoLuong.setPadding(8);
+	        cellSoLuong.setBorderWidth(1);
+	        detailsTable.addCell(cellSoLuong);
+	    }
+
+	    document.add(detailsTable);
+
+	    // Tổng tiền
+	    Paragraph total = new Paragraph("Tổng Tiền: " + (tongTien != null ? tongTien : "0 VND"), infoFont);
+	    total.setAlignment(Element.ALIGN_RIGHT);
+	    total.setSpacingBefore(10);
+	    document.add(total);
+
+	    // Footer
+	    Paragraph footer = new Paragraph("Trung tâm y tế chất lượng cao xin chân thành cảm ơn bạn đã sử dụng dịch vụ!", footerFont);
+	    footer.setAlignment(Element.ALIGN_CENTER);
+	    footer.setSpacingBefore(20);
+	    document.add(footer);
+
+	    // Đóng document
+	    document.close();
+	    return baos;
+	}
 	
 }

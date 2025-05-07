@@ -1,196 +1,357 @@
 /* Container */
-.doctor-tabs-container {
-    font-family: Arial, sans-serif;
-    max-width: 900px;
-    margin: 30px auto;
-    background: #f9f9fb;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-}
+		.doctor-tabs-container {
+			font-family: Arial, sans-serif;
+			max-width: 900px;
+			margin: 30px auto;
+			background: #f9f9fb;
+			border-radius: 10px;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+			padding: 20px;
+		}
 
-/* Doctor profile section */
-.doctor-profile {
-    display: flex; /* Bố trí ngang hàng */
-    align-items: flex-start; /* Căn ảnh và thông tin theo hàng trên */
-    margin-bottom: 20px;
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 15px;
-}
+		/* Doctor profile section */
+		.doctor-profile {
+			display: flex;
+			align-items: flex-start;
+			margin-bottom: 20px;
+			border-bottom: 2px solid #ddd;
+			padding-bottom: 15px;
+		}
 
-.avatar-container {
-    flex-shrink: 0; /* Đảm bảo hình ảnh không co lại */
-}
+		.avatar-container {
+			flex-shrink: 0;
+		}
 
-.doctor-avatar {
-    width: 150px;
-    height: 150px;
-    border-radius: 8px;
-    object-fit: cover;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+		.doctor-avatar {
+			width: 150px;
+			height: 150px;
+			border-radius: 8px;
+			object-fit: cover;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+		}
 
-.doctor-info {
-    margin-left: 20px; /* Khoảng cách giữa ảnh và thông tin */
-}
+		.doctor-info {
+			margin-left: 20px;
+		}
 
-.doctor-info h1 {
-    font-size: 24px;
-    margin: 0 0 10px;
-    color: #333;
-}
+		.doctor-info h1 {
+			font-size: 24px;
+			margin: 0 0 10px;
+			color: #333;
+		}
 
-.doctor-info p {
-    font-size: 16px;
-    color: #555;
-    margin: 5px 0;
-}
+		.doctor-info p {
+			font-size: 16px;
+			color: #555;
+			margin: 5px 0;
+		}
 
-/* Tab menu */
-.tabs {
-    display: flex;
-    justify-content: center;
-    border-bottom: 2px solid #ddd;
-    margin-bottom: 20px;
-}
+		/* Tab menu */
+		.tabs {
+			display: flex;
+			justify-content: center;
+			border-bottom: 2px solid #ddd;
+			margin-bottom: 20px;
+		}
 
-.tab-link {
-    padding: 10px 20px;
-    margin: 0 5px;
-    background: #2a9d8f;
-    color: white;
-    border: none;
-    border-radius: 5px 5px 0 0;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background 0.3s;
-}
+		.tab-link {
+			padding: 10px 20px;
+			margin: 0 5px;
+			background: #2a9d8f;
+			color: white;
+			border: none;
+			border-radius: 5px 5px 0 0;
+			cursor: pointer;
+			font-size: 16px;
+			transition: background 0.3s;
+		}
 
-.tab-link.active {
-    background: #21867a;
-    font-weight: bold;
-}
+		.tab-link.active {
+			background: #21867a;
+			font-weight: bold;
+		}
 
-.tab-link:hover {
-    background: #197b6c;
-}
+		.tab-link:hover {
+			background: #197b6c;
+		}
 
-/* Tab content */
-.tab-content {
-    display: none;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 0 0 10px 10px;
-    background: white;
-    animation: fadeIn 0.3s ease-in-out;
-}
+		/* Tab content */
+		.tab-content {
+			display: none;
+			padding: 20px;
+			border: 1px solid #ddd;
+			border-radius: 0 0 10px 10px;
+			background: white;
+			animation: fadeIn 0.3s ease-in-out;
+		}
 
-.tab-content.active {
-    display: block;
-}
+		.tab-content.active {
+			display: block;
+		}
 
-/* Fade-in animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-/* Tiêu đề lịch làm việc */
-.schedule-header {
-    font-size: 24px;
-    color: #007bff;
-    text-align: center;
-    margin-bottom: 20px;
-}
+		/* Fade-in animation */
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+			}
 
-/* Bố cục chọn ngày */
-.date-picker-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-}
+			to {
+				opacity: 1;
+			}
+		}
 
-/* Ô chọn ngày */
-.date-picker {
-    padding: 8px 12px;
-    font-size: 16px;
-    border: 1px solid #007bff;
-    border-radius: 5px;
-    outline: none;
-    transition: all 0.3s ease-in-out;
-}
+		/* Tiêu đề lịch làm việc */
+		.schedule-header {
+			font-size: 24px;
+			color: #007bff;
+			text-align: center;
+			margin-bottom: 20px;
+		}
 
-.date-picker:focus {
-    border-color: #0056b3;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
+		/* Bố cục chọn ngày */
+		.date-picker-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			margin-bottom: 20px;
+		}
 
-/* Nút xem lịch */
-.btn-view-schedule {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease-in-out;
-}
+		/* Ô chọn ngày */
+		.date-picker {
+			padding: 8px 12px;
+			font-size: 16px;
+			border: 1px solid #007bff;
+			border-radius: 5px;
+			outline: none;
+			transition: all 0.3s ease-in-out;
+		}
 
-.btn-view-schedule:hover {
-    background-color: #0056b3;
-}
+		.date-picker:focus {
+			border-color: #0056b3;
+			box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+		}
 
-/* Bảng lịch làm việc */
-.schedule-table {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    border-collapse: collapse;
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-}
+		/* Nút xem lịch */
+		.btn-view-schedule {
+			background-color: #007bff;
+			color: white;
+			border: none;
+			padding: 8px 15px;
+			font-size: 16px;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background 0.3s ease-in-out;
+		}
 
-.schedule-table thead {
-    background-color: #007bff;
-    color: white;
-    font-size: 18px;
-}
+		.btn-view-schedule:hover {
+			background-color: #0056b3;
+		}
 
-.schedule-table th, .schedule-table td {
-    padding: 12px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-}
+		/* Bảng lịch làm việc */
+		.schedule-table {
+			width: 100%;
+			max-width: 600px;
+			margin: 0 auto;
+			border-collapse: collapse;
+			background: white;
+			border-radius: 10px;
+			overflow: hidden;
+			box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+		}
 
-/* Hàng lịch khám bệnh */
-.schedule-row:nth-child(odd) {
-    background-color: #f8f9fa;
-}
+		.schedule-table thead {
+			background-color: #007bff;
+			color: white;
+			font-size: 18px;
+		}
 
-.schedule-row:nth-child(even) {
-    background-color: #e9ecef;
-}
+		.schedule-table th,
+		.schedule-table td {
+			padding: 12px;
+			text-align: center;
+			border-bottom: 1px solid #ddd;
+		}
 
-.schedule-row:hover {
-    background-color: #d1e7ff;
-    transition: background 0.3s ease-in-out;
-}
+		/* Hàng lịch khám bệnh */
+		.schedule-row:nth-child(odd) {
+			background-color: #f8f9fa;
+		}
 
-/* Cột ca làm việc */
-.shift {
-    font-weight: bold;
-}
+		.schedule-row:nth-child(even) {
+			background-color: #e9ecef;
+		}
 
-/* Cột giờ làm việc */
-.time {
-    font-style: italic;
-}
+		.schedule-row:hover {
+			background-color: #d1e7ff;
+			transition: background 0.3s ease-in-out;
+		}
 
+		/* Cột ca làm việc */
+		.shift {
+			font-weight: bold;
+		}
+
+		/* Cột giờ làm việc */
+		.time {
+			font-style: italic;
+		}
+
+		/* Nút đặt lịch */
+		.book-now-btn {
+			background-color: #28a745;
+			color: white;
+			border: none;
+			padding: 6px 12px;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 14px;
+			transition: background 0.3s ease-in-out;
+		}
+
+		.book-now-btn:hover {
+			background-color: #218838;
+		}
+
+		/* Modal styles */
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.5);
+			justify-content: center;
+			align-items: center;
+			opacity: 0;
+			visibility: hidden;
+			transition: opacity 0.3s ease, visibility 0.3s ease;
+		}
+
+		.modal.show {
+			display: flex;
+			opacity: 1;
+			visibility: visible;
+		}
+
+		.modal-content {
+			background-color: #fff;
+			padding: 25px;
+			border-radius: 10px;
+			width: 90%;
+			max-width: 400px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+			text-align: center;
+			position: relative;
+		}
+
+		.close {
+			position: absolute;
+			right: 15px;
+			top: 15px;
+			color: #666;
+			font-size: 24px;
+			font-weight: bold;
+			cursor: pointer;
+			border-radius: 50%;
+			padding: 0 8px;
+			transition: color 0.3s;
+		}
+
+		.close:hover,
+		.close:focus {
+			color: #000;
+			background-color: #f0f0f0;
+		}
+
+		.time-frame {
+			margin-bottom: 20px;
+			text-align: left;
+		}
+
+		.time-frame h4 {
+			margin-bottom: 10px;
+			color: #333;
+			font-size: 18px;
+			font-weight: 600;
+		}
+
+		.time-frame label {
+			display: block;
+			margin: 8px 0;
+			padding: 8px 12px;
+			border: 1px solid #ddd;
+			border-radius: 5px;
+			background-color: #f9f9f9;
+			cursor: pointer;
+			transition: background-color 0.3s, border-color 0.3s;
+		}
+
+		.time-frame label:hover {
+			background-color: #e0f7fa;
+			border-color: #28a745;
+		}
+
+		.time-frame input[type="radio"] {
+			margin-right: 10px;
+		}
+
+		.time-frame input[type="radio"]:disabled + span {
+			text-decoration: line-through;
+			color: #999;
+			cursor: not-allowed;
+		}
+
+		.modal-actions {
+			display: flex;
+			justify-content: space-between;
+			gap: 10px;
+			margin-top: 20px;
+		}
+
+		.modal-btn {
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 16px;
+			width: 48%;
+			transition: background-color 0.3s, transform 0.2s;
+		}
+
+		.modal-btn-secondary {
+			background-color: #6c757d;
+			color: white;
+		}
+
+		.modal-btn-primary {
+			background-color: #007bff;
+			color: white;
+		}
+
+		.modal-btn-secondary:hover {
+			background-color: #5a6268;
+			transform: scale(1.05);
+		}
+
+		.modal-btn-primary:hover {
+			background-color: #0056b3;
+			transform: scale(1.05);
+		}
+
+		.history-chat-btn {
+			background-color: #007bff;
+			color: white;
+			border: none;
+			padding: 6px 12px;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 14px;
+			transition: background 0.3s ease-in-out;
+		}
+
+		.history-chat-btn:hover {
+			background-color: #0056b3;
+		}
