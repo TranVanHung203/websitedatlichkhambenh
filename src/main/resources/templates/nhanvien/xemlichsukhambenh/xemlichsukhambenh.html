@@ -1,19 +1,17 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
-    <title>Lịch Sử Khám Bệnh</title>
+    <title>Đơn thuốc của bệnh nhân</title>
     <link rel="stylesheet" th:href="@{/css/xemlichsukhambenh.css}">
     <link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
 </head>
-
 <body>
     <!-- Header nhân viên -->
     <div th:replace="~{nhanvien/fragments/header :: header}"></div>
 
     <div class="container">
-        <h1>Lịch Sử Khám Bệnh</h1>
+        <h1>Đơn thuốc của bệnh nhân</h1>
 
         <!-- Thanh tìm kiếm và lọc -->
         <div class="search-bar">
@@ -42,7 +40,7 @@
                 <tr>
                     <th>Tên Bác Sĩ Khám</th>
                     <th>Tên Bệnh Nhân</th>
-                    <th>Số Điện Thoại</th> <!-- Thêm cột SĐT -->
+                    <th>Số Điện Thoại</th>
                     <th>Ngày Khám</th>
                     <th>Chẩn Đoán</th>
                     <th>Triệu Chứng</th>
@@ -57,7 +55,7 @@
                 <tr th:each="lichSu : ${lichSuKhams}">
                     <td th:text="${lichSu.tenBacSi}"></td>
                     <td th:text="${lichSu.tenBenhNhan}"></td>
-                    <td th:text="${lichSu.dienThoai}"></td> <!-- Hiển thị SĐT -->
+                    <td th:text="${lichSu.dienThoai}"></td>
                     <td th:text="${lichSu.ngayKham}"></td>
                     <td th:text="${lichSu.chanDoan}"></td>
                     <td th:text="${lichSu.trieuChung}"></td>
@@ -68,37 +66,51 @@
                     <td th:text="${lichSu.formattedTongTienThuoc}"></td>
                 </tr>
                 <tr th:if="${lichSuKhams.isEmpty()}">
-                    <td colspan="11" class="no-data">Không có lịch sử khám bệnh</td> <!-- Cập nhật colspan -->
+                    <td colspan="11" class="no-data">Không có lịch sử khám bệnh</td>
                 </tr>
             </tbody>
         </table>
 
         <!-- Phân trang -->
         <div class="pagination" th:if="${totalPages > 1}">
-            <a th:if="${currentPage > 0}"
-               th:href="@{/nhanvien/xemlichsukhambenh(page=${currentPage - 1}, size=5, tenBenhNhan=${tenBenhNhan}, tenBacSi=${tenBacSi}, date=${date}, dienThoai=${dienThoai})}">Trang trước</a>
+            <a th:if="${currentPage > 0}" href="#" onclick="goToPage(${currentPage - 1})">Trang trước</a>
             <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                <a th:href="@{/nhanvien/xemlichsukhambenh(page=${i}, size=5, tenBenhNhan=${tenBenhNhan}, tenBacSi=${tenBacSi}, date=${date}, dienThoai=${dienThoai})}"
-                   th:class="${i == currentPage} ? 'active' : ''"
-                   th:text="${i + 1}"></a>
+                <a href="#" th:onclick="|goToPage(${i})|" th:class="${i == currentPage} ? 'active' : ''" th:text="${i + 1}"></a>
             </span>
-            <a th:if="${currentPage < totalPages - 1}"
-               th:href="@{/nhanvien/xemlichsukhambenh(page=${currentPage + 1}, size=5, tenBenhNhan=${tenBenhNhan}, tenBacSi=${tenBacSi}, date=${date}, dienThoai=${dienThoai})}">Trang sau</a>
+            <a th:if="${currentPage < totalPages - 1}" href="#" onclick="goToPage(${currentPage + 1})">Trang sau</a>
         </div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
+        // Truyền tham số từ server sang JavaScript
+        const filterParams = {
+            tenBenhNhan: /*[[${tenBenhNhan}]]*/ '',
+            tenBacSi: /*[[${tenBacSi}]]*/ '',
+            date: /*[[${date}]]*/ '',
+            dienThoai: /*[[${dienThoai}]]*/ ''
+        };
+
         function applyFilters() {
             const date = document.getElementById('search-date').value;
             const tenBenhNhan = document.getElementById('search-benh-nhan').value;
             const tenBacSi = document.getElementById('search-bac-si').value;
-            const dienThoai = document.getElementById('search-dien-thoai').value; // Lấy giá trị SĐT
+            const dienThoai = document.getElementById('search-dien-thoai').value;
 
             let url = '/nhanvien/xemlichsukhambenh?page=0&size=5';
             if (date) url += `&date=${date}`;
             if (tenBenhNhan) url += `&tenBenhNhan=${encodeURIComponent(tenBenhNhan)}`;
             if (tenBacSi) url += `&tenBacSi=${encodeURIComponent(tenBacSi)}`;
-            if (dienThoai) url += `&dienThoai=${encodeURIComponent(dienThoai)}`; // Thêm tham số SĐT
+            if (dienThoai) url += `&dienThoai=${encodeURIComponent(dienThoai)}`;
+
+            window.location.href = url;
+        }
+
+        function goToPage(page) {
+            let url = `/nhanvien/xemlichsukhambenh?page=${page}&size=5`;
+            if (filterParams.date) url += `&date=${filterParams.date}`;
+            if (filterParams.tenBenhNhan) url += `&tenBenhNhan=${encodeURIComponent(filterParams.tenBenhNhan)}`;
+            if (filterParams.tenBacSi) url += `&tenBacSi=${encodeURIComponent(filterParams.tenBacSi)}`;
+            if (filterParams.dienThoai) url += `&dienThoai=${encodeURIComponent(filterParams.dienThoai)}`;
 
             window.location.href = url;
         }
