@@ -1,0 +1,79 @@
+/* Xóa lề và padding mặc định của body */
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Styling cho thanh trên cùng */
+.top-bar {
+    background-color: #0056b3; /* Màu xanh đậm hơn để tăng độ tương phản */
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    margin: 0; /* Đảm bảo không có lề */
+    width: 100%; /* Giãn toàn chiều rộng */
+    box-sizing: border-box; /* Bao gồm padding trong tính toán chiều rộng */
+}
+
+/* Styling cho logo */
+.logo-img {
+    height: 50px; /* Điều chỉnh kích thước logo */
+}
+
+/* Styling cho thông tin liên hệ */
+.contact-info p {
+    margin: 2px 0;
+    font-size: 14px;
+}
+
+/* Styling cho thanh điều hướng */
+nav.custom-header {
+    background-color: #0056b3; /* Đồng bộ màu với thanh trên cùng */
+    margin: 0; /* Đảm bảo không có lề */
+    width: 100%; /* Giãn toàn chiều rộng */
+    box-sizing: border-box; /* Bao gồm padding trong tính toán chiều rộng */
+}
+
+nav.custom-header ul {
+    list-style: none;
+    margin: 0;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-around; /* Phân bố đều các phần tử */
+    align-items: center;
+}
+
+nav.custom-header ul li {
+    margin-right: 0; /* Loại bỏ margin-right để tránh chồng chéo */
+}
+
+nav.custom-header ul li a {
+    text-decoration: none;
+    color: white;
+    padding: 10px 15px;
+    display: inline-block;
+    transition: background-color 0.3s, color 0.3s;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 500; /* Chữ đậm hơn để dễ đọc */
+}
+
+nav.custom-header ul li a:hover {
+    background-color: #007bff; /* Màu nền khi hover */
+    color: #fff; /* Màu chữ khi hover */
+}
+
+/* Styling cho nút đăng xuất */
+nav.custom-header ul li a.logout {
+    background-color: #ff4d4d; /* Màu đỏ nền cho nút đăng xuất */
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+}
+
+nav.custom-header ul li a.logout:hover {
+    background-color: #e60000; /* Màu đỏ đậm hơn khi hover */
+}
