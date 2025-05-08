@@ -6,7 +6,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.UUID;
@@ -15,13 +14,25 @@ import java.util.UUID;
 @RequestMapping("/api/chat")
 public class ImageUploadController {
 
-    @Value("${chat.image.upload-dir:uploads/chat-images}")
+    @Value("${chat.image.upload-dir:uploads/chat-files}")
     private String uploadDir;
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile file) {
+    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("File is empty");
+        }
+
+        String contentType = file.getContentType();
+        boolean isValidType = contentType != null && (
+            contentType.startsWith("image/") ||
+            contentType.equals("application/pdf") ||
+            contentType.equals("application/msword") ||
+            contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        );
+
+        if (!isValidType) {
+            return ResponseEntity.badRequest().body("Only images, PDFs, and Word documents are allowed");
         }
 
         try {
@@ -36,7 +47,7 @@ public class ImageUploadController {
 
             return ResponseEntity.ok("/" + uploadDir.replace("\\", "/") + "/" + filename);
         } catch (IOException e) {
-            return ResponseEntity.status(500).body("Error uploading image: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error uploading file: " + e.getMessage());
         }
     }
 }
