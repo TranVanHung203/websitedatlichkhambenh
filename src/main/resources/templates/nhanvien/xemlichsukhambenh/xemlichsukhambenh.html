@@ -1,279 +1,304 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Đơn thuốc của bệnh nhân</title>
-    <link rel="stylesheet" th:href="@{/css/xemlichsukhambenh.css}">
-    <link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
+	<meta charset="UTF-8">
+	<title>Đơn thuốc của bệnh nhân</title>
+	<link rel="stylesheet" th:href="@{/css/xemlichsukhambenh.css}">
+	<link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
 </head>
 <body>
-    <!-- Header nhân viên -->
-    <div th:replace="~{nhanvien/fragments/header :: header}"></div>
+	<!-- Header nhân viên -->
+	<div th:replace="~{nhanvien/fragments/header :: header}"></div>
 
-    <div class="container">
-        <h1>Đơn thuốc của bệnh nhân</h1>
+	<div class="container">
+		<h1>Đơn thuốc của bệnh nhân</h1>
 
-        <!-- Thanh tìm kiếm và lọc -->
-        <div class="search-bar">
-            <div>
-                <label for="search-date">Tìm theo ngày:</label>
-                <input type="date" id="search-date" name="search-date" th:value="${date}" />
-            </div>
-            <div>
-                <label for="search-benh-nhan">Tìm theo tên bệnh nhân:</label>
-                <input type="text" id="search-benh-nhan" placeholder="Nhập tên bệnh nhân..."
-                    th:value="${tenBenhNhan}" />
-            </div>
-            <div>
-                <label for="search-bac-si">Tìm theo tên bác sĩ:</label>
-                <input type="text" id="search-bac-si" placeholder="Nhập tên bác sĩ..." th:value="${tenBacSi}" />
-            </div>
-            <div>
-                <label for="search-dien-thoai">Tìm theo SĐT:</label>
-                <input type="text" id="search-dien-thoai" placeholder="Nhập SĐT..." th:value="${dienThoai}" />
-            </div>
-            <button onclick="applyFilters()">Lọc</button>
-            <button onclick="exportSelected()">Xuất File</button>
-        </div>
+		<!-- Thanh tìm kiếm và lọc -->
+		<div class="search-bar">
+			<div>
+				<label for="search-date">Tìm theo ngày:</label>
+				<input type="date" id="search-date" name="search-date" th:value="${date}" />
+			</div>
+			<div>
+				<label for="search-benh-nhan">Tìm theo tên bệnh nhân:</label>
+				<input type="text" id="search-benh-nhan" placeholder="Nhập tên bệnh nhân..."
+					th:value="${tenBenhNhan}" />
+			</div>
+			<div>
+				<label for="search-bac-si">Tìm theo tên bác sĩ:</label>
+				<input type="text" id="search-bac-si" placeholder="Nhập tên bác sĩ..." th:value="${tenBacSi}" />
+			</div>
+			<div>
+				<label for="search-dien-thoai">Tìm theo SĐT:</label>
+				<input type="text" id="search-dien-thoai" placeholder="Nhập SĐT..." th:value="${dienThoai}" />
+			</div>
+			<button onclick="applyFilters()">Lọc</button>
+			<button onclick="exportSelected()">Xuất File</button>
+		</div>
 
-        <!-- Bảng lịch sử khám -->
-        <table class="history-table">
-            <thead>
-                <tr>
-                    <th>Chọn</th>
-                    <th>Tên Bác Sĩ Khám</th>
-                    <th>Tên Bệnh Nhân</th>
-                    <th>Số Điện Thoại</th>
-                    <th>Ngày Khám</th>
-                    <th>Chẩn Đoán</th>
-                    <th>Triệu Chứng</th>
-                    <th>Hành Động</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="lichSu : ${lichSuKhams}">
-                    <td>
-                        <input type="checkbox" class="select-row" th:attr="data-id=${lichSu.hashCode()}, data-ten-bac-si=${lichSu.tenBacSi}, data-ten-benh-nhan=${lichSu.tenBenhNhan}, data-dien-thoai=${lichSu.dienThoai}, data-ngay-kham=${lichSu.ngayKham}, data-chan-doan=${lichSu.chanDoan}, data-trieu-chung=${lichSu.trieuChung}, data-thuoc=${lichSu.thuoc}, data-lieu=${lichSu.lieu}, data-tan-suat=${lichSu.tanSuat}, data-so-luong=${lichSu.soLuong}, data-tong-tien=${lichSu.formattedTongTienThuoc}">
-                    </td>
-                    <td th:text="${lichSu.tenBacSi}"></td>
-                    <td th:text="${lichSu.tenBenhNhan}"></td>
-                    <td th:text="${lichSu.dienThoai}"></td>
-                    <td th:text="${lichSu.ngayKham}"></td>
-                    <td th:text="${lichSu.chanDoan}"></td>
-                    <td th:text="${lichSu.trieuChung}"></td>
-                    <td>
-                        <button class="view-details-btn"
-                            th:attr="data-thuoc=${lichSu.thuoc}, data-lieu=${lichSu.lieu}, data-tan-suat=${lichSu.tanSuat}, data-so-luong=${lichSu.soLuong}, data-tong-tien=${lichSu.formattedTongTienThuoc}"
-                            onclick="showDetails(this)">
-                            Xem Chi Tiết
-                        </button>
-                    </td>
-                </tr>
-                <tr th:if="${lichSuKhams.isEmpty()}">
-                    <td colspan="9" class="no-data">Không có lịch sử khám bệnh</td>
-                </tr>
-            </tbody>
-        </table>
+		<!-- Bảng lịch sử khám -->
+		<table class="history-table">
+			<thead>
+				<tr>
+					<th>Chọn</th>
+					<th>Tên Bác Sĩ Khám</th>
+					<th>Tên Bệnh Nhân</th>
+					<th>Số Điện Thoại</th>
+					<th>Ngày Khám</th>
+					<th>Chẩn Đoán</th>
+					<th>Triệu Chứng</th>
+					<th>Hành Động</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="lichSu : ${lichSuKhams}">
+					<td>
+						<input type="checkbox" class="select-row"
+							th:attr="data-id=${lichSu.hashCode()}, data-ten-bac-si=${lichSu.tenBacSi}, data-ten-benh-nhan=${lichSu.tenBenhNhan}, data-dien-thoai=${lichSu.dienThoai}, data-ngay-kham=${lichSu.ngayKham}, data-chan-doan=${lichSu.chanDoan}, data-trieu-chung=${lichSu.trieuChung}, data-thuoc=${lichSu.thuoc}, data-lieu=${lichSu.lieu}, data-tan-suat=${lichSu.tanSuat}, data-so-luong=${lichSu.soLuong}, data-tong-tien=${lichSu.formattedTongTienThuoc}">
+					</td>
+					<td th:text="${lichSu.tenBacSi}"></td>
+					<td th:text="${lichSu.tenBenhNhan}"></td>
+					<td th:text="${lichSu.dienThoai}"></td>
+					<td th:text="${lichSu.ngayKham}"></td>
+					<td th:text="${lichSu.chanDoan}"></td>
+					<td th:text="${lichSu.trieuChung}"></td>
+					<td>
+						<button class="view-details-btn"
+							th:attr="data-thuoc=${lichSu.thuoc}, data-lieu=${lichSu.lieu}, data-tan-suat=${lichSu.tanSuat}, data-so-luong=${lichSu.soLuong}, data-tong-tien=${lichSu.formattedTongTienThuoc}"
+							onclick="showDetails(this)">
+							Xem Chi Tiết
+						</button>
+					</td>
+				</tr>
+				<tr th:if="${lichSuKhams.isEmpty()}">
+					<td colspan="9" class="no-data">Không có lịch sử khám bệnh</td>
+				</tr>
+			</tbody>
+		</table>
 
-        <!-- Modal hiển thị chi tiết -->
-        <div id="detailsModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal()">×</span>
-                <h2>Chi Tiết Đơn Thuốc</h2>
-                <table class="details-table">
-                    <thead>
-                        <tr>
-                            <th>Tên Thuốc</th>
-                            <th>Liều Lượng</th>
-                            <th>Tần Suất</th>
-                            <th>Số Lượng</th>
-                        </tr>
-                    </thead>
-                    <tbody id="details-body"></tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="3" style="text-align: right;"><strong>Tổng Tiền:</strong></td>
-                            <td id="modal-tong-tien"></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
+		<!-- Modal hiển thị chi tiết -->
+		<div id="detailsModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeModal()">×</span>
+				<h2>Chi Tiết Đơn Thuốc</h2>
+				<table class="details-table">
+					<thead>
+						<tr>
+							<th>Tên Thuốc</th>
+							<th>Liều Lượng</th>
+							<th>Tần Suất</th>
+							<th>Số Lượng</th>
+						</tr>
+					</thead>
+					<tbody id="details-body"></tbody>
+					<tfoot>
+						<tr>
+							<td colspan="3" style="text-align: right;"><strong>Tổng Tiền:</strong></td>
+							<td id="modal-tong-tien"></td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
 
-        <!-- Phân trang -->
-        <div class="pagination" th:if="${totalPages > 1}">
-            <a th:if="${currentPage > 0}" href="#" onclick="goToPage(${currentPage - 1})">Trang trước</a>
-            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                <a href="#" th:onclick="|goToPage(${i})|" th:class="${i == currentPage} ? 'active' : ''"
-                    th:text="${i + 1}"></a>
-            </span>
-            <a th:if="${currentPage < totalPages - 1}" href="#" onclick="goToPage(${currentPage + 1})">Trang sau</a>
-        </div>
-    </div>
+		<!-- Phân trang -->
+		<div class="pagination" th:if="${totalPages > 1}">
+			<a th:if="${currentPage > 0}" href="#" th:attr="data-page=${currentPage - 1}">Trang trước</a>
+			<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+				<a href="#" th:attr="data-page=${i}" th:class="${i == currentPage} ? 'active' : ''"
+					th:text="${i + 1}"></a>
+			</span>
+			<a th:if="${currentPage < totalPages - 1}" href="#" th:attr="data-page=${currentPage + 1}">Trang sau</a>
+		</div>
+	</div>
 
-    <script th:inline="javascript">
-        // Truyền tham số từ server sang JavaScript
-        const filterParams = {
-            tenBenhNhan: /*[[${tenBenhNhan}]]*/ '',
-            tenBacSi: /*[[${tenBacSi}]]*/ '',
-            date: /*[[${date}]]*/ '',
-            dienThoai: /*[[${dienThoai}]]*/ ''
-        };
+	<script th:inline="javascript">
+		// Truyền tham số từ server sang JavaScript
+		const filterParams = {
+			tenBenhNhan: /*[[${tenBenhNhan}]]*/ '' || '',
+			tenBacSi: /*[[${tenBacSi}]]*/ '' || '',
+			date: /*[[${date}]]*/ '' || '',
+			dienThoai: /*[[${dienThoai}]]*/ '' || ''
+		};
 
-        // Hàm kiểm tra và vô hiệu hóa các checkbox khác
-        function toggleCheckboxes() {
-            const checkboxes = document.querySelectorAll('.select-row');
-            const checkedCheckbox = Array.from(checkboxes).find(checkbox => checkbox.checked);
+		// Hàm kiểm tra và vô hiệu hóa các checkbox khác
+		function toggleCheckboxes() {
+			const checkboxes = document.querySelectorAll('.select-row');
+			const checkedCheckbox = Array.from(checkboxes).find(checkbox => checkbox.checked);
 
-            if (checkedCheckbox) {
-                // Nếu có checkbox được chọn, vô hiệu hóa các checkbox khác
-                checkboxes.forEach(checkbox => {
-                    if (checkbox !== checkedCheckbox) {
-                        checkbox.disabled = true;
-                    }
-                });
-            } else {
-                // Nếu không có checkbox nào được chọn, kích hoạt lại tất cả
-                checkboxes.forEach(checkbox => {
-                    checkbox.disabled = false;
-                });
-            }
-        }
+			if (checkedCheckbox) {
+				// Nếu có checkbox được chọn, vô hiệu hóa các checkbox khác
+				checkboxes.forEach(checkbox => {
+					if (checkbox !== checkedCheckbox) {
+						checkbox.disabled = true;
+					}
+				});
+			} else {
+				// Nếu không có checkbox nào được chọn, kích hoạt lại tất cả
+				checkboxes.forEach(checkbox => {
+					checkbox.disabled = false;
+				});
+			}
+		}
 
-        // Thêm sự kiện change cho tất cả checkbox
-        document.querySelectorAll('.select-row').forEach(checkbox => {
-            checkbox.addEventListener('change', toggleCheckboxes);
-        });
+		// Thêm sự kiện change cho tất cả checkbox
+		document.querySelectorAll('.select-row').forEach(checkbox => {
+			checkbox.addEventListener('change', toggleCheckboxes);
+		});
 
-        function applyFilters() {
-            const date = document.getElementById('search-date').value;
-            const tenBenhNhan = document.getElementById('search-benh-nhan').value;
-            const tenBacSi = document.getElementById('search-bac-si').value;
-            const dienThoai = document.getElementById('search-dien-thoai').value;
+		function applyFilters() {
+			const date = document.getElementById('search-date').value;
+			const tenBenhNhan = document.getElementById('search-benh-nhan').value;
+			const tenBacSi = document.getElementById('search-bac-si').value;
+			const dienThoai = document.getElementById('search-dien-thoai').value;
 
-            let url = '/nhanvien/xemlichsukhambenh?page=0&size=5';
-            if (date) url += `&date=${date}`;
-            if (tenBenhNhan) url += `&tenBenhNhan=${encodeURIComponent(tenBenhNhan)}`;
-            if (tenBacSi) url += `&tenBacSi=${encodeURIComponent(tenBacSi)}`;
-            if (dienThoai) url += `&dienThoai=${encodeURIComponent(dienThoai)}`;
+			let url = '/nhanvien/xemlichsukhambenh?page=0&size=5';
+			if (date) url += `&date=${date}`;
+			if (tenBenhNhan) url += `&tenBenhNhan=${encodeURIComponent(tenBenhNhan)}`;
+			if (tenBacSi) url += `&tenBacSi=${encodeURIComponent(tenBacSi)}`;
+			if (dienThoai) url += `&dienThoai=${encodeURIComponent(dienThoai)}`;
 
-            window.location.href = url;
-        }
+			window.location.href = url;
+		}
 
-        function goToPage(page) {
-            let url = `/nhanvien/xemlichsukhambenh?page=${page}&size=5`;
-            if (filterParams.date) url += `&date=${filterParams.date}`;
-            if (filterParams.tenBenhNhan) url += `&tenBenhNhan=${encodeURIComponent(filterParams.tenBenhNhan)}`;
-            if (filterParams.tenBacSi) url += `&tenBacSi=${encodeURIComponent(filterParams.tenBacSi)}`;
-            if (filterParams.dienThoai) url += `&dienThoai=${encodeURIComponent(filterParams.dienThoai)}`;
+		function goToPage(page) {
+			console.log('goToPage gọi với trang:', page); // Gỡ lỗi
+			console.log('filterParams:', filterParams); // Kiểm tra filterParams
 
-            window.location.href = url;
-        }
+			let url = `/nhanvien/xemlichsukhambenh?page=${page}&size=5`;
+			if (filterParams.date && filterParams.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+				url += `&date=${filterParams.date}`;
+			}
+			if (filterParams.tenBenhNhan) {
+				url += `&tenBenhNhan=${encodeURIComponent(filterParams.tenBenhNhan)}`;
+			}
+			if (filterParams.tenBacSi) {
+				url += `&tenBacSi=${encodeURIComponent(filterParams.tenBacSi)}`;
+			}
+			if (filterParams.dienThoai) {
+				url += `&dienThoai=${encodeURIComponent(filterParams.dienThoai)}`;
+			}
 
-        // Hiển thị modal chi tiết
-        function showDetails(button) {
-            const thuoc = button.getAttribute('data-thuoc') || 'Không có thuốc';
-            const lieu = button.getAttribute('data-lieu') || 'Không có liều lượng';
-            const tanSuat = button.getAttribute('data-tan-suat') || 'Không có tần suất';
-            const soLuong = button.getAttribute('data-so-luong') || 'Không có số lượng';
-            const tongTien = button.getAttribute('data-tong-tien') || '0 VND';
+			console.log('Chuyển hướng đến URL:', url); // Gỡ lỗi
+			window.location.href = url;
+		}
 
-            const thuocArray = thuoc.split('\n').filter(item => item.trim() !== '');
-            const lieuArray = lieu.split('\n').filter(item => item.trim() !== '');
-            const tanSuatArray = tanSuat.split('\n').filter(item => item.trim() !== '');
-            const soLuongArray = soLuong.split('\n').filter(item => item.trim() !== '');
+		// Gắn sự kiện cho các liên kết phân trang
+		document.addEventListener('DOMContentLoaded', function () {
+			document.querySelectorAll('.pagination a').forEach(link => {
+				link.addEventListener('click', function (event) {
+					event.preventDefault(); // Chặn hành vi mặc định
+					const page = this.getAttribute('data-page');
+					console.log('Nhấn liên kết phân trang với trang:', page); // Gỡ lỗi
+					goToPage(page);
+				});
+			});
+		});
 
-            const tbody = document.getElementById('details-body');
-            tbody.innerHTML = ''; // Xóa nội dung cũ
+		// Hiển thị modal chi tiết
+		function showDetails(button) {
+			const thuoc = button.getAttribute('data-thuoc') || 'Không có thuốc';
+			const lieu = button.getAttribute('data-lieu') || 'Không có liều lượng';
+			const tanSuat = button.getAttribute('data-tan-suat') || 'Không có tần suất';
+			const soLuong = button.getAttribute('data-so-luong') || 'Không có số lượng';
+			const tongTien = button.getAttribute('data-tong-tien') || '0 VND';
 
-            for (let i = 0; i < thuocArray.length; i++) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
+			const thuocArray = thuoc.split('\n').filter(item => item.trim() !== '');
+			const lieuArray = lieu.split('\n').filter(item => item.trim() !== '');
+			const tanSuatArray = tanSuat.split('\n').filter(item => item.trim() !== '');
+			const soLuongArray = soLuong.split('\n').filter(item => item.trim() !== '');
+
+			const tbody = document.getElementById('details-body');
+			tbody.innerHTML = ''; // Xóa nội dung cũ
+
+			for (let i = 0; i < thuocArray.length; i++) {
+				const row = document.createElement('tr');
+				row.innerHTML = `
                     <td>${thuocArray[i].replace('- ', '') || '-'}</td>
                     <td>${lieuArray[i] || '-'}</td>
                     <td>${tanSuatArray[i] || '-'}</td>
                     <td>${soLuongArray[i] || '-'}</td>
                 `;
-                tbody.appendChild(row);
-            }
+				tbody.appendChild(row);
+			}
 
-            document.getElementById('modal-tong-tien').textContent = tongTien;
+			document.getElementById('modal-tong-tien').textContent = tongTien;
 
-            const modal = document.getElementById('detailsModal');
-            modal.style.display = 'flex';
-        }
+			const modal = document.getElementById('detailsModal');
+			modal.style.display = 'flex';
+		}
 
-        // Đóng modal
-        function closeModal() {
-            const modal = document.getElementById('detailsModal');
-            modal.style.display = 'none';
-        }
+		// Đóng modal
+		function closeModal() {
+			const modal = document.getElementById('detailsModal');
+			modal.style.display = 'none';
+		}
 
-        // Đóng modal khi nhấp bên ngoài
-        window.onclick = function(event) {
-            const modal = document.getElementById('detailsModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
+		// Đóng modal khi nhấp bên ngoài
+		window.onclick = function (event) {
+			const modal = document.getElementById('detailsModal');
+			if (event.target === modal) {
+				closeModal();
+			}
+		};
 
-        // Xuất file PDF cho dòng được chọn
-        function exportSelected() {
-            const selectedRows = document.querySelectorAll('.select-row:checked');
-            if (selectedRows.length === 0) {
-                alert('Vui lòng chọn một dòng để xuất file!');
-                return;
-            }
-            if (selectedRows.length > 1) {
-                alert('Vui lòng chỉ chọn một dòng để xuất file!');
-                return;
-            }
+		// Xuất file PDF cho dòng được chọn
+		function exportSelected() {
+			const selectedRows = document.querySelectorAll('.select-row:checked');
+			if (selectedRows.length === 0) {
+				alert('Vui lòng chọn một dòng để xuất file!');
+				return;
+			}
+			if (selectedRows.length > 1) {
+				alert('Vui lòng chỉ chọn một dòng để xuất file!');
+				return;
+			}
 
-            const row = selectedRows[0];
-            const data = {
-                tenBacSi: row.getAttribute('data-ten-bac-si') || 'Không xác định',
-                tenBenhNhan: row.getAttribute('data-ten-benh-nhan') || 'Không xác định',
-                dienThoai: row.getAttribute('data-dien-thoai') || 'Không có',
-                ngayKham: row.getAttribute('data-ngay-kham') || 'Không xác định',
-                chanDoan: row.getAttribute('data-chan-doan') || 'Không có',
-                trieuChung: row.getAttribute('data-trieu-chung') || 'Không có',
-                thuoc: (row.getAttribute('data-thuoc') || 'Không có thuốc').split('\n').filter(item => item.trim() !== ''),
-                lieu: (row.getAttribute('data-lieu') || 'Không có liều lượng').split('\n').filter(item => item.trim() !== ''),
-                tanSuat: (row.getAttribute('data-tan-suat') || 'Không có tần suất').split('\n').filter(item => item.trim() !== ''),
-                soLuong: (row.getAttribute('data-so-luong') || 'Không có số lượng').split('\n').filter(item => item.trim() !== ''),
-                tongTien: row.getAttribute('data-tong-tien') || '0 VND'
-            };
+			const row = selectedRows[0];
+			const data = {
+				tenBacSi: row.getAttribute('data-ten-bac-si') || 'Không xác định',
+				tenBenhNhan: row.getAttribute('data-ten-benh-nhan') || 'Không xác định',
+				dienThoai: row.getAttribute('data-dien-thoai') || 'Không có',
+				ngayKham: row.getAttribute('data-ngay-kham') || 'Không xác định',
+				chanDoan: row.getAttribute('data-chan-doan') || 'Không có',
+				trieuChung: row.getAttribute('data-trieu-chung') || 'Không có',
+				thuoc: (row.getAttribute('data-thuoc') || 'Không có thuốc').split('\n').filter(item => item.trim() !== ''),
+				lieu: (row.getAttribute('data-lieu') || 'Không có liều lượng').split('\n').filter(item => item.trim() !== ''),
+				tanSuat: (row.getAttribute('data-tan-suat') || 'Không có tần suất').split('\n').filter(item => item.trim() !== ''),
+				soLuong: (row.getAttribute('data-so-luong') || 'Không có số lượng').split('\n').filter(item => item.trim() !== ''),
+				tongTien: row.getAttribute('data-tong-tien') || '0 VND'
+			};
 
-            // Gửi POST request đến endpoint
-            fetch('/nhanvien/xemlichsukhambenh/download-pdf', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json; charset=UTF-8'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', `don_thuoc_${data.tenBenhNhan}_${data.ngayKham}.pdf`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-            })
-            .catch(error => {
-                console.error('Error downloading PDF:', error);
-                alert('Có lỗi xảy ra khi tải file PDF!');
-            });
-        }
-    </script>
+			// Gửi POST request đến endpoint
+			fetch('/nhanvien/xemlichsukhambenh/download-pdf', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json; charset=UTF-8'
+				},
+				body: JSON.stringify(data)
+			})
+				.then(response => {
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+					return response.blob();
+				})
+				.then(blob => {
+					const url = window.URL.createObjectURL(blob);
+					const link = document.createElement('a');
+					link.href = url;
+					link.setAttribute('download', `don_thuoc_${data.tenBenhNhan}_${data.ngayKham}.pdf`);
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+					window.URL.revokeObjectURL(url);
+				})
+				.catch(error => {
+					console.error('Error downloading PDF:', error);
+					alert('Có lỗi xảy ra khi tải file PDF!');
+				});
+		}
+	</script>
 </body>
 
 </html>
