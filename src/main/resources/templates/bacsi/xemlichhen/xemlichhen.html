@@ -182,31 +182,31 @@
 				const status = event.target.value;
 				const appointmentCard = event.target.closest('.appointment-card');
 				const slotId = appointmentCard.getAttribute('data-slot-id');
-				updateAppointmentStatus(slotId, status);
+				updateAppointmentStatus(slotId, status, appointmentCard);
 			});
 		});
 
 		// Handle start examination button
 		function startExamination(button) {
 			const benhNhanId = button.getAttribute('data-benh-nhan-id');
-			const appointmentDay = button.closest('.appointment-day');
-			const maLichKhamBenh = appointmentDay.getAttribute('data-ma-lich-id');
+			const appointmentCard = button.closest('.appointment-card');
+			const slotId = appointmentCard.getAttribute('data-slot-id');
 
-			if (!benhNhanId || !maLichKhamBenh) {
+			if (!benhNhanId || !slotId) {
 				Swal.fire({
 					icon: 'error',
 					title: 'Lỗi',
-					text: 'Không tìm thấy ID bệnh nhân hoặc mã lịch khám. Vui lòng kiểm tra dữ liệu.',
+					text: 'Không tìm thấy ID bệnh nhân hoặc ID slot. Vui lòng kiểm tra dữ liệu.',
 					confirmButtonText: 'Đóng',
 					timer: 3000
 				});
 				return;
 			}
-			console.log('Redirecting to /bacsi/step1?benhNhanId=' + benhNhanId + '&maLichKhamBenh=' + maLichKhamBenh); // Debug
-			window.location.href = `/bacsi/step1?benhNhanId=${benhNhanId}&maLichKhamBenh=${maLichKhamBenh}`;
+			console.log('Redirecting to /bacsi/step1?benhNhanId=' + benhNhanId + '&slotId=' + slotId); // Debug
+			window.location.href = `/bacsi/step1?benhNhanId=${benhNhanId}&slotId=${slotId}`;
 		}
 
-		function updateAppointmentStatus(slotId, status) {
+		function updateAppointmentStatus(slotId, status, appointmentCard) {
 			fetch('/bacsi/update-appointment-status', {
 				method: 'POST',
 				headers: {
@@ -227,6 +227,10 @@
 							confirmButtonText: 'Đóng',
 							timer: 3000
 						});
+						// Update the button's disabled state
+						const startExamButton = appointmentCard.querySelector('.start-exam-btn');
+						const benhNhanId = startExamButton.getAttribute('data-benh-nhan-id');
+						startExamButton.disabled = !(status === 'pending' && benhNhanId);
 					} else {
 						Swal.fire({
 							icon: 'error',

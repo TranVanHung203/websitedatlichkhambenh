@@ -250,10 +250,10 @@
         </div>
 
         <div class="tab-nav">
-            <button class="tab-btn" data-tab="tab1" th:data-url="@{/bacsi/step1(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},maLichKhamBenh=${maLichKhamBenh})}" onclick="redirectToStep(this)">
+            <button class="tab-btn" data-tab="tab1" th:data-url="@{/bacsi/step1(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},slotId=${slotId})}" onclick="redirectToStep(this)">
                 Bước 1: Thông số y tế
             </button>
-            <button class="tab-btn" data-tab="tab2" th:data-url="@{/bacsi/step2(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},maLichKhamBenh=${maLichKhamBenh})}" onclick="redirectToStep(this)">
+            <button class="tab-btn" data-tab="tab2" th:data-url="@{/bacsi/step2(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},slotId=${slotId})}" onclick="redirectToStep(this)">
                 Bước 2: Chẩn đoán & Xét nghiệm
             </button>
             <button class="tab-btn active" data-tab="tab3">Bước 3: Kê đơn thuốc</button>
@@ -265,7 +265,7 @@
                 <form id="ke-don-form" th:action="@{/bacsi/step3/save}" method="post">
                     <input type="hidden" name="hoSoId" th:value="${hoSoBenh?.hoSoId}">
                     <input type="hidden" name="benhNhanId" th:value="${benhNhan?.benhNhanId}">
-                    <input type="hidden" name="maLichKhamBenh" th:value="${maLichKhamBenh}">
+                    <input type="hidden" name="slotId" th:value="${slotId}">
                     <div class="section-title">Tìm kiếm thuốc</div>
                     <div class="search-container">
                         <input type="text" id="drugSearch" placeholder="Nhập tên thuốc (VD: Paracetamol)..." autocomplete="off" />
@@ -308,12 +308,12 @@
             const urlParams = new URLSearchParams(url.split('?')[1]);
             const benhNhanId = urlParams.get('benhNhanId');
             const hoSoId = urlParams.get('hoSoId');
-            const maLichKhamBenh = urlParams.get('maLichKhamBenh');
-            if (benhNhanId === 'null' || hoSoId === 'null' || maLichKhamBenh === 'null') {
+            const slotId = urlParams.get('slotId');
+            if (benhNhanId === 'null' || hoSoId === 'null' || slotId === 'null') {
                 Swal.fire({
                     icon: 'error',
                     title: 'Lỗi',
-                    text: `Thông tin không hợp lệ: benhNhanId=${benhNhanId}, hoSoId=${hoSoId}, maLichKhamBenh=${maLichKhamBenh}`,
+                    text: `Thông tin không hợp lệ: benhNhanId=${benhNhanId}, hoSoId=${hoSoId}, slotId=${slotId}`,
                     confirmButtonText: 'Đóng'
                 });
                 return;
@@ -445,7 +445,7 @@
                 const data = {
                     hoSoId: formData.find(item => item.name === 'hoSoId').value,
                     benhNhanId: formData.find(item => item.name === 'benhNhanId').value,
-                    maLichKhamBenh: formData.find(item => item.name === 'maLichKhamBenh').value,
+                    slotId: formData.find(item => item.name === 'slotId').value,
                     drugs: []
                 };
 
@@ -454,7 +454,7 @@
                 const tanSuats = formData.filter(item => item.name === 'tanSuat[]').map(item => item.value);
                 const soLuongs = formData.filter(item => item.name === 'soLuong[]').map(item => item.value);
 
-                if (!data.hoSoId || !data.benhNhanId || !data.maLichKhamBenh) {
+                if (!data.hoSoId || !data.benhNhanId || !data.slotId) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Lỗi',

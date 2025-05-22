@@ -1,6 +1,5 @@
 package tlcn.quanlyphongkham.controllers;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -15,7 +14,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +56,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
 import tlcn.quanlyphongkham.dtos.BenhNhanOfTaoDonThuocDTO;
 import tlcn.quanlyphongkham.dtos.ChiTietBacSiDTO;
@@ -66,6 +64,7 @@ import tlcn.quanlyphongkham.dtos.EditProfileBSDTO;
 import tlcn.quanlyphongkham.dtos.HoSoBenhDTO;
 import tlcn.quanlyphongkham.dtos.LichHenKhamDTO;
 import tlcn.quanlyphongkham.dtos.SlotDTO;
+import tlcn.quanlyphongkham.dtos.TrangThaiLichKhamBenhDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.BenhNhan;
 import tlcn.quanlyphongkham.entities.ChuyenKhoa;
@@ -89,6 +88,7 @@ import tlcn.quanlyphongkham.services.HoSoBenhService;
 import tlcn.quanlyphongkham.services.LichKhamBenhService;
 import tlcn.quanlyphongkham.services.LoaiXetNghiemService;
 import tlcn.quanlyphongkham.services.PhieuXetNghiemService;
+import tlcn.quanlyphongkham.services.SlotThoiGianService;
 import tlcn.quanlyphongkham.services.ThuocService;
 import tlcn.quanlyphongkham.services.VitalSignsService;
 import tlcn.quanlyphongkham.services.XetNghiemService;
@@ -117,6 +117,9 @@ public class BacSiController {
 	
 	@Autowired
     private VitalSignsService vitalSignsService;
+	
+	@Autowired
+    private SlotThoiGianService slotThoiGianService;
 	
 
     @Autowired
@@ -623,7 +626,7 @@ public class BacSiController {
 	
 	
 	@GetMapping("bacsi/step1")
-    public String step1(@RequestParam("benhNhanId") String benhNhanId, @RequestParam(value = "hoSoId", required = false) String hoSoId,@RequestParam(value = "maLichKhamBenh", required = false) String maLichKhamBenh, Model model) {
+    public String step1(@RequestParam("benhNhanId") String benhNhanId, @RequestParam(value = "hoSoId", required = false) String hoSoId,@RequestParam(value = "slotId", required = false) String slotId, Model model) {
         try {
             BenhNhan benhNhan = benhNhanService.findByBenhNhanId(benhNhanId);
             if (benhNhan == null) {
@@ -655,7 +658,7 @@ public class BacSiController {
 
             model.addAttribute("benhNhan", benhNhan);
             model.addAttribute("hoSoBenh", hoSoBenh);
-            model.addAttribute("maLichKhamBenh", maLichKhamBenh);
+            model.addAttribute("slotId", slotId);
             model.addAttribute("vitalSigns", vitalSigns);
             return "bacsi/quytrinhkham/step1";
         } catch (Exception e) {
@@ -670,7 +673,7 @@ public class BacSiController {
         try {
             String hoSoId = (String) data.get("hoSoId");
             String benhNhanId = (String) data.get("benhNhanId");
-            String maLichKhamBenh = (String) data.get("maLichKhamBenh");
+            String slotId = (String) data.get("slotId");
             if (hoSoId == null || benhNhanId == null) {
                 response.put("success", false);
                 response.put("message", "Thiếu hoSoId hoặc benhNhanId");
@@ -679,7 +682,7 @@ public class BacSiController {
 
             vitalSignsService.saveVitalSigns(hoSoId, data);
 
-            String redirectUrl = "/bacsi/step2?benhNhanId=" + benhNhanId + "&hoSoId=" + hoSoId + "&maLichKhamBenh=" + maLichKhamBenh ;
+            String redirectUrl = "/bacsi/step2?benhNhanId=" + benhNhanId + "&hoSoId=" + hoSoId + "&slotId=" + slotId ;
             response.put("success", true);
             response.put("redirectUrl", redirectUrl);
             return ResponseEntity.ok(response);
@@ -691,7 +694,7 @@ public class BacSiController {
     }
 
     @GetMapping("bacsi/step2")
-    public String step2(@RequestParam("benhNhanId") String benhNhanId, @RequestParam("hoSoId") String hoSoId,@RequestParam(value = "maLichKhamBenh", required = false) String maLichKhamBenh, Model model) {
+    public String step2(@RequestParam("benhNhanId") String benhNhanId, @RequestParam("hoSoId") String hoSoId,@RequestParam(value = "slotId", required = false) String slotId, Model model) {
         try {
             BenhNhan benhNhan = benhNhanService.findByBenhNhanId(benhNhanId);
             if (benhNhan == null) {
@@ -708,7 +711,7 @@ public class BacSiController {
 
             model.addAttribute("benhNhan", benhNhan);
             model.addAttribute("hoSoBenh", hoSoBenh);
-            model.addAttribute("maLichKhamBenh", maLichKhamBenh);
+            model.addAttribute("slotId", slotId);
             model.addAttribute("xetNghiems", xetNghiems);
             model.addAttribute("loaiXetNghiems", loaiXetNghiems);
             return "bacsi/quytrinhkham/step2";
@@ -971,7 +974,7 @@ public class BacSiController {
     }
 
     @GetMapping("/bacsi/step3")
-    public String step3(@RequestParam("benhNhanId") String benhNhanId, @RequestParam("hoSoId") String hoSoId,@RequestParam(value = "maLichKhamBenh", required = false) String maLichKhamBenh, Model model) {
+    public String step3(@RequestParam("benhNhanId") String benhNhanId, @RequestParam("hoSoId") String hoSoId,@RequestParam(value = "slotId", required = false) String slotId, Model model) {
         try {
             BenhNhan benhNhan = benhNhanService.findByBenhNhanId(benhNhanId);
             if (benhNhan == null) {
@@ -988,7 +991,7 @@ public class BacSiController {
             List<Thuoc> thuocs = thuocService.getAllThuoc();
 
             model.addAttribute("benhNhan", benhNhan);
-            model.addAttribute("maLichKhamBenh", maLichKhamBenh);
+            model.addAttribute("slotId", slotId);
             model.addAttribute("hoSoBenh", hoSoBenh);
             model.addAttribute("thuocs", thuocs);
             return "bacsi/quytrinhkham/step3";
@@ -1000,6 +1003,7 @@ public class BacSiController {
     
     @PostMapping("/bacsi/step3/save")
     @ResponseBody
+    @Transactional
     public ResponseEntity<Map<String, String>> savePrescription(@RequestBody Map<String, Object> request) {
         Map<String, String> response = new HashMap<>();
 
@@ -1015,7 +1019,7 @@ public class BacSiController {
         // Lấy dữ liệu từ request
         String hoSoId = (String) request.get("hoSoId");
         String benhNhanId = (String) request.get("benhNhanId");
-        String maLichKhamBenh = (String) request.get("maLichKhamBenh");
+        String slotId = (String) request.get("slotId");
         List<Map<String, Object>> drugs = (List<Map<String, Object>>) request.get("drugs");
 
         // Kiểm tra dữ liệu đầu vào
@@ -1078,29 +1082,35 @@ public class BacSiController {
 
             donThuoc.setDonThuocThuocs(donThuocThuocs);
 
-            // Tính tiền thuốc (bao gồm đơn thuốc mới và các đơn thuốc hiện có)
+            // Tính tiền thuốc
             BigDecimal tienThuoc = BigDecimal.ZERO;
             if (hoSoBenh.getDonThuocs() != null) {
                 for (DonThuoc dt : hoSoBenh.getDonThuocs()) {
                     tienThuoc = tienThuoc.add(dt.calculateTongTien());
                 }
             }
-            tienThuoc = tienThuoc.add(donThuoc.calculateTongTien()); // Thêm tiền của đơn thuốc mới
+            tienThuoc = tienThuoc.add(donThuoc.calculateTongTien());
 
-           
-
-            // Tổng tiền = Tiền xét nghiệm (đã tính trước) + Tiền thuốc + Phí khám
+            // Tổng tiền = Tiền xét nghiệm (đã tính trước) + Tiền thuốc
             Integer tienXetNghiemTruocDo = hoSoBenh.getTongTien() != null ? hoSoBenh.getTongTien() : 0;
-            Integer tongTien = tienXetNghiemTruocDo + tienThuoc.intValue() ;
+            Integer tongTien = tienXetNghiemTruocDo + tienThuoc.intValue();
 
-            // Cập nhật tongTien cho HoSoBenh
+            // Cập nhật tongTien và trangThai cho HoSoBenh
             hoSoBenh.setTongTien(tongTien);
-            hoSoBenh.setTrangThai(true); 
-            // Thiết lập mối quan hệ hai chiều và lưu DonThuoc
-            hoSoBenh.addDonThuoc(donThuoc); // Sử dụng phương thức addDonThuoc để đồng bộ
-            donThuocService.save(donThuoc); // Lưu DonThuoc, cascade sẽ lưu HoSoBenh
-          
-            lichKhamBenhService.updateTrangThai(maLichKhamBenh);
+            hoSoBenh.setTrangThai(true);
+            hoSoBenh.addDonThuoc(donThuoc);
+            donThuocService.save(donThuoc);
+
+            // Cập nhật trạng thái lịch khám bệnh bằng DTO
+//            TrangThaiLichKhamBenhDTO lichKhamBenhDTO = new TrangThaiLichKhamBenhDTO();
+//            lichKhamBenhDTO.setMaLichKhamBenh(maLichKhamBenh);
+//            lichKhamBenhDTO.setTrangThai(true); // Set trạng thái thành true
+//            lichKhamBenhService.updateTrangThai(lichKhamBenhDTO);
+            
+           
+            SlotThoiGian slotThoiGian= slotThoiGianService.findById(slotId);
+            slotThoiGian.setTrangThai("completed");
+            slotThoiGianService.save(slotThoiGian);
             // Lấy ngày từ thoiGianTao để redirect
             LocalDate redirectDate = hoSoBenh.getThoiGianTao().toLocalDate();
             String redirectUrl = "/bacsi/xemlichhen?date=" + redirectDate.toString();

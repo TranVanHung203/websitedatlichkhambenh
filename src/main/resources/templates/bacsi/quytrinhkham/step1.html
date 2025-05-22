@@ -122,12 +122,12 @@
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="tab1">Bước 1: Thông số y tế</button>
             <button class="tab-btn" data-tab="tab2" 
-                th:data-url="@{/bacsi/step2(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},maLichKhamBenh=${maLichKhamBenh})}" 
+                th:data-url="@{/bacsi/step2(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},slotId=${slotId})}" 
                 onclick="redirectToStep(this)">
                 Bước 2: Chẩn đoán & Xét nghiệm
             </button>
             <button class="tab-btn" data-tab="tab3" 
-                th:data-url="@{/bacsi/step3(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},maLichKhamBenh=${maLichKhamBenh})}" 
+                th:data-url="@{/bacsi/step3(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},slotId=${slotId})}" 
                 onclick="redirectToStep(this)">
                 Bước 3: Kê đơn
             </button>
@@ -217,12 +217,12 @@
             const formData = new FormData(this);
             // Get maLichKhamBenh from URL query parameters
             const urlParams = new URLSearchParams(window.location.search);
-            const maLichKhamBenh = urlParams.get('maLichKhamBenh');
+            const slotId = urlParams.get('slotId');
             
             const data = {
                 hoSoId: formData.get('hoSoId'),
                 benhNhanId: formData.get('benhNhanId'),
-                maLichKhamBenh: maLichKhamBenh,
+                slotId: slotId,
                 trieuChung: formData.get('trieuChung'),
                 nhietDo: formData.get('nhietDo'),
                 chieuCao: formData.get('chieuCao'),
@@ -232,7 +232,7 @@
                 notes: formData.get('notes')
             };
 
-            if (!maLichKhamBenh) {
+            if (!slotId) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Lỗi',
