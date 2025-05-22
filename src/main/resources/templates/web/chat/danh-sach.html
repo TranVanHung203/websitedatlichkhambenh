@@ -39,6 +39,12 @@
             padding: 20px;
         }
 
+        #sidebar h3 {
+            color: #007bff;
+            font-size: 1.3em;
+            margin: 0 0 10px 0;
+        }
+
         .doctor-card {
             padding: 10px;
             margin-bottom: 10px;
@@ -303,37 +309,6 @@
             font-size: 20px;
         }
 
-        @keyframes slideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes popIn {
-            0% {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateX(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
         #previewContainer {
             margin-top: 10px;
             display: none;
@@ -401,11 +376,39 @@
         #imageModal:target {
             display: block;
         }
+
+        .back-button {    
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        
+            padding: 8px 16px;
+            background: #6c757d;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .back-button:hover {
+            background: #5a6268;
+        }
+
+        .back-button::before {
+            content: '←';
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <div id="sidebar">
-        <h3>Bác sĩ đã nhắn</h3>
+        <div>
+			<a th:href="@{/home}" class="back-button"></a>
+            <h3>Bác sĩ đã nhắn</h3>
+            
+        </div>
         <input type="text" id="searchDoctors" placeholder="Tìm kiếm bác sĩ...">
         <div id="contactList">Đang tải...</div>
     </div>
