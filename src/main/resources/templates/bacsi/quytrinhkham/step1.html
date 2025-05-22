@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám Bệnh - Bước 1</title>
+    <link rel="stylesheet" th:href="@{/css/xemlichhen.css}">
+    <link rel="stylesheet" th:href="@{/css/headerbacsi.css}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding-top: 80px;
+        }
+        .patient-info, .vital-signs {
+            margin-bottom: 20px;
+        }
+        .patient-info h2, .vital-signs h2 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        .patient-info p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+        .patient-info p strong {
+            color: #333;
+            width: 150px;
+            display: inline-block;
+        }
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .tab-nav button {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 16px;
+            font-weight: 500;
+            color: #6c757d;
+            cursor: pointer;
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .tab-nav button.active {
+            color: #007bff;
+            border-bottom: 3px solid #007bff;
+        }
+        .tab-nav button:hover:not(.active) {
+            color: #0056b3;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .save-btn {
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        .save-btn:hover {
+            background-color: #0056b3;
+        }
+        .save-btn i {
+            margin-right: 5px;
+        }
+        @media (max-width: 600px) {
+            .form-group input, .form-group textarea {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="bacsi/fragments/header :: header"></div>
+
+    <div class="container">
+        <div class="patient-info">
+            <h2>Thông tin bệnh nhân</h2>
+            <p><strong>Họ và tên:</strong> <span th:text="${benhNhan?.ten ?: 'Không có'}"></span></p>
+            <p><strong>Số điện thoại:</strong> <span th:text="${benhNhan?.dienThoai ?: 'Không có'}"></span></p>
+            <p><strong>Ngày sinh:</strong> <span th:text="${benhNhan?.ngaySinh ?: 'Không có'}"></span></p>
+            <p><strong>Giới tính:</strong> <span th:text="${benhNhan?.gioiTinh ?: 'Không có'}"></span></p>
+            <p><strong>Địa chỉ:</strong> <span th:text="${benhNhan?.diaChi ?: 'Không có'}"></span></p>
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="tab1">Bước 1: Thông số y tế</button>
+            <button class="tab-btn" data-tab="tab2" 
+                th:data-url="@{/bacsi/step2(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},maLichKhamBenh=${maLichKhamBenh})}" 
+                onclick="redirectToStep(this)">
+                Bước 2: Chẩn đoán & Xét nghiệm
+            </button>
+            <button class="tab-btn" data-tab="tab3" 
+                th:data-url="@{/bacsi/step3(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},maLichKhamBenh=${maLichKhamBenh})}" 
+                onclick="redirectToStep(this)">
+                Bước 3: Kê đơn
+            </button>
+        </div>
+
+        <div class="tab-content active" id="tab1">
+            <div class="vital-signs">
+                <h2>Thông số y tế</h2>
+                <form id="vital-signs-form" th:action="@{/bacsi/step1/save}" method="post">
+                    <input type="hidden" name="benhNhanId" th:value="${benhNhan?.benhNhanId}">
+                    <input type="hidden" name="hoSoId" th:value="${hoSoBenh?.hoSoId}">
+                    <input type="hidden" name="maLichKhamBenh" th:value="${maLichKhamBenh}">
+                    <div class="form-group">
+                        <label for="trieuChung">Triệu chứng:</label>
+                        <textarea id="trieuChung" name="trieuChung" placeholder="Nhập triệu chứng (VD: sốt, ho, đau họng)..." th:text="${hoSoBenh?.trieuChung}"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="nhietDo">Nhiệt độ (°C):</label>
+                        <input type="number" step="0.1" id="nhietDo" name="nhietDo" th:value="${vitalSigns?.temperature}" placeholder="Nhập nhiệt độ...">
+                    </div>
+                    <div class="form-group">
+                        <label for="chieuCao">Chiều cao (cm):</label>
+                        <input type="number" step="0.1" id="chieuCao" name="chieuCao" th:value="${vitalSigns?.height}" placeholder="Nhập chiều cao...">
+                    </div>
+                    <div class="form-group">
+                        <label for="canNang">Cân nặng (kg):</label>
+                        <input type="number" step="0.1" id="canNang" name="canNang" th:value="${vitalSigns?.weight}" placeholder="Nhập cân nặng...">
+                    </div>
+                    <div class="form-group">
+                        <label for="bloodPressureSys">Huyết áp tâm thu (mmHg):</label>
+                        <input type="number" id="bloodPressureSys" name="bloodPressureSys" th:value="${vitalSigns?.bloodPressureSys}" placeholder="Nhập huyết áp tâm thu...">
+                    </div>
+                    <div class="form-group">
+                        <label for="bloodPressureDia">Huyết áp tâm trương (mmHg):</label>
+                        <input type="number" id="bloodPressureDia" name="bloodPressureDia" th:value="${vitalSigns?.bloodPressureDia}" placeholder="Nhập huyết áp tâm trương...">
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Ghi chú:</label>
+                        <input type="text" id="notes" name="notes" th:value="${vitalSigns?.notes}" placeholder="Nhập ghi chú...">
+                    </div>
+                    <button type="submit" class="save-btn">
+                        <i class="fas fa-save"></i> Lưu và tiếp tục
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="tab-content" id="tab2">
+            <h2>Bước 2</h2>
+            <p>Nội dung bước 2 sẽ được tải khi hoàn tất bước 1.</p>
+        </div>
+        <div class="tab-content" id="tab3">
+            <h2>Bước 3</h2>
+            <p>Nội dung bước 3 sẽ được thêm sau.</p>
+        </div>
+    </div>
+
+    <script>
+        function redirectToStep(button) {
+            const url = button.getAttribute('data-url');
+            console.log('Redirecting to:', url);
+            if (!url) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'URL chuyển hướng không tồn tại.',
+                    confirmButtonText: 'Đóng'
+                });
+                return;
+            }
+            const urlParams = new URLSearchParams(url.split('?')[1]);
+            const benhNhanId = urlParams.get('benhNhanId');
+            const hoSoId = urlParams.get('hoSoId');
+            if (benhNhanId === 'null' || hoSoId === 'null') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: `Thông tin không hợp lệ: benhNhanId=${benhNhanId}, hoSoId=${hoSoId}`,
+                    confirmButtonText: 'Đóng'
+                });
+                return;
+            }
+            window.location.href = url;
+        }
+
+        document.getElementById('vital-signs-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            // Get maLichKhamBenh from URL query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const maLichKhamBenh = urlParams.get('maLichKhamBenh');
+            
+            const data = {
+                hoSoId: formData.get('hoSoId'),
+                benhNhanId: formData.get('benhNhanId'),
+                maLichKhamBenh: maLichKhamBenh,
+                trieuChung: formData.get('trieuChung'),
+                nhietDo: formData.get('nhietDo'),
+                chieuCao: formData.get('chieuCao'),
+                canNang: formData.get('canNang'),
+                bloodPressureSys: formData.get('bloodPressureSys'),
+                bloodPressureDia: formData.get('bloodPressureDia'),
+                notes: formData.get('notes')
+            };
+
+            if (!maLichKhamBenh) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Mã lịch khám không được tìm thấy trong URL.',
+                    confirmButtonText: 'Đóng'
+                });
+                return;
+            }
+
+            fetch('/bacsi/step1/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Lưu thành công',
+                        text: 'Chuyển sang bước 2...',
+                        confirmButtonText: 'Đóng'
+                    }).then(() => {
+                        window.location.href = data.redirectUrl;
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data.message || 'Vui lòng thử lại.',
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Vui lòng thử lại.',
+                    confirmButtonText: 'Đóng'
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

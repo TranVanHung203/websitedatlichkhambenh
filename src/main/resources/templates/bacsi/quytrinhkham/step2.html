@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám Bệnh - Bước 2</title>
+    <link rel="stylesheet" th:href="@{/css/xemlichhen.css}">
+    <link rel="stylesheet" th:href="@{/css/headerbacsi.css}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding-top: 80px;
+        }
+        .patient-info, .xet-nghiem, .chan-doan {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+        }
+        .patient-info h2, .xet-nghiem h2, .chan-doan h2 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        .patient-info p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+        .patient-info p strong {
+            color: #333;
+            width: 150px;
+            display: inline-block;
+        }
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .tab-nav button {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 16px;
+            font-weight: 500;
+            color: #6c757d;
+            cursor: pointer;
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .tab-nav button.active {
+            color: #007bff;
+            border-bottom: 3px solid #007bff;
+        }
+        .tab-nav button:hover:not(.active) {
+            color: #0056b3;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .form-group select, .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .save-btn, .upload-btn, .generate-ticket-btn, .delete-btn, .continue-btn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            min-width: 120px;
+        }
+        .save-btn:hover, .upload-btn:hover, .generate-ticket-btn:hover, .continue-btn:hover {
+            background-color: #0056b3;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            min-width: auto;
+            padding: 6px 12px;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .save-btn i, .upload-btn i, .generate-ticket-btn i, .delete-btn i, .continue-btn i {
+            margin-right: 5px;
+        }
+        .xet-nghiem-list table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .xet-nghiem-list th, .xet-nghiem-list td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+        .xet-nghiem-list th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        .xet-nghiem-list td.price {
+            text-align: right;
+        }
+        .xet-nghiem-list input[type="checkbox"]:checked {
+            accent-color: #007bff;
+        }
+        .section-title {
+            font-size: 18px;
+            color: #007bff;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 5px;
+        }
+        @media (max-width: 600px) {
+            .form-group select, .form-group input, .form-group textarea {
+                font-size: 14px;
+            }
+            .save-btn, .upload-btn, .generate-ticket-btn, .delete-btn, .continue-btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .xet-nghiem-list th, .xet-nghiem-list td {
+                font-size: 12px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="bacsi/fragments/header :: header"></div>
+
+    <div class="container">
+        <div class="patient-info">
+            <h2>Thông tin bệnh nhân</h2>
+            <p><strong>Họ và tên:</strong> <span th:text="${benhNhan?.ten ?: 'Không có'}"></span></p>
+            <p><strong>Số điện thoại:</strong> <span th:text="${benhNhan?.dienThoai ?: 'Không có'}"></span></p>
+            <p><strong>Ngày sinh:</strong> <span th:text="${benhNhan?.ngaySinh ?: 'Không có'}"></span></p>
+            <p><strong>Giới tính:</strong> <span th:text="${benhNhan?.gioiTinh ?: 'Không có'}"></span></p>
+            <p><strong>Địa chỉ:</strong> <span th:text="${benhNhan?.diaChi ?: 'Không có'}"></span></p>
+            <p><strong>Triệu chứng:</strong> <span th:text="${hoSoBenh?.trieuChung ?: 'Không có'}"></span></p>
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-btn" data-tab="tab1" th:data-url="@{/bacsi/step1(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},maLichKhamBenh=${maLichKhamBenh})}" onclick="redirectToStep(this)">
+                Bước 1: Thông số y tế
+            </button>
+            <button class="tab-btn active" data-tab="tab2">Bước 2: Chẩn đoán & Xét nghiệm</button>
+            <button class="tab-btn" data-tab="tab3" th:data-url="@{/bacsi/step3(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},maLichKhamBenh=${maLichKhamBenh})}" onclick="redirectToStep(this)">
+                Bước 3: Kê đơn 
+            </button>
+        </div>
+
+        <div class="tab-content active" id="tab2">
+            <div class="chan-doan">
+                <h2>Chẩn đoán</h2>
+                <form id="chan-doan-form" th:action="@{/bacsi/step2/save}" method="post">
+                    <input type="hidden" name="hoSoId" th:value="${hoSoBenh?.hoSoId}">
+                    <div class="form-group">
+                        <label for="chanDoan">Chẩn đoán:</label>
+                        <textarea id="chanDoan" name="chanDoan" placeholder="Nhập chẩn đoán (VD: Viêm họng, cảm cúm...)" th:text="${hoSoBenh?.chanDoan}"></textarea>
+                    </div>
+                    <button type="submit" class="save-btn" title="Lưu chẩn đoán vào hồ sơ bệnh">
+                        <i class="fas fa-save"></i> Lưu chẩn đoán
+                    </button>
+                </form>
+            </div>
+
+            <div class="xet-nghiem">
+                <h2>Xét nghiệm</h2>
+                <div class="section-title">Thêm xét nghiệm mới</div>
+                <form id="xet-nghiem-form" th:action="@{/bacsi/step2/save}" method="post">
+                    <input type="hidden" name="hoSoId" th:value="${hoSoBenh?.hoSoId}">
+                    <div class="form-group">
+                        <label for="loaiXetNghiem">Loại xét nghiệm:</label>
+                        <select id="loaiXetNghiem" name="loaiXetNghiemId" required>
+                            <option value="" disabled selected>Chọn loại xét nghiệm</option>
+                            <option th:if="${loaiXetNghiems != null and not #lists.isEmpty(loaiXetNghiems)}" th:each="loai : ${loaiXetNghiems}" th:value="${loai.id}" th:text="${loai.tenXetNghiem}"></option>
+                            <option th:unless="${loaiXetNghiems != null and not #lists.isEmpty(loaiXetNghiems)}" value="" disabled>Không có xét nghiệm nào</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ghiChu">Ghi chú xét nghiệm:</label>
+                        <textarea id="ghiChu" name="ghiChu" placeholder="Nhập ghi chú xét nghiệm (VD: Kiểm tra máu lúc 8h sáng)..."></textarea>
+                    </div>
+                    <button type="submit" class="save-btn" title="Thêm xét nghiệm vào hồ sơ">
+                        <i class="fas fa-plus"></i> Thêm xét nghiệm
+                    </button>
+                </form>
+
+                <div class="xet-nghiem-list">
+                    <div class="section-title">Danh sách xét nghiệm</div>
+                    <div th:if="${xetNghiems != null and not #lists.isEmpty(xetNghiems)}">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                                    <th>STT</th>
+                                    <th>Tên xét nghiệm</th>
+                                    <th>Ghi chú</th>
+                                    <th class="price">Giá (VNĐ)</th>
+                                    <th>Kết quả</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="xn, iterStat : ${xetNghiems}">
+                                    <td><input type="checkbox" class="xetNghiemCheckbox" th:value="${xn.id}"></td>
+                                    <td th:text="${iterStat.count}"></td>
+                                    <td th:text="${xn.loaiXetNghiem.tenXetNghiem}"></td>
+                                    <td th:text="${xn.ghiChu ?: 'Không có'}"></td>
+                                    <td class="price" th:text="${#numbers.formatInteger(xn.loaiXetNghiem.gia, 0, 'COMMA')}"></td>
+                                    <td>
+                                        <a th:if="${xn.fileKetQua != null}" th:href="@{${xn.fileKetQua}}" target="_blank">Xem kết quả</a>
+                                        <span th:unless="${xn.fileKetQua != null}">Chưa có</span>
+                                    </td>
+                                    <td>
+                                        <button class="delete-btn" th:onclick="'deleteXetNghiem(' + ${xn.id} + ')'" title="Xóa xét nghiệm">
+                                            <i class="fas fa-trash"></i> Xóa
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="section-title">Upload kết quả xét nghiệm</div>
+                        <form id="upload-result-form" th:action="@{/bacsi/step2/upload-result}" method="post" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="file">Tệp kết quả:</label>
+                                <input type="file" id="file" name="file" accept="image/*,application/pdf" required>
+                            </div>
+                            <button type="submit" class="upload-btn" title="Upload kết quả cho các xét nghiệm đã chọn">
+                                <i class="fas fa-upload"></i> Upload kết quả
+                            </button>
+                        </form>
+                        <div class="section-title">Tạo phiếu xét nghiệm</div>
+                        <button class="generate-ticket-btn" onclick="generatePhieuXetNghiem()" title="Tạo và tải phiếu xét nghiệm">
+                            <i class="fas fa-ticket-alt"></i> Tạo phiếu xét nghiệm
+                        </button>
+                    </div>
+                    <div th:unless="${xetNghiems != null and not #lists.isEmpty(xetNghiems)}" class="form-group">
+                        <p style="color: #dc3545;">Chưa có xét nghiệm nào.</p>
+                    </div>
+                </div>
+                <div class="section-title">Tiếp tục quy trình</div>
+                <button class="continue-btn" th:data-url="@{/bacsi/step3(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},maLichKhamBenh=${maLichKhamBenh})}" onclick="redirectToStep(this)" title="Chuyển sang bước kê đơn và thanh toán">
+                    <i class="fas fa-arrow-right"></i> Tiếp tục
+                </button>
+            </div>
+        </div>
+        <div class="tab-content" id="tab1">
+            <h2>Bước 1</h2>
+            <p>Nội dung bước 1 sẽ được tải khi quay lại.</p>
+        </div>
+        <div class="tab-content" id="tab3">
+            <h2>Bước 3</h2>
+            <p>Nội dung bước 3 sẽ được thêm sau.</p>
+        </div>
+    </div>
+
+    <script>
+        function redirectToStep(button) {
+            const url = button.getAttribute('data-url');
+            console.log('Redirecting to:', url);
+            if (!url) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'URL chuyển hướng không tồn tại.',
+                    confirmButtonText: 'Đóng'
+                });
+                return;
+            }
+            const urlParams = new URLSearchParams(url.split('?')[1]);
+            const benhNhanId = urlParams.get('benhNhanId');
+            const hoSoId = urlParams.get('hoSoId');
+            if (benhNhanId === 'null' || hoSoId === 'null') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: `Thông tin không hợp lệ: benhNhanId=${benhNhanId}, hoSoId=${hoSoId}`,
+                    confirmButtonText: 'Đóng'
+                });
+                return;
+            }
+            window.location.href = url;
+        }
+
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.xetNghiemCheckbox');
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        }
+
+        function deleteXetNghiem(id) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Xác nhận xóa',
+                text: 'Bạn có chắc muốn xóa xét nghiệm này?',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/bacsi/step2/delete-xetnghiem/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Lỗi khi xóa xét nghiệm: ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Xóa thành công',
+                                text: 'Xét nghiệm đã được xóa.',
+                                confirmButtonText: 'Đóng'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: data.message || 'Vui lòng thử lại.',
+                                confirmButtonText: 'Đóng'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Lỗi khi xóa xét nghiệm: ' + error.message,
+                            confirmButtonText: 'Đóng'
+                        });
+                    });
+                }
+            });
+        }
+
+        document.getElementById('chan-doan-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const data = {
+                hoSoId: formData.get('hoSoId'),
+                chanDoan: formData.get('chanDoan')
+            };
+
+            console.log('Saving chanDoan:', data);
+
+            fetch('/bacsi/step2/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Lỗi khi lưu chẩn đoán: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Lưu thành công',
+                        text: 'Chẩn đoán đã được lưu.',
+                        confirmButtonText: 'Đóng'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data.message || 'Vui lòng thử lại.',
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Lỗi khi lưu chẩn đoán: ' + error.message,
+                    confirmButtonText: 'Đóng'
+                });
+            });
+        });
+
+        document.getElementById('xet-nghiem-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const data = {
+                hoSoId: formData.get('hoSoId'),
+                loaiXetNghiemId: formData.get('loaiXetNghiemId'),
+                ghiChu: formData.get('ghiChu')
+            };
+
+            console.log('Saving xetNghiem:', data);
+
+            if (!data.loaiXetNghiemId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Cảnh báo',
+                    text: 'Vui lòng chọn loại xét nghiệm.',
+                    confirmButtonText: 'Đóng'
+                });
+                return;
+            }
+
+            fetch('/bacsi/step2/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Lỗi khi thêm xét nghiệm: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Lưu thành công',
+                        text: 'Xét nghiệm đã được thêm.',
+                        confirmButtonText: 'Đóng'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data.message || 'Vui lòng thử lại.',
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Lỗi khi thêm xét nghiệm: ' + error.message,
+                    confirmButtonText: 'Đóng'
+                });
+            });
+        });
+
+        document.getElementById('upload-result-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const checkboxes = document.querySelectorAll('.xetNghiemCheckbox:checked');
+            const xetNghiemIds = Array.from(checkboxes).map(cb => cb.value);
+            if (xetNghiemIds.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Cảnh báo',
+                    text: 'Vui lòng chọn ít nhất một xét nghiệm để upload kết quả.',
+                    confirmButtonText: 'Đóng'
+                });
+                return;
+            }
+            const formData = new FormData(this);
+            xetNghiemIds.forEach(id => formData.append('xetNghiemIds', id));
+            console.log('Uploading results for xetNghiemIds:', xetNghiemIds);
+            fetch('/bacsi/step2/upload-result', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Server trả về mã lỗi ${response.status}: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Upload thành công',
+                        text: 'Kết quả xét nghiệm đã được lưu.',
+                        confirmButtonText: 'Đóng'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data.message || 'Vui lòng kiểm tra loại file (chỉ chấp nhận hình ảnh hoặc PDF) hoặc thử lại.',
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Lỗi khi upload kết quả: ' + error.message,
+                    confirmButtonText: 'Đóng'
+                });
+            });
+        });
+
+        function generatePhieuXetNghiem() {
+            const checkboxes = document.querySelectorAll('.xetNghiemCheckbox:checked');
+            const xetNghiemIds = Array.from(checkboxes).map(cb => cb.value);
+            if (xetNghiemIds.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Cảnh báo',
+                    text: 'Vui lòng chọn ít nhất một xét nghiệm.',
+                    confirmButtonText: 'Đóng'
+                });
+                return;
+            }
+            const hoSoId = document.querySelector('input[name="hoSoId"]').value;
+            if (!hoSoId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Hồ sơ ID không hợp lệ.',
+                    confirmButtonText: 'Đóng'
+                });
+                return;
+            }
+            const data = { hoSoId, xetNghiemIds };
+            console.log('Generating phieu xet nghiem:', data);
+            fetch('/bacsi/step2/generate-ticket', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                console.log('Response status:', response.status, 'Content-Type:', response.headers.get('content-type'));
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(text || `Lỗi server: ${response.status}`);
+                    });
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `phieu_xet_nghiem_${hoSoId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Tạo phiếu thành công',
+                    text: 'Phiếu xét nghiệm đã được tải xuống.',
+                    confirmButtonText: 'Đóng'
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Lỗi khi tạo phiếu xét nghiệm: ' + error.message,
+                    confirmButtonText: 'Đóng'
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
