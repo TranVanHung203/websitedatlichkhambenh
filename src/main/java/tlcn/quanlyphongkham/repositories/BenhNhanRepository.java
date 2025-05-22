@@ -26,6 +26,14 @@ public interface BenhNhanRepository extends JpaRepository<BenhNhan, String> {
 
 
 
+
+
+
+	BenhNhan findByBenhNhanId(String benhNhanId);
+
+
+
+
 	
 	
 

@@ -59,5 +59,10 @@ public interface LichKhamBenhRepository extends JpaRepository<LichKhamBenh, Stri
 	List<LichKhamBenh> findByBacSiAndNgayThangNam(BacSi bacSi, LocalDate ngayThangNam);
 
 	List<LichKhamBenh> findByBacSi_BacSiId(String doctorId);
+	
+	@Modifying
+	@Query(value = "UPDATE lich_kham_benh SET trang_thai = :trangThai WHERE id = :id", nativeQuery = true)
+	void updateTrangThai(@Param("id") String id, @Param("trangThai") boolean trangThai);
+
 
 }

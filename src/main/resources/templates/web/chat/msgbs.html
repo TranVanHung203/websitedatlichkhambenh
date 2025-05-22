@@ -100,8 +100,15 @@
             div.className = "msg " + (isSelf ? "right" : "left");
 
             let contentHtml = msg.noiDung.replace(/\n/g, '<br>');
-            if (msg.noiDung.startsWith("/uploads/chat-images")) {
-                contentHtml = `<img src="${msg.noiDung}" style="max-width: 200px; border-radius: 8px; cursor: zoom-in;" onclick="showImageModal('${msg.noiDung}')">`;
+            if (msg.noiDung.startsWith("/uploads/chat-files")) {
+                const fileExtension = msg.noiDung.split('.').pop().toLowerCase();
+                if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+                    contentHtml = `<img src="${msg.noiDung}" style="max-width: 200px; border-radius: 8px; cursor: zoom-in;" onclick="showImageModal('${msg.noiDung}')">`;
+                } else if (['doc', 'docx', 'pdf'].includes(fileExtension)) {
+                    const fullFileName = msg.noiDung.split('/').pop();
+                    const originalFileName = fullFileName.substring(37); // UUID (36 ký tự) + "-"
+                    contentHtml = `<a href="${msg.noiDung}" download="${originalFileName}" class="file-link">${originalFileName} </a>`;
+                }
             }
 
             div.innerHTML = `
@@ -124,7 +131,7 @@
             warning.innerText = '';
 
             if (selectedFiles.length === 0 && content === '') {
-                warning.innerText = "Tin nhắn hoặc hình ảnh không được để trống.";
+                warning.innerText = "Tin nhắn hoặc tệp không được để trống.";
                 return;
             }
 
@@ -141,7 +148,7 @@
             if (selectedFiles.length > 0) {
                 const uploadPromises = selectedFiles.map(file => {
                     const formData = new FormData();
-                    formData.append("image", file);
+                    formData.append("file", file);
                     return fetch("/api/chat/upload", {
                         method: "POST",
                         body: formData
@@ -178,7 +185,7 @@
             const previewContainer = document.getElementById("previewContainer");
             previewContainer.innerHTML = "";
             previewContainer.style.display = "none";
-            document.getElementById("imageInput").value = '';
+            document.getElementById("fileInput").value = '';
             selectedFiles = [];
         }
 
@@ -196,17 +203,25 @@
             }
             previewContainer.style.display = "flex";
             selectedFiles.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const previewItem = document.createElement("div");
-                    previewItem.className = "preview-item";
+                const previewItem = document.createElement("div");
+                previewItem.className = "preview-item";
+                if (file.type.startsWith("image/")) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewItem.innerHTML = `
+                            <img class="preview-image" src="${e.target.result}" alt="Preview">
+                            <button onclick="removePreview(${index})">×</button>
+                        `;
+                        previewContainer.appendChild(previewItem);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
                     previewItem.innerHTML = `
-                        <img class="preview-image" src="${e.target.result}" alt="Preview">
+                        <div class="file-preview">${file.name}</div>
                         <button onclick="removePreview(${index})">×</button>
                     `;
                     previewContainer.appendChild(previewItem);
-                };
-                reader.readAsDataURL(file);
+                }
             });
         }
 
@@ -249,14 +264,19 @@
                 input.style.height = Math.min(input.scrollHeight, 120) + "px";
             });
 
-            document.getElementById("imageInput").addEventListener("change", function () {
+            document.getElementById("fileInput").addEventListener("change", function () {
                 const files = Array.from(this.files);
-                if (files.every(file => file.type.startsWith("image/"))) {
+                if (files.every(file => 
+                    file.type.startsWith("image/") ||
+                    file.type === "application/pdf" ||
+                    file.type === "application/msword" ||
+                    file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )) {
                     selectedFiles = files;
                     updatePreview();
                 } else {
                     clearPreview();
-                    document.getElementById("warningText").innerText = "Vui lòng chỉ chọn tệp hình ảnh.";
+                    document.getElementById("warningText").innerText = "Vui lòng chỉ chọn tệp hình ảnh, PDF hoặc Word.";
                 }
             });
 
@@ -427,11 +447,15 @@
         input[type="file"]+label {
             background-color: #28a745;
             color: white;
-            padding: 8px 15px;
+            padding: 8px;
             border-radius: 5px;
-            font-size: 14px;
+            font-size: 18px;
             cursor: pointer;
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
             transition: all 0.3s ease;
         }
 
@@ -441,6 +465,10 @@
 
         input[type="file"]+label:active {
             background-color: #1e7e34;
+        }
+
+        input[type="file"]+label::before {
+            content: '📎';
         }
 
         .msg {
@@ -490,6 +518,23 @@
             background: #e2e3e5;
             color: black;
             border-bottom-left-radius: 4px;
+        }
+
+        .file-link {
+            text-decoration: none;
+        }
+
+        .file-link span {
+            font-size: 0.9em;
+            margin-left: 5px;
+        }
+
+        .right .chat-bubble .file-link {
+            color: white;
+        }
+
+        .left .chat-bubble .file-link {
+            color: #007bff;
         }
 
         .meta {
@@ -559,6 +604,24 @@
             border-radius: 8px;
             border: 1px solid #ccc;
             object-fit: cover;
+        }
+
+        .file-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 12px;
+            color: #333;
+            background: #f9f9f9;
+            padding: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .preview-item button {
@@ -667,8 +730,8 @@
         <div id="previewContainer"></div>
         <div id="input-container">
             <textarea id="messageInput" placeholder="Nhập tin nhắn..." rows="2"></textarea>
-            <input type="file" id="imageInput" accept="image/*" multiple>
-            <label for="imageInput">Gửi ảnh</label>
+            <input type="file" id="fileInput" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple>
+            <label for="fileInput"></label>
             <button onclick="sendMessage()">Gửi</button>
         </div>
         <div id="warningText"></div>

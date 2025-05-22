@@ -111,9 +111,9 @@ public class LichKhamBenhService {
 		return lichKhamBenhRepository.findByBacSiAndNgayThangNamAndCa(doctorId,selectedDates,ca);
 	}
 
-	public Optional<LichKhamBenh> findById(String chuyenKhoaId) {
+	public Optional<LichKhamBenh> findById(String maLichKhamBenh) {
 		
-		return lichKhamBenhRepository.findById(chuyenKhoaId);
+		return lichKhamBenhRepository.findById(maLichKhamBenh);
 	}
 
 	public List<LichKhamBenh> findByBacSiAndNgay(BacSi bacSi, LocalDate ngay) {
@@ -124,6 +124,17 @@ public class LichKhamBenhService {
 	public List<LichKhamBenh> getLichKhamBenhByBacSi(String doctorId) {
 		return lichKhamBenhRepository.findByBacSi_BacSiId(doctorId);
 	}
+
+	public void save(LichKhamBenh lich) {
+		lichKhamBenhRepository.save(lich);
+		
+	}
+	@Transactional
+	public void updateTrangThai(String lichKhamBenh) {
+		lichKhamBenhRepository.updateTrangThai(lichKhamBenh, true);
+		
+	}
+
 
 
 

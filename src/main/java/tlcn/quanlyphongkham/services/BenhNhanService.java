@@ -20,6 +20,11 @@ public class BenhNhanService {
 		return benhNhan;
 	}
 
+	public BenhNhan findByBenhNhanId(String benhNhanId)
+	{
+		BenhNhan benhNhan= benhNhanRepository.findByBenhNhanId(benhNhanId);
+		return benhNhan;
+	}
 	public BenhNhan findByPhone(String patientPhone) {
         return benhNhanRepository.findByDienThoai(patientPhone);
     }
