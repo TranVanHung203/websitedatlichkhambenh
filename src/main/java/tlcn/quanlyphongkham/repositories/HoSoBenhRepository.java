@@ -165,4 +165,18 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
             @Param("tenBacSi") String tenBacSi,
             @Param("dienThoai") String dienThoai,
             Pageable pageable);
+
+
+
+
+
+
+
+    @Query(value = "SELECT * FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId", nativeQuery = true)
+    List<HoSoBenh> findByBenhNhanId(@Param("benhNhanId") String benhNhanId);
+
+
+
+
+
 }

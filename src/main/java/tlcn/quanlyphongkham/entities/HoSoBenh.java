@@ -1,29 +1,20 @@
 package tlcn.quanlyphongkham.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "HoSoBenh")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class HoSoBenh implements Serializable {
     @Id
     @Column(name = "ho_so_id", length = 36)
@@ -31,10 +22,12 @@ public class HoSoBenh implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "benh_nhan_id")
+    @JsonIgnoreProperties({"hoSoBenhs"})
     private BenhNhan benhNhan;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bac_si_id")
+    @JsonIgnoreProperties({"hoSoBenhs"})
     private BacSi bacSi;
 
     @Column(name = "chan_doan", columnDefinition = "nvarchar(100)", nullable = false)
@@ -53,14 +46,24 @@ public class HoSoBenh implements Serializable {
     private LocalDateTime thoiGianTao;
 
     @Column(name = "trang_thai", nullable = false)
-    private Boolean trangThai; // New field to track completion status
-    
+    private Boolean trangThai;
+
     @OneToMany(mappedBy = "hoSoBenh", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"hoSoBenh"})
     private List<DonThuoc> donThuocs;
 
     @OneToMany(mappedBy = "hoSoBenh", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"hoSoBenh"})
     private List<XetNghiem> xetNghiems;
-    
+
+    @OneToMany(mappedBy = "hoSoBenh", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"hoSoBenh"})
+    private List<PhieuXetNghiem> phieuXetNghiems;
+
+    @OneToMany(mappedBy = "hoSoBenh", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"hoSoBenh"})
+    private List<VitalSigns> vitalSigns;
+
     @PrePersist
     public void prePersist() {
         if (this.thoiGianTao == null) {
@@ -73,11 +76,10 @@ public class HoSoBenh implements Serializable {
             this.daThanhToan = false;
         }
         if (this.trangThai == null) {
-            this.trangThai = false; // Initialize status to false
+            this.trangThai = false;
         }
     }
 
-    // Helper method to maintain bidirectional relationship
     public void addDonThuoc(DonThuoc donThuoc) {
         if (donThuocs == null) {
             donThuocs = new ArrayList<>();

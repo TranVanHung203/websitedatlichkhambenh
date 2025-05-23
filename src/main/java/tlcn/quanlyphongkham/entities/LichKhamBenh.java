@@ -26,17 +26,11 @@ public class LichKhamBenh {
     @Column(name = "ca", nullable = false, length = 20, columnDefinition = "nvarchar(100)")
     private String ca;
 
-    @Column(name = "trang_thai", nullable = false)
-    private Boolean trangThai;
+  
 
     @OneToMany(mappedBy = "lichKhamBenh", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<SlotThoiGian> slotThoiGian;
 
-    @PrePersist
-    public void prePersist() {
-        if (this.trangThai == null) {
-            this.trangThai = false;
-        }
-    }
+ 
 }

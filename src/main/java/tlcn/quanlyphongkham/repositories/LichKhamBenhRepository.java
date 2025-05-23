@@ -26,14 +26,14 @@ public interface LichKhamBenhRepository extends JpaRepository<LichKhamBenh, Stri
 
 	boolean existsByNgayThangNamAndCaAndBacSi(LocalDate ngayThangNam, String ca, BacSi bacSi);
 
-	@Query(value = "SELECT ma_lich_id,ca,ngay_thang_nam,bac_si_id,trang_thai FROM lich_kham_benh WHERE bac_si_id = :idbacsi AND ngay_thang_nam = :ngay", nativeQuery = true)
+	@Query(value = "SELECT ma_lich_id,ca,ngay_thang_nam,bac_si_id FROM lich_kham_benh WHERE bac_si_id = :idbacsi AND ngay_thang_nam = :ngay", nativeQuery = true)
 	List<LichKhamBenh> findByIdBacSiAndNgayThangNam(@Param("idbacsi") String idbacsi, @Param("ngay") LocalDate ngay);
 
 	@Modifying // Thêm @Modifying để chỉ rõ đây là câu lệnh thay đổi dữ liệu (INSERT, UPDATE,
 				// DELETE)
 	@Transactional // Đảm bảo phương thức được thực thi trong một transaction
-	@Query(value = "INSERT INTO lich_kham_benh (ma_lich_id, bac_si_id, ngay_thang_nam, ca,trang_thai) "
-			+ "VALUES (:maLichId, :bacSiId, :ngayThangNam, :ca,false)", nativeQuery = true)
+	@Query(value = "INSERT INTO lich_kham_benh (ma_lich_id, bac_si_id, ngay_thang_nam, ca) "
+			+ "VALUES (:maLichId, :bacSiId, :ngayThangNam, :ca)", nativeQuery = true)
 	void addNew(@Param("maLichId") String maLichId, @Param("bacSiId") String bacSiId,
 			@Param("ngayThangNam") LocalDate ngayThangNam, @Param("ca") String ca);
 

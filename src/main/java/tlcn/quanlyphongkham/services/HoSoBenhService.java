@@ -168,6 +168,14 @@ public class HoSoBenhService {
         ));
     }
 
+	public List<HoSoBenh> findByBenhNhanId(String benhNhanId) {
+		// TODO Auto-generated method stub
+		List<HoSoBenh> medicalHistory = hoSoBenhRepository.findByBenhNhanId(benhNhanId);
+		return medicalHistory;
+	}
+
+	
+
 	
 
 

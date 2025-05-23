@@ -15,7 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -63,8 +65,8 @@ import tlcn.quanlyphongkham.dtos.ChiTietBacSiDTO;
 import tlcn.quanlyphongkham.dtos.EditProfileBSDTO;
 import tlcn.quanlyphongkham.dtos.HoSoBenhDTO;
 import tlcn.quanlyphongkham.dtos.LichHenKhamDTO;
+import tlcn.quanlyphongkham.dtos.MedicalHistoryDTO;
 import tlcn.quanlyphongkham.dtos.SlotDTO;
-import tlcn.quanlyphongkham.dtos.TrangThaiLichKhamBenhDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.BenhNhan;
 import tlcn.quanlyphongkham.entities.ChuyenKhoa;
@@ -1125,5 +1127,131 @@ public class BacSiController {
             response.put("message", "Đã xảy ra lỗi trong quá trình tạo đơn thuốc: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+    
+    
+    
+    
+    
+    
+    @GetMapping("bacsi/medical-history")
+    public ResponseEntity<List<MedicalHistoryDTO>> getMedicalHistory(@RequestParam("benhNhanId") String benhNhanId) {
+        List<HoSoBenh> medicalHistory = hoSoBenhService.findByBenhNhanId(benhNhanId);
+
+        List<MedicalHistoryDTO> dtos = medicalHistory.stream().map(hsb -> {
+            // Initialize lazy-loaded relationships
+            Hibernate.initialize(hsb.getBenhNhan());
+            Hibernate.initialize(hsb.getBacSi());
+            Hibernate.initialize(hsb.getDonThuocs());
+            Hibernate.initialize(hsb.getXetNghiems());
+            Hibernate.initialize(hsb.getPhieuXetNghiems());
+            Hibernate.initialize(hsb.getVitalSigns());
+
+            MedicalHistoryDTO dto = new MedicalHistoryDTO();
+            dto.setHoSoId(hsb.getHoSoId());
+            
+            // Map BenhNhan
+            if (hsb.getBenhNhan() != null) {
+                MedicalHistoryDTO.BenhNhanDTO benhNhanDTO = new MedicalHistoryDTO.BenhNhanDTO(
+                    hsb.getBenhNhan().getBenhNhanId(),
+                    hsb.getBenhNhan().getTen(),
+                    hsb.getBenhNhan().getDienThoai()
+                );
+                dto.setBenhNhan(benhNhanDTO);
+            }
+
+            // Map BacSi
+            if (hsb.getBacSi() != null) {
+                MedicalHistoryDTO.BacSiDTO bacSiDTO = new MedicalHistoryDTO.BacSiDTO(
+                    hsb.getBacSi().getBacSiId(),
+                    hsb.getBacSi().getTen()
+                );
+                dto.setBacSi(bacSiDTO);
+            }
+
+            dto.setChanDoan(hsb.getChanDoan());
+            dto.setTrieuChung(hsb.getTrieuChung());
+            dto.setTongTien(hsb.getTongTien());
+            dto.setDaThanhToan(hsb.getDaThanhToan());
+            dto.setThoiGianTao(hsb.getThoiGianTao() != null ? hsb.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+
+            // Map VitalSigns
+            if (hsb.getVitalSigns() != null) {
+                List<MedicalHistoryDTO.VitalSignsDTO> vitalSignsDTOs = hsb.getVitalSigns().stream().map(vs -> {
+                    return new MedicalHistoryDTO.VitalSignsDTO(
+                        vs.getId(),
+                        vs.getTemperature(),
+                        vs.getHeight(),
+                        vs.getWeight(),
+                        vs.getBloodPressureSys(),
+                        vs.getBloodPressureDia(),
+                        vs.getNotes(),
+                        vs.getThoiGianTao() != null ? vs.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null
+                    );
+                }).collect(Collectors.toList());
+                dto.setVitalSigns(vitalSignsDTOs);
+            }
+
+            // Map DonThuoc
+            if (hsb.getDonThuocs() != null) {
+                List<MedicalHistoryDTO.DonThuocDTO> donThuocDTOs = hsb.getDonThuocs().stream().map(dt -> {
+                    Hibernate.initialize(dt.getDonThuocThuocs());
+                    List<MedicalHistoryDTO.DonThuocThuocDTO> donThuocThuocDTOs = dt.getDonThuocThuocs().stream().map(dtt -> {
+                        MedicalHistoryDTO.ThuocDTO thuocDTO = new MedicalHistoryDTO.ThuocDTO(
+                            dtt.getThuoc().getTen(),
+                            dtt.getThuoc().getGia()
+                        );
+                        return new MedicalHistoryDTO.DonThuocThuocDTO(
+                            thuocDTO,
+                            dtt.getLieu(),
+                            dtt.getTanSuat(),
+                            dtt.getSoLuong()
+                        );
+                    }).collect(Collectors.toList());
+                    MedicalHistoryDTO.DonThuocDTO donThuocDTO = new MedicalHistoryDTO.DonThuocDTO(
+                        dt.getDonThuocId(),
+                        dt.getFormattedTongTienThuoc(),
+                        donThuocThuocDTOs
+                    );
+                    return donThuocDTO;
+                }).collect(Collectors.toList());
+                dto.setDonThuocs(donThuocDTOs);
+            }
+
+            // Map XetNghiem
+            if (hsb.getXetNghiems() != null) {
+                List<MedicalHistoryDTO.XetNghiemDTO> xetNghiemDTOs = hsb.getXetNghiems().stream().map(xn -> {
+                    MedicalHistoryDTO.LoaiXetNghiemDTO loaiXetNghiemDTO = new MedicalHistoryDTO.LoaiXetNghiemDTO(
+                        xn.getLoaiXetNghiem().getTenXetNghiem(),
+                        xn.getLoaiXetNghiem().getGia()
+                    );
+                    return new MedicalHistoryDTO.XetNghiemDTO(
+                        loaiXetNghiemDTO,
+                        xn.getGhiChu(),
+                        xn.getTrangThai(),
+                        xn.getFileKetQua(),
+                        xn.getThoiGianTao() != null ? xn.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null
+                    );
+                }).collect(Collectors.toList());
+                dto.setXetNghiems(xetNghiemDTOs);
+            }
+
+            // Map PhieuXetNghiem
+            if (hsb.getPhieuXetNghiems() != null) {
+                List<MedicalHistoryDTO.PhieuXetNghiemDTO> phieuXetNghiemDTOs = hsb.getPhieuXetNghiems().stream().map(pxn -> {
+                    return new MedicalHistoryDTO.PhieuXetNghiemDTO(
+                        pxn.getMaPhieu(),
+                        pxn.getTongGia(),
+                        pxn.getThoiGianTao() != null ? pxn.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null,
+                        pxn.getXetNghiemIds()
+                    );
+                }).collect(Collectors.toList());
+                dto.setPhieuXetNghiems(phieuXetNghiemDTOs);
+            }
+
+            return dto;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtos);
     }
 }

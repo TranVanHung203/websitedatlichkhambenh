@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
-import tlcn.quanlyphongkham.dtos.LichKhamBenhDTO;
 import tlcn.quanlyphongkham.dtos.MaLichKhamBenhDTO;
-import tlcn.quanlyphongkham.dtos.TrangThaiLichKhamBenhDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.LichKhamBenh;
 import tlcn.quanlyphongkham.entities.SlotThoiGian;
@@ -125,16 +123,7 @@ public class LichKhamBenhService {
 		lichKhamBenhRepository.save(lich);
 		
 	}
-	  @Transactional
-	    public void updateTrangThai(TrangThaiLichKhamBenhDTO dto) {
-	        // Validate DTO
-	        if (dto.getMaLichKhamBenh() == null) {
-	            throw new IllegalArgumentException("maLichKhamBenh cannot be null");
-	        }
 
-	        // Update only the trangThai field
-	        lichKhamBenhRepository.updateTrangThai(dto.getMaLichKhamBenh(), dto.getTrangThai() != null ? dto.getTrangThai() : true);
-	    }
 
 
 	
