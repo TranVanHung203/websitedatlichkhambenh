@@ -23,398 +23,423 @@
 		}
 	</script>
 	<style>
-		body {
-			font-family: 'Segoe UI', sans-serif;
-			margin: 0;
-			padding: 0;
-			background: #f0f2f5;
-			height: 100vh;
-			display: flex;
-		}
+	  body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f2f5;
+            height: 100vh;
+            display: flex;
+        }
 
-		#sidebar {
-			width: 250px;
-			background: #fff;
-			border-right: 1px solid #ddd;
-			overflow-y: auto;
-			padding: 20px;
-		}
+        #sidebar {
+            width: 250px;
+            background: #fff;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            padding: 20px;
+        }
 
-		#sidebar h3 {
-			color: #007bff;
-			font-size: 1.3em;
-			margin: 0 0 10px 0;
-		}
+        .doctor-card {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s, transform 0.3s;
+        }
 
-		.doctor-card {
-			padding: 10px;
-			margin-bottom: 10px;
-			border-radius: 8px;
-			background: #f9f9f9;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			transition: background 0.2s, transform 0.3s;
-		}
+        .doctor-card:hover {
+            background: #e9f0ff;
+            transform: scale(1.02);
+        }
 
-		.doctor-card:hover {
-			background: #e9f0ff;
-			transform: scale(1.02);
-		}
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
 
-		.avatar {
-			width: 40px;
-			height: 40px;
-			border-radius: 50%;
-			object-fit: cover;
-		}
+        .info {
+            flex: 1;
+        }
 
-		.info {
-			flex: 1;
-		}
+        .name {
+            font-weight: bold;
+            color: #007bff;
+        }
 
-		.name {
-			font-weight: bold;
-			color: #007bff;
-		}
+        .phone {
+            font-size: 0.85em;
+            color: #555;
+        }
 
-		.phone {
-			font-size: 0.85em;
-			color: #555;
-		}
+        #chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            animation: fadeIn 0.4s ease;
+            position: relative;
+        }
 
-		#chat-container {
-			flex: 1;
-			display: flex;
-			flex-direction: column;
-			padding: 20px;
-			animation: fadeIn 0.4s ease;
-			position: relative;
-		}
+        #chatTitle {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
 
-		#chatTitle {
-			margin: 0 0 10px 0;
-			font-size: 1.2em;
-			color: #2c3e50;
-		}
+        #searchMessages {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
 
-		#searchMessages {
-			width: 100%;
-			padding: 8px;
-			margin-bottom: 10px;
-			border-radius: 6px;
-			border: 1px solid #ccc;
-			font-family: inherit;
-			font-size: 14px;
-			transition: border-color 0.3s;
-		}
+        #searchMessages:focus {
+            outline: none;
+            border-color: #007bff;
+        }
 
-		#searchMessages:focus {
-			outline: none;
-			border-color: #007bff;
-		}
+        #searchDoctors {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
 
-		#searchDoctors {
-			width: 100%;
-			padding: 8px;
-			margin-bottom: 10px;
-			border-radius: 6px;
-			border: 1px solid #ccc;
-			font-family: inherit;
-			font-size: 14px;
-			transition: border-color 0.3s;
-		}
+        #searchDoctors:focus {
+            outline: none;
+            border-color: #007bff;
+        }
 
-		#searchDoctors:focus {
-			outline: none;
-			border-color: #007bff;
-		}
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+        }
 
-		#messages {
-			flex: 1;
-			overflow-y: auto;
-			background: #fff;
-			padding: 10px;
-			border: 1px solid #ccc;
-			border-radius: 8px;
-			font-size: 14px;
-			display: flex;
-			flex-direction: column;
-		}
+        .msg {
+            display: flex;
+            margin: 10px 0;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: slideUp 0.3s forwards;
+        }
 
-		.msg {
-			display: flex;
-			margin: 10px 0;
-			opacity: 0;
-			transform: translateY(10px);
-			animation: slideUp 0.3s forwards;
-		}
+        .self {
+            justify-content: flex-end;
+        }
 
-		.self {
-			justify-content: flex-end;
-		}
+        .other {
+            justify-content: flex-start;
+        }
 
-		.other {
-			justify-content: flex-start;
-		}
+        .bubble {
+            max-width: 45ch;
+            padding: 10px 14px;
+            border-radius: 20px;
+            background: #e2e3e5;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            animation: popIn 0.3s ease;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.4;
+        }
 
-		.bubble {
-			max-width: 45ch;
-			padding: 10px 14px;
-			border-radius: 20px;
-			background: #e2e3e5;
-			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-			position: relative;
-			animation: popIn 0.3s ease;
-			white-space: normal;
-			word-wrap: break-word;
-			overflow-wrap: break-word;
-			line-height: 1.4;
-		}
+        .bubble img {
+            max-width: 200px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            display: block;
+            cursor: zoom-in;
+        }
 
-		.bubble img {
-			max-width: 200px;
-			border-radius: 8px;
-			margin-bottom: 5px;
-			display: block;
-			cursor: zoom-in;
-		}
+        .self .bubble {
+            background: #007bff;
+            color: white;
+            border-bottom-right-radius: 0;
+        }
 
-		.self .bubble {
-			background: #007bff;
-			color: white;
-			border-bottom-right-radius: 0;
-		}
+        .other .bubble {
+            background: #e2e3e5;
+            color: black;
+            border-bottom-left-radius: 0;
+        }
 
-		.other .bubble {
-			background: #e2e3e5;
-			color: black;
-			border-bottom-left-radius: 0;
-		}
+        .meta {
+            font-size: 0.75em;
+            color: #666;
+            margin-bottom: 4px;
+            display: block;
+        }
 
-		.meta {
-			font-size: 0.75em;
-			color: #666;
-			margin-bottom: 4px;
-			display: block;
-		}
+        .time {
+            font-size: 0.7em;
+            color: #aaa;
+            text-align: right;
+            margin-top: 4px;
+        }
 
-		.time {
-			font-size: 0.7em;
-			color: #aaa;
-			text-align: right;
-			margin-top: 4px;
-		}
+        #input-container {
+            display: flex;
+            margin-top: 10px;
+            align-items: center;
+            gap: 8px;
+        }
 
-		#input-container {
-			display: flex;
-			margin-top: 10px;
-			align-items: center;
-			gap: 8px;
-		}
+        #messageInput {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            transition: border-color 0.3s;
+            resize: none;
+            min-height: 38px;
+            max-height: 120px;
+            font-family: inherit;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
 
-		#messageInput {
-			flex: 1;
-			padding: 10px;
-			border-radius: 6px;
-			border: 1px solid #ccc;
-			transition: border-color 0.3s;
-			resize: none;
-			min-height: 38px;
-			max-height: 120px;
-			font-family: inherit;
-			overflow-y: auto;
-			line-height: 1.4;
-		}
+        #messageInput:focus {
+            outline: none;
+            border-color: #007bff;
+        }
 
-		#messageInput:focus {
-			outline: none;
-			border-color: #007bff;
-		}
+        button {
+            padding: 10px 16px;
+            background: #007bff;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
 
-		button {
-			padding: 10px 16px;
-			background: #007bff;
-			border: none;
-			color: white;
-			border-radius: 6px;
-			cursor: pointer;
-			transition: background 0.2s;
-		}
+        button:hover {
+            background: #0056b3;
+        }
 
-		button:hover {
-			background: #0056b3;
-		}
+        #warningText {
+            color: red;
+            font-size: 0.85em;
+            margin-top: 4px;
+            height: 1em;
+        }
 
-		#warningText {
-			color: red;
-			font-size: 0.85em;
-			margin-top: 4px;
-			height: 1em;
-		}
+        input[type="file"] {
+            display: none;
+        }
 
-		input[type="file"] {
-			display: none;
-		}
+        input[type="file"]+label {
+            background-color: #28a745;
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            transition: all 0.3s ease;
+        }
 
-		input[type="file"]+label {
-			background-color: #28a745;
-			color: white;
-			padding: 8px;
-			border-radius: 5px;
-			font-size: 18px;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 38px;
-			height: 38px;
-			transition: all 0.3s ease;
-		}
+        input[type="file"]+label:hover {
+            background-color: #218838;
+        }
 
-		input[type="file"]+label:hover {
-			background-color: #218838;
-		}
+        input[type="file"]+label:active {
+            background-color: #1e7e34;
+        }
 
-		input[type="file"]+label:active {
-			background-color: #1e7e34;
-		}
+        input[type="file"]+label::before {
+            content: '📎';
+        }
 
-		input[type="file"]+label::before {
-			content: '📎';
-		}
+        #scrollToBottomBtn {
+            position: absolute;
+            bottom: 120px;
+            right: 40px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.3s, transform 0.2s;
+            opacity: 0;
+            pointer-events: none;
+        }
 
-		#scrollToBottomBtn {
-			position: absolute;
-			bottom: 120px;
-			right: 40px;
-			background: #007bff;
-			color: white;
-			border-radius: 50%;
-			width: 40px;
-			height: 40px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			cursor: pointer;
-			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-			transition: opacity 0.3s, transform 0.2s;
-			opacity: 0;
-			pointer-events: none;
-		}
+        #scrollToBottomBtn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
-		#scrollToBottomBtn.visible {
-			opacity: 1;
-			pointer-events: auto;
-		}
+        #scrollToBottomBtn:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
 
-		#scrollToBottomBtn:hover {
-			background: #0056b3;
-			transform: scale(1.1);
-		}
+        #scrollToBottomBtn::after {
+            content: '↓';
+            font-size: 20px;
+        }
 
-		#scrollToBottomBtn::after {
-			content: '↓';
-			font-size: 20px;
-		}
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-		#previewContainer {
-			margin-top: 10px;
-			display: none;
-			flex-wrap: wrap;
-			gap: 10px;
-		}
+        @keyframes popIn {
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
 
-		.preview-item {
-			position: relative;
-			width: 100px;
-			height: 100px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			background: #f0f0f0;
-			border-radius: 8px;
-			border: 1px solid #ccc;
-		}
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
 
-		.preview-image {
-			width: 100px;
-			height: 100px;
-			border-radius: 8px;
-			object-fit: cover;
-		}
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
 
-		.preview-file {
-			font-size: 12px;
-			text-align: center;
-			word-wrap: break-word;
-			padding: 5px;
-		}
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
-		.preview-item button {
-			position: absolute;
-			top: -8px;
-			right: -8px;
-			background: #ff5e57;
-			border: none;
-			color: white;
-			border-radius: 50%;
-			width: 18px;
-			height: 18px;
-			font-size: 12px;
-			line-height: 18px;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			padding: 0;
-			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-		}
+        #previewContainer {
+            margin-top: 10px;
+            display: none;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
 
-		#imageModal {
-			display: none;
-			position: fixed;
-			z-index: 9999;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height: 100%;
-			overflow: auto;
-			background-color: rgba(0, 0, 0, 0.8);
-		}
+        .preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
 
-		#imageModal img {
-			margin: auto;
-			display: block;
-			max-width: 90%;
-			max-height: 90%;
-			margin-top: 5%;
-			border-radius: 10px;
-			animation: popIn 0.3s ease;
-		}
+        .preview-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
 
-		#imageModal:target {
-			display: block;
-		}
+        .preview-file {
+            font-size: 12px;
+            text-align: center;
+            word-wrap: break-word;
+            padding: 5px;
+        }
 
-		.file-link {
-			text-decoration: none;
-			font-weight: bold;
-			max-width: 30ch;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-			display: inline-block;
-		}
+        .preview-item button {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff5e57;
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            line-height: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
 
-		.self .bubble .file-link {
-			color: white;
-		}
+        #imageModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
 
-		.other .bubble .file-link {
-			color: #007bff;
-		}
+        #imageModal img {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            margin-top: 5%;
+            border-radius: 10px;
+            animation: popIn 0.3s ease;
+        }
+
+        #imageModal:target {
+            display: block;
+        }
+
+        .file-link {
+            text-decoration: none;
+            font-weight: bold;
+            max-width: 30ch;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .self .bubble .file-link {
+            color: white;
+        }
+
+        .other .bubble .file-link {
+            color: #007bff;
+        }
 
 		.back-button {
 			display: inline-flex;

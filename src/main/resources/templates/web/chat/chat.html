@@ -525,32 +525,35 @@
 			display: block;
 		}
 
-		.back-button {
-			display: inline-flex;
-			align-items: center;
-			gap: 8px;
-			margin-bottom: 10px;
-			padding: 8px 16px;
-			background: #6c757d;
-			color: white;
-			border-radius: 6px;
-			text-decoration: none;
-			font-size: 14px;
-			transition: background 0.2s;
+		@keyframes slideUp {
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
 		}
 
-		.back-button:hover {
-			background: #5a6268;
+		@keyframes popIn {
+			0% {
+				transform: scale(0.9);
+				opacity: 0;
+			}
+
+			100% {
+				transform: scale(1);
+				opacity: 1;
+			}
 		}
 
-		.back-button::before {
-			content: '←';
-			font-size: 16px;
+		@media (max-width: 600px) {
+			#chat-container {
+				padding: 10px;
+			}
+
+			.bubble {
+				max-width: 85%;
+			}
 		}
 
-		.bubble {
-			max-width: 85%;
-		}
 		.file-link {
 			text-decoration: none;
 			font-weight: bold;
