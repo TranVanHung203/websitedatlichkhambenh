@@ -1,6 +1,5 @@
 package tlcn.quanlyphongkham.controllers;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -15,9 +14,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -58,13 +58,14 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
 import tlcn.quanlyphongkham.dtos.BenhNhanOfTaoDonThuocDTO;
 import tlcn.quanlyphongkham.dtos.ChiTietBacSiDTO;
 import tlcn.quanlyphongkham.dtos.EditProfileBSDTO;
 import tlcn.quanlyphongkham.dtos.HoSoBenhDTO;
 import tlcn.quanlyphongkham.dtos.LichHenKhamDTO;
+import tlcn.quanlyphongkham.dtos.MedicalHistoryDTO;
 import tlcn.quanlyphongkham.dtos.SlotDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.BenhNhan;
@@ -89,6 +90,7 @@ import tlcn.quanlyphongkham.services.HoSoBenhService;
 import tlcn.quanlyphongkham.services.LichKhamBenhService;
 import tlcn.quanlyphongkham.services.LoaiXetNghiemService;
 import tlcn.quanlyphongkham.services.PhieuXetNghiemService;
+import tlcn.quanlyphongkham.services.SlotThoiGianService;
 import tlcn.quanlyphongkham.services.ThuocService;
 import tlcn.quanlyphongkham.services.VitalSignsService;
 import tlcn.quanlyphongkham.services.XetNghiemService;
@@ -117,6 +119,9 @@ public class BacSiController {
 	
 	@Autowired
     private VitalSignsService vitalSignsService;
+	
+	@Autowired
+    private SlotThoiGianService slotThoiGianService;
 	
 
     @Autowired
@@ -623,7 +628,7 @@ public class BacSiController {
 	
 	
 	@GetMapping("bacsi/step1")
-    public String step1(@RequestParam("benhNhanId") String benhNhanId, @RequestParam(value = "hoSoId", required = false) String hoSoId,@RequestParam(value = "maLichKhamBenh", required = false) String maLichKhamBenh, Model model) {
+    public String step1(@RequestParam("benhNhanId") String benhNhanId, @RequestParam(value = "hoSoId", required = false) String hoSoId,@RequestParam(value = "slotId", required = false) String slotId, Model model) {
         try {
             BenhNhan benhNhan = benhNhanService.findByBenhNhanId(benhNhanId);
             if (benhNhan == null) {
@@ -655,7 +660,7 @@ public class BacSiController {
 
             model.addAttribute("benhNhan", benhNhan);
             model.addAttribute("hoSoBenh", hoSoBenh);
-            model.addAttribute("maLichKhamBenh", maLichKhamBenh);
+            model.addAttribute("slotId", slotId);
             model.addAttribute("vitalSigns", vitalSigns);
             return "bacsi/quytrinhkham/step1";
         } catch (Exception e) {
@@ -670,7 +675,7 @@ public class BacSiController {
         try {
             String hoSoId = (String) data.get("hoSoId");
             String benhNhanId = (String) data.get("benhNhanId");
-            String maLichKhamBenh = (String) data.get("maLichKhamBenh");
+            String slotId = (String) data.get("slotId");
             if (hoSoId == null || benhNhanId == null) {
                 response.put("success", false);
                 response.put("message", "Thiếu hoSoId hoặc benhNhanId");
@@ -679,7 +684,7 @@ public class BacSiController {
 
             vitalSignsService.saveVitalSigns(hoSoId, data);
 
-            String redirectUrl = "/bacsi/step2?benhNhanId=" + benhNhanId + "&hoSoId=" + hoSoId + "&maLichKhamBenh=" + maLichKhamBenh ;
+            String redirectUrl = "/bacsi/step2?benhNhanId=" + benhNhanId + "&hoSoId=" + hoSoId + "&slotId=" + slotId ;
             response.put("success", true);
             response.put("redirectUrl", redirectUrl);
             return ResponseEntity.ok(response);
@@ -691,7 +696,7 @@ public class BacSiController {
     }
 
     @GetMapping("bacsi/step2")
-    public String step2(@RequestParam("benhNhanId") String benhNhanId, @RequestParam("hoSoId") String hoSoId,@RequestParam(value = "maLichKhamBenh", required = false) String maLichKhamBenh, Model model) {
+    public String step2(@RequestParam("benhNhanId") String benhNhanId, @RequestParam("hoSoId") String hoSoId,@RequestParam(value = "slotId", required = false) String slotId, Model model) {
         try {
             BenhNhan benhNhan = benhNhanService.findByBenhNhanId(benhNhanId);
             if (benhNhan == null) {
@@ -708,7 +713,7 @@ public class BacSiController {
 
             model.addAttribute("benhNhan", benhNhan);
             model.addAttribute("hoSoBenh", hoSoBenh);
-            model.addAttribute("maLichKhamBenh", maLichKhamBenh);
+            model.addAttribute("slotId", slotId);
             model.addAttribute("xetNghiems", xetNghiems);
             model.addAttribute("loaiXetNghiems", loaiXetNghiems);
             return "bacsi/quytrinhkham/step2";
@@ -971,7 +976,7 @@ public class BacSiController {
     }
 
     @GetMapping("/bacsi/step3")
-    public String step3(@RequestParam("benhNhanId") String benhNhanId, @RequestParam("hoSoId") String hoSoId,@RequestParam(value = "maLichKhamBenh", required = false) String maLichKhamBenh, Model model) {
+    public String step3(@RequestParam("benhNhanId") String benhNhanId, @RequestParam("hoSoId") String hoSoId,@RequestParam(value = "slotId", required = false) String slotId, Model model) {
         try {
             BenhNhan benhNhan = benhNhanService.findByBenhNhanId(benhNhanId);
             if (benhNhan == null) {
@@ -988,7 +993,7 @@ public class BacSiController {
             List<Thuoc> thuocs = thuocService.getAllThuoc();
 
             model.addAttribute("benhNhan", benhNhan);
-            model.addAttribute("maLichKhamBenh", maLichKhamBenh);
+            model.addAttribute("slotId", slotId);
             model.addAttribute("hoSoBenh", hoSoBenh);
             model.addAttribute("thuocs", thuocs);
             return "bacsi/quytrinhkham/step3";
@@ -1000,6 +1005,7 @@ public class BacSiController {
     
     @PostMapping("/bacsi/step3/save")
     @ResponseBody
+    @Transactional
     public ResponseEntity<Map<String, String>> savePrescription(@RequestBody Map<String, Object> request) {
         Map<String, String> response = new HashMap<>();
 
@@ -1015,7 +1021,7 @@ public class BacSiController {
         // Lấy dữ liệu từ request
         String hoSoId = (String) request.get("hoSoId");
         String benhNhanId = (String) request.get("benhNhanId");
-        String maLichKhamBenh = (String) request.get("maLichKhamBenh");
+        String slotId = (String) request.get("slotId");
         List<Map<String, Object>> drugs = (List<Map<String, Object>>) request.get("drugs");
 
         // Kiểm tra dữ liệu đầu vào
@@ -1078,29 +1084,35 @@ public class BacSiController {
 
             donThuoc.setDonThuocThuocs(donThuocThuocs);
 
-            // Tính tiền thuốc (bao gồm đơn thuốc mới và các đơn thuốc hiện có)
+            // Tính tiền thuốc
             BigDecimal tienThuoc = BigDecimal.ZERO;
             if (hoSoBenh.getDonThuocs() != null) {
                 for (DonThuoc dt : hoSoBenh.getDonThuocs()) {
                     tienThuoc = tienThuoc.add(dt.calculateTongTien());
                 }
             }
-            tienThuoc = tienThuoc.add(donThuoc.calculateTongTien()); // Thêm tiền của đơn thuốc mới
+            tienThuoc = tienThuoc.add(donThuoc.calculateTongTien());
 
-           
-
-            // Tổng tiền = Tiền xét nghiệm (đã tính trước) + Tiền thuốc + Phí khám
+            // Tổng tiền = Tiền xét nghiệm (đã tính trước) + Tiền thuốc
             Integer tienXetNghiemTruocDo = hoSoBenh.getTongTien() != null ? hoSoBenh.getTongTien() : 0;
-            Integer tongTien = tienXetNghiemTruocDo + tienThuoc.intValue() ;
+            Integer tongTien = tienXetNghiemTruocDo + tienThuoc.intValue();
 
-            // Cập nhật tongTien cho HoSoBenh
+            // Cập nhật tongTien và trangThai cho HoSoBenh
             hoSoBenh.setTongTien(tongTien);
-            hoSoBenh.setTrangThai(true); 
-            // Thiết lập mối quan hệ hai chiều và lưu DonThuoc
-            hoSoBenh.addDonThuoc(donThuoc); // Sử dụng phương thức addDonThuoc để đồng bộ
-            donThuocService.save(donThuoc); // Lưu DonThuoc, cascade sẽ lưu HoSoBenh
-          
-            lichKhamBenhService.updateTrangThai(maLichKhamBenh);
+            hoSoBenh.setTrangThai(true);
+            hoSoBenh.addDonThuoc(donThuoc);
+            donThuocService.save(donThuoc);
+
+            // Cập nhật trạng thái lịch khám bệnh bằng DTO
+//            TrangThaiLichKhamBenhDTO lichKhamBenhDTO = new TrangThaiLichKhamBenhDTO();
+//            lichKhamBenhDTO.setMaLichKhamBenh(maLichKhamBenh);
+//            lichKhamBenhDTO.setTrangThai(true); // Set trạng thái thành true
+//            lichKhamBenhService.updateTrangThai(lichKhamBenhDTO);
+            
+           
+            SlotThoiGian slotThoiGian= slotThoiGianService.findById(slotId);
+            slotThoiGian.setTrangThai("completed");
+            slotThoiGianService.save(slotThoiGian);
             // Lấy ngày từ thoiGianTao để redirect
             LocalDate redirectDate = hoSoBenh.getThoiGianTao().toLocalDate();
             String redirectUrl = "/bacsi/xemlichhen?date=" + redirectDate.toString();
@@ -1115,5 +1127,131 @@ public class BacSiController {
             response.put("message", "Đã xảy ra lỗi trong quá trình tạo đơn thuốc: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+    
+    
+    
+    
+    
+    
+    @GetMapping("bacsi/medical-history")
+    public ResponseEntity<List<MedicalHistoryDTO>> getMedicalHistory(@RequestParam("benhNhanId") String benhNhanId) {
+        List<HoSoBenh> medicalHistory = hoSoBenhService.findByBenhNhanId(benhNhanId);
+
+        List<MedicalHistoryDTO> dtos = medicalHistory.stream().map(hsb -> {
+            // Initialize lazy-loaded relationships
+            Hibernate.initialize(hsb.getBenhNhan());
+            Hibernate.initialize(hsb.getBacSi());
+            Hibernate.initialize(hsb.getDonThuocs());
+            Hibernate.initialize(hsb.getXetNghiems());
+            Hibernate.initialize(hsb.getPhieuXetNghiems());
+            Hibernate.initialize(hsb.getVitalSigns());
+
+            MedicalHistoryDTO dto = new MedicalHistoryDTO();
+            dto.setHoSoId(hsb.getHoSoId());
+            
+            // Map BenhNhan
+            if (hsb.getBenhNhan() != null) {
+                MedicalHistoryDTO.BenhNhanDTO benhNhanDTO = new MedicalHistoryDTO.BenhNhanDTO(
+                    hsb.getBenhNhan().getBenhNhanId(),
+                    hsb.getBenhNhan().getTen(),
+                    hsb.getBenhNhan().getDienThoai()
+                );
+                dto.setBenhNhan(benhNhanDTO);
+            }
+
+            // Map BacSi
+            if (hsb.getBacSi() != null) {
+                MedicalHistoryDTO.BacSiDTO bacSiDTO = new MedicalHistoryDTO.BacSiDTO(
+                    hsb.getBacSi().getBacSiId(),
+                    hsb.getBacSi().getTen()
+                );
+                dto.setBacSi(bacSiDTO);
+            }
+
+            dto.setChanDoan(hsb.getChanDoan());
+            dto.setTrieuChung(hsb.getTrieuChung());
+            dto.setTongTien(hsb.getTongTien());
+            dto.setDaThanhToan(hsb.getDaThanhToan());
+            dto.setThoiGianTao(hsb.getThoiGianTao() != null ? hsb.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+
+            // Map VitalSigns
+            if (hsb.getVitalSigns() != null) {
+                List<MedicalHistoryDTO.VitalSignsDTO> vitalSignsDTOs = hsb.getVitalSigns().stream().map(vs -> {
+                    return new MedicalHistoryDTO.VitalSignsDTO(
+                        vs.getId(),
+                        vs.getTemperature(),
+                        vs.getHeight(),
+                        vs.getWeight(),
+                        vs.getBloodPressureSys(),
+                        vs.getBloodPressureDia(),
+                        vs.getNotes(),
+                        vs.getThoiGianTao() != null ? vs.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null
+                    );
+                }).collect(Collectors.toList());
+                dto.setVitalSigns(vitalSignsDTOs);
+            }
+
+            // Map DonThuoc
+            if (hsb.getDonThuocs() != null) {
+                List<MedicalHistoryDTO.DonThuocDTO> donThuocDTOs = hsb.getDonThuocs().stream().map(dt -> {
+                    Hibernate.initialize(dt.getDonThuocThuocs());
+                    List<MedicalHistoryDTO.DonThuocThuocDTO> donThuocThuocDTOs = dt.getDonThuocThuocs().stream().map(dtt -> {
+                        MedicalHistoryDTO.ThuocDTO thuocDTO = new MedicalHistoryDTO.ThuocDTO(
+                            dtt.getThuoc().getTen(),
+                            dtt.getThuoc().getGia()
+                        );
+                        return new MedicalHistoryDTO.DonThuocThuocDTO(
+                            thuocDTO,
+                            dtt.getLieu(),
+                            dtt.getTanSuat(),
+                            dtt.getSoLuong()
+                        );
+                    }).collect(Collectors.toList());
+                    MedicalHistoryDTO.DonThuocDTO donThuocDTO = new MedicalHistoryDTO.DonThuocDTO(
+                        dt.getDonThuocId(),
+                        dt.getFormattedTongTienThuoc(),
+                        donThuocThuocDTOs
+                    );
+                    return donThuocDTO;
+                }).collect(Collectors.toList());
+                dto.setDonThuocs(donThuocDTOs);
+            }
+
+            // Map XetNghiem
+            if (hsb.getXetNghiems() != null) {
+                List<MedicalHistoryDTO.XetNghiemDTO> xetNghiemDTOs = hsb.getXetNghiems().stream().map(xn -> {
+                    MedicalHistoryDTO.LoaiXetNghiemDTO loaiXetNghiemDTO = new MedicalHistoryDTO.LoaiXetNghiemDTO(
+                        xn.getLoaiXetNghiem().getTenXetNghiem(),
+                        xn.getLoaiXetNghiem().getGia()
+                    );
+                    return new MedicalHistoryDTO.XetNghiemDTO(
+                        loaiXetNghiemDTO,
+                        xn.getGhiChu(),
+                        xn.getTrangThai(),
+                        xn.getFileKetQua(),
+                        xn.getThoiGianTao() != null ? xn.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null
+                    );
+                }).collect(Collectors.toList());
+                dto.setXetNghiems(xetNghiemDTOs);
+            }
+
+            // Map PhieuXetNghiem
+            if (hsb.getPhieuXetNghiems() != null) {
+                List<MedicalHistoryDTO.PhieuXetNghiemDTO> phieuXetNghiemDTOs = hsb.getPhieuXetNghiems().stream().map(pxn -> {
+                    return new MedicalHistoryDTO.PhieuXetNghiemDTO(
+                        pxn.getMaPhieu(),
+                        pxn.getTongGia(),
+                        pxn.getThoiGianTao() != null ? pxn.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null,
+                        pxn.getXetNghiemIds()
+                    );
+                }).collect(Collectors.toList());
+                dto.setPhieuXetNghiems(phieuXetNghiemDTOs);
+            }
+
+            return dto;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtos);
     }
 }

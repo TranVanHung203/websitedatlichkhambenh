@@ -12,7 +12,7 @@
 	<!-- Thêm Font Awesome cho icon -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 	<style>
-		.start-exam-btn {
+		.start-exam-btn, .history-btn {
 			padding: 8px 16px;
 			background-color: #007bff;
 			color: white;
@@ -25,9 +25,15 @@
 			transition: background-color 0.3s ease, transform 0.2s ease;
 			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 		}
-		.start-exam-btn:hover:not(:disabled) {
+		.history-btn {
+			background-color: #17a2b8;
+		}
+		.start-exam-btn:hover:not(:disabled), .history-btn:hover:not(:disabled) {
 			background-color: #0056b3;
 			transform: translateY(-1px);
+		}
+		.history-btn:hover:not(:disabled) {
+			background-color: #138496;
 		}
 		.start-exam-btn:disabled {
 			background-color: #d6d6d6;
@@ -124,6 +130,10 @@
 						th:disabled="${slot.trangThai != 'pending' || slot.benhNhan?.benhNhanId == null}"
 						th:attr="data-benh-nhan-id=${slot.benhNhan?.benhNhanId}"
 						onclick="startExamination(this)">Bắt đầu khám</button>
+					<button class="history-btn" 
+						th:attr="data-benh-nhan-id=${slot.benhNhan?.benhNhanId}"
+						onclick="viewMedicalHistory(this)"
+						th:disabled="${slot.benhNhan?.benhNhanId == null}">Xem lịch sử khám</button>
 				</div>
 			</div>
 		</div>
@@ -182,31 +192,185 @@
 				const status = event.target.value;
 				const appointmentCard = event.target.closest('.appointment-card');
 				const slotId = appointmentCard.getAttribute('data-slot-id');
-				updateAppointmentStatus(slotId, status);
+				updateAppointmentStatus(slotId, status, appointmentCard);
 			});
 		});
 
 		// Handle start examination button
 		function startExamination(button) {
 			const benhNhanId = button.getAttribute('data-benh-nhan-id');
-			const appointmentDay = button.closest('.appointment-day');
-			const maLichKhamBenh = appointmentDay.getAttribute('data-ma-lich-id');
+			const appointmentCard = button.closest('.appointment-card');
+			const slotId = appointmentCard.getAttribute('data-slot-id');
 
-			if (!benhNhanId || !maLichKhamBenh) {
+			if (!benhNhanId || !slotId) {
 				Swal.fire({
 					icon: 'error',
 					title: 'Lỗi',
-					text: 'Không tìm thấy ID bệnh nhân hoặc mã lịch khám. Vui lòng kiểm tra dữ liệu.',
+					text: 'Không tìm thấy ID bệnh nhân hoặc ID slot. Vui lòng kiểm tra dữ liệu.',
 					confirmButtonText: 'Đóng',
 					timer: 3000
 				});
 				return;
 			}
-			console.log('Redirecting to /bacsi/step1?benhNhanId=' + benhNhanId + '&maLichKhamBenh=' + maLichKhamBenh); // Debug
-			window.location.href = `/bacsi/step1?benhNhanId=${benhNhanId}&maLichKhamBenh=${maLichKhamBenh}`;
+			console.log('Redirecting to /bacsi/step1?benhNhanId=' + benhNhanId + '&slotId=' + slotId); // Debug
+			window.location.href = `/bacsi/step1?benhNhanId=${benhNhanId}&slotId=${slotId}`;
 		}
 
-		function updateAppointmentStatus(slotId, status) {
+		// Handle view medical history button
+		function viewMedicalHistory(button) {
+			const benhNhanId = button.getAttribute('data-benh-nhan-id');
+			if (!benhNhanId) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Lỗi',
+					text: 'Không tìm thấy ID bệnh nhân. Vui lòng kiểm tra dữ liệu.',
+					confirmButtonText: 'Đóng',
+					timer: 3000
+				});
+				return;
+			}
+
+			fetch(`/bacsi/medical-history?benhNhanId=${benhNhanId}`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			})
+				.then(response => response.json())
+				.then(data => {
+					if (data && data.length > 0) {
+						let htmlContent = '<h3>Lịch sử khám bệnh</h3>';
+						data.forEach(record => {
+							htmlContent += `
+								<div style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+									<h4>Hồ sơ khám: ${record.thoiGianTao}</h4>
+									<p><strong>Bệnh nhân:</strong> ${record.benhNhan.ten} (${record.benhNhan.dienThoai})</p>
+									<p><strong>Bác sĩ:</strong> ${record.bacSi ? record.bacSi.ten : 'Chưa chỉ định'}</p>
+									<p><strong>Chẩn đoán:</strong> ${record.chanDoan || 'Chưa có'}</p>
+									<p><strong>Triệu chứng:</strong> ${record.trieuChung || 'Chưa có'}</p>
+									<p><strong>Tổng tiền:</strong> ${record.tongTien ? record.tongTien.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa tính'}</p>
+									<p><strong>Đã thanh toán:</strong> ${record.daThanhToan ? 'Có' : 'Chưa'}</p>
+							`;
+
+							// Vital Signs
+							if (record.vitalSigns && record.vitalSigns.length > 0) {
+								htmlContent += '<h5>Dấu hiệu sinh tồn:</h5><ul>';
+								record.vitalSigns.forEach(vs => {
+									htmlContent += `
+										<li>
+											Thời gian: ${vs.thoiGianTao}<br>
+											Nhiệt độ: ${vs.temperature ? vs.temperature + ' °C' : 'Chưa ghi'}<br>
+											Chiều cao: ${vs.height ? vs.height + ' cm' : 'Chưa ghi'}<br>
+											Cân nặng: ${vs.weight ? vs.weight + ' kg' : 'Chưa ghi'}<br>
+											Huyết áp: ${vs.bloodPressureSys && vs.bloodPressureDia ? vs.bloodPressureSys + '/' + vs.bloodPressureDia + ' mmHg' : 'Chưa ghi'}<br>
+											Ghi chú: ${vs.notes || 'Không có'}
+										</li>
+									`;
+								});
+								htmlContent += '</ul>';
+							} else {
+								htmlContent += '<p><strong>Dấu hiệu sinh tồn:</strong> Chưa có</p>';
+							}
+
+							// Prescriptions
+							if (record.donThuocs && record.donThuocs.length > 0) {
+								htmlContent += '<h5>Đơn thuốc:</h5><ul>';
+								record.donThuocs.forEach(dt => {
+									htmlContent += `<li>Đơn thuốc #${dt.donThuocId} (Tổng: ${dt.formattedTongTienThuoc})<ul>`;
+									if (dt.donThuocThuocs && dt.donThuocThuocs.length > 0) {
+										dt.donThuocThuocs.forEach(dtt => {
+											htmlContent += `
+												<li>
+													Thuốc: ${dtt.thuoc.tenThuoc}<br>
+													Liều: ${dtt.lieu || 'Chưa ghi'}<br>
+													Tần suất: ${dtt.tanSuat || 'Chưa ghi'}<br>
+													Số lượng: ${dtt.soLuong || 'Chưa ghi'}
+												</li>
+											`;
+										});
+									} else {
+										htmlContent += '<li>Chưa có thuốc</li>';
+									}
+									htmlContent += '</ul></li>';
+								});
+								htmlContent += '</ul>';
+							} else {
+								htmlContent += '<p><strong>Đơn thuốc:</strong> Chưa có</p>';
+							}
+
+							// Tests
+							if (record.xetNghiems && record.xetNghiems.length > 0) {
+								htmlContent += '<h5>Xét nghiệm:</h5><ul>';
+								record.xetNghiems.forEach(xn => {
+									htmlContent += `
+										<li>
+											Loại xét nghiệm: ${xn.loaiXetNghiem.tenXetNghiem}<br>
+											Giá: ${xn.loaiXetNghiem.gia ? xn.loaiXetNghiem.gia.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa ghi'}<br>
+											Trạng thái: ${xn.trangThai || 'Chưa ghi'}<br>
+											Ghi chú: ${xn.ghiChu || 'Không có'}<br>
+											Kết quả: ${xn.fileKetQua ? `<a href="${xn.fileKetQua}" target="_blank">Xem file</a>` : 'Chưa có'}
+										</li>
+									`;
+								});
+								htmlContent += '</ul>';
+							} else {
+								htmlContent += '<p><strong>Xét nghiệm:</strong> Chưa có</p>';
+							}
+
+							// Test Forms
+							if (record.phieuXetNghiems && record.phieuXetNghiems.length > 0) {
+								htmlContent += '<h5>Phiếu xét nghiệm:</h5><ul>';
+								record.phieuXetNghiems.forEach(pxn => {
+									htmlContent += `
+										<li>
+											Mã phiếu: ${pxn.maPhieu}<br>
+											Tổng giá: ${pxn.tongGia ? pxn.tongGia.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa tính'}<br>
+											Thời gian tạo: ${pxn.thoiGianTao}<br>
+											Xét nghiệm: ${pxn.xetNghiemIds ? pxn.xetNghiemIds.join(', ') : 'Chưa có'}
+										</li>
+									`;
+								});
+								htmlContent += '</ul>';
+							} else {
+								htmlContent += '<p><strong>Phiếu xét nghiệm:</strong> Chưa có</p>';
+							}
+
+							htmlContent += '</div>';
+						});
+
+						Swal.fire({
+							title: 'Lịch sử khám bệnh',
+							html: htmlContent,
+							width: '800px',
+							showCloseButton: true,
+							confirmButtonText: 'Đóng',
+							customClass: {
+								popup: 'swal-wide'
+							}
+						});
+					} else {
+						Swal.fire({
+							icon: 'info',
+							title: 'Không có dữ liệu',
+							text: 'Bệnh nhân này chưa có lịch sử khám bệnh.',
+							confirmButtonText: 'Đóng',
+							timer: 3000
+						});
+					}
+				})
+				.catch(error => {
+					console.error('Lỗi khi lấy lịch sử khám:', error);
+					Swal.fire({
+						icon: 'error',
+						title: 'Có lỗi xảy ra',
+						text: 'Không thể tải lịch sử khám. Vui lòng thử lại sau.',
+						confirmButtonText: 'Đóng',
+						timer: 3000
+					});
+				});
+		}
+
+		function updateAppointmentStatus(slotId, status, appointmentCard) {
 			fetch('/bacsi/update-appointment-status', {
 				method: 'POST',
 				headers: {
@@ -227,6 +391,10 @@
 							confirmButtonText: 'Đóng',
 							timer: 3000
 						});
+						// Update the button's disabled state
+						const startExamButton = appointmentCard.querySelector('.start-exam-btn');
+						const benhNhanId = startExamButton.getAttribute('data-benh-nhan-id');
+						startExamButton.disabled = !(status === 'pending' && benhNhanId);
 					} else {
 						Swal.fire({
 							icon: 'error',

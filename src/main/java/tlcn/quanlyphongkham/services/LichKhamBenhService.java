@@ -1,20 +1,14 @@
 package tlcn.quanlyphongkham.services;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
-
-import tlcn.quanlyphongkham.dtos.LichKhamBenhDTO;
 import tlcn.quanlyphongkham.dtos.MaLichKhamBenhDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.LichKhamBenh;
@@ -129,12 +123,6 @@ public class LichKhamBenhService {
 		lichKhamBenhRepository.save(lich);
 		
 	}
-	@Transactional
-	public void updateTrangThai(String lichKhamBenh) {
-		lichKhamBenhRepository.updateTrangThai(lichKhamBenh, true);
-		
-	}
-
 
 
 
