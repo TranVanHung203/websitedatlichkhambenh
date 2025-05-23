@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Quản Lý Loại Xét Nghiệm</title>
+	<link th:href="@{/css/quanlyloaixetnghiem.css}" rel="stylesheet">
+	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
+	<link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+	<div th:replace="admin/fragments/header :: header"></div>
+	<div th:replace="admin/fragments/sidebar :: sidebar"></div>
+
+	<!-- Main Content -->
+	<div class="main-content">
+		<h1>Quản lý loại xét nghiệm</h1>
+
+		<!-- Search Form -->
+		<form id="searchForm" method="get" th:action="@{/admin/qlxn}">
+			<input type="text" id="searchInput" name="search" placeholder="Nhập tên xét nghiệm để tìm kiếm"
+				style="padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px;"
+				th:value="${searchQuery}" />
+			<button type="submit" style="display:none;">Search</button>
+		</form>
+
+		<!-- Display No Results Message -->
+		<div th:if="${noResults}" class="no-results-message">
+			<p>Không tìm thấy loại xét nghiệm nào với từ khóa tìm kiếm.</p>
+		</div>
+
+		<table th:if="${!noResults}">
+			<thead>
+				<tr>
+					<!--<th>Mã Loại Xét Nghiệm</th>-->
+					<th>Tên Loại Xét Nghiệm</th>
+					<th>Giá (VND)</th>
+					<th>Thao Tác</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="loaiXetNghiem : ${loaiXetNghiems}">
+					<!--<td th:text="${loaiXetNghiem.id}"></td>-->
+					<td th:text="${loaiXetNghiem.tenXetNghiem}"></td>
+					<td th:text="${loaiXetNghiem.gia} + ' VND'"></td>
+					<td>
+						<form th:action="@{/admin/edit-loaixetnghiem}" method="get" style="display:inline;">
+							<input type="hidden" name="id" th:value="${loaiXetNghiem.id}" />
+							<button type="submit" class="btn-edit">Sửa</button>
+						</form>
+						<form th:action="@{/admin/delete-loaixetnghiem}" method="post" style="display:inline;">
+							<input type="hidden" name="id" th:value="${loaiXetNghiem.id}" />
+							<button type="submit" class="btn-delete"
+								onclick="return confirm('Bạn có chắc chắn muốn xóa loại xét nghiệm này không?')">Xóa</button>
+						</form>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<!-- Thêm Loại Xét Nghiệm Mới -->
+		<form th:action="@{/admin/add-loaixetnghiem}" method="get" style="display:inline;">
+			<button type="submit" class="btn-add">Thêm Loại Xét Nghiệm Mới</button>
+		</form>
+
+		<!-- Pagination -->
+		<div class="pagination">
+			<a th:if="${currentPage > 0}" th:href="@{/admin/qlxn(page=${currentPage - 1}, search=${searchQuery})}"
+				class="prev">Trang trước</a>
+
+			<span th:each="i : ${#numbers.sequence(startPage, endPage)}">
+				<a th:href="@{/admin/qlxn(page=${i}, search=${searchQuery})}" th:text="${i + 1}"
+					th:classappend="${i == currentPage ? 'active' : ''}"></a>
+			</span>
+
+			<a th:if="${currentPage < totalPages - 1}"
+				th:href="@{/admin/qlxn(page=${currentPage + 1}, search=${searchQuery})}" class="next">Trang sau</a>
+		</div>
+	</div>
+
+	<script>
+		$(document).ready(function () {
+			$('#searchInput').on('input', function () {
+				var searchQuery = $(this).val();
+				var url = '/admin/qlxn?page=0&search=' + searchQuery;
+
+				$.get(url, function (data) {
+					var content = $(data).find('.main-content').html();
+					$('.main-content').html(content);
+				});
+			});
+		});
+	</script>
+</body>
+
+</html>

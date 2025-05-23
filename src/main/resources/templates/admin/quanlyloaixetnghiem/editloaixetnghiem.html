@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cập Nhật Loại Xét Nghiệm</title>
+    <link th:href="@{/css/editloaixetnghiem.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="form-box">
+            <h1>Cập Nhật Loại Xét Nghiệm</h1>
+            <form th:action="@{/admin/update-loaixetnghiem}" method="post" class="edit-form">
+                <input type="hidden" name="id" th:value="${loaiXetNghiem.id}" />
+
+                <div class="form-group">
+                    <label for="tenXetNghiem">Tên Xét Nghiệm:</label>
+                    <input type="text" id="tenXetNghiem" name="tenXetNghiem" th:value="${loaiXetNghiem.tenXetNghiem}" required
+                        placeholder="Nhập tên xét nghiệm..." />
+                </div>
+
+                <div class="form-group">
+                    <label for="gia">Giá (VND):</label>
+                    <input type="number" id="gia" name="gia" th:value="${loaiXetNghiem.gia}" required
+                        placeholder="Nhập giá xét nghiệm..." min="0" />
+                </div>
+
+                <button type="submit" class="btn-update">Cập Nhật Loại Xét Nghiệm</button>
+            </form>
+            <a href="/admin/qlxn" class="btn-back">Quay lại danh sách loại xét nghiệm</a>
+        </div>
+    </div>
+</body>
+
+</html>
