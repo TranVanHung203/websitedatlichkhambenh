@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import tlcn.quanlyphongkham.dtos.LichKhamBenhDTO;
 import tlcn.quanlyphongkham.dtos.NguoiDungDTO;
@@ -38,10 +39,12 @@ import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.ChiTietBacSi;
 import tlcn.quanlyphongkham.entities.ChuyenKhoa;
 import tlcn.quanlyphongkham.entities.LichKhamBenh;
+import tlcn.quanlyphongkham.entities.LoaiXetNghiem;
 import tlcn.quanlyphongkham.entities.Thuoc;
 import tlcn.quanlyphongkham.services.BacSiService;
 import tlcn.quanlyphongkham.services.ChuyenKhoaService;
 import tlcn.quanlyphongkham.services.LichKhamBenhService;
+import tlcn.quanlyphongkham.services.LoaiXetNghiemService;
 import tlcn.quanlyphongkham.services.NguoiDungService;
 import tlcn.quanlyphongkham.services.ThuocService;
 
@@ -58,6 +61,9 @@ public class AdminController {
 
 	@Autowired
 	private ThuocService thuocService;
+	
+	@Autowired
+	private LoaiXetNghiemService loaiXetNghiemService;
 
 	@GetMapping("/admin/qltk")
 	public String getAllNguoiDung(Model model,
@@ -503,5 +509,80 @@ public class AdminController {
 																	// lý cập nhật
 		return "redirect:/admin/qlbs"; // Quay lại danh sách bác sĩ sau khi cập nhật
 	}
+	  // Hiển thị danh sách loại xét nghiệm với phân trang và tìm kiếm
+    @GetMapping("/admin/qlxn")
+    public String getAllLoaiXetNghiem(@RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "") String search,
+                                     Model model) {
+        int pageSize = 8; // Số loại xét nghiệm mỗi trang
+        int visiblePages = 4; // Số trang hiển thị trên thanh phân trang
 
+        Page<LoaiXetNghiem> loaiXetNghiemPage;
+
+        if (search.isEmpty()) {
+            loaiXetNghiemPage = loaiXetNghiemService.getLoaiXetNghiemsPaginated(page, pageSize);
+        } else {
+            loaiXetNghiemPage = loaiXetNghiemService.searchLoaiXetNghiemsPaginated(search, page, pageSize);
+        }
+
+        int totalPages = loaiXetNghiemPage.getTotalPages();
+
+        // Tính toán startPage và endPage để cố định số trang hiển thị
+        int startPage = Math.max(0, page - visiblePages / 2);
+        int endPage = Math.min(startPage + visiblePages - 1, totalPages - 1);
+
+        // Điều chỉnh nếu ở cuối danh sách trang
+        if (endPage - startPage < visiblePages - 1) {
+            startPage = Math.max(0, endPage - visiblePages + 1);
+        }
+
+        model.addAttribute("loaiXetNghiems", loaiXetNghiemPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        model.addAttribute("searchQuery", search);
+        model.addAttribute("noResults", loaiXetNghiemPage.isEmpty());
+
+        return "admin/quanlyloaixetnghiem/quanlyloaixetnghiem";
+    }
+    // Hiển thị form thêm loại xét nghiệm
+    @GetMapping("/admin/add-loaixetnghiem")
+    public String showAddLoaiXetNghiemForm(Model model) {
+        model.addAttribute("loaiXetNghiem", new LoaiXetNghiem());
+        return "admin/quanlyloaixetnghiem/addloaixetnghiem";
+    }
+
+    // Thêm loại xét nghiệm mới
+    @PostMapping("/admin/add-loaixetnghiem")
+    public String addLoaiXetNghiem(@ModelAttribute LoaiXetNghiem loaiXetNghiem) {
+        loaiXetNghiemService.saveLoaiXetNghiem(loaiXetNghiem);
+        return "redirect:/admin/qlxn";
+    }
+
+    // Hiển thị form chỉnh sửa loại xét nghiệm
+    @GetMapping("/admin/edit-loaixetnghiem")
+    public String showEditLoaiXetNghiemForm(@RequestParam Long id, Model model) {
+        LoaiXetNghiem loaiXetNghiem = loaiXetNghiemService.getLoaiXetNghiemById(id);
+        model.addAttribute("loaiXetNghiem", loaiXetNghiem);
+        return "admin/quanlyloaixetnghiem/editloaixetnghiem";
+    }
+
+    // Cập nhật loại xét nghiệm
+    @PostMapping("/admin/update-loaixetnghiem")
+    public String updateLoaiXetNghiem(@ModelAttribute LoaiXetNghiem loaiXetNghiem) {
+        loaiXetNghiemService.updateLoaiXetNghiem(loaiXetNghiem);
+        return "redirect:/admin/qlxn";
+    }
+
+    @PostMapping("/admin/delete-loaixetnghiem")
+    public String deleteLoaiXetNghiem(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+        if (loaiXetNghiemService.deleteLoaiXetNghiem(id)) {
+            redirectAttributes.addFlashAttribute("message", "Loại xét nghiệm đã được xóa thành công.");
+            return "redirect:/admin/qlxn";
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy loại xét nghiệm để xóa.");
+            return "redirect:/admin/qlxn";
+        }
+    }
 }

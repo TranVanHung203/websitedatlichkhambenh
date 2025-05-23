@@ -8,11 +8,10 @@
 
 /* Main Content Styles */
 .main-content {
-    margin-left: 230px;
+    margin-left: 260px;
     padding: 40px;
     padding-top: 100px; /* Avoid overlapping with header */
-    padding-bottom: 80px; /* Ensure pagination doesn't overlap content */
-    width: calc(100% - 250px);
+    width: calc(100% - 280px);
     background: linear-gradient(145deg, #e9ecef 0%, #f8f9fa 100%); /* Gradient nền nhẹ */
     min-height: 100vh;
     border-radius: 16px;
@@ -20,32 +19,6 @@
     transition: all 0.3s ease-in-out;
 }
 
-/* Success and Error Messages */
-.success-message {
-    background-color: #d4edda;
-    color: #155724;
-    font-size: 16px;
-    font-weight: 500;
-    padding: 16px;
-    border-radius: 10px;
-    text-align: center;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.error-message {
-    background-color: #f8d7da;
-    color: #721c24;
-    font-size: 16px;
-    font-weight: 500;
-    padding: 16px;
-    border-radius: 10px;
-    text-align: center;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-/* Heading Styles */
 h1 {
     font-size: 32px;
     font-weight: 700;
@@ -133,28 +106,13 @@ table tr:nth-child(even) td {
     background-color: #f9fafb;
 }
 
-table tr:hover {
+table tr:hover td {
     background-color: #e3f2fd;
-    transform: translateY(-2px);
-    transition: background-color 0.3s, transform 0.2s;
-}
-
-/* Avatar Styles */
-td img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
-}
-
-td img:hover {
-    transform: scale(1.1);
+    transition: background-color 0.3s;
 }
 
 /* Button Styles */
-button, a.btn-edit {
+button {
     padding: 12px 24px;
     border: none;
     border-radius: 8px;
@@ -162,13 +120,6 @@ button, a.btn-edit {
     font-size: 15px;
     font-weight: 500;
     transition: all 0.3s ease;
-    display: inline-block;
-    text-decoration: none;
-}
-
-button:focus, a.btn-edit:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
 }
 
 .btn-add {
@@ -177,8 +128,8 @@ button:focus, a.btn-edit:focus {
     float: right;
     margin-top: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); /* Bóng đổ mạnh hơn */
+    border-radius: 10px; /* Bo tròn giống phân trang */
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
@@ -187,13 +138,10 @@ button:focus, a.btn-edit:focus {
     box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
 }
 
-.btn-add:focus {
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
-}
-
 .btn-edit {
     background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%); /* Vàng gradient */
     color: #ffffff;
+    margin-left: 10px;
     font-size: 14px;
 }
 
@@ -202,8 +150,16 @@ button:focus, a.btn-edit:focus {
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
 }
 
-.btn-edit:focus {
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+.btn-delete {
+    background: linear-gradient(90deg, #ef4444 0%, #f87171 100%); /* Đỏ gradient */
+    color: #ffffff;
+    margin-left: 10px;
+    font-size: 14px;
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
 /* Pagination Styles */
@@ -215,10 +171,11 @@ button:focus, a.btn-edit:focus {
     display: flex;
     justify-content: center;
     gap: 10px;
+    margin-top: 30px;
     padding: 12px 20px;
-    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%); /* Gradient nền nhẹ */
     border-radius: 10px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Bóng đổ nổi bật */
     transition: box-shadow 0.3s;
 }
 
@@ -250,18 +207,12 @@ button:focus, a.btn-edit:focus {
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.pagination a:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-content {
         margin-left: 0;
         width: 100%;
         padding: 20px;
-        padding-bottom: 60px; /* Adjust for pagination */
     }
 
     #searchInput {
@@ -278,7 +229,8 @@ button:focus, a.btn-edit:focus {
     }
 
     .btn-add,
-    .btn-edit {
+    .btn-edit,
+    .btn-delete {
         font-size: 13px;
         padding: 10px 16px;
     }
@@ -286,10 +238,5 @@ button:focus, a.btn-edit:focus {
     .pagination {
         padding: 10px;
         gap: 6px;
-    }
-
-    td img {
-        width: 40px;
-        height: 40px;
     }
 }

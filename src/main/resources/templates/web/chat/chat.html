@@ -1,593 +1,617 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Chat Phòng Khám</title>
-  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
-  <script>
-    dayjs.extend(dayjs_plugin_relativeTime);
+	<meta charset="UTF-8">
+	<title>Chat Phòng Khám</title>
+	<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
+	<script>
+		dayjs.extend(dayjs_plugin_relativeTime);
 
-    let stompClient = null;
-    let selectedFiles = [];
+		let stompClient = null;
+		let selectedFiles = [];
 
-    function formatFriendlyTime(timestamp) {
-      const now = dayjs();
-      const time = dayjs(timestamp);
-      if (!time.isValid()) return "";
-      const diffMinutes = now.diff(time, 'minute');
-      if (diffMinutes < 1) return "Vừa xong";
-      if (diffMinutes < 60) return `${diffMinutes} phút trước`;
-      if (now.isSame(time, 'day')) return `Hôm nay lúc ${time.format("HH:mm")}`;
-      if (now.subtract(1, 'day').isSame(time, 'day')) return `Hôm qua lúc ${time.format("HH:mm")}`;
-      return `${time.format("DD/MM/YYYY")} lúc ${time.format("HH:mm")}`;
-    }
+		function formatFriendlyTime(timestamp) {
+			const now = dayjs();
+			const time = dayjs(timestamp);
+			if (!time.isValid()) return "";
+			const diffMinutes = now.diff(time, 'minute');
+			if (diffMinutes < 1) return "Vừa xong";
+			if (diffMinutes < 60) return `${diffMinutes} phút trước`;
+			if (now.isSame(time, 'day')) return `Hôm nay lúc ${time.format("HH:mm")}`;
+			if (now.subtract(1, 'day').isSame(time, 'day')) return `Hôm qua lúc ${time.format("HH:mm")}`;
+			return `${time.format("DD/MM/YYYY")} lúc ${time.format("HH:mm")}`;
+		}
 
-    function scrollToBottom() {
-      const messagesDiv = document.getElementById('messages');
-      setTimeout(() => {
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-      }, 100);
-    }
+		function scrollToBottom() {
+			const messagesDiv = document.getElementById('messages');
+			setTimeout(() => {
+				messagesDiv.scrollTop = messagesDiv.scrollHeight;
+			}, 100);
+		}
 
-    function updateScrollButtonVisibility() {
-      const messagesDiv = document.getElementById('messages');
-      const scrollBtn = document.getElementById('scrollToBottomBtn');
-      const isAtBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 50;
-      scrollBtn.classList.toggle('visible', !isAtBottom);
-    }
+		function updateScrollButtonVisibility() {
+			const messagesDiv = document.getElementById('messages');
+			const scrollBtn = document.getElementById('scrollToBottomBtn');
+			const isAtBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 50;
+			scrollBtn.classList.toggle('visible', !isAtBottom);
+		}
 
-    function connectSocket() {
-      const socket = new SockJS('/ws');
-      stompClient = Stomp.over(socket);
+		function connectSocket() {
+			const socket = new SockJS('/ws');
+			stompClient = Stomp.over(socket);
 
-      stompClient.connect({}, function () {
-        const { benhNhanId, bacSiId, isBenhNhan } = window.chatContext;
+			stompClient.connect({}, function () {
+				const {benhNhanId, bacSiId, isBenhNhan} = window.chatContext;
 
-        stompClient.subscribe('/topic/messages', function (message) {
-          const msg = JSON.parse(message.body);
-          if (msg.benhNhanId === benhNhanId && msg.bacSiId === bacSiId) {
-            renderMessage(msg, isBenhNhan);
-            scrollToBottom();
-            updateScrollButtonVisibility();
-          }
-        });
+				stompClient.subscribe('/topic/messages', function (message) {
+					const msg = JSON.parse(message.body);
+					if (msg.benhNhanId === benhNhanId && msg.bacSiId === bacSiId) {
+						renderMessage(msg, isBenhNhan);
+						scrollToBottom();
+						updateScrollButtonVisibility();
+					}
+				});
 
-        fetch(`/api/chat/history?benhNhanId=${benhNhanId}&bacSiId=${bacSiId}`)
-          .then(res => res.json())
-          .then(data => {
-            data.forEach(msg => {
-              renderMessage(msg, window.chatContext.isBenhNhan);
-            });
-            scrollToBottom();
-            updateScrollButtonVisibility();
-          });
-      });
-    }
+				fetch(`/api/chat/history?benhNhanId=${benhNhanId}&bacSiId=${bacSiId}`)
+					.then(res => res.json())
+					.then(data => {
+						data.forEach(msg => {
+							renderMessage(msg, window.chatContext.isBenhNhan);
+						});
+						scrollToBottom();
+						updateScrollButtonVisibility();
+					});
+			});
+		}
 
-    function renderMessage(msg, isBenhNhan) {
-      const el = document.createElement('div');
-      const isSelf = (msg.tuBenhNhan === isBenhNhan);
-      const time = msg.thoiGian ? formatFriendlyTime(msg.thoiGian) : '';
-      el.className = 'msg ' + (isSelf ? 'self' : 'other');
+		function renderMessage(msg, isBenhNhan) {
+			const el = document.createElement('div');
+			const isSelf = (msg.tuBenhNhan === isBenhNhan);
+			const time = msg.thoiGian ? formatFriendlyTime(msg.thoiGian) : '';
+			el.className = 'msg ' + (isSelf ? 'self' : 'other');
 
-      let contentHtml = msg.noiDung.replace(/\n/g, '<br>');
-      if (msg.noiDung.startsWith("/uploads/")) {
-        const isImage = msg.noiDung.match(/\.(jpg|jpeg|png|gif)$/i);
-        const isDoc = msg.noiDung.match(/\.(doc|docx|pdf)$/i);
-        const filename = msg.noiDung.split('/').pop();
-        const originalFileName = filename.substring(37); // UUID (36 ký tự) + "-"
-        if (isImage) {
-          contentHtml = `<img src="${msg.noiDung}" style="max-width: 200px; border-radius: 8px; cursor: zoom-in;" onclick="showImageModal('${msg.noiDung}')">`;
-        } else if (isDoc) {
-          contentHtml = `<a href="${msg.noiDung}" download="${originalFileName}" class="file-link" title="${originalFileName}">${originalFileName}</a>`;
-        }
-      }
+			let contentHtml = msg.noiDung.replace(/\n/g, '<br>');
+			if (msg.noiDung.startsWith("/uploads/")) {
+				const isImage = msg.noiDung.match(/\.(jpg|jpeg|png|gif)$/i);
+				const isDoc = msg.noiDung.match(/\.(doc|docx|pdf)$/i);
+				const filename = msg.noiDung.split('/').pop();
+				const originalFileName = filename.substring(37); // UUID (36 ký tự) + "-"
+				if (isImage) {
+					contentHtml = `<img src="${msg.noiDung}" style="max-width: 200px; border-radius: 8px; cursor: zoom-in;" onclick="showImageModal('${msg.noiDung}')">`;
+				} else if (isDoc) {
+					contentHtml = `<a href="${msg.noiDung}" download="${originalFileName}" class="file-link" title="${originalFileName}">${originalFileName}</a>`;
+				}
+			}
 
-      el.innerHTML = `
+			el.innerHTML = `
         <div class="bubble">
           <span class="meta">${isSelf ? 'Bạn' : (isBenhNhan ? 'Bác sĩ' : 'Bệnh nhân')}</span>
           ${contentHtml}
           <div class="time">${time}</div>
         </div>`;
-      document.getElementById('messages').appendChild(el);
-    }
+			document.getElementById('messages').appendChild(el);
+		}
 
-    function showImageModal(url) {
-      const modal = document.getElementById('imageModal');
-      const modalImg = document.getElementById('modalImage');
-      modalImg.src = url;
-      modal.style.display = 'block';
-    }
+		function showImageModal(url) {
+			const modal = document.getElementById('imageModal');
+			const modalImg = document.getElementById('modalImage');
+			modalImg.src = url;
+			modal.style.display = 'block';
+		}
 
-    function clearPreview() {
-      const previewContainer = document.getElementById('previewContainer');
-      previewContainer.innerHTML = '';
-      previewContainer.style.display = 'none';
-      document.getElementById('imageInput').value = '';
-      selectedFiles = [];
-    }
+		function clearPreview() {
+			const previewContainer = document.getElementById('previewContainer');
+			previewContainer.innerHTML = '';
+			previewContainer.style.display = 'none';
+			document.getElementById('imageInput').value = '';
+			selectedFiles = [];
+		}
 
-    function removePreview(index) {
-      selectedFiles.splice(index, 1);
-      updatePreview();
-    }
+		function removePreview(index) {
+			selectedFiles.splice(index, 1);
+			updatePreview();
+		}
 
-    function updatePreview() {
-      const previewContainer = document.getElementById('previewContainer');
-      previewContainer.innerHTML = '';
-      if (selectedFiles.length === 0) {
-        previewContainer.style.display = 'none';
-        return;
-      }
-      previewContainer.style.display = 'flex';
-      selectedFiles.forEach((file, index) => {
-        const previewItem = document.createElement('div');
-        previewItem.className = 'preview-item';
-        if (file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            previewItem.innerHTML = `
+		function updatePreview() {
+			const previewContainer = document.getElementById('previewContainer');
+			previewContainer.innerHTML = '';
+			if (selectedFiles.length === 0) {
+				previewContainer.style.display = 'none';
+				return;
+			}
+			previewContainer.style.display = 'flex';
+			selectedFiles.forEach((file, index) => {
+				const previewItem = document.createElement('div');
+				previewItem.className = 'preview-item';
+				if (file.type.startsWith('image/')) {
+					const reader = new FileReader();
+					reader.onload = function (e) {
+						previewItem.innerHTML = `
               <img class="preview-image" src="${e.target.result}" alt="Preview">
               <button onclick="removePreview(${index})">×</button>
             `;
-            previewContainer.appendChild(previewItem);
-          };
-          reader.readAsDataURL(file);
-        } else {
-          previewItem.innerHTML = `
+						previewContainer.appendChild(previewItem);
+					};
+					reader.readAsDataURL(file);
+				} else {
+					previewItem.innerHTML = `
             <div class="preview-file">${file.name}</div>
             <button onclick="removePreview(${index})">×</button>
           `;
-          previewContainer.appendChild(previewItem);
-        }
-      });
-    }
+					previewContainer.appendChild(previewItem);
+				}
+			});
+		}
 
-    function sendMessage() {
-      const input = document.getElementById('messageInput');
-      const warning = document.getElementById('warningText');
-      const content = input.value.trim();
-      const { benhNhanId, bacSiId, isBenhNhan } = window.chatContext;
+		function sendMessage() {
+			const input = document.getElementById('messageInput');
+			const warning = document.getElementById('warningText');
+			const content = input.value.trim();
+			const {benhNhanId, bacSiId, isBenhNhan} = window.chatContext;
 
-      warning.innerText = '';
+			warning.innerText = '';
 
-      if (selectedFiles.length === 0 && content === '') {
-        warning.innerText = 'Tin nhắn hoặc tệp không được để trống.';
-        return;
-      }
+			if (selectedFiles.length === 0 && content === '') {
+				warning.innerText = 'Tin nhắn hoặc tệp không được để trống.';
+				return;
+			}
 
-      if (content !== '') {
-        const msg = {
-          noiDung: content,
-          tuBenhNhan: isBenhNhan,
-          benhNhanId: benhNhanId,
-          bacSiId: bacSiId
-        };
-        stompClient.send('/app/chat', {}, JSON.stringify(msg));
-      }
+			if (content !== '') {
+				const msg = {
+					noiDung: content,
+					tuBenhNhan: isBenhNhan,
+					benhNhanId: benhNhanId,
+					bacSiId: bacSiId
+				};
+				stompClient.send('/app/chat', {}, JSON.stringify(msg));
+			}
 
-      if (selectedFiles.length > 0) {
-        const uploadPromises = selectedFiles.map(file => {
-          const formData = new FormData();
-          formData.append('file', file);
-          return fetch('/api/chat/upload', {
-            method: 'POST',
-            body: formData
-          }).then(res => res.text());
-        });
+			if (selectedFiles.length > 0) {
+				const uploadPromises = selectedFiles.map(file => {
+					const formData = new FormData();
+					formData.append('file', file);
+					return fetch('/api/chat/upload', {
+						method: 'POST',
+						body: formData
+					}).then(res => res.text());
+				});
 
-        Promise.all(uploadPromises).then(urls => {
-          urls.forEach(url => {
-            const msg = {
-              noiDung: url,
-              tuBenhNhan: isBenhNhan,
-              benhNhanId: benhNhanId,
-              bacSiId: bacSiId
-            };
-            stompClient.send('/app/chat', {}, JSON.stringify(msg));
-          });
-          clearPreview();
-        });
-      }
+				Promise.all(uploadPromises).then(urls => {
+					urls.forEach(url => {
+						const msg = {
+							noiDung: url,
+							tuBenhNhan: isBenhNhan,
+							benhNhanId: benhNhanId,
+							bacSiId: bacSiId
+						};
+						stompClient.send('/app/chat', {}, JSON.stringify(msg));
+					});
+					clearPreview();
+				});
+			}
 
-      input.value = '';
-      input.style.height = 'auto';
-      input.focus();
-    }
+			input.value = '';
+			input.style.height = 'auto';
+			input.focus();
+		}
 
-    window.onload = function () {
-      const bacSiId = document.body.getAttribute('data-bacsi-id');
+		window.onload = function () {
+			const bacSiId = document.body.getAttribute('data-bacsi-id');
 
-      fetch('/api/user/info')
-        .then(res => res.json())
-        .then(data => {
-          const isBenhNhan = data.isBenhNhan;
-          const benhNhanId = data.id;
-          window.chatContext = { isBenhNhan, benhNhanId, bacSiId };
+			fetch('/api/user/info')
+				.then(res => res.json())
+				.then(data => {
+					const isBenhNhan = data.isBenhNhan;
+					const benhNhanId = data.id;
+					window.chatContext = {isBenhNhan, benhNhanId, bacSiId};
 
-          connectSocket();
+					connectSocket();
 
-          const input = document.getElementById('messageInput');
-          input.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              sendMessage();
-            }
-          });
+					const input = document.getElementById('messageInput');
+					input.addEventListener('keydown', function (e) {
+						if (e.key === 'Enter' && !e.shiftKey) {
+							e.preventDefault();
+							sendMessage();
+						}
+					});
 
-          input.addEventListener('input', function () {
-            input.style.height = 'auto';
-            input.style.height = Math.min(input.scrollHeight, 120) + 'px';
-          });
+					input.addEventListener('input', function () {
+						input.style.height = 'auto';
+						input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+					});
 
-          document.getElementById('imageInput').addEventListener('change', function () {
-            const files = Array.from(this.files);
-            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-            if (files.every(file => validTypes.includes(file.type))) {
-              selectedFiles = files;
-              updatePreview();
-            } else {
-              clearPreview();
-              document.getElementById('warningText').innerText = 'Vui lòng chỉ chọn tệp hình ảnh, Word hoặc PDF.';
-            }
-          });
+					document.getElementById('imageInput').addEventListener('change', function () {
+						const files = Array.from(this.files);
+						const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+						if (files.every(file => validTypes.includes(file.type))) {
+							selectedFiles = files;
+							updatePreview();
+						} else {
+							clearPreview();
+							document.getElementById('warningText').innerText = 'Vui lòng chỉ chọn tệp hình ảnh, Word hoặc PDF.';
+						}
+					});
 
-          document.getElementById('messages').addEventListener('scroll', updateScrollButtonVisibility);
-        });
-    };
-  </script>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #f0f2f5;
-    }
+					document.getElementById('messages').addEventListener('scroll', updateScrollButtonVisibility);
+				});
+		};
+	</script>
+	<style>
+		body {
+			font-family: 'Segoe UI', sans-serif;
+			margin: 0;
+			padding: 20px;
+			background: #f0f2f5;
+		}
 
-    #chat-container {
-      max-width: 700px;
-      margin: auto;
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 0 10px #ccc;
-      position: relative;
-    }
+		#chat-container {
+			max-width: 700px;
+			margin: auto;
+			background: white;
+			border-radius: 12px;
+			padding: 20px;
+			box-shadow: 0 0 10px #ccc;
+			position: relative;
+		}
 
-    #messages {
-      height: 400px;
-      overflow-y: auto;
-      padding: 10px;
-      background: #fafafa;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      display: flex;
-      flex-direction: column;
-    }
+		#messages {
+			height: 400px;
+			overflow-y: auto;
+			padding: 10px;
+			background: #fafafa;
+			border-radius: 8px;
+			border: 1px solid #ddd;
+			display: flex;
+			flex-direction: column;
+		}
 
-    .msg {
-      display: flex;
-      margin: 10px 0;
-      opacity: 0;
-      transform: translateY(10px);
-      animation: slideUp 0.3s forwards;
-    }
+		.msg {
+			display: flex;
+			margin: 10px 0;
+			opacity: 0;
+			transform: translateY(10px);
+			animation: slideUp 0.3s forwards;
+		}
 
-    .self {
-      justify-content: flex-end;
-    }
+		.self {
+			justify-content: flex-end;
+		}
 
-    .other {
-      justify-content: flex-start;
-    }
+		.other {
+			justify-content: flex-start;
+		}
 
-    .bubble {
-      max-width: 60%;
-      padding: 10px 14px;
-      border-radius: 20px;
-      background: #e2e3e5;
-      color: black;
-      position: relative;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-      line-height: 1.4;
-    }
+		.bubble {
+			max-width: 60%;
+			padding: 10px 14px;
+			border-radius: 20px;
+			background: #e2e3e5;
+			color: black;
+			position: relative;
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+			word-wrap: break-word;
+			overflow-wrap: break-word;
+			line-height: 1.4;
+		}
 
-    .bubble img {
-      max-width: 100%;
-      border-radius: 8px;
-      margin-bottom: 5px;
-      display: block;
-    }
+		.bubble img {
+			max-width: 100%;
+			border-radius: 8px;
+			margin-bottom: 5px;
+			display: block;
+		}
 
-    .self .bubble {
-      background: #007bff;
-      color: white;
-      border-bottom-right-radius: 0;
-    }
+		.self .bubble {
+			background: #007bff;
+			color: white;
+			border-bottom-right-radius: 0;
+		}
 
-    .other .bubble {
-      background: #e2e3e5;
-      color: black;
-      border-bottom-left-radius: 0;
-    }
+		.other .bubble {
+			background: #e2e3e5;
+			color: black;
+			border-bottom-left-radius: 0;
+		}
 
-    .meta {
-      font-size: 0.75em;
-      color: #666;
-      margin-bottom: 4px;
-      display: block;
-    }
+		.meta {
+			font-size: 0.75em;
+			color: #666;
+			margin-bottom: 4px;
+			display: block;
+		}
 
-    .time {
-      font-size: 0.7em;
-      color: #aaa;
-      text-align: right;
-      margin-top: 4px;
-    }
+		.time {
+			font-size: 0.7em;
+			color: #aaa;
+			text-align: right;
+			margin-top: 4px;
+		}
 
-    #input-container {
-      display: flex;
-      margin-top: 10px;
-      align-items: center;
-      gap: 8px;
-    }
+		#input-container {
+			display: flex;
+			margin-top: 10px;
+			align-items: center;
+			gap: 8px;
+		}
 
-    #messageInput {
-      flex: 1;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      transition: border-color 0.3s;
-      resize: none;
-      min-height: 38px;
-      max-height: 120px;
-      font-family: inherit;
-      overflow-y: auto;
-      line-height: 1.4;
-    }
+		#messageInput {
+			flex: 1;
+			padding: 10px;
+			border-radius: 6px;
+			border: 1px solid #ccc;
+			transition: border-color 0.3s;
+			resize: none;
+			min-height: 38px;
+			max-height: 120px;
+			font-family: inherit;
+			overflow-y: auto;
+			line-height: 1.4;
+		}
 
-    #messageInput:focus {
-      outline: none;
-      border-color: #007bff;
-    }
+		#messageInput:focus {
+			outline: none;
+			border-color: #007bff;
+		}
 
-    button {
-      padding: 10px 16px;
-      background: #007bff;
-      border: none;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+		button {
+			padding: 10px 16px;
+			background: #007bff;
+			border: none;
+			color: white;
+			border-radius: 6px;
+			cursor: pointer;
+			transition: background 0.2s;
+		}
 
-    button:hover {
-      background: #0056b3;
-    }
+		button:hover {
+			background: #0056b3;
+		}
 
-    #warningText {
-      color: red;
-      font-size: 0.85em;
-      margin-top: 4px;
-      height: 1em;
-    }
+		#warningText {
+			color: red;
+			font-size: 0.85em;
+			margin-top: 4px;
+			height: 1em;
+		}
 
-    input[type="file"] {
-      display: none;
-    }
+		input[type="file"] {
+			display: none;
+		}
 
-    input[type="file"]+label {
-      background-color: #28a745;
-      color: white;
-      padding: 8px;
-      border-radius: 5px;
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      transition: all 0.3s ease;
-    }
+		input[type="file"]+label {
+			background-color: #28a745;
+			color: white;
+			padding: 8px;
+			border-radius: 5px;
+			font-size: 18px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 38px;
+			height: 38px;
+			transition: all 0.3s ease;
+		}
 
-    input[type="file"]+label:hover {
-      background-color: #218838;
-    }
+		input[type="file"]+label:hover {
+			background-color: #218838;
+		}
 
-    input[type="file"]+label:active {
-      background-color: #1e7e34;
-    }
+		input[type="file"]+label:active {
+			background-color: #1e7e34;
+		}
 
-    input[type="file"]+label::before {
-      content: '📎';
-    }
+		input[type="file"]+label::before {
+			content: '📎';
+		}
 
-    #scrollToBottomBtn {
-      position: absolute;
-      bottom: 80px;
-      right: 40px;
-      background: #007bff;
-      color: white;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      transition: opacity 0.3s, transform 0.2s;
-      opacity: 0;
-      pointer-events: none;
-    }
+		#scrollToBottomBtn {
+			position: absolute;
+			bottom: 80px;
+			right: 40px;
+			background: #007bff;
+			color: white;
+			border-radius: 50%;
+			width: 40px;
+			height: 40px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+			transition: opacity 0.3s, transform 0.2s;
+			opacity: 0;
+			pointer-events: none;
+		}
 
-    #scrollToBottomBtn.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
+		#scrollToBottomBtn.visible {
+			opacity: 1;
+			pointer-events: auto;
+		}
 
-    #scrollToBottomBtn:hover {
-      background: #0056b3;
-      transform: scale(1.1);
-    }
+		#scrollToBottomBtn:hover {
+			background: #0056b3;
+			transform: scale(1.1);
+		}
 
-    #scrollToBottomBtn::after {
-      content: '↓';
-      font-size: 20px;
-    }
+		#scrollToBottomBtn::after {
+			content: '↓';
+			font-size: 20px;
+		}
 
-    #previewContainer {
-      margin-top: 10px;
-      display: none;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+		#previewContainer {
+			margin-top: 10px;
+			display: none;
+			flex-wrap: wrap;
+			gap: 10px;
+		}
 
-    .preview-item {
-      position: relative;
-      width: 100px;
-      height: 100px;
-    }
+		.preview-item {
+			position: relative;
+			width: 100px;
+			height: 100px;
+		}
 
-    .preview-image {
-      width: 100px;
-      height: 100px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      object-fit: cover;
-    }
+		.preview-image {
+			width: 100px;
+			height: 100px;
+			border-radius: 8px;
+			border: 1px solid #ccc;
+			object-fit: cover;
+		}
 
-    .preview-file {
-      font-size: 12px;
-      text-align: center;
-      word-wrap: break-word;
-      padding: 5px;
-      width: 100px;
-      height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f0f0f0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
+		.preview-file {
+			font-size: 12px;
+			text-align: center;
+			word-wrap: break-word;
+			padding: 5px;
+			width: 100px;
+			height: 100px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: #f0f0f0;
+			border: 1px solid #ccc;
+			border-radius: 8px;
+		}
 
-    .preview-item button {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: #ff5e57;
-      border: none;
-      color: white;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      font-size: 12px;
-      line-height: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
+		.preview-item button {
+			position: absolute;
+			top: -8px;
+			right: -8px;
+			background: #ff5e57;
+			border: none;
+			color: white;
+			border-radius: 50%;
+			width: 18px;
+			height: 18px;
+			font-size: 12px;
+			line-height: 18px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+		}
 
-    #imageModal {
-      display: none;
-      position: fixed;
-      z-index: 9999;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.8);
-    }
+		#imageModal {
+			display: none;
+			position: fixed;
+			z-index: 9999;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			overflow: auto;
+			background-color: rgba(0, 0, 0, 0.8);
+		}
 
-    #imageModal img {
-      margin: auto;
-      display: block;
-      max-width: 90%;
-      max-height: 90%;
-      margin-top: 5%;
-      border-radius: 10px;
-      animation: popIn 0.3s ease;
-    }
+		#imageModal img {
+			margin: auto;
+			display: block;
+			max-width: 90%;
+			max-height: 90%;
+			margin-top: 5%;
+			border-radius: 10px;
+			animation: popIn 0.3s ease;
+		}
 
-    #imageModal:target {
-      display: block;
-    }
+		#imageModal:target {
+			display: block;
+		}
 
-    @keyframes slideUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+		.back-button {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 10px;
+			padding: 8px 16px;
+			background: #6c757d;
+			color: white;
+			border-radius: 6px;
+			text-decoration: none;
+			font-size: 14px;
+			transition: background 0.2s;
+		}
 
-    @keyframes popIn {
-      0% {
-        transform: scale(0.9);
-        opacity: 0;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
+		.back-button:hover {
+			background: #5a6268;
+		}
 
-    @media (max-width: 600px) {
-      #chat-container {
-        padding: 10px;
-      }
+		.back-button::before {
+			content: '←';
+			font-size: 16px;
+		}
 
-      .bubble {
-        max-width: 85%;
-      }
-    }
+		.bubble {
+			max-width: 85%;
+		}
+		.file-link {
+			text-decoration: none;
+			font-weight: bold;
+			max-width: 30ch;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			display: inline-block;
+		}
 
-    .file-link {
-      text-decoration: none;
-      font-weight: bold;
-      max-width: 30ch;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      display: inline-block;
-    }
+		.self .bubble .file-link {
+			color: white;
+		}
 
-    .self .bubble .file-link {
-      color: white;
-    }
+		.other .bubble .file-link {
+			color: #007bff;
+		}
 
-    .other .bubble .file-link {
-      color: #007bff;
-    }
-  </style>
+		.back-button {
+			display: inline-flex;
+			align-items: center;
+			margin-bottom: 10px;
+			padding: 8px 16px;
+			background: #6c757d;
+			color: white;
+			border-radius: 6px;
+			text-decoration: none;
+			font-size: 14px;
+			transition: background 0.2s;
+		}
+
+		.back-button:hover {
+			background: #5a6268;
+		}
+
+		.back-button::before {
+			content: '←';
+			font-size: 16px;
+		}
+	</style>
 </head>
-<body th:attr="data-bacsi-id=${bacSiId}" data-benhnhan-id="">
-  <div id="chat-container">
-    <h2 id="chatTitle" th:text="'Đang trò chuyện với Bác sĩ ' + ${bacSiName}">Đang trò chuyện</h2>
-    <div id="messages"></div>
-    <div id="scrollToBottomBtn" onclick="scrollToBottom()"></div>
-    <div id="previewContainer"></div>
-    <div id="input-container">
-      <textarea id="messageInput" placeholder="Nhập tin nhắn..." rows="2"></textarea>
-      <input type="file" id="imageInput" accept="image/*,.doc,.docx,.pdf" multiple>
-      <label for="imageInput"></label>
-      <button onclick="sendMessage()">Gửi</button>
-    </div>
-    <div id="warningText"></div>
-  </div>
 
-  <div id="imageModal" onclick="this.style.display='none'">
-    <img id="modalImage" src="">
-  </div>
+<body th:attr="data-bacsi-id=${bacSiId}" data-benhnhan-id="">
+	<div id="chat-container">
+		<a th:href="@{/home}" class="back-button"></a>
+		<h2 id="chatTitle" th:text="'Đang trò chuyện với Bác sĩ ' + ${bacSiName}">Đang trò chuyện</h2>
+		<div id="messages"></div>
+		<div id="scrollToBottomBtn" onclick="scrollToBottom()"></div>
+		<div id="previewContainer"></div>
+		<div id="input-container">
+			<textarea id="messageInput" placeholder="Nhập tin nhắn..." rows="2"></textarea>
+			<input type="file" id="imageInput" accept="image/*,.doc,.docx,.pdf" multiple>
+			<label for="imageInput"></label>
+			<button onclick="sendMessage()">Gửi</button>
+		</div>
+		<div id="warningText"></div>
+	</div>
+
+	<div id="imageModal" onclick="this.style.display='none'">
+		<img id="modalImage" src="">
+	</div>
 </body>
+
 </html>
