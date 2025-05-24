@@ -54,6 +54,10 @@ public class LoaiXetNghiemService {
         }
         return false;
     }
-    
+
+    // Tìm loại xét nghiệm theo ID
+    public LoaiXetNghiem findById(Long id) {
+        return loaiXetNghiemRepository.findById(id).orElse(null);
+    }
     
 }

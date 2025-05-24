@@ -1,5 +1,12 @@
 package tlcn.quanlyphongkham.controllers;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -7,47 +14,37 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import tlcn.quanlyphongkham.dtos.BacSiDTO;
-import tlcn.quanlyphongkham.dtos.LichBacSiDTO;
-import tlcn.quanlyphongkham.dtos.LichKhamBenhDTO;
-import tlcn.quanlyphongkham.dtos.LichSuKhamNhanVienDTO;
-import tlcn.quanlyphongkham.dtos.MaLichKhamBenhDTO;
-import tlcn.quanlyphongkham.entities.BacSi;
-import tlcn.quanlyphongkham.entities.BenhNhan;
-import tlcn.quanlyphongkham.entities.ChuyenKhoa;
-import tlcn.quanlyphongkham.entities.LichKhamBenh;
-import tlcn.quanlyphongkham.entities.NguoiDung;
-import tlcn.quanlyphongkham.entities.SlotThoiGian;
-import tlcn.quanlyphongkham.security.CustomUserDetails;
-import tlcn.quanlyphongkham.services.BacSiService;
-import tlcn.quanlyphongkham.services.BenhNhanService;
-import tlcn.quanlyphongkham.services.ChuyenKhoaService;
-import tlcn.quanlyphongkham.services.HoSoBenhService;
-import tlcn.quanlyphongkham.services.LichKhamBenhService;
-import tlcn.quanlyphongkham.services.NguoiDungService;
-import tlcn.quanlyphongkham.services.SlotThoiGianService;
-
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
@@ -56,24 +53,31 @@ import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.text.Normalizer;
-import com.itextpdf.text.BaseColor;
+import tlcn.quanlyphongkham.dtos.BacSiDTO;
+import tlcn.quanlyphongkham.dtos.LichBacSiDTO;
+import tlcn.quanlyphongkham.dtos.LichSuKhamNhanVienDTO;
+import tlcn.quanlyphongkham.dtos.MaLichKhamBenhDTO;
+import tlcn.quanlyphongkham.dtos.PaymentDetailsDTO;
+import tlcn.quanlyphongkham.entities.BacSi;
+import tlcn.quanlyphongkham.entities.BenhNhan;
+import tlcn.quanlyphongkham.entities.ChuyenKhoa;
+import tlcn.quanlyphongkham.entities.DonThuoc;
+import tlcn.quanlyphongkham.entities.HoSoBenh;
+import tlcn.quanlyphongkham.entities.LichKhamBenh;
+import tlcn.quanlyphongkham.entities.LoaiXetNghiem;
+import tlcn.quanlyphongkham.entities.PhieuXetNghiem;
+import tlcn.quanlyphongkham.entities.SlotThoiGian;
+import tlcn.quanlyphongkham.security.CustomUserDetails;
+import tlcn.quanlyphongkham.services.BacSiService;
+import tlcn.quanlyphongkham.services.BenhNhanService;
+import tlcn.quanlyphongkham.services.ChuyenKhoaService;
+import tlcn.quanlyphongkham.services.HoSoBenhService;
+import tlcn.quanlyphongkham.services.LichKhamBenhService;
+import tlcn.quanlyphongkham.services.LoaiXetNghiemService;
+import tlcn.quanlyphongkham.services.NguoiDungService;
+import tlcn.quanlyphongkham.services.PhieuXetNghiemService;
+import tlcn.quanlyphongkham.services.SlotThoiGianService;
 
 @Controller
 public class NhanVienController {
@@ -86,9 +90,9 @@ public class NhanVienController {
 
 	@Autowired
 	private ChuyenKhoaService chuyenKhoaService;
-	
+
 	@Autowired
-    private HoSoBenhService hoSoBenhService;
+	private HoSoBenhService hoSoBenhService;
 
 	@Autowired
 	private BacSiService bacSiService;
@@ -98,6 +102,12 @@ public class NhanVienController {
 
 	@Autowired
 	SlotThoiGianService slotThoiGianService;
+
+	@Autowired
+	private PhieuXetNghiemService phieuXetNghiemService;
+
+	@Autowired
+	private LoaiXetNghiemService loaiXetNghiemService;
 
 	public String getNguoiDungId() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -347,15 +357,13 @@ public class NhanVienController {
 	@GetMapping("/nhanvien/xemlichbacsi")
 	public String viewDoctorSchedule(Model model) {
 		try {
-			// Lấy danh sách bác sĩ
 			List<BacSi> bacSiList = bacSiService.getAllDoctors();
 			if (bacSiList == null) {
 				model.addAttribute("errorMessage", "Không thể tải danh sách bác sĩ.");
 				return "error";
 			}
 
-			// Lấy danh sách chuyên khoa
-			List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa(); // Giả sử bạn có service này
+			List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa();
 			if (chuyenKhoaList == null) {
 				model.addAttribute("errorMessage", "Không thể tải danh sách chuyên khoa.");
 				return "error";
@@ -374,415 +382,444 @@ public class NhanVienController {
 	@GetMapping("/nhanvien/xemlichbacsi/doctors-by-specialty")
 	@ResponseBody
 	public List<BacSi> getDoctorsBySpecialty1(@RequestParam("chuyenKhoaId") String chuyenKhoaId) {
-		ChuyenKhoa chuyenKhoa = chuyenKhoaService.findById(chuyenKhoaId); // Giả sử bạn có service này
+		if (chuyenKhoaId.equals("0")) { // Trường hợp lấy tất cả bác sĩ
+			return bacSiService.getAllDoctors();
+		}
+		ChuyenKhoa chuyenKhoa = chuyenKhoaService.findById(chuyenKhoaId);
 		if (chuyenKhoa == null) {
 			return Collections.emptyList();
 		}
-		return bacSiService.getDoctorsByChuyenKhoa(chuyenKhoaId); // Giả sử bạn có method này trong service
+		return bacSiService.getDoctorsByChuyenKhoa(chuyenKhoaId);
 	}
 
 	@GetMapping("/nhanvien/xemlichbacsi/schedule")
 	@ResponseBody
-	public List<LichBacSiDTO> getDoctorScheduleSlots(
-	        @RequestParam("doctorId") String doctorId,
-	        @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+	public List<LichBacSiDTO> getDoctorScheduleSlots(@RequestParam("doctorId") String doctorId,
+			@RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-	    BacSi bacSi = bacSiService.findById(doctorId);
-	    if (bacSi == null || date == null) {
-	        return Collections.emptyList();
-	    }
+		BacSi bacSi = bacSiService.findById(doctorId);
+		if (bacSi == null || date == null) {
+			return Collections.emptyList();
+		}
 
-	    // Lấy lịch khám theo bác sĩ và ngày
-	    List<LichKhamBenh> lichList = lichKhamBenhService.getLichKhamBenhByBacSi(doctorId).stream()
-	            .filter(lich -> lich.getNgayThangNam().isEqual(date))
-	            .collect(Collectors.toList());
+		List<LichKhamBenh> lichList = lichKhamBenhService.getLichKhamBenhByBacSi(doctorId).stream()
+				.filter(lich -> lich.getNgayThangNam().isEqual(date)).collect(Collectors.toList());
 
-	    // Khung giờ mặc định
-	    Map<String, List<String>> timeFrames = Map.of(
-	        "Sáng", List.of("07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00"),
-	        "Chiều", List.of("13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"),
-	        "Ngoài Giờ", List.of("17:00", "17:30", "18:00", "18:30", "19:00", "19:30")
-	    );
+		Map<String, List<String>> timeFrames = Map.of("Sáng",
+				List.of("07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00"), "Chiều",
+				List.of("13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"), "Ngoài Giờ",
+				List.of("17:00", "17:30", "18:00", "18:30", "19:00", "19:30"));
 
-	    List<LichBacSiDTO> result = new ArrayList<>();
+		List<LichBacSiDTO> result = new ArrayList<>();
 
-	    for (LichKhamBenh lich : lichList) {
-	        String ca = lich.getCa();
-	        List<String> timeList = timeFrames.getOrDefault(ca, new ArrayList<>());
-	        List<SlotThoiGian> existingSlots = lich.getSlotThoiGian();
+		for (LichKhamBenh lich : lichList) {
+			String ca = lich.getCa();
+			List<String> timeList = timeFrames.getOrDefault(ca, new ArrayList<>());
+			List<SlotThoiGian> existingSlots = lich.getSlotThoiGian();
 
-	        if (existingSlots == null || existingSlots.isEmpty()) {
-	            // Có ca nhưng chưa tạo slot nào
-	            LichBacSiDTO dto = new LichBacSiDTO();
-	            dto.setNgayThangNam(date);
-	            dto.setCaKham(ca);
-	            dto.setThoiGianBatDau("---");
-	            dto.setThoiGianKetThuc("---");
-	            dto.setTrangThai("Chưa có slot");
-	            dto.setTenBenhNhan("---");
-	            dto.setSoDienThoai("---");
-	            result.add(dto);
-	        } else {
-	            for (SlotThoiGian slot : existingSlots) {
-	                LichBacSiDTO dto = new LichBacSiDTO();
-	                dto.setNgayThangNam(date);
-	                dto.setCaKham(ca);
-	                dto.setThoiGianBatDau(slot.getThoiGianBatDau().toString());
-	                dto.setThoiGianKetThuc(slot.getThoiGianKetThuc().toString());
+			if (existingSlots == null || existingSlots.isEmpty()) {
+				LichBacSiDTO dto = new LichBacSiDTO();
+				dto.setNgayThangNam(date);
+				dto.setCaKham(ca);
+				dto.setThoiGianBatDau("---");
+				dto.setThoiGianKetThuc("---");
+				dto.setTrangThai("Chưa có slot");
+				dto.setTenBenhNhan("---");
+				dto.setSoDienThoai("---");
+				result.add(dto);
+			} else {
+				for (SlotThoiGian slot : existingSlots) {
+					LichBacSiDTO dto = new LichBacSiDTO();
+					dto.setNgayThangNam(date);
+					dto.setCaKham(ca);
+					dto.setThoiGianBatDau(slot.getThoiGianBatDau().toString());
+					dto.setThoiGianKetThuc(slot.getThoiGianKetThuc().toString());
 
-	                // Kiểm tra trạng thái
-	                String trangThai = slot.getTrangThai();
-	                if ("checked-in".equals(trangThai)) {
-	                    dto.setTrangThai("Đang khám");
-	                } else if ("pending".equals(trangThai)) {
-	                    dto.setTrangThai("Đang chờ");
-	                } else if ("completed".equals(trangThai)) {
-	                    dto.setTrangThai("Đã khám xong");
-	                } else if ("cancelled".equals(trangThai)) {
-	                    dto.setTrangThai("Đã hủy");
-	                } else if (trangThai != null && !trangThai.isBlank()) {
-	                    dto.setTrangThai("Đã đặt");
-	                } else {
-	                    dto.setTrangThai("Chưa đặt");
-	                }
+					String trangThai = slot.getTrangThai();
+					if ("checked-in".equals(trangThai)) {
+						dto.setTrangThai("Đang khám");
+					} else if ("pending".equals(trangThai)) {
+						dto.setTrangThai("Đang chờ");
+					} else if ("completed".equals(trangThai)) {
+						dto.setTrangThai("Đã khám xong");
+					} else if ("cancelled".equals(trangThai)) {
+						dto.setTrangThai("Đã hủy");
+					} else if (trangThai != null && !trangThai.isBlank()) {
+						dto.setTrangThai("Đã đặt");
+					} else {
+						dto.setTrangThai("Chưa đặt");
+					}
 
+					if (List.of("Đã đặt", "Đã khám xong", "Đang khám", "Đang chờ", "Đã hủy")
+							.contains(dto.getTrangThai()) && slot.getBenhNhan() != null) {
+						BenhNhan benhNhan = slot.getBenhNhan();
+						dto.setTenBenhNhan(benhNhan.getTen() != null ? benhNhan.getTen() : "Không xác định");
+						dto.setSoDienThoai(
+								benhNhan.getDienThoai() != null ? benhNhan.getDienThoai() : "Không xác định");
+					} else {
+						dto.setTenBenhNhan("---");
+						dto.setSoDienThoai("---");
+					}
 
-	                // Lấy thông tin bệnh nhân nếu slot đã được đặt
-	                if ((List.of("Đã đặt", "Đã khám xong", "Đang khám","Đang chờ","Đã hủy").contains(dto.getTrangThai())) && slot.getBenhNhan() != null) {
- 	                    BenhNhan benhNhan = slot.getBenhNhan();
-	                    dto.setTenBenhNhan(benhNhan.getTen() != null ? benhNhan.getTen() : "Không xác định");
-	                    dto.setSoDienThoai(benhNhan.getDienThoai() != null ? benhNhan.getDienThoai() : "Không xác định");
-	                } else {
-	                    dto.setTenBenhNhan("---");
-	                    dto.setSoDienThoai("---");
-	                }
+					dto.setSlotId(slot.getSlotId());
+					result.add(dto);
+				}
+			}
+		}
 
-	                // Lưu slotId để sử dụng khi check-in
-	                dto.setSlotId(slot.getSlotId());
+		result.sort(Comparator.comparingInt((LichBacSiDTO dto) -> getCaPriority(dto.getCaKham()))
+				.thenComparing((LichBacSiDTO dto) -> "Đã đến khám".equals(dto.getTrangThai()) ? 0 : 1)
+				.thenComparing(dto -> {
+					try {
+						return LocalTime.parse(dto.getThoiGianBatDau());
+					} catch (Exception e) {
+						return LocalTime.MIN;
+					}
+				}));
 
-	                result.add(dto);
-	            }
-	        }
-	    }
-
-	    // Sắp xếp theo thứ tự ca, trạng thái (ưu tiên "Đã đến khám"), và thời gian
-	    result.sort(Comparator
-	        .comparingInt((LichBacSiDTO dto) -> getCaPriority(dto.getCaKham()))
-	        .thenComparing((LichBacSiDTO dto) -> "Đã đến khám".equals(dto.getTrangThai()) ? 0 : 1) // Ưu tiên "Đã đến khám"
-	        .thenComparing(dto -> {
-	            try {
-	                return LocalTime.parse(dto.getThoiGianBatDau());
-	            } catch (Exception e) {
-	                return LocalTime.MIN;
-	            }
-	        }));
-
-	    return result;
+		return result;
 	}
 
 	private int getCaPriority(String ca) {
-	    return switch (ca.toLowerCase()) {
-	        case "sáng" -> 1;
-	        case "chiều" -> 2;
-	        case "ngoài giờ" -> 3;
-	        default -> 4;
-	    };
+		return switch (ca.toLowerCase()) {
+		case "sáng" -> 1;
+		case "chiều" -> 2;
+		case "ngoài giờ" -> 3;
+		default -> 4;
+		};
 	}
+
 	@PostMapping("/nhanvien/xemlichbacsi/checkin")
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> checkInPatient(@RequestParam("slotId") String slotId) {
-	    Map<String, String> response = new HashMap<>();
-	    try {
-	        // Tìm slot theo slotId
-	        SlotThoiGian slot = slotThoiGianService.findById(slotId);
-	        if (slot == null) {
-	            response.put("status", "error");
-	            response.put("message", "Không tìm thấy slot!");
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-	        }
+		Map<String, String> response = new HashMap<>();
+		try {
+			SlotThoiGian slot = slotThoiGianService.findById(slotId);
+			if (slot == null) {
+				response.put("status", "error");
+				response.put("message", "Không tìm thấy slot!");
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+			}
 
-	        // Kiểm tra trạng thái hiện tại
-	        if (!"Đã đặt".equals(slot.getTrangThai()) && !"pending".equals(slot.getTrangThai())) {
-	            response.put("status", "error");
-	            response.put("message", "Slot không ở trạng thái có thể check-in!");
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-	        }
+			if (!"Đã đặt".equals(slot.getTrangThai()) && !"pending".equals(slot.getTrangThai())) {
+				response.put("status", "error");
+				response.put("message", "Slot không ở trạng thái có thể check-in!");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+			}
 
-	        // Cập nhật trạng thái
-	        slot.setTrangThai("checked-in");
-	        slotThoiGianService.save(slot);
+			slot.setTrangThai("checked-in");
+			slotThoiGianService.save(slot);
 
-	        response.put("status", "success");
-	        response.put("message", "Check-in thành công!");
-	        return ResponseEntity.ok(response);
-	    } catch (Exception e) {
-	        response.put("status", "error");
-	        response.put("message", "Có lỗi xảy ra: " + e.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-	    }
+			response.put("status", "success");
+			response.put("message", "Check-in thành công!");
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			response.put("status", "error");
+			response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		}
 	}
-	
-	
+
+	@GetMapping("/nhanvien/xemlichbacsi/payment/details")
+	@ResponseBody
+	public ResponseEntity<PaymentDetailsDTO> getPaymentDetails(@RequestParam("slotId") String slotId) {
+		try {
+			PaymentDetailsDTO paymentDetails = hoSoBenhService.getPaymentDetailsBySlotId(slotId);
+			if (paymentDetails == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+			}
+			return ResponseEntity.ok(paymentDetails);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
+
+	@PostMapping("/nhanvien/xemlichbacsi/payment/confirm")
+	@ResponseBody
+	public ResponseEntity<Map<String, String>> confirmPayment(@RequestParam("hoSoId") String hoSoId) {
+		Map<String, String> response = new HashMap<>();
+		try {
+			HoSoBenh hoSoBenh = hoSoBenhService.findById(hoSoId);
+			if (hoSoBenh == null) {
+				response.put("status", "error");
+				response.put("message", "Không tìm thấy hồ sơ bệnh!");
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+			}
+
+			if (hoSoBenh.getDaThanhToan()) {
+				response.put("status", "error");
+				response.put("message", "Hồ sơ đã được thanh toán!");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+			}
+
+			hoSoBenh.setDaThanhToan(true);
+			hoSoBenhService.save(hoSoBenh);
+
+			response.put("status", "success");
+			response.put("message", "Thanh toán thành công!");
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			response.put("status", "error");
+			response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		}
+	}
+
 	@GetMapping("/nhanvien/xemlichsukhambenh")
-    public String lichSuKhamNhanVien(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(required = false) String date,
-            @RequestParam(required = false) String tenBenhNhan,
-            @RequestParam(required = false) String tenBacSi,
-            @RequestParam(required = false) String dienThoai, // Thêm tham số SĐT
-            Model model,
-            RedirectAttributes redirectAttributes) {
+	public String lichSuKhamNhanVien(@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "5") int size, @RequestParam(required = false) String date,
+			@RequestParam(required = false) String tenBenhNhan, @RequestParam(required = false) String tenBacSi,
+			@RequestParam(required = false) String dienThoai, // Thêm tham số SĐT
+			Model model, RedirectAttributes redirectAttributes) {
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<LichSuKhamNhanVienDTO> lichSuKhams;
+		Pageable pageable = PageRequest.of(page, size);
+		Page<LichSuKhamNhanVienDTO> lichSuKhams;
 
-        // Áp dụng bộ lọc nếu có
-        if ((date != null && !date.isEmpty()) || (tenBenhNhan != null && !tenBenhNhan.isEmpty()) || 
-            (tenBacSi != null && !tenBacSi.isEmpty()) || (dienThoai != null && !dienThoai.isEmpty())) {
-            lichSuKhams = hoSoBenhService.getLichSuKhamForNhanVienWithFilters(date, tenBenhNhan, tenBacSi, dienThoai, pageable);
-        } else {
-            lichSuKhams = hoSoBenhService.getLichSuKhamForNhanVien(pageable);
-        }
+		// Áp dụng bộ lọc nếu có
+		if ((date != null && !date.isEmpty()) || (tenBenhNhan != null && !tenBenhNhan.isEmpty())
+				|| (tenBacSi != null && !tenBacSi.isEmpty()) || (dienThoai != null && !dienThoai.isEmpty())) {
+			lichSuKhams = hoSoBenhService.getLichSuKhamForNhanVienWithFilters(date, tenBenhNhan, tenBacSi, dienThoai,
+					pageable);
+		} else {
+			lichSuKhams = hoSoBenhService.getLichSuKhamForNhanVien(pageable);
+		}
 
-        // Kiểm tra nếu page vượt quá totalPages, chuyển hướng về trang hợp lệ
-        if (page >= lichSuKhams.getTotalPages() && lichSuKhams.getTotalPages() > 0) {
-            redirectAttributes.addAttribute("page", lichSuKhams.getTotalPages() - 1);
-            redirectAttributes.addAttribute("size", size);
-            redirectAttributes.addAttribute("date", date);
-            redirectAttributes.addAttribute("tenBenhNhan", tenBenhNhan);
-            redirectAttributes.addAttribute("tenBacSi", tenBacSi);
-            redirectAttributes.addAttribute("dienThoai", dienThoai); // Thêm tham số SĐT
-            return "redirect:/nhanvien/xemlichsukhambenh";
-        }
+		// Kiểm tra nếu page vượt quá totalPages, chuyển hướng về trang hợp lệ
+		if (page >= lichSuKhams.getTotalPages() && lichSuKhams.getTotalPages() > 0) {
+			redirectAttributes.addAttribute("page", lichSuKhams.getTotalPages() - 1);
+			redirectAttributes.addAttribute("size", size);
+			redirectAttributes.addAttribute("date", date);
+			redirectAttributes.addAttribute("tenBenhNhan", tenBenhNhan);
+			redirectAttributes.addAttribute("tenBacSi", tenBacSi);
+			redirectAttributes.addAttribute("dienThoai", dienThoai); // Thêm tham số SĐT
+			return "redirect:/nhanvien/xemlichsukhambenh";
+		}
 
-        // Nếu page vượt quá và totalPages = 0 (không có dữ liệu), quay về trang 0
-        if (page > 0 && lichSuKhams.getTotalPages() == 0) {
-            redirectAttributes.addAttribute("page", 0);
-            redirectAttributes.addAttribute("size", size);
-            redirectAttributes.addAttribute("date", date);
-            redirectAttributes.addAttribute("tenBenhNhan", tenBenhNhan);
-            redirectAttributes.addAttribute("tenBacSi", tenBacSi);
-            redirectAttributes.addAttribute("dienThoai", dienThoai); // Thêm tham số SĐT
-            return "redirect:/nhanvien/xemlichsukhambenh";	
-        }
+		// Nếu page vượt quá và totalPages = 0 (không có dữ liệu), quay về trang 0
+		if (page > 0 && lichSuKhams.getTotalPages() == 0) {
+			redirectAttributes.addAttribute("page", 0);
+			redirectAttributes.addAttribute("size", size);
+			redirectAttributes.addAttribute("date", date);
+			redirectAttributes.addAttribute("tenBenhNhan", tenBenhNhan);
+			redirectAttributes.addAttribute("tenBacSi", tenBacSi);
+			redirectAttributes.addAttribute("dienThoai", dienThoai); // Thêm tham số SĐT
+			return "redirect:/nhanvien/xemlichsukhambenh";
+		}
 
-        model.addAttribute("lichSuKhams", lichSuKhams.getContent());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", lichSuKhams.getTotalPages());
-        model.addAttribute("date", date);
-        model.addAttribute("tenBenhNhan", tenBenhNhan);
-        model.addAttribute("tenBacSi", tenBacSi);
-        model.addAttribute("dienThoai", dienThoai); // Thêm vào model
+		model.addAttribute("lichSuKhams", lichSuKhams.getContent());
+		model.addAttribute("currentPage", page);
+		model.addAttribute("totalPages", lichSuKhams.getTotalPages());
+		model.addAttribute("date", date);
+		model.addAttribute("tenBenhNhan", tenBenhNhan);
+		model.addAttribute("tenBacSi", tenBacSi);
+		model.addAttribute("dienThoai", dienThoai); // Thêm vào model
 
-        return "nhanvien/xemlichsukhambenh/xemlichsukhambenh";
-    }
-	
+		return "nhanvien/xemlichsukhambenh/xemlichsukhambenh";
+	}
+
 	@PostMapping("/nhanvien/xemlichsukhambenh/download-pdf")
-	public ResponseEntity<InputStreamResource> downloadXemLichSuKhamPdf(
-	        @RequestBody Map<String, Object> data) throws Exception {
+	public ResponseEntity<InputStreamResource> downloadXemLichSuKhamPdf(@RequestBody Map<String, Object> data)
+			throws Exception {
 
-	    // Lấy dữ liệu từ request body
-	    String tenBacSi = (String) data.get("tenBacSi");
-	    String tenBenhNhan = (String) data.get("tenBenhNhan");
-	    String dienThoai = (String) data.get("dienThoai");
-	    String ngayKham = (String) data.get("ngayKham");
-	    String chanDoan = (String) data.get("chanDoan");
-	    String trieuChung = (String) data.get("trieuChung");
-	    List<String> thuoc = (List<String>) data.get("thuoc");
-	    List<String> lieu = (List<String>) data.get("lieu");
-	    List<String> tanSuat = (List<String>) data.get("tanSuat");
-	    List<String> soLuong = (List<String>) data.get("soLuong");
-	    String tongTien = (String) data.get("tongTien");
+		// Lấy dữ liệu từ request body
+		String tenBacSi = (String) data.get("tenBacSi");
+		String tenBenhNhan = (String) data.get("tenBenhNhan");
+		String dienThoai = (String) data.get("dienThoai");
+		String ngayKham = (String) data.get("ngayKham");
+		String chanDoan = (String) data.get("chanDoan");
+		String trieuChung = (String) data.get("trieuChung");
+		List<String> thuoc = (List<String>) data.get("thuoc");
+		List<String> lieu = (List<String>) data.get("lieu");
+		List<String> tanSuat = (List<String>) data.get("tanSuat");
+		List<String> soLuong = (List<String>) data.get("soLuong");
+		String tongTien = (String) data.get("tongTien");
 
-	    // Tạo PDF
-	    ByteArrayOutputStream baos = generateXemLichSuKhamPdf(
-	            tenBacSi, tenBenhNhan, dienThoai, ngayKham, chanDoan, trieuChung, thuoc, lieu, tanSuat, soLuong, tongTien);
+		// Tạo PDF
+		ByteArrayOutputStream baos = generateXemLichSuKhamPdf(tenBacSi, tenBenhNhan, dienThoai, ngayKham, chanDoan,
+				trieuChung, thuoc, lieu, tanSuat, soLuong, tongTien);
 
-	    // Chuẩn hóa tên bệnh nhân và bỏ dấu
-	    String tenBenhNhanChuanHoa = tenBenhNhan != null ? removeDiacritics(tenBenhNhan).replaceAll("\\s+", "_") : "KhongXacDinh";
+		// Chuẩn hóa tên bệnh nhân và bỏ dấu
+		String tenBenhNhanChuanHoa = tenBenhNhan != null ? removeDiacritics(tenBenhNhan).replaceAll("\\s+", "_")
+				: "KhongXacDinh";
 
-	    // Lấy ngày hiện tại
-	    String ngayHienTai = new SimpleDateFormat("ddMMyyyy").format(new Date());
-	    String fileName = "don_thuoc_" + tenBenhNhanChuanHoa + "_" + ngayHienTai + ".pdf";
+		// Lấy ngày hiện tại
+		String ngayHienTai = new SimpleDateFormat("ddMMyyyy").format(new Date());
+		String fileName = "don_thuoc_" + tenBenhNhanChuanHoa + "_" + ngayHienTai + ".pdf";
 
-	    // Chuẩn bị response
-	    HttpHeaders headers = new HttpHeaders();
-	    // Mã hóa tên file để tránh lỗi Unicode trong header
-	    String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString()).replace("+", "%20");
-	    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName);
-	    headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
-	    headers.add(HttpHeaders.PRAGMA, "no-cache");
-	    headers.add(HttpHeaders.EXPIRES, "0");
+		// Chuẩn bị response
+		HttpHeaders headers = new HttpHeaders();
+		// Mã hóa tên file để tránh lỗi Unicode trong header
+		String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString()).replace("+", "%20");
+		headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName);
+		headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
+		headers.add(HttpHeaders.PRAGMA, "no-cache");
+		headers.add(HttpHeaders.EXPIRES, "0");
 
-	    InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(baos.toByteArray()));
+		InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(baos.toByteArray()));
 
-	    return ResponseEntity.ok()
-	            .headers(headers)
-	            .contentLength(baos.size())
-	            .contentType(MediaType.APPLICATION_PDF)
-	            .body(resource);
+		return ResponseEntity.ok().headers(headers).contentLength(baos.size()).contentType(MediaType.APPLICATION_PDF)
+				.body(resource);
 	}
 
 	// Hàm chuẩn hóa tên: bỏ dấu tiếng Việt
 	private String removeDiacritics(String str) {
-	    String normalized = Normalizer.normalize(str, Normalizer.Form.NFD);
-	    Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-	    return pattern.matcher(normalized).replaceAll("").replace("đ", "d").replace("Đ", "D");
+		String normalized = Normalizer.normalize(str, Normalizer.Form.NFD);
+		Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+		return pattern.matcher(normalized).replaceAll("").replace("đ", "d").replace("Đ", "D");
 	}
 
 	// Hàm tạo PDF cho một dòng được chọn
-	private ByteArrayOutputStream generateXemLichSuKhamPdf(
-	        String tenBacSi, String tenBenhNhan, String dienThoai, String ngayKham,
-	        String chanDoan, String trieuChung, List<String> thuoc, List<String> lieu,
-	        List<String> tanSuat, List<String> soLuong, String tongTien) throws Exception {
+	private ByteArrayOutputStream generateXemLichSuKhamPdf(String tenBacSi, String tenBenhNhan, String dienThoai,
+			String ngayKham, String chanDoan, String trieuChung, List<String> thuoc, List<String> lieu,
+			List<String> tanSuat, List<String> soLuong, String tongTien) throws Exception {
 
-	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	    Document document = new Document();
-	    PdfWriter.getInstance(document, baos);
-	    document.open();
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		Document document = new Document();
+		PdfWriter.getInstance(document, baos);
+		document.open();
 
-	    // Tạo font hỗ trợ tiếng Việt với encoding Unicode
-	    BaseFont baseFont = BaseFont.createFont("C:/Windows/Fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-	    Font titleFont = new Font(baseFont, 18, Font.BOLD, BaseColor.BLACK);
-	    Font infoFont = new Font(baseFont, 12, Font.NORMAL, BaseColor.DARK_GRAY);
-	    Font headerFont = new Font(baseFont, 11, Font.BOLD, BaseColor.WHITE);
-	    Font cellFont = new Font(baseFont, 10, Font.NORMAL, BaseColor.BLACK);
-	    Font footerFont = new Font(baseFont, 10, Font.ITALIC, BaseColor.GRAY);
+		// Tạo font hỗ trợ tiếng Việt với encoding Unicode
+		BaseFont baseFont = BaseFont.createFont("C:/Windows/Fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+		Font titleFont = new Font(baseFont, 18, Font.BOLD, BaseColor.BLACK);
+		Font infoFont = new Font(baseFont, 12, Font.NORMAL, BaseColor.DARK_GRAY);
+		Font headerFont = new Font(baseFont, 11, Font.BOLD, BaseColor.WHITE);
+		Font cellFont = new Font(baseFont, 10, Font.NORMAL, BaseColor.BLACK);
+		Font footerFont = new Font(baseFont, 10, Font.ITALIC, BaseColor.GRAY);
 
-	    // Tiêu đề
-	    Paragraph title = new Paragraph("ĐƠN THUỐC CỦA BỆNH NHÂN", titleFont);
-	    title.setAlignment(Element.ALIGN_CENTER);
-	    title.setSpacingAfter(15);
-	    document.add(title);
+		// Tiêu đề
+		Paragraph title = new Paragraph("ĐƠN THUỐC CỦA BỆNH NHÂN", titleFont);
+		title.setAlignment(Element.ALIGN_CENTER);
+		title.setSpacingAfter(15);
+		document.add(title);
 
-	    // Ngày in
-	    String ngayIn = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
-	    Paragraph printDate = new Paragraph("Ngày in: " + ngayIn, infoFont);
-	    printDate.setAlignment(Element.ALIGN_CENTER);
-	    printDate.setSpacingAfter(10);
-	    document.add(printDate);
+		// Ngày in
+		String ngayIn = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
+		Paragraph printDate = new Paragraph("Ngày in: " + ngayIn, infoFont);
+		printDate.setAlignment(Element.ALIGN_CENTER);
+		printDate.setSpacingAfter(10);
+		document.add(printDate);
 
-	    // Thông tin bệnh nhân
-	    Paragraph info = new Paragraph(
-	            "Bệnh nhân: " + (tenBenhNhan != null ? tenBenhNhan : "Không xác định") +
-	            " | SĐT: " + (dienThoai != null ? dienThoai : "Không có") +
-	            " | Ngày khám: " + (ngayKham != null ? ngayKham : "Không xác định"),
-	            infoFont);
-	    info.setAlignment(Element.ALIGN_CENTER);
-	    info.setSpacingAfter(20);
-	    document.add(info);
+		// Thông tin bệnh nhân
+		Paragraph info = new Paragraph("Bệnh nhân: " + (tenBenhNhan != null ? tenBenhNhan : "Không xác định")
+				+ " | SĐT: " + (dienThoai != null ? dienThoai : "Không có") + " | Ngày khám: "
+				+ (ngayKham != null ? ngayKham : "Không xác định"), infoFont);
+		info.setAlignment(Element.ALIGN_CENTER);
+		info.setSpacingAfter(20);
+		document.add(info);
 
-	    // Tạo bảng thông tin chính (bỏ cột Ngày Khám)
-	    PdfPTable mainTable = new PdfPTable(3); // Chỉ 3 cột: Tên Bác Sĩ, Chẩn Đoán, Triệu Chứng
-	    mainTable.setWidthPercentage(100);
-	    mainTable.setWidths(new float[]{2f, 2f, 2f});
-	    mainTable.setSpacingBefore(10);
-	    mainTable.setSpacingAfter(20);
+		// Tạo bảng thông tin chính (bỏ cột Ngày Khám)
+		PdfPTable mainTable = new PdfPTable(3); // Chỉ 3 cột: Tên Bác Sĩ, Chẩn Đoán, Triệu Chứng
+		mainTable.setWidthPercentage(100);
+		mainTable.setWidths(new float[] { 2f, 2f, 2f });
+		mainTable.setSpacingBefore(10);
+		mainTable.setSpacingAfter(20);
 
-	    // Header bảng chính
-	    String[] mainHeaders = {"Tên Bác Sĩ", "Chẩn Đoán", "Triệu Chứng"};
-	    for (String header : mainHeaders) {
-	        PdfPCell cell = new PdfPCell(new Paragraph(header, headerFont));
-	        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        cell.setPadding(8);
-	        cell.setBackgroundColor(new BaseColor(169, 169, 169)); // Màu xám nhạt cho header
-	        cell.setBorderWidth(1);
-	        mainTable.addCell(cell);
-	    }
+		// Header bảng chính
+		String[] mainHeaders = { "Tên Bác Sĩ", "Chẩn Đoán", "Triệu Chứng" };
+		for (String header : mainHeaders) {
+			PdfPCell cell = new PdfPCell(new Paragraph(header, headerFont));
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			cell.setPadding(8);
+			cell.setBackgroundColor(new BaseColor(169, 169, 169)); // Màu xám nhạt cho header
+			cell.setBorderWidth(1);
+			mainTable.addCell(cell);
+		}
 
-	    // Dữ liệu bảng chính (kiểm tra null để tránh lỗi)
-	    PdfPCell cellBacSi = new PdfPCell(new Paragraph(tenBacSi != null ? tenBacSi : "Không xác định", cellFont));
-	    cellBacSi.setHorizontalAlignment(Element.ALIGN_CENTER);
-	    cellBacSi.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	    cellBacSi.setPadding(8);
-	    cellBacSi.setBorderWidth(1);
-	    mainTable.addCell(cellBacSi);
+		// Dữ liệu bảng chính (kiểm tra null để tránh lỗi)
+		PdfPCell cellBacSi = new PdfPCell(new Paragraph(tenBacSi != null ? tenBacSi : "Không xác định", cellFont));
+		cellBacSi.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cellBacSi.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		cellBacSi.setPadding(8);
+		cellBacSi.setBorderWidth(1);
+		mainTable.addCell(cellBacSi);
 
-	    PdfPCell cellChanDoan = new PdfPCell(new Paragraph(chanDoan != null ? chanDoan : "Không có", cellFont));
-	    cellChanDoan.setHorizontalAlignment(Element.ALIGN_CENTER);
-	    cellChanDoan.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	    cellChanDoan.setPadding(8);
-	    cellChanDoan.setBorderWidth(1);
-	    mainTable.addCell(cellChanDoan);
+		PdfPCell cellChanDoan = new PdfPCell(new Paragraph(chanDoan != null ? chanDoan : "Không có", cellFont));
+		cellChanDoan.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cellChanDoan.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		cellChanDoan.setPadding(8);
+		cellChanDoan.setBorderWidth(1);
+		mainTable.addCell(cellChanDoan);
 
-	    PdfPCell cellTrieuChung = new PdfPCell(new Paragraph(trieuChung != null ? trieuChung : "Không có", cellFont));
-	    cellTrieuChung.setHorizontalAlignment(Element.ALIGN_CENTER);
-	    cellTrieuChung.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	    cellTrieuChung.setPadding(8);
-	    cellTrieuChung.setBorderWidth(1);
-	    mainTable.addCell(cellTrieuChung);
+		PdfPCell cellTrieuChung = new PdfPCell(new Paragraph(trieuChung != null ? trieuChung : "Không có", cellFont));
+		cellTrieuChung.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cellTrieuChung.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		cellTrieuChung.setPadding(8);
+		cellTrieuChung.setBorderWidth(1);
+		mainTable.addCell(cellTrieuChung);
 
-	    document.add(mainTable);
+		document.add(mainTable);
 
-	    // Tạo bảng chi tiết đơn thuốc
-	    PdfPTable detailsTable = new PdfPTable(4); // 4 cột: Tên Thuốc, Liều Lượng, Tần Suất, Số Lượng
-	    detailsTable.setWidthPercentage(100);
-	    detailsTable.setWidths(new float[]{2f, 2f, 2f, 1.5f});
-	    detailsTable.setSpacingBefore(10);
-	    detailsTable.setSpacingAfter(20);
+		// Tạo bảng chi tiết đơn thuốc
+		PdfPTable detailsTable = new PdfPTable(4); // 4 cột: Tên Thuốc, Liều Lượng, Tần Suất, Số Lượng
+		detailsTable.setWidthPercentage(100);
+		detailsTable.setWidths(new float[] { 2f, 2f, 2f, 1.5f });
+		detailsTable.setSpacingBefore(10);
+		detailsTable.setSpacingAfter(20);
 
-	    // Header bảng chi tiết
-	    String[] detailHeaders = {"Tên Thuốc", "Liều Lượng", "Tần Suất", "Số Lượng"};
-	    for (String header : detailHeaders) {
-	        PdfPCell cell = new PdfPCell(new Paragraph(header, headerFont));
-	        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        cell.setPadding(8);
-	        cell.setBackgroundColor(new BaseColor(169, 169, 169)); // Màu xám nhạt cho header
-	        cell.setBorderWidth(1);
-	        detailsTable.addCell(cell);
-	    }
+		// Header bảng chi tiết
+		String[] detailHeaders = { "Tên Thuốc", "Liều Lượng", "Tần Suất", "Số Lượng" };
+		for (String header : detailHeaders) {
+			PdfPCell cell = new PdfPCell(new Paragraph(header, headerFont));
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			cell.setPadding(8);
+			cell.setBackgroundColor(new BaseColor(169, 169, 169)); // Màu xám nhạt cho header
+			cell.setBorderWidth(1);
+			detailsTable.addCell(cell);
+		}
 
-	    // Dữ liệu bảng chi tiết
-	    for (int i = 0; i < thuoc.size(); i++) {
-	        PdfPCell cellThuoc = new PdfPCell(new Paragraph(thuoc.get(i) != null ? thuoc.get(i).replace("- ", "") : "-", cellFont));
-	        cellThuoc.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        cellThuoc.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        cellThuoc.setPadding(8);
-	        cellThuoc.setBorderWidth(1);
-	        detailsTable.addCell(cellThuoc);
+		// Dữ liệu bảng chi tiết
+		for (int i = 0; i < thuoc.size(); i++) {
+			PdfPCell cellThuoc = new PdfPCell(
+					new Paragraph(thuoc.get(i) != null ? thuoc.get(i).replace("- ", "") : "-", cellFont));
+			cellThuoc.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cellThuoc.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			cellThuoc.setPadding(8);
+			cellThuoc.setBorderWidth(1);
+			detailsTable.addCell(cellThuoc);
 
-	        PdfPCell cellLieu = new PdfPCell(new Paragraph(lieu.get(i) != null ? lieu.get(i) : "-", cellFont));
-	        cellLieu.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        cellLieu.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        cellLieu.setPadding(8);
-	        cellLieu.setBorderWidth(1);
-	        detailsTable.addCell(cellLieu);
+			PdfPCell cellLieu = new PdfPCell(new Paragraph(lieu.get(i) != null ? lieu.get(i) : "-", cellFont));
+			cellLieu.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cellLieu.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			cellLieu.setPadding(8);
+			cellLieu.setBorderWidth(1);
+			detailsTable.addCell(cellLieu);
 
-	        PdfPCell cellTanSuat = new PdfPCell(new Paragraph(tanSuat.get(i) != null ? tanSuat.get(i) : "-", cellFont));
-	        cellTanSuat.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        cellTanSuat.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        cellTanSuat.setPadding(8);
-	        cellTanSuat.setBorderWidth(1);
-	        detailsTable.addCell(cellTanSuat);
+			PdfPCell cellTanSuat = new PdfPCell(new Paragraph(tanSuat.get(i) != null ? tanSuat.get(i) : "-", cellFont));
+			cellTanSuat.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cellTanSuat.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			cellTanSuat.setPadding(8);
+			cellTanSuat.setBorderWidth(1);
+			detailsTable.addCell(cellTanSuat);
 
-	        PdfPCell cellSoLuong = new PdfPCell(new Paragraph(soLuong.get(i) != null ? soLuong.get(i) : "-", cellFont));
-	        cellSoLuong.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        cellSoLuong.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        cellSoLuong.setPadding(8);
-	        cellSoLuong.setBorderWidth(1);
-	        detailsTable.addCell(cellSoLuong);
-	    }
+			PdfPCell cellSoLuong = new PdfPCell(new Paragraph(soLuong.get(i) != null ? soLuong.get(i) : "-", cellFont));
+			cellSoLuong.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cellSoLuong.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			cellSoLuong.setPadding(8);
+			cellSoLuong.setBorderWidth(1);
+			detailsTable.addCell(cellSoLuong);
+		}
 
-	    document.add(detailsTable);
+		document.add(detailsTable);
 
-	    // Tổng tiền
-	    Paragraph total = new Paragraph("Tổng Tiền: " + (tongTien != null ? tongTien : "0 VND"), infoFont);
-	    total.setAlignment(Element.ALIGN_RIGHT);
-	    total.setSpacingBefore(10);
-	    document.add(total);
+		// Tổng tiền
+		Paragraph total = new Paragraph("Tổng Tiền: " + (tongTien != null ? tongTien : "0 VND"), infoFont);
+		total.setAlignment(Element.ALIGN_RIGHT);
+		total.setSpacingBefore(10);
+		document.add(total);
 
-	    // Footer
-	    Paragraph footer = new Paragraph("Trung tâm y tế chất lượng cao xin chân thành cảm ơn bạn đã sử dụng dịch vụ!", footerFont);
-	    footer.setAlignment(Element.ALIGN_CENTER);
-	    footer.setSpacingBefore(20);
-	    document.add(footer);
+		// Footer
+		Paragraph footer = new Paragraph("Trung tâm y tế chất lượng cao xin chân thành cảm ơn bạn đã sử dụng dịch vụ!",
+				footerFont);
+		footer.setAlignment(Element.ALIGN_CENTER);
+		footer.setSpacingBefore(20);
+		document.add(footer);
 
-	    // Đóng document
-	    document.close();
-	    return baos;
+		// Đóng document
+		document.close();
+		return baos;
 	}
-	
+
 }

@@ -1,6 +1,6 @@
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
-    background-color: #f0f4f8; /* Màu nền trang nhẹ nhàng */
+    background-color: #f0f4f8;
     margin: 0;
     padding: 30px;
 }
@@ -68,7 +68,7 @@ input[type="date"]:focus {
 }
 
 .schedule-table th {
-    background-color: #2c6b9e; /* Màu xanh đậm hơn cho tiêu đề */
+    background-color: #2c6b9e;
     color: #ffffff;
     padding: 15px;
     text-align: center;
@@ -76,25 +76,31 @@ input[type="date"]:focus {
     font-size: 16px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border: 1px solid #1a4a75; /* Viền đậm hơn */
+    border: 1px solid #1a4a75;
 }
 
 .schedule-table td {
     padding: 15px;
-    border: 1px solid #e0e6eb; /* Viền nhẹ hơn */
+    border: 1px solid #e0e6eb;
     font-size: 15px;
-    color: #1a2c3d; /* Màu chữ đậm hơn để tăng độ tương phản */
+    color: #1a2c3d;
     text-align: center;
-    background-color: #f9fbfc; /* Màu nền sáng hơn */
+    background-color: #f9fbfc;
 }
 
 .schedule-table tr:nth-child(even) td {
-    background-color: #e8f0f5; /* Màu nền xen kẽ đậm hơn một chút */
+    background-color: #e8f0f5;
 }
 
 .schedule-table tr:hover td {
-    background-color: #d9e6f0; /* Màu nền khi hover */
+    background-color: #d9e6f0;
     transition: background-color 0.2s ease;
+}
+
+.schedule-table th:nth-child(6),
+.schedule-table td:nth-child(6) {
+    width: 120px;
+    text-align: center;
 }
 
 .no-data {
@@ -160,7 +166,7 @@ input[type="date"]:focus {
 .checkin-btn {
     margin-left: 10px;
     padding: 5px 10px;
-    background-color: #ff9800; /* Màu cam */
+    background-color: #ff9800;
     color: white;
     border: none;
     border-radius: 4px;
@@ -169,54 +175,229 @@ input[type="date"]:focus {
 }
 
 .checkin-btn:hover {
-    background-color: #e68900; /* Màu cam đậm hơn khi hover */
+    background-color: #e68900;
 }
 
 .checked-in {
-    color: #2ecc71; /* Màu xanh lá để biểu thị đã check-in */
+    color: #2ecc71;
     font-weight: bold;
 }
-/* Định dạng thông báo */
-.notification {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 15px 30px;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 500;
-    text-align: center;
-    z-index: 1000;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-}
 
-.notification.success {
-    background-color: #2ecc71; /* Màu xanh lá cho thành công */
-}
-
-.notification.error {
-    background-color: #e74c3c; /* Màu đỏ cho lỗi */
-}
-
-.notification[style*="display: block"] {
-    opacity: 1;
-}
-/* Thêm vào file css/xemlichbacsi.css */
 .status-in-progress {
-	color: #0d6efd; /* xanh dương */
-	font-weight: bold;
+    color: #0d6efd;
+    font-weight: bold;
 }
 
 .status-cancelled {
-	color: #dc3545; /* đỏ đậm */
-	font-weight: bold;
+    color: #dc3545;
+    font-weight: bold;
 }
 
-.checked-in {
-	color: green;
-	font-weight: bold;
+.status-paid {
+    color: #8b5cf6;
+    font-weight: bold;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #ffffff;
+    margin: 5% auto;
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 700px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #1a2c3d;
+    text-decoration: none;
+}
+
+.modal-content h2 {
+    color: #1a3c5e;
+    margin-bottom: 20px;
+    font-size: 24px;
+    text-align: center;
+}
+
+.modal-content h3 {
+    color: #2c6b9e;
+    margin: 20px 0 10px;
+    font-size: 18px;
+}
+
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.detail-table th,
+.detail-table td {
+    padding: 12px;
+    border: 1px solid #e0e6eb;
+    text-align: left;
+    font-size: 15px;
+}
+
+.detail-table th {
+    background-color: #2c6b9e;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.detail-table td {
+    background-color: #f9fbfc;
+}
+
+.detail-table tr:nth-child(even) td {
+    background-color: #e8f0f5;
+}
+
+#phieuXetNghiemTable th:nth-child(1),
+#phieuXetNghiemTable td:nth-child(1) {
+    width: 70%;
+}
+
+#phieuXetNghiemTable th:nth-child(2),
+#phieuXetNghiemTable td:nth-child(2) {
+    width: 30%;
+    text-align: right;
+}
+
+.total {
+    text-align: right;
+    font-size: 18px;
+    margin-top: 20px;
+    color: #1a2c3d;
+}
+
+.total span {
+    font-weight: bold;
+    color: #2c6b9e;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.payment-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%);
+    color: #ffffff;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3);
+}
+
+.payment-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.payment-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+}
+
+.cancel-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: #dc3545;
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+    background-color: #c82333;
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        padding: 15px;
+    }
+
+    .detail-table th,
+    .detail-table td {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .schedule-table {
+        font-size: 14px;
+    }
+
+    .schedule-table th,
+    .schedule-table td {
+        padding: 12px;
+    }
+
+    #phieuXetNghiemTable th:nth-child(1),
+    #phieuXetNghiemTable td:nth-child(1) {
+        width: 65%;
+    }
+
+    #phieuXetNghiemTable th:nth-child(2),
+    #phieuXetNghiemTable td:nth-child(2) {
+        width: 35%;
+    }
+
+    .doctor-select {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    select,
+    input[type="date"] {
+        width: 100%;
+        max-width: 300px;
+        margin-bottom: 10px;
+    }
+
+    .pagination-controls button {
+        padding: 8px 15px;
+        font-size: 14px;
+        margin: 5px;
+    }
+
+    .payment-btn,
+    .cancel-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
 }
