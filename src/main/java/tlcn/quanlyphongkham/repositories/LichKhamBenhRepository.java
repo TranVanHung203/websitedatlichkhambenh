@@ -26,7 +26,7 @@ public interface LichKhamBenhRepository extends JpaRepository<LichKhamBenh, Stri
 
 	boolean existsByNgayThangNamAndCaAndBacSi(LocalDate ngayThangNam, String ca, BacSi bacSi);
 
-	@Query(value = "SELECT ma_lich_id,ca,ngay_thang_nam,bac_si_id,trang_thai FROM lich_kham_benh WHERE bac_si_id = :idbacsi AND ngay_thang_nam = :ngay", nativeQuery = true)
+	@Query(value = "SELECT ma_lich_id,ca,ngay_thang_nam,bac_si_id FROM lich_kham_benh WHERE bac_si_id = :idbacsi AND ngay_thang_nam = :ngay", nativeQuery = true)
 	List<LichKhamBenh> findByIdBacSiAndNgayThangNam(@Param("idbacsi") String idbacsi, @Param("ngay") LocalDate ngay);
 
 	@Modifying // Thêm @Modifying để chỉ rõ đây là câu lệnh thay đổi dữ liệu (INSERT, UPDATE,
