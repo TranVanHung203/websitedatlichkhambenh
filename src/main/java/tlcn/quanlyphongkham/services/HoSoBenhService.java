@@ -181,15 +181,16 @@ public class HoSoBenhService {
 	    dto.setTongTien(obj[3] != null ? new BigDecimal(obj[3].toString()) : BigDecimal.ZERO);
 	    dto.setChanDoan((String) obj[4]);
 	    dto.setTrieuChung((String) obj[5]);
+	    dto.setDaThanhToan((Boolean) obj[6]); // Thêm cột này
 
 	    // Xử lý donThuocIds
-	    String donThuocIdsStr = (String) obj[6];
+	    String donThuocIdsStr = (String) obj[7];
 	    if (donThuocIdsStr != null && !donThuocIdsStr.isEmpty()) {
 	        dto.setDonThuocIds(Arrays.asList(donThuocIdsStr.split(",")));
 	    }
 
 	    // Xử lý thuocList
-	    String thuocListStr = (String) obj[7];
+	    String thuocListStr = (String) obj[8];
 	    if (thuocListStr != null && !thuocListStr.isEmpty()) {
 	        Arrays.stream(thuocListStr.split("\\|")).forEach(thuocStr -> {
 	            String[] parts = thuocStr.split(":");
@@ -207,21 +208,21 @@ public class HoSoBenhService {
 	    }
 
 	    // Xử lý xetNghiemIds
-	    String xetNghiemIdsStr = (String) obj[8];
+	    String xetNghiemIdsStr = (String) obj[9];
 	    if (xetNghiemIdsStr != null && !xetNghiemIdsStr.isEmpty()) {
 	        dto.setXetNghiemIds(Arrays.asList(xetNghiemIdsStr.split(",")));
 	    }
 
 	    // Xử lý xetNghiemList
-	    String xetNghiemListStr = (String) obj[9];
+	    String xetNghiemListStr = (String) obj[10];
 	    if (xetNghiemListStr != null && !xetNghiemListStr.isEmpty()) {
 	        Arrays.stream(xetNghiemListStr.split("\\|")).forEach(xetNghiemStr -> {
 	            String[] parts = xetNghiemStr.split(":");
 	            if (parts.length == 3) {
 	                PaymentDetailsDTO.XetNghiem xetNghiem = new PaymentDetailsDTO.XetNghiem();
-	                xetNghiem.setXetNghiemId(parts[0]); // xet_nghiem_id
-	                xetNghiem.setTenXetNghiem(parts[1]); // ten_xet_nghiem từ LoaiXetNghiem
-	                xetNghiem.setGia(Integer.parseInt(parts[2])); // gia
+	                xetNghiem.setXetNghiemId(parts[0]);
+	                xetNghiem.setTenXetNghiem(parts[1]);
+	                xetNghiem.setGia(Integer.parseInt(parts[2]));
 	                dto.getXetNghiemList().add(xetNghiem);
 	            }
 	        });

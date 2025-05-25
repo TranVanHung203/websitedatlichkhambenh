@@ -17,6 +17,7 @@ public class PaymentDetailsDTO {
     private List<Thuoc> thuocList = new ArrayList<>();
     private List<String> xetNghiemIds = new ArrayList<>();
     private List<XetNghiem> xetNghiemList = new ArrayList<>();
+    private Boolean daThanhToan; // Thêm cột này
 
     @Data
     public static class Thuoc {
@@ -30,7 +31,7 @@ public class PaymentDetailsDTO {
 
     @Data
     public static class XetNghiem {
-        private String xetNghiemId; // Thay maPhieu bằng xetNghiemId
+        private String xetNghiemId;
         private String tenXetNghiem;
         private Integer gia;
     }

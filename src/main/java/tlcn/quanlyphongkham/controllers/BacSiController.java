@@ -1031,6 +1031,13 @@ public class BacSiController {
             return ResponseEntity.badRequest().body(response);
         }
 
+        // Kiểm tra slotId
+        if (slotId == null) {
+            response.put("status", "error");
+            response.put("message", "Không tìm thấy slotId!");
+            return ResponseEntity.badRequest().body(response);
+        }
+
         // Kiểm tra bệnh nhân
         BenhNhan benhNhan = benhNhanService.findByBenhNhanId(benhNhanId);
         if (benhNhan == null) {
@@ -1047,7 +1054,19 @@ public class BacSiController {
             return ResponseEntity.badRequest().body(response);
         }
 
+        // Kiểm tra và lấy SlotThoiGian
+        SlotThoiGian slotThoiGian = slotThoiGianService.findById(slotId);
+        if (slotThoiGian == null) {
+            response.put("status", "error");
+            response.put("message", "Không tìm thấy slot thời gian với ID: " + slotId);
+            return ResponseEntity.badRequest().body(response);
+        }
+
         try {
+            // Gán SlotThoiGian vào HoSoBenh
+            hoSoBenh.setSlotThoiGian(slotThoiGian);
+            hoSoBenhService.save(hoSoBenh); // Lưu để cập nhật cột slot_id trong ho_so_benh
+
             // Tạo đơn thuốc
             DonThuoc donThuoc = new DonThuoc();
 
@@ -1103,16 +1122,10 @@ public class BacSiController {
             hoSoBenh.addDonThuoc(donThuoc);
             donThuocService.save(donThuoc);
 
-            // Cập nhật trạng thái lịch khám bệnh bằng DTO
-//            TrangThaiLichKhamBenhDTO lichKhamBenhDTO = new TrangThaiLichKhamBenhDTO();
-//            lichKhamBenhDTO.setMaLichKhamBenh(maLichKhamBenh);
-//            lichKhamBenhDTO.setTrangThai(true); // Set trạng thái thành true
-//            lichKhamBenhService.updateTrangThai(lichKhamBenhDTO);
-            
-           
-            SlotThoiGian slotThoiGian= slotThoiGianService.findById(slotId);
+            // Cập nhật trạng thái slot thời gian
             slotThoiGian.setTrangThai("completed");
             slotThoiGianService.save(slotThoiGian);
+
             // Lấy ngày từ thoiGianTao để redirect
             LocalDate redirectDate = hoSoBenh.getThoiGianTao().toLocalDate();
             String redirectUrl = "/bacsi/xemlichhen?date=" + redirectDate.toString();

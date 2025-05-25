@@ -74,7 +74,7 @@
 						<th>Triệu chứng</th>
 						<td id="trieuChung">---</td>
 					</tr>
-					
+
 				</table>
 
 				<!-- Danh sách đơn thuốc -->
@@ -220,14 +220,12 @@
 			const tbody = document.getElementById('scheduleBody');
 			tbody.innerHTML = '';
 
-			// Khung giờ mặc định cho từng ca
 			const khungGioCa = {
 				"Sáng": ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"],
 				"Chiều": ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"],
 				"Ngoài Giờ": ["17:00", "17:30", "18:00", "18:30", "19:00", "19:30"]
 			};
 
-			// Cập nhật trạng thái active cho các nút
 			const buttons = document.querySelectorAll('.pagination-controls button');
 			buttons.forEach(btn => {
 				btn.classList.toggle('active', btn.textContent === 'Ca ' + ca);
@@ -239,7 +237,6 @@
 				return;
 			}
 
-			// Tạo map từ giờ bắt đầu -> thông tin slot
 			const slotMap = {};
 			fullScheduleData
 				.filter(item => item.caKham === ca && item.thoiGianBatDau !== "---")
@@ -247,11 +244,9 @@
 					slotMap[item.thoiGianBatDau] = item;
 				});
 
-			// Lấy thông tin doctorId và date từ các input
 			const doctorId = document.getElementById('doctorSelect').value;
 			const selectedDate = document.getElementById('dateSelect').value;
 
-			// Duyệt qua khung giờ mặc định
 			for (let i = 0; i < timeSlots.length - 1; i++) {
 				const start = timeSlots[i];
 				const end = timeSlots[i + 1];
@@ -259,88 +254,86 @@
 
 				const row = document.createElement('tr');
 				if (slot) {
-					// Nếu đã có slot, hiển thị trạng thái và thông tin bệnh nhân
 					if (slot.trangThai === "Đã đặt" || slot.trangThai === "Đang chờ") {
 						row.innerHTML = `
-                            <td>${start}</td>
-                            <td>${end}</td>
-                            <td>
-                                ${slot.trangThai}
-                                <button class="checkin-btn" onclick="checkInPatient('${slot.slotId}', '${ca}')">
-                                    Check-in
-                                </button>
-                            </td>
-                            <td>${slot.tenBenhNhan}</td>
-                            <td>${slot.soDienThoai}</td>
-                            <td>-</td>
-                        `;
+                    <td>${start}</td>
+                    <td>${end}</td>
+                    <td>
+                        ${slot.trangThai}
+                        <button class="checkin-btn" onclick="checkInPatient('${slot.slotId}', '${ca}')">
+                            Check-in
+                        </button>
+                    </td>
+                    <td>${slot.tenBenhNhan}</td>
+                    <td>${slot.soDienThoai}</td>
+                    <td>-</td>
+                `;
 					} else if (slot.trangThai === "Đã khám xong") {
 						row.innerHTML = `
-                            <td>${start}</td>
-                            <td>${end}</td>
-                            <td>
-                                <span class="checked-in">✅ ${slot.trangThai}</span>
-                            </td>
-                            <td>${slot.tenBenhNhan}</td>
-                            <td>${slot.soDienThoai}</td>
-                            <td>
-                                <button class="payment-btn" onclick="showPaymentModal('${slot.slotId}', '${ca}')">
-                                    Thanh toán
-                                </button>
-                            </td>
-                        `;
+                    <td>${start}</td>
+                    <td>${end}</td>
+                    <td>
+                        <span class="checked-in">✅ ${slot.trangThai}</span>
+                    </td>
+                    <td>${slot.tenBenhNhan}</td>
+                    <td>${slot.soDienThoai}</td>
+                    <td>
+                        <button class="payment-btn" onclick="showPaymentModal('${slot.slotId}', '${ca}')">
+                            Thanh toán
+                        </button>
+                    </td>
+                `;
 					} else if (slot.trangThai === "Đang khám") {
 						row.innerHTML = `
-                            <td>${start}</td>
-                            <td>${end}</td>
-                            <td><span class="status-in-progress">🩺 ${slot.trangThai}</span></td>
-                            <td>${slot.tenBenhNhan}</td>
-                            <td>${slot.soDienThoai}</td>
-                            <td>-</td>
-                        `;
+                    <td>${start}</td>
+                    <td>${end}</td>
+                    <td><span class="status-in-progress">🩺 ${slot.trangThai}</span></td>
+                    <td>${slot.tenBenhNhan}</td>
+                    <td>${slot.soDienThoai}</td>
+                    <td>-</td>
+                `;
 					} else if (slot.trangThai === "Đã hủy") {
 						row.innerHTML = `
-                            <td>${start}</td>
-                            <td>${end}</td>
-                            <td><span class="status-cancelled">❌ ${slot.trangThai}</span></td>
-                            <td>${slot.tenBenhNhan}</td>
-                            <td>${slot.soDienThoai}</td>
-                            <td>-</td>
-                        `;
-					} else if (slot.trangThai === "Đã thanh toán") {
+                    <td>${start}</td>
+                    <td>${end}</td>
+                    <td><span class="status-cancelled">❌ ${slot.trangThai}</span></td>
+                    <td>${slot.tenBenhNhan}</td>
+                    <td>${slot.soDienThoai}</td>
+                    <td>-</td>
+                `;
+					} else if (slot.trangThai === "completed") { // Thay "Đã thanh toán" bằng "Completed"
 						row.innerHTML = `
-                            <td>${start}</td>
-                            <td>${end}</td>
-                            <td><span class="status-paid">💳 ${slot.trangThai}</span></td>
-                            <td>${slot.tenBenhNhan}</td>
-                            <td>${slot.soDienThoai}</td>
-                            <td>-</td>
-                        `;
+                    <td>${start}</td>
+                    <td>${end}</td>
+                    <td><span class="status-paid">💳 ${slot.trangThai}</span></td>
+                    <td>${slot.tenBenhNhan}</td>
+                    <td>${slot.soDienThoai}</td>
+                    <td>-</td>
+                `;
 					} else {
 						row.innerHTML = `
-                            <td>${start}</td>
-                            <td>${end}</td>
-                            <td>${slot.trangThai}</td>
-                            <td>${slot.tenBenhNhan}</td>
-                            <td>${slot.soDienThoai}</td>
-                            <td>-</td>
-                        `;
+                    <td>${start}</td>
+                    <td>${end}</td>
+                    <td>${slot.trangThai}</td>
+                    <td>${slot.tenBenhNhan}</td>
+                    <td>${slot.soDienThoai}</td>
+                    <td>-</td>
+                `;
 					}
 				} else {
-					// Nếu chưa có slot, thêm nút "Đăng ký"
 					row.innerHTML = `
-                        <td>${start}</td>
-                        <td>${end}</td>
-                        <td>
-                            Chưa có slot
-                            <button class="register-btn" onclick="redirectToRegister('${doctorId}', '${selectedDate}', '${ca}', '${start}')">
-                                Đăng ký
-                            </button>
-                        </td>
-                        <td>---</td>
-                        <td>---</td>
-                        <td>-</td>
-                    `;
+                <td>${start}</td>
+                <td>${end}</td>
+                <td>
+                    Chưa có slot
+                    <button class="register-btn" onclick="redirectToRegister('${doctorId}', '${selectedDate}', '${ca}', '${start}')">
+                        Đăng ký
+                    </button>
+                </td>
+                <td>---</td>
+                <td>---</td>
+                <td>-</td>
+            `;
 				}
 				tbody.appendChild(row);
 			}
@@ -355,6 +348,7 @@
 			const donThuocBody = document.getElementById('donThuocBody');
 			const phieuXetNghiemBody = document.getElementById('phieuXetNghiemBody');
 			const tongTien = document.getElementById('tongTien');
+			const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
 
 			// Reset nội dung
 			chanDoan.textContent = '---';
@@ -362,6 +356,7 @@
 			donThuocBody.innerHTML = '<tr><td colspan="5" class="no-data">Không có đơn thuốc</td></tr>';
 			phieuXetNghiemBody.innerHTML = '<tr><td colspan="2" class="no-data">Không có xét nghiệm</td></tr>';
 			tongTien.textContent = '0 VNĐ';
+			confirmPaymentBtn.style.display = 'block'; // Đảm bảo nút hiển thị ban đầu
 
 			// Gọi API để lấy chi tiết thanh toán
 			fetch(`/nhanvien/xemlichbacsi/payment/details?slotId=${slotId}`)
@@ -396,7 +391,6 @@
 					if (data.xetNghiemList && data.xetNghiemList.length > 0) {
 						tongTienXetNghiem = data.xetNghiemList.reduce((sum, xn) => sum + xn.gia, 0);
 					}
-				
 
 					// Cập nhật danh sách đơn thuốc
 					if (data.thuocList && data.thuocList.length > 0) {
@@ -414,7 +408,7 @@
 						});
 					}
 
-					// Cập nhật danh sách xét nghiệm (sử dụng tenXetNghiem từ LoaiXetNghiem)
+					// Cập nhật danh sách xét nghiệm
 					if (data.xetNghiemList && data.xetNghiemList.length > 0) {
 						phieuXetNghiemBody.innerHTML = '';
 						data.xetNghiemList.forEach(xetNghiem => {
@@ -431,6 +425,17 @@
 
 					// Cập nhật tổng tiền
 					tongTien.textContent = data.tongTien ? data.tongTien.toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ';
+
+					// Điều chỉnh nút thanh toán dựa trên daThanhToan
+					if (data.daThanhToan) {
+						confirmPaymentBtn.disabled = true;
+						confirmPaymentBtn.textContent = 'Đã thanh toán'; // Thay "Đã thanh toán" bằng "Completed"
+						confirmPaymentBtn.classList.add('disabled-btn');
+					} else {
+						confirmPaymentBtn.disabled = false;
+						confirmPaymentBtn.textContent = 'Xác nhận thanh toán';
+						confirmPaymentBtn.classList.remove('disabled-btn');
+					}
 
 					// Hiển thị modal
 					modal.style.display = 'block';
@@ -470,7 +475,7 @@
 						document.getElementById('paymentModal').style.display = 'none';
 						setTimeout(() => {
 							loadSchedule();
-							showPage(currentCa);
+							showPage(currentCa); // Làm mới trang để cập nhật trạng thái slot
 						}, 1500);
 					} else {
 						Swal.fire({

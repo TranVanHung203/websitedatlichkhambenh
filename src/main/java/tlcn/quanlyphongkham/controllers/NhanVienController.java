@@ -538,32 +538,38 @@ public class NhanVienController {
 	@PostMapping("/nhanvien/xemlichbacsi/payment/confirm")
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> confirmPayment(@RequestParam("hoSoId") String hoSoId) {
-		Map<String, String> response = new HashMap<>();
-		try {
-			HoSoBenh hoSoBenh = hoSoBenhService.findById(hoSoId);
-			if (hoSoBenh == null) {
-				response.put("status", "error");
-				response.put("message", "Không tìm thấy hồ sơ bệnh!");
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-			}
+	    Map<String, String> response = new HashMap<>();
+	    try {
+	        HoSoBenh hoSoBenh = hoSoBenhService.findById(hoSoId);
+	        if (hoSoBenh == null) {
+	            response.put("status", "error");
+	            response.put("message", "Không tìm thấy hồ sơ bệnh!");
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+	        }
 
-			if (hoSoBenh.getDaThanhToan()) {
-				response.put("status", "error");
-				response.put("message", "Hồ sơ đã được thanh toán!");
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-			}
+	        if (hoSoBenh.getDaThanhToan()) {
+	            response.put("status", "error");
+	            response.put("message", "Hồ sơ đã được thanh toán!");
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	        }
 
-			hoSoBenh.setDaThanhToan(true);
-			hoSoBenhService.save(hoSoBenh);
+	        hoSoBenh.setDaThanhToan(true);
+	        hoSoBenhService.save(hoSoBenh);
 
-			response.put("status", "success");
-			response.put("message", "Thanh toán thành công!");
-			return ResponseEntity.ok(response);
-		} catch (Exception e) {
-			response.put("status", "error");
-			response.put("message", "Có lỗi xảy ra: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-		}
+	        // Cập nhật trạng thái SlotThoiGian
+	        if (hoSoBenh.getSlotThoiGian() != null) {
+	            hoSoBenh.getSlotThoiGian().setTrangThai("completed");
+	            slotThoiGianService.save(hoSoBenh.getSlotThoiGian());
+	        }
+
+	        response.put("status", "success");
+	        response.put("message", "Thanh toán thành công!");
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        response.put("status", "error");
+	        response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	    }
 	}
 
 	@GetMapping("/nhanvien/xemlichsukhambenh")

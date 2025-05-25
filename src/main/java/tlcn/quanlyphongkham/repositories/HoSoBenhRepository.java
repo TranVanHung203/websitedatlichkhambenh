@@ -160,6 +160,7 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 		        h.tong_tien,
 		        h.chan_doan,
 		        h.trieu_chung,
+		        h.da_thanh_toan, -- Thêm cột này
 		        GROUP_CONCAT(DISTINCT dt.don_thuoc_id) AS don_thuoc_ids,
 		        GROUP_CONCAT(DISTINCT CONCAT(
 		            dtt.don_thuoc_id, ':', t.ten, ':', dtt.so_luong, ':', t.gia, ':', 
@@ -171,7 +172,7 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 		        ) SEPARATOR '|') AS xet_nghiem_list
 		    FROM 
 		        ho_so_benh h
-		        INNER JOIN slot_thoi_gian st ON h.benh_nhan_id = st.benh_nhan_id
+		        INNER JOIN slot_thoi_gian st ON h.slot_id = st.slot_id
 		        INNER JOIN benh_nhan bn ON h.benh_nhan_id = bn.benh_nhan_id
 		        INNER JOIN bac_si bs ON h.bac_si_id = bs.bac_si_id
 		        LEFT JOIN don_thuoc dt ON h.ho_so_id = dt.ho_so_id
@@ -183,7 +184,7 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 		        st.slot_id = :slotId
 		        AND h.trang_thai = true
 		    GROUP BY 
-		        h.ho_so_id, bn.ten, bs.ten, h.tong_tien, h.chan_doan, h.trieu_chung
+		        h.ho_so_id, bn.ten, bs.ten, h.tong_tien, h.chan_doan, h.trieu_chung, h.da_thanh_toan -- Thêm h.da_thanh_toan vào GROUP BY
 		""", nativeQuery = true)
 		List<Object[]> findPaymentDetailsBySlotId(@Param("slotId") String slotId);
 
