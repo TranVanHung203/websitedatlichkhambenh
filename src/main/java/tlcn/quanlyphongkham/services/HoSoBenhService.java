@@ -174,7 +174,10 @@ public class HoSoBenhService {
 		return medicalHistory;
 	}
 
-	
+
+    public Page<HoSoBenh> findByBenhNhanId(String benhNhanId, Pageable pageable) {
+        return hoSoBenhRepository.findByBenhNhanId(benhNhanId, pageable);
+    }
 
 	
 

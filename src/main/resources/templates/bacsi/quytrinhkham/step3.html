@@ -11,224 +11,354 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e6f0fa 0%, #d1e3fa 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            padding: 90px 20px 20px !important;
+            min-height: 100vh;
+        }
+
         .container {
             max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding-top: 80px;
+            margin: 40px auto;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 50, 100, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .patient-info, .ke-don {
+
+        .container:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0, 50, 100, 0.2);
+        }
+
+        .patient-info,
+        .ke-don {
             margin-bottom: 30px;
-            padding: 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
         }
-        .patient-info h2, .ke-don h2 {
-            color: #007bff;
-            margin-bottom: 15px;
-            font-size: 24px;
+
+        .patient-info h2,
+        .ke-don h2 {
+            color: #2563eb;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
         }
+
         .patient-info p {
-            margin: 8px 0;
+            margin: 10px 0;
             font-size: 16px;
+            display: flex;
         }
+
         .patient-info p strong {
-            color: #333;
-            width: 150px;
-            display: inline-block;
+            color: #4a5568;
+            width: 180px;
+            font-weight: 600;
         }
+
         .tab-nav {
             display: flex;
-            border-bottom: 2px solid #dee2e6;
-            margin-bottom: 20px;
+            border-bottom: 2px solid #d1e3fa;
+            margin-bottom: 25px;
+            background: #e6f0fa;
+            border-radius: 12px;
+            padding: 5px;
         }
+
         .tab-nav button {
-            padding: 10px 20px;
+            flex: 1;
+            padding: 12px 20px;
             background: none;
             border: none;
             border-bottom: 3px solid transparent;
             font-size: 16px;
-            font-weight: 500;
-            color: #6c757d;
+            font-weight: 600;
+            color: #6b7280;
             cursor: pointer;
-            transition: color 0.3s, border-color 0.3s;
+            transition: all 0.3s ease;
+            border-radius: 8px;
         }
+
         .tab-nav button.active {
-            color: #007bff;
-            border-bottom: 3px solid #007bff;
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+            background: #f8fafc;
         }
+
         .tab-nav button:hover:not(.active) {
-            color: #0056b3;
+            color: #3b82f6;
+            background: #d1e3fa;
         }
+
         .tab-content {
             display: none;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
         }
+
         .tab-content.active {
             display: block;
         }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
+
         .form-group label {
             display: block;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-size: 15px;
         }
+
         .form-group input {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: border-color 0.3s;
+            padding: 12px 15px;
+            border: 1px solid #d1e3fa;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 50, 100, 0.1);
         }
+
         .form-group input:focus {
-            border-color: #007bff;
-            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            background: #fff;
         }
-        .save-btn {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
+
+        .save-btn,
+        .search-btn {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            color: #fff;
             border: none;
-            border-radius: 4px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 14px;
-            margin: 10px 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+            margin: 5px;
             min-width: 120px;
-            transition: background-color 0.3s;
         }
-        .save-btn:hover {
-            background-color: #0056b3;
+
+        .save-btn:hover,
+        .search-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
         }
-        .save-btn i {
-            margin-right: 5px;
+
+        .save-btn i,
+        .search-btn i {
+            margin-right: 8px;
         }
+
         .search-container {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 25px;
             align-items: center;
         }
+
         .search-container input {
             flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 12px 15px;
+            border: 1px solid #d1e3fa;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 50, 100, 0.1);
         }
-        .search-container button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
+
+        .search-container input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            background: #fff;
         }
-        .search-container button:hover {
-            background-color: #0056b3;
-        }
+
         .drug-card {
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 12px;
+            border: 1px solid #d1e3fa;
+            border-radius: 10px;
+            padding: 15px;
             margin: 8px;
             cursor: pointer;
-            background-color: #fff;
+            background: #fff;
             width: 220px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
         .drug-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background-color: #f1f1f1;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 50, 100, 0.2);
+            background: #e6f0fa;
         }
+
         .drug-card p {
             margin: 0;
-            font-weight: 500;
-            color: #333;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 15px;
         }
+
         .drug-card small {
-            color: #6c757d;
-            font-size: 12px;
+            color: #6b7280;
+            font-size: 13px;
         }
+
         .selected-drug {
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
+            border: 1px solid #d1e3fa;
+            border-radius: 10px;
             padding: 15px;
             margin: 10px 0;
-            background-color: #f8f9fa;
+            background: #f8fafc;
             display: grid;
             grid-template-columns: 1fr 1fr 1fr 100px;
-            gap: 10px;
+            gap: 15px;
             align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
             animation: slideIn 0.3s ease;
         }
+
         .selected-drug p {
             margin: 0;
-            font-weight: 500;
-            color: #333;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 15px;
         }
+
         .selected-drug .form-group {
             margin: 0;
         }
+
         .selected-drug .form-group input {
-            padding: 6px;
-            font-size: 13px;
+            padding: 10px;
+            font-size: 14px;
         }
+
         .selected-drug button {
-            padding: 8px;
-            background-color: #dc3545;
-            color: white;
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            color: #fff;
             border: none;
-            border-radius: 4px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 13px;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
         }
+
         .selected-drug button:hover {
-            background-color: #c82333;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
         }
+
         .section-title {
-            font-size: 18px;
-            color: #007bff;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 5px;
+            font-size: 1.2rem;
+            color: #2563eb;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #d1e3fa;
+            padding-bottom: 8px;
         }
+
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
         @media (max-width: 600px) {
+            body {
+                padding-top: 70px !important;
+            }
+
+            .container {
+                padding: 20px;
+                margin: 20px auto;
+            }
+
+            .patient-info h2,
+            .ke-don h2 {
+                font-size: 1.5rem;
+            }
+
+            .patient-info p {
+                font-size: 14px;
+            }
+
+            .patient-info p strong {
+                width: 140px;
+            }
+
+            .tab-nav button {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .form-group input,
+            .search-container input {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .save-btn,
+            .search-btn {
+                font-size: 15px;
+                padding: 10px 20px;
+                width: 100%;
+                margin: 5px 0;
+            }
+
             .drug-card {
                 width: 100%;
                 margin: 5px 0;
             }
+
             .selected-drug {
                 grid-template-columns: 1fr;
-                gap: 8px;
+                gap: 10px;
             }
-            .selected-drug p, .selected-drug .form-group input, .selected-drug button {
-                font-size: 12px;
+
+            .selected-drug p,
+            .selected-drug .form-group input,
+            .selected-drug button {
+                font-size: 13px;
             }
+
             .search-container {
                 flex-direction: column;
-                gap: 8px;
+                gap: 10px;
             }
-            .search-container input, .search-container button {
+
+            .search-container input,
+            .search-container button {
                 width: 100%;
             }
-            .save-btn {
-                width: 100%;
+
+            .section-title {
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -301,7 +431,8 @@
                     icon: 'error',
                     title: 'Lỗi',
                     text: 'URL chuyển hướng không tồn tại.',
-                    confirmButtonText: 'Đóng'
+                    confirmButtonText: 'Đóng',
+                    confirmButtonColor: '#2563eb'
                 });
                 return;
             }
@@ -314,7 +445,8 @@
                     icon: 'error',
                     title: 'Lỗi',
                     text: `Thông tin không hợp lệ: benhNhanId=${benhNhanId}, hoSoId=${hoSoId}, slotId=${slotId}`,
-                    confirmButtonText: 'Đóng'
+                    confirmButtonText: 'Đóng',
+                    confirmButtonColor: '#2563eb'
                 });
                 return;
             }
@@ -344,7 +476,7 @@
                     title: 'Cảnh báo',
                     text: 'Vui lòng nhập tên thuốc.',
                     confirmButtonText: 'Đóng',
-                    confirmButtonColor: '#007bff'
+                    confirmButtonColor: '#2563eb'
                 });
                 return;
             }
@@ -372,7 +504,7 @@
                             title: 'Không tìm thấy',
                             text: 'Không có thuốc nào khớp với tên tìm kiếm.',
                             confirmButtonText: 'Đóng',
-                            confirmButtonColor: '#007bff'
+                            confirmButtonColor: '#2563eb'
                         });
                     }
                 },
@@ -383,7 +515,7 @@
                         title: 'Lỗi',
                         text: 'Lỗi khi tìm kiếm thuốc, vui lòng thử lại.',
                         confirmButtonText: 'Đóng',
-                        confirmButtonColor: '#007bff'
+                        confirmButtonColor: '#2563eb'
                     });
                 }
             });
@@ -440,90 +572,103 @@
 
             $('#ke-don-form').on('submit', function(event) {
                 event.preventDefault();
-                const formData = $(this).serializeArray();
+                
+                Swal.fire({
+                    icon: 'question',
+                    title: 'Xác nhận hoàn thành',
+                    text: 'Bạn có chắc chắn hoàn thành đơn thuốc này không?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Hoàn thành',
+                    cancelButtonText: 'Hủy',
+                    confirmButtonColor: '#2563eb',
+                    cancelButtonColor: '#dc3545'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const formData = $(this).serializeArray();
+                        const data = {
+                            hoSoId: formData.find(item => item.name === 'hoSoId').value,
+                            benhNhanId: formData.find(item => item.name === 'benhNhanId').value,
+                            slotId: formData.find(item => item.name === 'slotId').value,
+                            drugs: []
+                        };
 
-                const data = {
-                    hoSoId: formData.find(item => item.name === 'hoSoId').value,
-                    benhNhanId: formData.find(item => item.name === 'benhNhanId').value,
-                    slotId: formData.find(item => item.name === 'slotId').value,
-                    drugs: []
-                };
+                        const drugIds = formData.filter(item => item.name === 'drugIds[]').map(item => item.value);
+                        const lieus = formData.filter(item => item.name === 'lieu[]').map(item => item.value);
+                        const tanSuats = formData.filter(item => item.name === 'tanSuat[]').map(item => item.value);
+                        const soLuongs = formData.filter(item => item.name === 'soLuong[]').map(item => item.value);
 
-                const drugIds = formData.filter(item => item.name === 'drugIds[]').map(item => item.value);
-                const lieus = formData.filter(item => item.name === 'lieu[]').map(item => item.value);
-                const tanSuats = formData.filter(item => item.name === 'tanSuat[]').map(item => item.value);
-                const soLuongs = formData.filter(item => item.name === 'soLuong[]').map(item => item.value);
-
-                if (!data.hoSoId || !data.benhNhanId || !data.slotId) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi',
-                        text: 'Thiếu thông tin hồ sơ, bệnh nhân hoặc lịch khám bệnh.',
-                        confirmButtonText: 'Đóng',
-                        confirmButtonColor: '#007bff'
-                    });
-                    return;
-                }
-
-                if (drugIds.length === 0) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Cảnh báo',
-                        text: 'Vui lòng chọn ít nhất một loại thuốc.',
-                        confirmButtonText: 'Đóng',
-                        confirmButtonColor: '#007bff'
-                    });
-                    return;
-                }
-
-                for (let i = 0; i < drugIds.length; i++) {
-                    data.drugs.push({
-                        thuocId: drugIds[i],
-                        lieu: lieus[i],
-                        tanSuat: tanSuats[i],
-                        soLuong: soLuongs[i]
-                    });
-                }
-
-                console.log('Saving ke don:', data);
-
-                $.ajax({
-                    url: '/bacsi/step3/save',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(data),
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Thành công',
-                                text: 'Đơn thuốc đã được lưu!',
-                                confirmButtonText: 'Đóng',
-                                confirmButtonColor: '#007bff'
-                            }).then(() => {
-                                if (response.redirectUrl) {
-                                    window.location.href = response.redirectUrl;
-                                } else {
-                                    window.location.reload();
-                                }
-                            });
-                        } else {
+                        if (!data.hoSoId || !data.benhNhanId || !data.slotId) {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Lỗi',
-                                text: response.message || 'Vui lòng thử lại.',
+                                text: 'Thiếu thông tin hồ sơ, bệnh nhân hoặc lịch khám bệnh.',
                                 confirmButtonText: 'Đóng',
-                                confirmButtonColor: '#007bff'
+                                confirmButtonColor: '#2563eb'
+                            });
+                            return;
+                        }
+
+                        if (drugIds.length === 0) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Cảnh báo',
+                                text: 'Vui lòng chọn ít nhất một loại thuốc.',
+                                confirmButtonText: 'Đóng',
+                                confirmButtonColor: '#2563eb'
+                            });
+                            return;
+                        }
+
+                        for (let i = 0; i < drugIds.length; i++) {
+                            data.drugs.push({
+                                thuocId: drugIds[i],
+                                lieu: lieus[i],
+                                tanSuat: tanSuats[i],
+                                soLuong: soLuongs[i]
                             });
                         }
-                    },
-                    error: function(xhr) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Lỗi',
-                            text: 'Lỗi khi lưu đơn thuốc: ' + (xhr.responseJSON?.message || xhr.statusText),
-                            confirmButtonText: 'Đóng',
-                            confirmButtonColor: '#007bff'
+
+                        console.log('Saving ke don:', data);
+
+                        $.ajax({
+                            url: '/bacsi/step3/save',
+                            method: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify(data),
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Thành công',
+                                        text: 'Đơn thuốc đã được lưu!',
+                                        confirmButtonText: 'Đóng',
+                                        confirmButtonColor: '#2563eb'
+                                    }).then(() => {
+                                        if (response.redirectUrl) {
+                                            window.location.href = response.redirectUrl;
+                                        } else {
+                                            window.location.reload();
+                                        }
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Lỗi',
+                                        text: response.message || 'Vui lòng thử lại.',
+                                        confirmButtonText: 'Đóng',
+                                        confirmButtonColor: '#2563eb'
+                                    });
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Lỗi',
+                                    text: 'Lỗi khi lưu đơn thuốc: ' + (xhr.responseJSON?.message || xhr.statusText),
+                                    confirmButtonText: 'Đóng',
+                                    confirmButtonColor: '#2563eb'
+                                });
+                            }
                         });
                     }
                 });

@@ -176,7 +176,10 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
     List<HoSoBenh> findByBenhNhanId(@Param("benhNhanId") String benhNhanId);
 
 
-
+    @Query(value = "SELECT * FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId",
+            countQuery = "SELECT COUNT(*) FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId",
+            nativeQuery = true)
+     Page<HoSoBenh> findByBenhNhanId(@Param("benhNhanId") String benhNhanId, Pageable pageable);
 
 
 }

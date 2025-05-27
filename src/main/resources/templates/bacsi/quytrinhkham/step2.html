@@ -10,145 +10,312 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e6f0fa 0%, #d1e3fa 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            padding: 90px 20px 20px !important;
+            min-height: 100vh;
+        }
+
         .container {
             max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding-top: 80px;
+            margin: 40px auto;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 50, 100, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .patient-info, .xet-nghiem, .chan-doan {
+
+        .container:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0, 50, 100, 0.2);
+        }
+
+        .patient-info,
+        .xet-nghiem,
+        .chan-doan {
             margin-bottom: 30px;
-            padding: 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
         }
-        .patient-info h2, .xet-nghiem h2, .chan-doan h2 {
-            color: #007bff;
-            margin-bottom: 15px;
-            font-size: 24px;
+
+        .patient-info h2,
+        .xet-nghiem h2,
+        .chan-doan h2 {
+            color: #2563eb;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
         }
+
         .patient-info p {
-            margin: 8px 0;
+            margin: 10px 0;
             font-size: 16px;
+            display: flex;
         }
+
         .patient-info p strong {
-            color: #333;
-            width: 150px;
-            display: inline-block;
+            color: #4a5568;
+            width: 180px;
+            font-weight: 600;
         }
+
         .tab-nav {
             display: flex;
-            border-bottom: 2px solid #dee2e6;
-            margin-bottom: 20px;
+            border-bottom: 2px solid #d1e3fa;
+            margin-bottom: 25px;
+            background: #e6f0fa;
+            border-radius: 12px;
+            padding: 5px;
         }
+
         .tab-nav button {
-            padding: 10px 20px;
+            flex: 1;
+            padding: 12px 20px;
             background: none;
             border: none;
             border-bottom: 3px solid transparent;
             font-size: 16px;
-            font-weight: 500;
-            color: #6c757d;
+            font-weight: 600;
+            color: #6b7280;
             cursor: pointer;
-            transition: color 0.3s, border-color 0.3s;
+            transition: all 0.3s ease;
+            border-radius: 8px;
         }
+
         .tab-nav button.active {
-            color: #007bff;
-            border-bottom: 3px solid #007bff;
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+            background: #f8fafc;
         }
+
         .tab-nav button:hover:not(.active) {
-            color: #0056b3;
+            color: #3b82f6;
+            background: #d1e3fa;
         }
+
         .tab-content {
             display: none;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
         }
+
         .tab-content.active {
             display: block;
         }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
+
         .form-group label {
             display: block;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-size: 15px;
         }
-        .form-group select, .form-group input, .form-group textarea {
+
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 12px 15px;
+            border: 1px solid #d1e3fa;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 50, 100, 0.1);
         }
-        .save-btn, .upload-btn, .generate-ticket-btn, .delete-btn, .continue-btn {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
+
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            background: #fff;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .save-btn,
+        .upload-btn,
+        .generate-ticket-btn,
+        .delete-btn,
+        .continue-btn {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            color: #fff;
             border: none;
-            border-radius: 4px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
             margin: 5px;
             min-width: 120px;
         }
-        .save-btn:hover, .upload-btn:hover, .generate-ticket-btn:hover, .continue-btn:hover {
-            background-color: #0056b3;
+
+        .save-btn:hover,
+        .upload-btn:hover,
+        .generate-ticket-btn:hover,
+        .continue-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
         }
+
         .delete-btn {
-            background-color: #dc3545;
+            background: linear-gradient(45deg, #dc3545, #c82333);
             min-width: auto;
-            padding: 6px 12px;
+            padding: 8px 16px;
         }
+
         .delete-btn:hover {
-            background-color: #c82333;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
         }
-        .save-btn i, .upload-btn i, .generate-ticket-btn i, .delete-btn i, .continue-btn i {
-            margin-right: 5px;
+
+        .save-btn i,
+        .upload-btn i,
+        .generate-ticket-btn i,
+        .delete-btn i,
+        .continue-btn i {
+            margin-right: 8px;
         }
+
         .xet-nghiem-list table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             margin-top: 15px;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
         }
-        .xet-nghiem-list th, .xet-nghiem-list td {
-            border: 1px solid #ddd;
-            padding: 10px;
+
+        .xet-nghiem-list th,
+        .xet-nghiem-list td {
+            border: 1px solid #d1e3fa;
+            padding: 12px;
             text-align: left;
-            font-size: 14px;
+            font-size: 15px;
         }
+
         .xet-nghiem-list th {
-            background-color: #f2f2f2;
-            color: #333;
+            background: #e6f0fa;
+            color: #4a5568;
+            font-weight: 600;
         }
+
+        .xet-nghiem-list td {
+            background: #f8fafc;
+        }
+
+        .xet-nghiem-list tr:hover td {
+            background: #e6f0fa;
+        }
+
         .xet-nghiem-list td.price {
             text-align: right;
         }
-        .xet-nghiem-list input[type="checkbox"]:checked {
-            accent-color: #007bff;
+
+        .xet-nghiem-list input[type="checkbox"] {
+            accent-color: #2563eb;
         }
+
         .section-title {
-            font-size: 18px;
-            color: #007bff;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 5px;
+            font-size: 1.2rem;
+            color: #2563eb;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #d1e3fa;
+            padding-bottom: 8px;
         }
+
+        .no-data {
+            color: #721c24;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
         @media (max-width: 600px) {
-            .form-group select, .form-group input, .form-group textarea {
+            body {
+                padding-top: 70px !important;
+            }
+
+            .container {
+                padding: 20px;
+                margin: 20px auto;
+            }
+
+            .patient-info h2,
+            .xet-nghiem h2,
+            .chan-doan h2 {
+                font-size: 1.5rem;
+            }
+
+            .patient-info p {
                 font-size: 14px;
             }
-            .save-btn, .upload-btn, .generate-ticket-btn, .delete-btn, .continue-btn {
+
+            .patient-info p strong {
+                width: 140px;
+            }
+
+            .tab-nav button {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .form-group select,
+            .form-group input,
+            .form-group textarea {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .save-btn,
+            .upload-btn,
+            .generate-ticket-btn,
+            .delete-btn,
+            .continue-btn {
+                font-size: 15px;
+                padding: 10px 20px;
                 width: 100%;
                 margin: 5px 0;
             }
-            .xet-nghiem-list th, .xet-nghiem-list td {
-                font-size: 12px;
-                padding: 8px;
+
+            .xet-nghiem-list th,
+            .xet-nghiem-list td {
+                font-size: 13px;
+                padding: 10px;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -265,7 +432,7 @@
                         </button>
                     </div>
                     <div th:unless="${xetNghiems != null and not #lists.isEmpty(xetNghiems)}" class="form-group">
-                        <p style="color: #dc3545;">Chưa có xét nghiệm nào.</p>
+                        <p class="no-data">Chưa có xét nghiệm nào.</p>
                     </div>
                 </div>
                 <div class="section-title">Tiếp tục quy trình</div>

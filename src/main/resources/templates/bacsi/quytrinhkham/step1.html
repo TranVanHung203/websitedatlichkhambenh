@@ -10,97 +10,220 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
+        /* Your existing CSS styles remain unchanged */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e6f0fa 0%, #d1e3fa 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            padding: 90px 20px 20px !important;
+            min-height: 100vh;
+        }
+
         .container {
             max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding-top: 80px;
+            margin: 40px auto;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 50, 100, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .patient-info, .vital-signs {
+
+        .container:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0, 50, 100, 0.2);
+        }
+
+        .patient-info,
+        .vital-signs {
+            margin-bottom: 30px;
+        }
+
+        .patient-info h2,
+        .vital-signs h2 {
+            color: #2563eb;
+            font-size: 1.8rem;
+            font-weight: 700;
             margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
         }
-        .patient-info h2, .vital-signs h2 {
-            color: #007bff;
-            margin-bottom: 15px;
-            font-size: 24px;
-        }
+
         .patient-info p {
-            margin: 8px 0;
+            margin: 10px 0;
             font-size: 16px;
+            display: flex;
         }
+
         .patient-info p strong {
-            color: #333;
-            width: 150px;
-            display: inline-block;
+            color: #4a5568;
+            width: 180px;
+            font-weight: 600;
         }
+
         .tab-nav {
             display: flex;
-            border-bottom: 2px solid #dee2e6;
-            margin-bottom: 20px;
+            border-bottom: 2px solid #d1e3fa;
+            margin-bottom: 25px;
+            background: #e6f0fa;
+            border-radius: 12px;
+            padding: 5px;
         }
+
         .tab-nav button {
-            padding: 10px 20px;
+            flex: 1;
+            padding: 12px 20px;
             background: none;
             border: none;
             border-bottom: 3px solid transparent;
             font-size: 16px;
-            font-weight: 500;
-            color: #6c757d;
+            font-weight: 600;
+            color: #6b7280;
             cursor: pointer;
-            transition: color 0.3s, border-color 0.3s;
+            transition: all 0.3s ease;
+            border-radius: 8px;
         }
+
         .tab-nav button.active {
-            color: #007bff;
-            border-bottom: 3px solid #007bff;
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+            background: #f8fafc;
         }
+
         .tab-nav button:hover:not(.active) {
-            color: #0056b3;
+            color: #3b82f6;
+            background: #d1e3fa;
         }
+
+        .tab-nav button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
         .tab-content {
             display: none;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
         }
+
         .tab-content.active {
             display: block;
         }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
+
         .form-group label {
             display: block;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-size: 15px;
         }
-        .form-group input, .form-group textarea {
+
+        .form-group input,
+        .form-group textarea {
             width: 100%;
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 12px 15px;
+            border: 1px solid #d1e3fa;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 50, 100, 0.1);
         }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            background: #fff;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
         .save-btn {
-            padding: 8px 15px;
-            background-color: #007bff;
-            color: white;
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            color: #fff;
             border: none;
-            border-radius: 4px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 14px;
-            margin: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
         }
+
         .save-btn:hover {
-            background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
         }
+
         .save-btn i {
-            margin-right: 5px;
+            margin-right: 8px;
         }
+
+        .error-message {
+            color: #721c24;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
         @media (max-width: 600px) {
-            .form-group input, .form-group textarea {
-                font-size: 12px;
+            body {
+                padding-top: 70px !important;
+            }
+
+            .container {
+                padding: 20px;
+                margin: 20px auto;
+            }
+
+            .patient-info h2,
+            .vital-signs h2 {
+                font-size: 1.5rem;
+            }
+
+            .patient-info p {
+                font-size: 14px;
+            }
+
+            .patient-info p strong {
+                width: 140px;
+            }
+
+            .tab-nav button {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .form-group input,
+            .form-group textarea {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .save-btn {
+                font-size: 15px;
+                padding: 10px 20px;
             }
         }
     </style>
@@ -121,14 +244,14 @@
 
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="tab1">Bước 1: Thông số y tế</button>
-            <button class="tab-btn" data-tab="tab2" 
-                th:data-url="@{/bacsi/step2(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},slotId=${slotId})}" 
-                onclick="redirectToStep(this)">
+            <button class="tab-btn" data-tab="tab2" disabled
+                th:data-url="@{/bacsi/step2(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},slotId=${slotId})}"
+                onclick="checkTabSwitch(this)">
                 Bước 2: Chẩn đoán & Xét nghiệm
             </button>
-            <button class="tab-btn" data-tab="tab3" 
-                th:data-url="@{/bacsi/step3(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},slotId=${slotId})}" 
-                onclick="redirectToStep(this)">
+            <button class="tab-btn" data-tab="tab3" disabled
+                th:data-url="@{/bacsi/step3(benhNhanId=${benhNhan?.benhNhanId},hoSoId=${hoSoBenh?.hoSoId},slotId=${slotId})}"
+                onclick="checkTabSwitch(this)">
                 Bước 3: Kê đơn
             </button>
         </div>
@@ -142,31 +265,39 @@
                     <input type="hidden" name="maLichKhamBenh" th:value="${maLichKhamBenh}">
                     <div class="form-group">
                         <label for="trieuChung">Triệu chứng:</label>
-                        <textarea id="trieuChung" name="trieuChung" placeholder="Nhập triệu chứng (VD: sốt, ho, đau họng)..." th:text="${hoSoBenh?.trieuChung}"></textarea>
+                        <textarea id="trieuChung" name="trieuChung"
+                            placeholder="Nhập triệu chứng (VD: sốt, ho, đau họng)..."
+                            th:text="${hoSoBenh?.trieuChung}" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="nhietDo">Nhiệt độ (°C):</label>
-                        <input type="number" step="0.1" id="nhietDo" name="nhietDo" th:value="${vitalSigns?.temperature}" placeholder="Nhập nhiệt độ...">
+                        <input type="number" step="0.1" id="nhietDo" name="nhietDo"
+                            th:value="${vitalSigns?.temperature}" placeholder="Nhập nhiệt độ..." required>
                     </div>
                     <div class="form-group">
                         <label for="chieuCao">Chiều cao (cm):</label>
-                        <input type="number" step="0.1" id="chieuCao" name="chieuCao" th:value="${vitalSigns?.height}" placeholder="Nhập chiều cao...">
+                        <input type="number" step="0.1" id="chieuCao" name="chieuCao" th:value="${vitalSigns?.height}"
+                            placeholder="Nhập chiều cao..." required>
                     </div>
                     <div class="form-group">
                         <label for="canNang">Cân nặng (kg):</label>
-                        <input type="number" step="0.1" id="canNang" name="canNang" th:value="${vitalSigns?.weight}" placeholder="Nhập cân nặng...">
+                        <input type="number" step="0.1" id="canNang" name="canNang" th:value="${vitalSigns?.weight}"
+                            placeholder="Nhập cân nặng..." required>
                     </div>
                     <div class="form-group">
                         <label for="bloodPressureSys">Huyết áp tâm thu (mmHg):</label>
-                        <input type="number" id="bloodPressureSys" name="bloodPressureSys" th:value="${vitalSigns?.bloodPressureSys}" placeholder="Nhập huyết áp tâm thu...">
+                        <input type="number" id="bloodPressureSys" name="bloodPressureSys"
+                            th:value="${vitalSigns?.bloodPressureSys}" placeholder="Nhập huyết áp tâm thu..." required>
                     </div>
                     <div class="form-group">
                         <label for="bloodPressureDia">Huyết áp tâm trương (mmHg):</label>
-                        <input type="number" id="bloodPressureDia" name="bloodPressureDia" th:value="${vitalSigns?.bloodPressureDia}" placeholder="Nhập huyết áp tâm trương...">
+                        <input type="number" id="bloodPressureDia" name="bloodPressureDia"
+                            th:value="${vitalSigns?.bloodPressureDia}" placeholder="Nhập huyết áp tâm trương..." required>
                     </div>
                     <div class="form-group">
                         <label for="notes">Ghi chú:</label>
-                        <input type="text" id="notes" name="notes" th:value="${vitalSigns?.notes}" placeholder="Nhập ghi chú...">
+                        <input type="text" id="notes" name="notes" th:value="${vitalSigns?.notes}"
+                            placeholder="Nhập ghi chú...">
                     </div>
                     <button type="submit" class="save-btn">
                         <i class="fas fa-save"></i> Lưu và tiếp tục
@@ -185,6 +316,63 @@
     </div>
 
     <script>
+        let isFormSaved = false;
+        let isFormDirty = false;
+
+        // Track form changes
+        const form = document.getElementById('vital-signs-form');
+        const inputs = form.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                isFormDirty = true;
+            });
+        });
+
+        // Validate form fields
+        function validateForm() {
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.style.borderColor = '#721c24';
+                } else {
+                    field.style.borderColor = '#d1e3fa';
+                }
+            });
+            return isValid;
+        }
+
+        // Enable tabs after successful save
+        function enableTabs() {
+            const tabButtons = document.querySelectorAll('.tab-btn[data-tab="tab2"], .tab-btn[data-tab="tab3"]');
+            tabButtons.forEach(button => {
+                button.disabled = false;
+            });
+        }
+
+        // Check if user tries to switch tabs without saving
+        function checkTabSwitch(button) {
+            if (isFormDirty && !isFormSaved) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa lưu thông tin',
+                    text: 'Vui lòng lưu thông tin trước khi chuyển tab.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Lưu và tiếp tục',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Trigger form submission
+                        form.dispatchEvent(new Event('submit'));
+                    }
+                });
+            } else if (isFormSaved) {
+                redirectToStep(button);
+            }
+        }
+
+        // Redirect to step
         function redirectToStep(button) {
             const url = button.getAttribute('data-url');
             console.log('Redirecting to:', url);
@@ -212,13 +400,24 @@
             window.location.href = url;
         }
 
-        document.getElementById('vital-signs-form').addEventListener('submit', function(event) {
+        // Form submission with validation
+        form.addEventListener('submit', function (event) {
             event.preventDefault();
+
+            if (!validateForm()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Vui lòng điền đầy đủ các trường bắt buộc.',
+                    confirmButtonText: 'Đóng'
+                });
+                return;
+            }
+
             const formData = new FormData(this);
-            // Get maLichKhamBenh from URL query parameters
             const urlParams = new URLSearchParams(window.location.search);
             const slotId = urlParams.get('slotId');
-            
+
             const data = {
                 hoSoId: formData.get('hoSoId'),
                 benhNhanId: formData.get('benhNhanId'),
@@ -249,34 +448,37 @@
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Lưu thành công',
-                        text: 'Chuyển sang bước 2...',
-                        confirmButtonText: 'Đóng'
-                    }).then(() => {
-                        window.location.href = data.redirectUrl;
-                    });
-                } else {
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        isFormSaved = true;
+                        isFormDirty = false;
+                        enableTabs();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Lưu thành công',
+                            text: 'Chuyển sang bước 2...',
+                            confirmButtonText: 'Đóng'
+                        }).then(() => {
+                            window.location.href = data.redirectUrl;
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: data.message || 'Vui lòng thử lại.',
+                            confirmButtonText: 'Đóng'
+                        });
+                    }
+                })
+                .catch(error => {
                     Swal.fire({
                         icon: 'error',
                         title: 'Lỗi',
-                        text: data.message || 'Vui lòng thử lại.',
+                        text: 'Vui lòng thử lại.',
                         confirmButtonText: 'Đóng'
                     });
-                }
-            })
-            .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: 'Vui lòng thử lại.',
-                    confirmButtonText: 'Đóng'
                 });
-            });
         });
     </script>
 </body>
