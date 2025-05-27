@@ -8,6 +8,7 @@
 	<link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 </head>
 
 <body>
@@ -74,7 +75,6 @@
 						<th>Triệu chứng</th>
 						<td id="trieuChung">---</td>
 					</tr>
-
 				</table>
 
 				<!-- Danh sách đơn thuốc -->
@@ -116,6 +116,14 @@
 				<div class="total">
 					<strong>Tổng tiền:</strong>
 					<span id="tongTien">0 VNĐ</span>
+				</div>
+
+				<!-- Chọn phương thức thanh toán -->
+				<h3>Chọn phương thức thanh toán</h3>
+				<div class="payment-method">
+					<label><input type="radio" name="paymentMethod" value="cash" checked> Thanh toán bằng tiền
+						mặt</label>
+					<label><input type="radio" name="paymentMethod" value="momo"> Thanh toán bằng Momo</label>
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -187,9 +195,22 @@
 				.then(data => {
 					fullScheduleData = data;
 					availableCaList = [...new Set(data.map(item => item.caKham))];
+
+					// Tạo các nút phân trang
 					createPaginationButtons();
+
+					// Kiểm tra ca hiện tại (dựa trên nút active hoặc currentCa)
+					const activeCa = getCurrentCa() || currentCa;
+
 					if (availableCaList.length > 0) {
-						showPage(availableCaList[0]);
+						// Nếu đã có ca được chọn (activeCa), hiển thị ca đó
+						if (activeCa && availableCaList.includes(activeCa)) {
+							showPage(activeCa);
+						} else {
+							// Nếu không có ca nào được chọn, hiển thị ca đầu tiên (mặc định)
+							showPage(availableCaList[0]);
+							currentCa = availableCaList[0]; // Cập nhật currentCa
+						}
 					} else {
 						tbody.innerHTML = '<tr><td colspan="6" class="no-data">Không có lịch khám cho bác sĩ trong ngày này</td></tr>';
 					}
@@ -230,6 +251,9 @@
 			buttons.forEach(btn => {
 				btn.classList.toggle('active', btn.textContent === 'Ca ' + ca);
 			});
+
+			// Cập nhật currentCa
+			currentCa = ca;
 
 			const timeSlots = khungGioCa[ca];
 			if (!timeSlots) {
@@ -301,7 +325,7 @@
                     <td>${slot.soDienThoai}</td>
                     <td>-</td>
                 `;
-					} else if (slot.trangThai === "completed") { // Thay "Đã thanh toán" bằng "Completed"
+					} else if (slot.trangThai === "completed") {
 						row.innerHTML = `
                     <td>${start}</td>
                     <td>${end}</td>
@@ -357,6 +381,7 @@
 			phieuXetNghiemBody.innerHTML = '<tr><td colspan="2" class="no-data">Không có xét nghiệm</td></tr>';
 			tongTien.textContent = '0 VNĐ';
 			confirmPaymentBtn.style.display = 'block'; // Đảm bảo nút hiển thị ban đầu
+			document.querySelector('input[name="paymentMethod"][value="cash"]').checked = true; // Mặc định chọn tiền mặt
 
 			// Gọi API để lấy chi tiết thanh toán
 			fetch(`/nhanvien/xemlichbacsi/payment/details?slotId=${slotId}`)
@@ -429,7 +454,7 @@
 					// Điều chỉnh nút thanh toán dựa trên daThanhToan
 					if (data.daThanhToan) {
 						confirmPaymentBtn.disabled = true;
-						confirmPaymentBtn.textContent = 'Đã thanh toán'; // Thay "Đã thanh toán" bằng "Completed"
+						confirmPaymentBtn.textContent = 'Đã thanh toán';
 						confirmPaymentBtn.classList.add('disabled-btn');
 					} else {
 						confirmPaymentBtn.disabled = false;
@@ -451,48 +476,119 @@
 		}
 
 		function processPayment() {
-			fetch(`/nhanvien/xemlichbacsi/payment/confirm?hoSoId=${currentHoSoId}`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-				.then(response => {
-					if (!response.ok) {
-						throw new Error('Phản hồi không thành công: ' + response.statusText);
+			const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+			const modal = document.getElementById('paymentModal');
+
+			if (paymentMethod === 'cash') {
+				fetch(`/nhanvien/xemlichbacsi/payment/confirm?hoSoId=${currentHoSoId}`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
 					}
-					return response.json();
 				})
-				.then(data => {
-					if (data.status === 'success') {
-						Swal.fire({
-							icon: 'success',
-							title: 'Thành công',
-							text: data.message,
-							timer: 1500,
-							showConfirmButton: false
-						});
-						document.getElementById('paymentModal').style.display = 'none';
-						setTimeout(() => {
-							loadSchedule();
-							showPage(currentCa); // Làm mới trang để cập nhật trạng thái slot
-						}, 1500);
-					} else {
+					.then(response => response.json())
+					.then(data => {
+						if (data.status === 'success') {
+							Swal.fire({
+								icon: 'success',
+								title: 'Thành công',
+								text: data.message,
+								timer: 1500,
+								showConfirmButton: false
+							});
+							modal.style.display = 'none';
+							setTimeout(() => {
+								loadSchedule(); // loadSchedule sẽ tự động hiển thị ca hiện tại (currentCa)
+							}, 1500);
+						} else {
+							Swal.fire({
+								icon: 'error',
+								title: 'Lỗi',
+								text: data.message,
+							});
+						}
+					})
+					.catch(error => {
+						console.error('Lỗi:', error);
 						Swal.fire({
 							icon: 'error',
 							title: 'Lỗi',
-							text: data.message,
+							text: 'Đã xảy ra lỗi khi xử lý thanh toán!',
 						});
+					});
+			} else if (paymentMethod === 'momo') {
+				fetch(`/nhanvien/xemlichbacsi/payment/momo?hoSoId=${currentHoSoId}`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
 					}
 				})
-				.catch(error => {
-					console.error('Lỗi:', error);
-					Swal.fire({
-						icon: 'error',
-						title: 'Lỗi',
-						text: 'Đã xảy ra lỗi khi xử lý thanh toán!',
+					.then(response => {
+						if (!response.ok) {
+							throw new Error('Phản hồi không thành công: ' + response.statusText);
+						}
+						return response.json();
+					})
+					.then(data => {
+						if (data.status === 'success') {
+							const paymentDetails = document.getElementById('paymentDetails');
+							paymentDetails.innerHTML = `
+                        <h3>Quét Mã QR để Thanh Toán qua Momo</h3>
+                        <div id="qrcode"></div>
+                    `;
+							new QRCode(document.getElementById('qrcode'), {
+								text: data.payUrl,
+								width: 200,
+								height: 200
+							});
+
+							setTimeout(() => {
+								fetch(`/nhanvien/xemlichbacsi/payment/confirm?hoSoId=${currentHoSoId}`, {
+									method: 'POST',
+									headers: {
+										'Content-Type': 'application/json'
+									}
+								})
+									.then(response => response.json())
+									.then(confirmData => {
+										if (confirmData.status === 'success') {
+											Swal.fire({
+												icon: 'success',
+												title: 'Thành công',
+												text: 'Thanh toán qua Momo thành công!',
+												timer: 1500,
+												showConfirmButton: false
+											});
+											modal.style.display = 'none';
+											setTimeout(() => {
+												loadSchedule(); // loadSchedule sẽ tự động hiển thị ca hiện tại (currentCa)
+											}, 1500);
+										} else {
+											Swal.fire({
+												icon: 'error',
+												title: 'Lỗi',
+												text: confirmData.message,
+											});
+										}
+									});
+							}, 5000);
+						} else {
+							Swal.fire({
+								icon: 'error',
+								title: 'Lỗi',
+								text: data.message,
+							});
+						}
+					})
+					.catch(error => {
+						console.error('Lỗi:', error);
+						Swal.fire({
+							icon: 'error',
+							title: 'Lỗi',
+							text: 'Đã xảy ra lỗi khi tạo đơn hàng Momo!',
+						});
 					});
-				});
+			}
 		}
 
 		function checkInPatient(slotId, ca) {
@@ -518,8 +614,7 @@
 							showConfirmButton: false
 						});
 						setTimeout(() => {
-							loadSchedule();
-							showPage(ca);
+							loadSchedule(); // loadSchedule sẽ tự động hiển thị ca hiện tại (currentCa)
 						}, 1500);
 					} else {
 						Swal.fire({
@@ -574,12 +669,9 @@
 
 		// Cập nhật lịch định kỳ mỗi 5 giây
 		setInterval(() => {
-			const currentCa = getCurrentCa();
-			if (currentCa) {
-				loadSchedule();
-				setTimeout(() => {
-					showPage(currentCa);
-				}, 300);
+			const activeCa = getCurrentCa(); // Lấy ca hiện tại từ nút active
+			if (activeCa) {
+				loadSchedule(); // Tải lại lịch, loadSchedule sẽ tự động hiển thị ca hiện tại (activeCa)
 			}
 		}, 5000);
 

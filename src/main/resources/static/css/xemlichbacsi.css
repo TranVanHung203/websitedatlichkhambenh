@@ -414,16 +414,27 @@ input[type="date"]:focus {
 }
 
 .review-payment-btn {
-    background-color: #17a2b8; /* Màu xanh lam nhẹ */
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
+	background-color: #17a2b8;
+	/* Màu xanh lam nhẹ */
+	color: white;
+	border: none;
+	padding: 6px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: background-color 0.3s;
 }
 
 .review-payment-btn:hover {
-    background-color: #138496; /* Màu đậm hơn khi hover */
+	background-color: #138496;
+	/* Màu đậm hơn khi hover */
+}
+
+.payment-method {
+	margin: 15px 0;
+}
+
+.payment-method label {
+	display: block;
+	margin: 5px 0;
 }

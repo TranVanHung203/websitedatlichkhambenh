@@ -538,7 +538,44 @@ public class NhanVienController {
 	@PostMapping("/nhanvien/xemlichbacsi/payment/confirm")
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> confirmPayment(@RequestParam("hoSoId") String hoSoId) {
-	    Map<String, String> response = new HashMap<>();
+		Map<String, String> response = new HashMap<>();
+		try {
+			HoSoBenh hoSoBenh = hoSoBenhService.findById(hoSoId);
+			if (hoSoBenh == null) {
+				response.put("status", "error");
+				response.put("message", "Không tìm thấy hồ sơ bệnh!");
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+			}
+
+			if (hoSoBenh.getDaThanhToan()) {
+				response.put("status", "error");
+				response.put("message", "Hồ sơ đã được thanh toán!");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+			}
+
+			hoSoBenh.setDaThanhToan(true);
+			hoSoBenhService.save(hoSoBenh);
+
+			// Cập nhật trạng thái SlotThoiGian
+			if (hoSoBenh.getSlotThoiGian() != null) {
+				hoSoBenh.getSlotThoiGian().setTrangThai("completed");
+				slotThoiGianService.save(hoSoBenh.getSlotThoiGian());
+			}
+
+			response.put("status", "success");
+			response.put("message", "Thanh toán thành công!");
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			response.put("status", "error");
+			response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		}
+	}
+
+	@PostMapping("/nhanvien/xemlichbacsi/payment/momo")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> createMomoPayment(@RequestParam("hoSoId") String hoSoId) {
+	    Map<String, Object> response = new HashMap<>();
 	    try {
 	        HoSoBenh hoSoBenh = hoSoBenhService.findById(hoSoId);
 	        if (hoSoBenh == null) {
@@ -553,17 +590,13 @@ public class NhanVienController {
 	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 	        }
 
-	        hoSoBenh.setDaThanhToan(true);
-	        hoSoBenhService.save(hoSoBenh);
-
-	        // Cập nhật trạng thái SlotThoiGian
-	        if (hoSoBenh.getSlotThoiGian() != null) {
-	            hoSoBenh.getSlotThoiGian().setTrangThai("completed");
-	            slotThoiGianService.save(hoSoBenh.getSlotThoiGian());
-	        }
-
+	        // Giả định tạo payUrl (trong thực tế, gọi API Momo)
+	        String payUrl = "https://momo.vn/qr-simulated"; // URL giả lập
+	        String orderId = "ORDER_" + hoSoId + "_" + System.currentTimeMillis();
 	        response.put("status", "success");
-	        response.put("message", "Thanh toán thành công!");
+	        response.put("message", "Tạo đơn hàng Momo giả lập thành công!");
+	        response.put("payUrl", payUrl);
+	        response.put("orderId", orderId);
 	        return ResponseEntity.ok(response);
 	    } catch (Exception e) {
 	        response.put("status", "error");
@@ -571,6 +604,8 @@ public class NhanVienController {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 	    }
 	}
+	
+	
 
 	@GetMapping("/nhanvien/xemlichsukhambenh")
 	public String lichSuKhamNhanVien(@RequestParam(defaultValue = "0") int page,
