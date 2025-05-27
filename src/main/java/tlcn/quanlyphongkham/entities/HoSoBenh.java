@@ -64,6 +64,11 @@ public class HoSoBenh implements Serializable {
     @JsonIgnoreProperties({"hoSoBenh"})
     private List<VitalSigns> vitalSigns;
 
+    @OneToOne
+    @JoinColumn(name = "slot_id", nullable = true, unique = true) // Thêm cột slot_id, có thể null
+    private SlotThoiGian slotThoiGian; // Quan hệ One-to-One với SlotThoiGian
+    
+    
     @PrePersist
     public void prePersist() {
         if (this.thoiGianTao == null) {

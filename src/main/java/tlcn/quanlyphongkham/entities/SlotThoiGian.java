@@ -4,12 +4,14 @@ import java.io.Serializable;
 import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -40,5 +42,7 @@ public class SlotThoiGian implements Serializable {
     @JoinColumn(name = "benh_nhan_id")
     private BenhNhan benhNhan; // Liên kết đến bệnh nhân nếu slot đã được đặt
 
-   
+    @OneToOne(mappedBy = "slotThoiGian") // Quan hệ ngược với HoSoBenh
+    @JsonIgnoreProperties({"slotThoiGian"})
+    private HoSoBenh hoSoBenh; // Liên kết đến hồ sơ bệnh
 }
