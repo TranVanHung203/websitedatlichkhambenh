@@ -8,7 +8,7 @@
 	<link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+
 </head>
 
 <body>
@@ -123,7 +123,8 @@
 				<div class="payment-method">
 					<label><input type="radio" name="paymentMethod" value="cash" checked> Thanh toán bằng tiền
 						mặt</label>
-					<label><input type="radio" name="paymentMethod" value="momo"> Thanh toán bằng Momo</label>
+					<label><input type="radio" name="paymentMethod" value="credit-card"> Thanh toán bằng Credit
+						Card</label>
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -216,7 +217,7 @@
 					}
 				})
 				.catch(error => {
-					console.error('Error:', error);
+					console.error('Lỗi:', error);
 					tbody.innerHTML = '<tr><td colspan="6" class="no-data">Đã xảy ra lỗi khi tải lịch</td></tr>';
 					Swal.fire({
 						icon: 'error',
@@ -280,84 +281,84 @@
 				if (slot) {
 					if (slot.trangThai === "Đã đặt" || slot.trangThai === "Đang chờ") {
 						row.innerHTML = `
-                    <td>${start}</td>
-                    <td>${end}</td>
-                    <td>
-                        ${slot.trangThai}
-                        <button class="checkin-btn" onclick="checkInPatient('${slot.slotId}', '${ca}')">
-                            Check-in
-                        </button>
-                    </td>
-                    <td>${slot.tenBenhNhan}</td>
-                    <td>${slot.soDienThoai}</td>
-                    <td>-</td>
-                `;
+                        <td>${start}</td>
+                        <td>${end}</td>
+                        <td>
+                            ${slot.trangThai}
+                            <button class="checkin-btn" onclick="checkInPatient('${slot.slotId}', '${ca}')">
+                                Check-in
+                            </button>
+                        </td>
+                        <td>${slot.tenBenhNhan}</td>
+                        <td>${slot.soDienThoai}</td>
+                        <td>-</td>
+                    `;
 					} else if (slot.trangThai === "Đã khám xong") {
 						row.innerHTML = `
-                    <td>${start}</td>
-                    <td>${end}</td>
-                    <td>
-                        <span class="checked-in">✅ ${slot.trangThai}</span>
-                    </td>
-                    <td>${slot.tenBenhNhan}</td>
-                    <td>${slot.soDienThoai}</td>
-                    <td>
-                        <button class="payment-btn" onclick="showPaymentModal('${slot.slotId}', '${ca}')">
-                            Thanh toán
-                        </button>
-                    </td>
-                `;
+                        <td>${start}</td>
+                        <td>${end}</td>
+                        <td>
+                            <span class="checked-in">✅ ${slot.trangThai}</span>
+                        </td>
+                        <td>${slot.tenBenhNhan}</td>
+                        <td>${slot.soDienThoai}</td>
+                        <td>
+                            <button class="payment-btn" onclick="showPaymentModal('${slot.slotId}', '${ca}')">
+                                Thanh toán
+                            </button>
+                        </td>
+                    `;
 					} else if (slot.trangThai === "Đang khám") {
 						row.innerHTML = `
-                    <td>${start}</td>
-                    <td>${end}</td>
-                    <td><span class="status-in-progress">🩺 ${slot.trangThai}</span></td>
-                    <td>${slot.tenBenhNhan}</td>
-                    <td>${slot.soDienThoai}</td>
-                    <td>-</td>
-                `;
+                        <td>${start}</td>
+                        <td>${end}</td>
+                        <td><span class="status-in-progress">🩺 ${slot.trangThai}</span></td>
+                        <td>${slot.tenBenhNhan}</td>
+                        <td>${slot.soDienThoai}</td>
+                        <td>-</td>
+                    `;
 					} else if (slot.trangThai === "Đã hủy") {
 						row.innerHTML = `
-                    <td>${start}</td>
-                    <td>${end}</td>
-                    <td><span class="status-cancelled">❌ ${slot.trangThai}</span></td>
-                    <td>${slot.tenBenhNhan}</td>
-                    <td>${slot.soDienThoai}</td>
-                    <td>-</td>
-                `;
+                        <td>${start}</td>
+                        <td>${end}</td>
+                        <td><span class="status-cancelled">❌ ${slot.trangThai}</span></td>
+                        <td>${slot.tenBenhNhan}</td>
+                        <td>${slot.soDienThoai}</td>
+                        <td>-</td>
+                    `;
 					} else if (slot.trangThai === "completed") {
 						row.innerHTML = `
-                    <td>${start}</td>
-                    <td>${end}</td>
-                    <td><span class="status-paid">💳 ${slot.trangThai}</span></td>
-                    <td>${slot.tenBenhNhan}</td>
-                    <td>${slot.soDienThoai}</td>
-                    <td>-</td>
-                `;
+                        <td>${start}</td>
+                        <td>${end}</td>
+                        <td><span class="status-paid">💳 ${slot.trangThai}</span></td>
+                        <td>${slot.tenBenhNhan}</td>
+                        <td>${slot.soDienThoai}</td>
+                        <td>-</td>
+                    `;
 					} else {
 						row.innerHTML = `
-                    <td>${start}</td>
-                    <td>${end}</td>
-                    <td>${slot.trangThai}</td>
-                    <td>${slot.tenBenhNhan}</td>
-                    <td>${slot.soDienThoai}</td>
-                    <td>-</td>
-                `;
+                        <td>${start}</td>
+                        <td>${end}</td>
+                        <td>${slot.trangThai}</td>
+                        <td>${slot.tenBenhNhan}</td>
+                        <td>${slot.soDienThoai}</td>
+                        <td>-</td>
+                    `;
 					}
 				} else {
 					row.innerHTML = `
-                <td>${start}</td>
-                <td>${end}</td>
-                <td>
-                    Chưa có slot
-                    <button class="register-btn" onclick="redirectToRegister('${doctorId}', '${selectedDate}', '${ca}', '${start}')">
-                        Đăng ký
-                    </button>
-                </td>
-                <td>---</td>
-                <td>---</td>
-                <td>-</td>
-            `;
+                    <td>${start}</td>
+                    <td>${end}</td>
+                    <td>
+                        Chưa có slot
+                        <button class="register-btn" onclick="redirectToRegister('${doctorId}', '${selectedDate}', '${ca}', '${start}')">
+                            Đăng ký
+                        </button>
+                    </td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>-</td>
+                `;
 				}
 				tbody.appendChild(row);
 			}
@@ -380,78 +381,66 @@
 			donThuocBody.innerHTML = '<tr><td colspan="5" class="no-data">Không có đơn thuốc</td></tr>';
 			phieuXetNghiemBody.innerHTML = '<tr><td colspan="2" class="no-data">Không có xét nghiệm</td></tr>';
 			tongTien.textContent = '0 VNĐ';
-			confirmPaymentBtn.style.display = 'block'; // Đảm bảo nút hiển thị ban đầu
-			document.querySelector('input[name="paymentMethod"][value="cash"]').checked = true; // Mặc định chọn tiền mặt
+			confirmPaymentBtn.style.display = 'block';
+
+			// Cập nhật phương thức thanh toán
+			const paymentMethodDiv = document.querySelector('.payment-method');
+			paymentMethodDiv.innerHTML = `
+            <label><input type="radio" name="paymentMethod" value="cash" checked> Thanh toán bằng tiền mặt</label>
+            <label><input type="radio" name="paymentMethod" value="creditCard"> Thanh toán bằng Credit Card</label>
+        `;
 
 			// Gọi API để lấy chi tiết thanh toán
 			fetch(`/nhanvien/xemlichbacsi/payment/details?slotId=${slotId}`)
 				.then(response => {
-					if (!response.ok) {
-						throw new Error('Phản hồi không thành công: ' + response.statusText);
-					}
+					if (!response.ok) throw new Error('Phản hồi không thành công');
 					return response.json();
 				})
 				.then(data => {
 					if (!data) {
-						Swal.fire({
-							icon: 'error',
-							title: 'Lỗi',
-							text: 'Không tìm thấy chi tiết thanh toán!',
-						});
+						Swal.fire({icon: 'error', title: 'Lỗi', text: 'Không tìm thấy chi tiết thanh toán!'});
 						return;
 					}
 
 					currentHoSoId = data.hoSoId;
-
-					// Cập nhật thông tin hồ sơ bệnh
 					chanDoan.textContent = data.chanDoan || 'Không có chẩn đoán';
 					trieuChung.textContent = data.trieuChung || 'Không có triệu chứng';
 
-					// Tính tiền khám (tổng tiền trừ giá thuốc và xét nghiệm)
-					let tongTienThuoc = 0;
-					let tongTienXetNghiem = 0;
-					if (data.thuocList && data.thuocList.length > 0) {
-						tongTienThuoc = data.thuocList.reduce((sum, thuoc) => sum + (thuoc.gia * thuoc.soLuong), 0);
-					}
-					if (data.xetNghiemList && data.xetNghiemList.length > 0) {
-						tongTienXetNghiem = data.xetNghiemList.reduce((sum, xn) => sum + xn.gia, 0);
-					}
+					let tongTienThuoc = 0, tongTienXetNghiem = 0;
+					if (data.thuocList && data.thuocList.length > 0) tongTienThuoc = data.thuocList.reduce((sum, thuoc) => sum + (thuoc.gia * thuoc.soLuong), 0);
+					if (data.xetNghiemList && data.xetNghiemList.length > 0) tongTienXetNghiem = data.xetNghiemList.reduce((sum, xn) => sum + xn.gia, 0);
 
-					// Cập nhật danh sách đơn thuốc
 					if (data.thuocList && data.thuocList.length > 0) {
 						donThuocBody.innerHTML = '';
 						data.thuocList.forEach(thuoc => {
 							const row = document.createElement('tr');
 							row.innerHTML = `
-                        <td>${thuoc.tenThuoc}</td>
-                        <td>${thuoc.soLuong}</td>
-                        <td>${thuoc.lieu || 'Không xác định'}</td>
-                        <td>${thuoc.tanSuat || 'Không xác định'}</td>
-                        <td>${(thuoc.gia * thuoc.soLuong).toLocaleString('vi-VN')} VNĐ</td>
-                    `;
+                            <td>${thuoc.tenThuoc}</td>
+                            <td>${thuoc.soLuong}</td>
+                            <td>${thuoc.lieu || 'Không xác định'}</td>
+                            <td>${thuoc.tanSuat || 'Không xác định'}</td>
+                            <td>${(thuoc.gia * thuoc.soLuong).toLocaleString('vi-VN')} VNĐ</td>
+                        `;
 							donThuocBody.appendChild(row);
 						});
 					}
 
-					// Cập nhật danh sách xét nghiệm
 					if (data.xetNghiemList && data.xetNghiemList.length > 0) {
 						phieuXetNghiemBody.innerHTML = '';
 						data.xetNghiemList.forEach(xetNghiem => {
 							const row = document.createElement('tr');
 							row.innerHTML = `
-                        <td>${xetNghiem.tenXetNghiem || 'Không xác định'}</td>
-                        <td>${xetNghiem.gia.toLocaleString('vi-VN')}</td>
-                    `;
+                            <td>${xetNghiem.tenXetNghiem || 'Không xác định'}</td>
+                            <td>${xetNghiem.gia.toLocaleString('vi-VN')}</td>
+                        `;
 							phieuXetNghiemBody.appendChild(row);
 						});
 					} else {
 						phieuXetNghiemBody.innerHTML = '<tr><td colspan="2" class="no-data">Không có xét nghiệm</td></tr>';
 					}
 
-					// Cập nhật tổng tiền
 					tongTien.textContent = data.tongTien ? data.tongTien.toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ';
 
-					// Điều chỉnh nút thanh toán dựa trên daThanhToan
 					if (data.daThanhToan) {
 						confirmPaymentBtn.disabled = true;
 						confirmPaymentBtn.textContent = 'Đã thanh toán';
@@ -462,16 +451,11 @@
 						confirmPaymentBtn.classList.remove('disabled-btn');
 					}
 
-					// Hiển thị modal
 					modal.style.display = 'block';
 				})
 				.catch(error => {
 					console.error('Lỗi:', error);
-					Swal.fire({
-						icon: 'error',
-						title: 'Lỗi',
-						text: 'Đã xảy ra lỗi khi tải chi tiết thanh toán!',
-					});
+					Swal.fire({icon: 'error', title: 'Lỗi', text: 'Đã xảy ra lỗi khi tải chi tiết thanh toán!'});
 				});
 		}
 
@@ -482,9 +466,7 @@
 			if (paymentMethod === 'cash') {
 				fetch(`/nhanvien/xemlichbacsi/payment/confirm?hoSoId=${currentHoSoId}`, {
 					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					}
+					headers: {'Content-Type': 'application/json'}
 				})
 					.then(response => response.json())
 					.then(data => {
@@ -497,14 +479,12 @@
 								showConfirmButton: false
 							});
 							modal.style.display = 'none';
-							setTimeout(() => {
-								loadSchedule(); // loadSchedule sẽ tự động hiển thị ca hiện tại (currentCa)
-							}, 1500);
+							setTimeout(() => loadSchedule(), 1500);
 						} else {
 							Swal.fire({
 								icon: 'error',
 								title: 'Lỗi',
-								text: data.message,
+								text: data.message
 							});
 						}
 					})
@@ -513,70 +493,77 @@
 						Swal.fire({
 							icon: 'error',
 							title: 'Lỗi',
-							text: 'Đã xảy ra lỗi khi xử lý thanh toán!',
+							text: 'Đã xảy ra lỗi khi xử lý thanh toán!'
 						});
 					});
-			} else if (paymentMethod === 'momo') {
-				fetch(`/nhanvien/xemlichbacsi/payment/momo?hoSoId=${currentHoSoId}`, {
+			} else if (paymentMethod === 'creditCard') {
+				fetch(`/nhanvien/xemlichbacsi/payment/credit-card?hoSoId=${currentHoSoId}&paymentMethod=${paymentMethod}`, {
 					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					}
+					headers: {'Content-Type': 'application/json'}
 				})
 					.then(response => {
-						if (!response.ok) {
-							throw new Error('Phản hồi không thành công: ' + response.statusText);
-						}
+						if (!response.ok) throw new Error('Phản hồi không thành công');
 						return response.json();
 					})
 					.then(data => {
 						if (data.status === 'success') {
+							// Cập nhật modal để hiển thị liên kết thanh toán
 							const paymentDetails = document.getElementById('paymentDetails');
 							paymentDetails.innerHTML = `
-                        <h3>Quét Mã QR để Thanh Toán qua Momo</h3>
-                        <div id="qrcode"></div>
+                        <h3>Thanh Toán qua Credit Card</h3>
+                        <p>Vui lòng nhấp vào liên kết dưới để hoàn tất thanh toán.</p>
+                        <p><a id="paymentLink" href="${data.payUrl}" target="_blank">Mở liên kết thanh toán</a></p>
                     `;
-							new QRCode(document.getElementById('qrcode'), {
-								text: data.payUrl,
-								width: 200,
-								height: 200
-							});
 
-							setTimeout(() => {
-								fetch(`/nhanvien/xemlichbacsi/payment/confirm?hoSoId=${currentHoSoId}`, {
-									method: 'POST',
-									headers: {
-										'Content-Type': 'application/json'
-									}
+							// Tự động mở liên kết thanh toán trong tab mới
+							window.open(data.payUrl, '_blank');
+
+							const orderId = data.orderId;
+							let checkInterval = setInterval(() => {
+								fetch(`/nhanvien/xemlichbacsi/payment/check-status?orderId=${orderId}`, {
+									method: 'POST', // Thêm method POST để khớp với backend
+									headers: {'Content-Type': 'application/json'}
 								})
-									.then(response => response.json())
-									.then(confirmData => {
-										if (confirmData.status === 'success') {
+									.then(response => {
+										if (!response.ok) throw new Error('Phản hồi không thành công: ' + response.statusText);
+										return response.json();
+									})
+									.then(statusData => {
+										if (statusData.status === 'success') {
+											clearInterval(checkInterval);
 											Swal.fire({
 												icon: 'success',
 												title: 'Thành công',
-												text: 'Thanh toán qua Momo thành công!',
+												text: 'Thanh toán qua Credit Card thành công!',
 												timer: 1500,
 												showConfirmButton: false
 											});
 											modal.style.display = 'none';
-											setTimeout(() => {
-												loadSchedule(); // loadSchedule sẽ tự động hiển thị ca hiện tại (currentCa)
-											}, 1500);
-										} else {
+											setTimeout(() => loadSchedule(), 1500);
+										} else if (statusData.status === 'error') {
+											clearInterval(checkInterval);
 											Swal.fire({
 												icon: 'error',
 												title: 'Lỗi',
-												text: confirmData.message,
+												text: statusData.message
 											});
 										}
+									})
+									.catch(error => {
+										console.error('Lỗi khi kiểm tra trạng thái:', error);
+										clearInterval(checkInterval);
+										Swal.fire({
+											icon: 'error',
+											title: 'Lỗi',
+											text: 'Đã xảy ra lỗi khi kiểm tra trạng thái thanh toán!'
+										});
 									});
-							}, 5000);
+							}, 3000);
 						} else {
 							Swal.fire({
 								icon: 'error',
 								title: 'Lỗi',
-								text: data.message,
+								text: data.message || 'Không thể tạo đơn hàng!'
 							});
 						}
 					})
@@ -585,7 +572,7 @@
 						Swal.fire({
 							icon: 'error',
 							title: 'Lỗi',
-							text: 'Đã xảy ra lỗi khi tạo đơn hàng Momo!',
+							text: error.message || 'Đã xảy ra lỗi khi tạo đơn hàng!'
 						});
 					});
 			}
