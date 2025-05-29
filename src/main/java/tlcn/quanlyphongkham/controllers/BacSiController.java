@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -95,7 +97,6 @@ import tlcn.quanlyphongkham.services.SlotThoiGianService;
 import tlcn.quanlyphongkham.services.ThuocService;
 import tlcn.quanlyphongkham.services.VitalSignsService;
 import tlcn.quanlyphongkham.services.XetNghiemService;
-import org.springframework.data.domain.Sort;
 @Controller
 public class BacSiController {
 	@Autowired
@@ -222,15 +223,31 @@ public class BacSiController {
 		}
 	}
 
-	// Phương thức xóa lịch khám
 	@DeleteMapping("/bacsi/lichkham/delete")
 	public ResponseEntity<String> deleteLichKham(@RequestParam("id") String lichId) {
-		try {
-			lichKhamBenhService.deleteLichKham(lichId);
-			return ResponseEntity.ok("Lịch khám đã được xóa thành công");
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi xóa lịch khám");
-		}
+	    try {
+	        // Fetch the LichKhamBenh entity with its associated SlotThoiGian
+	        Optional<LichKhamBenh> lichKhamBenhOptional = lichKhamBenhService.findById(lichId);
+	        LichKhamBenh lichKhamBenh = lichKhamBenhOptional.orElse(null);
+	        
+	        if (lichKhamBenh == null) {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lịch khám không tồn tại");
+	        }
+
+	        // Check if there are any associated SlotThoiGian records
+	        List<SlotThoiGian> slots = lichKhamBenh.getSlotThoiGian();
+	        if (slots != null && !slots.isEmpty()) {
+	            // If any SlotThoiGian exists, prevent deletion
+	            return ResponseEntity.status(HttpStatus.CONFLICT)
+	                .body("Đã có dữ liệu ca khám, vui lòng vào lịch hẹn khám để hủy các ca khám");
+	        }
+
+	        // If no slots exist, proceed with deletion
+	        lichKhamBenhService.deleteLichKham(lichId);
+	        return ResponseEntity.ok("Lịch khám đã được xóa thành công");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi xóa lịch khám");
+	    }
 	}
 
 	@GetMapping("/bacsi/editprofile")
@@ -1148,19 +1165,27 @@ public class BacSiController {
     
     
     
-    @GetMapping("bacsi/medical-history")
+    @GetMapping("/bacsi/medical-history")
     public ResponseEntity<?> getMedicalHistory(
             @RequestParam("benhNhanId") String benhNhanId,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "2") int size) {
+            @RequestParam(value = "size", defaultValue = "2") int size,
+            @RequestParam(value = "startDate", required = false) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) LocalDate endDate) {
         try {
             if (benhNhanId == null || benhNhanId.trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Invalid benhNhanId"));
             }
 
-            // Add sorting by thoiGianTao in descending order
+            // Add sorting by thoi_gian_tao in descending order
             Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "thoi_gian_tao"));
-            Page<HoSoBenh> medicalHistoryPage = hoSoBenhService.findByBenhNhanId(benhNhanId, pageable);
+
+            // Convert LocalDate to LocalDateTime for filtering
+            LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+            LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59, 999999999) : null;
+
+            // Fetch medical history with optional date range filtering
+            Page<HoSoBenh> medicalHistoryPage = hoSoBenhService.findByBenhNhanIdAndDateRange(benhNhanId, startDateTime, endDateTime, pageable);
 
             Page<MedicalHistoryDTO> dtos = medicalHistoryPage.map(hsb -> {
                 Hibernate.initialize(hsb.getBenhNhan());
@@ -1282,4 +1307,24 @@ public class BacSiController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(Collections.singletonMap("error", "An unexpected error occurred: " + e.getMessage()));
     }
+    
+    @GetMapping("/bacsi/findPatientByPhone")
+    public ResponseEntity<?> findPatientByPhone(@RequestParam String phone) {
+        try {
+            BenhNhan benhNhan = benhNhanService.findByPhone(phone);
+            if (benhNhan != null) {
+                return ResponseEntity.ok(benhNhan);
+            } else {
+                return ResponseEntity.status(404).body("Không tìm thấy bệnh nhân với số điện thoại: " + phone);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Lỗi khi tìm kiếm bệnh nhân: " + e.getMessage());
+        }
+    }
+    
+	@GetMapping("/bacsi/home")
+	public String home(Model model) {
+		return "bacsi/home/home"; // Your Thymeleaf template
+	}
+
 }

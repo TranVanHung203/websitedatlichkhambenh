@@ -1,316 +1,295 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
+/* Scoped to .main-content to avoid conflicts with headerbacsi.css */
+.main-content {
+    padding-top: 100px; /* Accounts for fixed header (60px height + 15px padding * 2) */
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e6f0fa 0%, #d1e3fa 100%);
+    font-family: 'Inter', sans-serif;
+    color: #2d3748;
 }
 
-body {
-  background: linear-gradient(135deg, #d1e3fa 0%, #e6f0fa 100%);
-  color: #2d3748;
-  line-height: 20px;
-  padding: 90px 20px 20px !important;
-  min-height: 100vh;
+.main-content .schedule-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
 }
 
-.schedule-container {
-  max-width: 1000px;
-  margin: 40px auto;
-  background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(0, 50, 100, 0.15);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.main-content .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-.schedule-container:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 32px rgba(0, 50, 100, 0.2);
+.main-content .header h2 {
+    font-size: 1.8rem;
+    color: #2563eb;
+    font-weight: 700;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
-  gap: 15px;
+.main-content .date-picker {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
-.header h2 {
-  color: #2563eb;
-  font-size: 2rem;
-  font-weight: 700;
-  text-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+.main-content .date-picker label {
+    font-weight: 600;
+    color: #4a5568;
 }
 
-.date-picker {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
+.main-content .date-picker input[type="date"] {
+    padding: 8px;
+    border: 1px solid #d1e3fa;
+    border-radius: 6px;
+    font-size: 14px;
 }
 
-.date-picker label {
-  color: #4a5568;
-  font-weight: 600;
-  font-size: 16px;
+.main-content .date-picker .view-button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
 }
 
-.date-picker input {
-  padding: 12px 20px;
-  border: 1px solid #d1e3fa;
-  border-radius: 10px;
-  font-size: 16px;
-  background: #f8fafc;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0, 50, 100, 0.1);
+.main-content .date-picker .view-button:hover {
+    background: #2563eb;
 }
 
-.date-picker input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
-  background: #fff;
+.main-content .message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 250px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: white;
+    z-index: 1002; /* Above popup (z-index: 1001) */
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: slideIn 0.3s ease forwards, fadeOut 0.3s ease 3.7s forwards;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.view-button {
-  background: linear-gradient(45deg, #3b82f6, #2563eb);
-  color: #fff;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+.main-content .error-message {
+    background-color: #dc2626;
+    border: 1px solid #b91c1c;
 }
 
-.view-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+.main-content .success-message {
+    background-color: #10b981;
+    border: 1px solid #059669;
 }
 
-.schedule-section {
-  margin-bottom: 40px;
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.add-session-button {
-  background: linear-gradient(45deg, #34d399, #2ecc71);
-  color: #fff;
-  border: none;
-  padding: 12px 28px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 20px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(52, 211, 153, 0.3);
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
 }
 
-.add-session-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(52, 211, 153, 0.4);
+.main-content .schedule-section {
+    margin-top: 20px;
 }
 
-.schedule-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: #e6f0fa;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
+.main-content .add-session-button {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 15px;
+    transition: background 0.3s ease;
 }
 
-.schedule-table th,
-.schedule-table td {
-  padding: 18px;
-  border: 1px solid #d1e3fa;
-  text-align: center;
-  font-size: 16px;
+.main-content .add-session-button:hover {
+    background: #059669;
 }
 
-.schedule-table th {
-  background: linear-gradient(45deg, #d1e3fa, #e6f0fa);
-  color: #2d3748;
-  font-weight: 600;
+.main-content .schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #f8fafc;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.schedule-table tbody tr {
-  background: #f8fafc;
-  transition: all 0.3s ease;
+.main-content .schedule-table th,
+.main-content .schedule-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #d1e3fa;
 }
 
-.schedule-table tbody tr:hover {
-  background: #d1e3fa;
-  transform: scale(1.01);
-  box-shadow: 0 4px 8px rgba(0, 50, 100, 0.1);
+.main-content .schedule-table th {
+    background: #e6f0fa;
+    font-weight: 600;
+    color: #4a5568;
 }
 
-.delete-button {
-  background: linear-gradient(45deg, #e53935, #d32f2f);
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 8px rgba(229, 57, 53, 0.2);
+.main-content .schedule-table td {
+    font-size: 14px;
 }
 
-.delete-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(229, 57, 53, 0.3);
+.main-content .schedule-table .delete-button {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
 }
 
-.popup {
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;
-  background: linear-gradient(135deg, #e6f0fa, #f8fafc);
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 50, 100, 0.2);
-  z-index: 1000;
+.main-content .schedule-table .delete-button:hover {
+    background: #dc2626;
 }
 
-.popup-content {
-  text-align: center;
+.main-content .popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1001; /* Above header */
 }
 
-.popup-content h3 {
-  color: #2563eb;
-  margin-bottom: 25px;
-  font-size: 1.6rem;
-  font-weight: 700;
-  text-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+.main-content .popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
-.popup-content label {
-  display: block;
-  margin: 15px 0 8px;
-  color: #4a5568;
-  font-weight: 600;
-  font-size: 16px;
+.main-content .popup-content .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #4a5568;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    z-index: 1002; /* Ensure above other popup content */
+    line-height: 1;
 }
 
-.popup-content select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #d1e3fa;
-  border-radius: 10px;
-  font-size: 16px;
-  background: #f8fafc;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0, 50, 100, 0.1);
+.main-content .popup-content .close-button:hover {
+    color: #2563eb;
 }
 
-.popup-content select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
-  background: #fff;
+.main-content .popup-content h3 {
+    margin-bottom: 15px;
+    color: #2563eb;
+    font-weight: 600;
 }
 
-.save-button {
-  background: linear-gradient(45deg, #34d399, #2ecc71);
-  color: #fff;
-  border: none;
-  padding: 12px 28px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 20px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(52, 211, 153, 0.3);
+.main-content .popup-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #4a5568;
 }
 
-.save-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(52, 211, 153, 0.4);
+.main-content .popup-content select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #d1e3fa;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 15px;
 }
 
-.close-button {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  color: #6b7280;
-  font-size: 24px;
-  cursor: pointer;
-  transition: color 0.3s ease;
+.main-content .popup-content .save-button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
 }
 
-.close-button:hover {
-  color: #2563eb;
-}
-
-.message {
-  max-width: 1000px;
-  margin: 20px auto;
-  padding: 15px;
-  border-radius: 10px;
-  font-size: 16px;
-  text-align: center;
-  transition: opacity 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 50, 100, 0.1);
-}
-
-.success-message {
-  background: #d4edda;
-  border: 1px solid #c3e6cb;
-  color: #155724;
-}
-
-.error-message {
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
-  color: #721c24;
+.main-content .popup-content .save-button:hover {
+    background: #2563eb;
 }
 
 @media (max-width: 768px) {
-  body {
-    padding-top: 70px !important;
-  }
+    .main-content {
+        padding-top: 80px; /* Smaller padding for mobile due to header min-height: 50px */
+    }
 
-  .schedule-container {
-    padding: 20px;
-    margin: 20px auto;
-  }
+    .main-content .schedule-container {
+        padding: 15px;
+    }
 
-  .header h2 {
-    font-size: 1.6rem;
-  }
+    .main-content .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
 
-  .date-picker {
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-  }
+    .main-content .header h2 {
+        font-size: 1.5rem;
+    }
 
-  .date-picker input,
-  .view-button {
-    width: 100%;
-    font-size: 15px;
-  }
+    .main-content .date-picker {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-  .schedule-table th,
-  .schedule-table td {
-    padding: 12px;
-    font-size: 15px;
-  }
+    .main-content .date-picker input[type="date"],
+    .main-content .date-picker .view-button {
+        width: 100%;
+    }
 
-  .popup {
-    width: 90%;
-    padding: 20px;
-  }
+    .main-content .schedule-table th,
+    .main-content .schedule-table td {
+        font-size: 13px;
+        padding: 10px;
+    }
 
-  .popup-content h3 {
-    font-size: 1.4rem;
-  }
+    .main-content .popup-content {
+        width: 90%;
+        max-width: 350px;
+        padding: 15px;
+        max-height: 70vh;
+    }
+
+    .main-content .message {
+        top: 10px;
+        right: 10px;
+        min-width: 200px;
+        font-size: 13px;
+        padding: 10px 15px;
+    }
 }

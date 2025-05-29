@@ -29,6 +29,18 @@ header.doctor-header .header-logo h1 {
     line-height: 1.2 !important;
 }
 
+header.doctor-header .header-logo h1 a {
+    text-decoration: none !important; /* Removes underline */
+    color: inherit !important; /* Inherits color from h1 (#1a202c) */
+    cursor: pointer !important;
+    transition: opacity 0.3s ease, transform 0.2s ease !important; /* Matches nav link transitions */
+}
+
+header.doctor-header .header-logo h1 a:hover {
+    opacity: 0.8 !important; /* Subtle hover effect */
+    transform: translateY(-1px) !important; /* Matches nav link hover */
+}
+
 /* Navigation Styles */
 header.doctor-header .header-nav {
     flex: 1 !important;
@@ -91,7 +103,7 @@ header.doctor-header .hamburger {
     display: none !important;
     font-size: 24px !important;
     color: #4a5568 !important;
-    cursor: pointer !important;
+    cursor:  pointer !important;
     background: none !important;
     border: none !important;
     padding: 8px !important;
@@ -99,10 +111,11 @@ header.doctor-header .hamburger {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    header.doctor-header {
+    header.doctor {
         flex-wrap: wrap !important;
-        padding: 10px 15px !important;
+        padding: 10px !important;
         min-height: 50px !important;
+
     }
 
     header.doctor-header .header-logo h1 {
@@ -111,7 +124,7 @@ header.doctor-header .hamburger {
 
     header.doctor-header .header-nav {
         display: none !important;
-        width: 100% !important;
+        width: 100%!important;
         order: 3 !important;
     }
 
@@ -139,4 +152,5 @@ header.doctor-header .hamburger {
     header.doctor-header .hamburger {
         display: block !important;
     }
+    
 }

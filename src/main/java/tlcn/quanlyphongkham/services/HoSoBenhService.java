@@ -230,5 +230,16 @@ public class HoSoBenhService {
 
 	    return dto;
 	}
+    public Page<HoSoBenh> findByBenhNhanId(String benhNhanId, Pageable pageable) {
+        return hoSoBenhRepository.findByBenhNhanId(benhNhanId, pageable);
+    }
+
+	public Page<HoSoBenh> findByBenhNhanIdAndDateRange(String benhNhanId, LocalDateTime startDate,
+			LocalDateTime endDate, Pageable pageable) {
+		if (startDate != null && endDate != null) {
+            return hoSoBenhRepository.findByBenhNhanIdAndThoiGianTaoBetween(benhNhanId, startDate, endDate, pageable);
+        }
+        return hoSoBenhRepository.findByBenhNhanId(benhNhanId, pageable);
+	}
 
 }

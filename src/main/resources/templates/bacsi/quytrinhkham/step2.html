@@ -7,318 +7,12 @@
     <title>Khám Bệnh - Bước 2</title>
     <link rel="stylesheet" th:href="@{/css/xemlichhen.css}">
     <link rel="stylesheet" th:href="@{/css/headerbacsi.css}">
+    <link rel="stylesheet" th:href="@{/css/quytrinhkhambenh_Step2.css}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #e6f0fa 0%, #d1e3fa 100%);
-            color: #2d3748;
-            line-height: 1.6;
-            padding: 90px 20px 20px !important;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 8px 24px rgba(0, 50, 100, 0.15);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .container:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 32px rgba(0, 50, 100, 0.2);
-        }
-
-        .patient-info,
-        .xet-nghiem,
-        .chan-doan {
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8fafc;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
-        }
-
-        .patient-info h2,
-        .xet-nghiem h2,
-        .chan-doan h2 {
-            color: #2563eb;
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
-        }
-
-        .patient-info p {
-            margin: 10px 0;
-            font-size: 16px;
-            display: flex;
-        }
-
-        .patient-info p strong {
-            color: #4a5568;
-            width: 180px;
-            font-weight: 600;
-        }
-
-        .tab-nav {
-            display: flex;
-            border-bottom: 2px solid #d1e3fa;
-            margin-bottom: 25px;
-            background: #e6f0fa;
-            border-radius: 12px;
-            padding: 5px;
-        }
-
-        .tab-nav button {
-            flex: 1;
-            padding: 12px 20px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            font-size: 16px;
-            font-weight: 600;
-            color: #6b7280;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-        }
-
-        .tab-nav button.active {
-            color: #2563eb;
-            border-bottom: 3px solid #2563eb;
-            background: #f8fafc;
-        }
-
-        .tab-nav button:hover:not(.active) {
-            color: #3b82f6;
-            background: #d1e3fa;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 20px;
-            background: #f8fafc;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 8px;
-            font-size: 15px;
-        }
-
-        .form-group select,
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #d1e3fa;
-            border-radius: 10px;
-            font-size: 15px;
-            background: #f8fafc;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 6px rgba(0, 50, 100, 0.1);
-        }
-
-        .form-group select:focus,
-        .form-group input:focus,
-        .form-group textarea:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
-            background: #fff;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .save-btn,
-        .upload-btn,
-        .generate-ticket-btn,
-        .delete-btn,
-        .continue-btn {
-            background: linear-gradient(45deg, #3b82f6, #2563eb);
-            color: #fff;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
-            margin: 5px;
-            min-width: 120px;
-        }
-
-        .save-btn:hover,
-        .upload-btn:hover,
-        .generate-ticket-btn:hover,
-        .continue-btn:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-        }
-
-        .delete-btn {
-            background: linear-gradient(45deg, #dc3545, #c82333);
-            min-width: auto;
-            padding: 8px 16px;
-        }
-
-        .delete-btn:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
-        }
-
-        .save-btn i,
-        .upload-btn i,
-        .generate-ticket-btn i,
-        .delete-btn i,
-        .continue-btn i {
-            margin-right: 8px;
-        }
-
-        .xet-nghiem-list table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-top: 15px;
-            background: #fff;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
-        }
-
-        .xet-nghiem-list th,
-        .xet-nghiem-list td {
-            border: 1px solid #d1e3fa;
-            padding: 12px;
-            text-align: left;
-            font-size: 15px;
-        }
-
-        .xet-nghiem-list th {
-            background: #e6f0fa;
-            color: #4a5568;
-            font-weight: 600;
-        }
-
-        .xet-nghiem-list td {
-            background: #f8fafc;
-        }
-
-        .xet-nghiem-list tr:hover td {
-            background: #e6f0fa;
-        }
-
-        .xet-nghiem-list td.price {
-            text-align: right;
-        }
-
-        .xet-nghiem-list input[type="checkbox"] {
-            accent-color: #2563eb;
-        }
-
-        .section-title {
-            font-size: 1.2rem;
-            color: #2563eb;
-            font-weight: 600;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #d1e3fa;
-            padding-bottom: 8px;
-        }
-
-        .no-data {
-            color: #721c24;
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding-top: 70px !important;
-            }
-
-            .container {
-                padding: 20px;
-                margin: 20px auto;
-            }
-
-            .patient-info h2,
-            .xet-nghiem h2,
-            .chan-doan h2 {
-                font-size: 1.5rem;
-            }
-
-            .patient-info p {
-                font-size: 14px;
-            }
-
-            .patient-info p strong {
-                width: 140px;
-            }
-
-            .tab-nav button {
-                font-size: 14px;
-                padding: 10px;
-            }
-
-            .form-group select,
-            .form-group input,
-            .form-group textarea {
-                font-size: 14px;
-                padding: 10px;
-            }
-
-            .save-btn,
-            .upload-btn,
-            .generate-ticket-btn,
-            .delete-btn,
-            .continue-btn {
-                font-size: 15px;
-                padding: 10px 20px;
-                width: 100%;
-                margin: 5px 0;
-            }
-
-            .xet-nghiem-list th,
-            .xet-nghiem-list td {
-                font-size: 13px;
-                padding: 10px;
-            }
-
-            .section-title {
-                font-size: 1.1rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -333,6 +27,9 @@
             <p><strong>Giới tính:</strong> <span th:text="${benhNhan?.gioiTinh ?: 'Không có'}"></span></p>
             <p><strong>Địa chỉ:</strong> <span th:text="${benhNhan?.diaChi ?: 'Không có'}"></span></p>
             <p><strong>Triệu chứng:</strong> <span th:text="${hoSoBenh?.trieuChung ?: 'Không có'}"></span></p>
+            <button class="history-btn" th:attr="data-benh-nhan-id=${benhNhan?.benhNhanId}" onclick="viewMedicalHistory(this)" th:disabled="${benhNhan?.benhNhanId == null}">
+                <i class="fas fa-history"></i> Xem lịch sử khám
+            </button>
         </div>
 
         <div class="tab-nav">
@@ -385,6 +82,11 @@
                 <div class="xet-nghiem-list">
                     <div class="section-title">Danh sách xét nghiệm</div>
                     <div th:if="${xetNghiems != null and not #lists.isEmpty(xetNghiems)}">
+                        <div class="action-bar">
+                            <button class="clear-all-btn" onclick="deleteAllSelected()" title="Xóa tất cả xét nghiệm đã chọn">
+                                Xóa tất cả đã chọn
+                            </button>
+                        </div>
                         <table>
                             <thead>
                                 <tr>
@@ -452,6 +154,9 @@
     </div>
 
     <script>
+        let currentBenhNhanId = null;
+        let medicalHistoryData = [];
+
         function redirectToStep(button) {
             const url = button.getAttribute('data-url');
             console.log('Redirecting to:', url);
@@ -522,6 +227,73 @@
                                 icon: 'error',
                                 title: 'Lỗi',
                                 text: data.message || 'Vui lòng thử lại.',
+                                confirmButtonText: 'Đóng'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Lỗi khi xóa xét nghiệm: ' + error.message,
+                            confirmButtonText: 'Đóng'
+                        });
+                    });
+                }
+            });
+        }
+
+        function deleteAllSelected() {
+            const checkboxes = document.querySelectorAll('.xetNghiemCheckbox:checked');
+            const xetNghiemIds = Array.from(checkboxes).map(cb => cb.value);
+            if (xetNghiemIds.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Cảnh báo',
+                    text: 'Vui lòng chọn ít nhất một xét nghiệm để xóa.',
+                    confirmButtonText: 'Đóng'
+                });
+                return;
+            }
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Xác nhận xóa',
+                text: `Bạn có chắc muốn xóa ${xetNghiemIds.length} xét nghiệm đã chọn?`,
+                showCancelButton: true,
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Promise.all(xetNghiemIds.map(id => 
+                        fetch(`/bacsi/step2/delete-xetnghiem/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }).then(response => {
+                            if (!response.ok) {
+                                throw new Error('Lỗi khi xóa xét nghiệm: ' + response.statusText);
+                            }
+                            return response.json();
+                        })
+                    ))
+                    .then(results => {
+                        const allSuccess = results.every(result => result.success);
+                        if (allSuccess) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Xóa thành công',
+                                text: 'Các xét nghiệm đã được xóa.',
+                                confirmButtonText: 'Đóng'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: 'Có lỗi xảy ra khi xóa một số xét nghiệm.',
                                 confirmButtonText: 'Đóng'
                             });
                         }
@@ -777,7 +549,331 @@
                 });
             });
         }
+
+        // Medical history functions
+        function viewMedicalHistory(button) {
+            currentBenhNhanId = button.getAttribute('data-benh-nhan-id');
+            if (!currentBenhNhanId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không tìm thấy ID bệnh nhân.',
+                    confirmButtonText: 'Đóng',
+                    timer: 3000
+                });
+                return;
+            }
+            console.log('Fetching medical history for benhNhanId:', currentBenhNhanId);
+            fetchMedicalHistoryPage(currentBenhNhanId, 0);
+        }
+
+        function fetchMedicalHistoryPage(benhNhanId, page, startDate = null, endDate = null) {
+            let url = `/bacsi/medical-history?benhNhanId=${benhNhanId}&page=${page}&size=2`;
+            if (startDate && endDate) {
+                const startFormatted = `${startDate.getFullYear()}-${(startDate.getMonth() + 1).toString().padStart(2, '0')}-${startDate.getDate().toString().padStart(2, '0')}`;
+                const endFormatted = `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')}-${endDate.getDate().toString().padStart(2, '0')}`;
+                url += `&startDate=${startFormatted}&endDate=${endFormatted}`;
+                console.log('Fetching with date range:', { startDate: startFormatted, endDate: endFormatted, url });
+            }
+            console.log('Fetching URL:', url);
+            fetch(url, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API response:', JSON.stringify(data, null, 2));
+                    medicalHistoryData = data.content || [];
+                    if (!medicalHistoryData.length) {
+                        console.warn('No medical history data returned for benhNhanId:', benhNhanId);
+                    } else {
+                        console.log('Medical history records:', medicalHistoryData);
+                        medicalHistoryData.forEach(record => {
+                            console.log('Record details:', {
+                                hoSoId: record.hoSoId,
+                                thoiGianTao: record.thoiGianTao,
+                                vitalSigns: record.vitalSigns,
+                                donThuocs: record.donThuocs,
+                                xetNghiems: record.xetNghiems,
+                                phieuXetNghiems: record.phieuXetNghiems
+                            });
+                        });
+                    }
+                    renderMedicalHistory(medicalHistoryData, page + 1, data.totalPages, benhNhanId, startDate, endDate);
+                })
+                .catch(error => {
+                    console.error('Lỗi khi lấy lịch sử khám:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Có lỗi xảy ra',
+                        html: `Không thể tải lịch sử khám: ${error.message}`,
+                        confirmButtonText: 'Đóng',
+                        timer: 5000
+                    });
+                });
+        }
+
+        function resetDateFilter() {
+            document.getElementById('date-range-picker').value = '';
+            fetchMedicalHistoryPage(currentBenhNhanId, 0);
+        }
+
+        function formatDateVN(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+        }
+
+        function renderMedicalHistory(data, currentPage, totalPages, benhNhanId, startDate = null, endDate = null) {
+            if (!data || data.length === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Không có dữ liệu',
+                    text: 'Bệnh nhân này chưa có lịch sử khám bệnh.',
+                    confirmButtonText: 'Đóng',
+                    timer: 3000
+                });
+                return;
+            }
+
+            let htmlContent = `
+                <div class="date-filter">
+                    <label>Lọc theo khoảng ngày:</label>
+                    <input type="text" id="date-range-picker" placeholder="Chọn khoảng ngày" />
+                    <button onclick="resetDateFilter()">Xóa bộ lọc</button>
+                </div>
+                ${startDate && endDate ? `
+                    <p class="filter-info">Đang lọc từ ${formatDateVN(startDate)} đến ${formatDateVN(endDate)}</p>
+                ` : ''}
+                <h3>Lịch sử khám bệnh</h3>
+            `;
+
+            data.forEach((record, index) => {
+                const recordId = `record-${(currentPage - 1) * 2 + index}`;
+                htmlContent += `
+                    <div class="record-card">
+                        <h4>Khám ngày: ${new Date(record.thoiGianTao).toLocaleString('vi-VN')}</h4>
+                        <p><strong>Bệnh nhân:</strong> ${record.benhNhan?.ten || 'N/A'} (${record.benhNhan?.dienThoai || 'N/A'})</p>
+                        <p><strong>Bác sĩ:</strong> ${record.bacSi?.ten || 'Chưa chỉ định'}</p>
+                        <p><strong>Chẩn đoán:</strong> ${record.chanDoan || 'Chưa có'}</p>
+                        <p><strong>Triệu chứng:</strong> ${record.trieuChung || 'Chưa có'}</p>
+                        <p><strong>Tổng tiền:</strong> ${record.tongTien ? record.tongTien.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa tính'}</p>
+                        <p><strong>Đã thanh toán:</strong> ${record.daThanhToan ? 'Có' : 'Chưa'}</p>
+                        <ul class="nav nav-tabs" id="tabs-${recordId}">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#vital-${recordId}" data-bs-toggle="tab"><i class="fas fa-heartbeat"></i> Dấu hiệu sinh tồn</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#prescription-${recordId}" data-bs-toggle="tab"><i class="fas fa-prescription-bottle"></i> Đơn thuốc</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#test-${recordId}" data-bs-toggle="tab"><i class="fas fa-vial"></i> Xét nghiệm</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="vital-${recordId}">
+                                ${record.vitalSigns && record.vitalSigns.length > 0 ? `
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Thời gian</th>
+                                                <th>Nhiệt độ</th>
+                                                <th>Chiều cao</th>
+                                                <th>Cân nặng</th>
+                                                <th>Huyết áp</th>
+                                                <th>Ghi chú</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${record.vitalSigns.map(vs => `
+                                                <tr>
+                                                    <td>${vs.thoiGianTao ? new Date(vs.thoiGianTao).toLocaleString('vi-VN') : 'N/A'}</td>
+                                                    <td>${vs.temperature != null ? vs.temperature + ' °C' : 'N/A'}</td>
+                                                    <td>${vs.height != null ? vs.height + ' cm' : 'N/A'}</td>
+                                                    <td>${vs.weight != null ? vs.weight + ' kg' : 'N/A'}</td>
+                                                    <td>${vs.bloodPressureSys != null && vs.bloodPressureDia != null ? vs.bloodPressureSys + '/' + vs.bloodPressureDia + ' mmHg' : 'N/A'}</td>
+                                                    <td>${vs.notes || 'Không có'}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                ` : '<p>Chưa có dữ liệu dấu hiệu sinh tồn</p>'}
+                            </div>
+                            <div class="tab-pane fade" id="prescription-${recordId}">
+                                ${record.donThuocs && record.donThuocs.length > 0 ? `
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Đơn thuốc</th>
+                                                <th>Thuốc</th>
+                                                <th>Liều</th>
+                                                <th>Tần suất</th>
+                                                <th>Số lượng</th>
+                                                <th>Tổng tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${record.donThuocs.map(dt => `
+                                                <tr>
+                                                    <td>#${dt.donThuocId || 'N/A'}</td>
+                                                    <td>
+                                                        ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.thuoc?.tenThuoc || 'N/A').join('<br>') : 'N/A'}
+                                                    </td>
+                                                    <td>
+                                                        ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.lieu || 'N/A').join('<br>') : 'N/A'}
+                                                    </td>
+                                                    <td>
+                                                        ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.tanSuat || 'N/A').join('<br>') : 'N/A'}
+                                                    </td>
+                                                    <td>
+                                                        ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.soLuong || 'N/A').join('<br>') : 'N/A'}
+                                                    </td>
+                                                    <td>${dt.formattedTongTienThuoc || 'N/A'}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                ` : '<p>Chưa có dữ liệu đơn thuốc</p>'}
+                            </div>
+                            <div class="tab-pane fade" id="test-${recordId}">
+                                ${record.xetNghiems && record.xetNghiems.length > 0 ? `
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Loại xét nghiệm</th>
+                                                <th>Giá</th>
+                                                <th>Trạng thái</th>
+                                                <th>Ghi chú</th>
+                                                <th>Kết quả</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${record.xetNghiems.map(xn => `
+                                                <tr>
+                                                    <td>${xn.loaiXetNghiem?.tenXetNghiem || 'N/A'}</td>
+                                                    <td>${xn.loaiXetNghiem?.gia != null ? xn.loaiXetNghiem.gia.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}</td>
+                                                    <td>${xn.trangThai || 'N/A'}</td>
+                                                    <td>${xn.ghiChu || 'Không có'}</td>
+                                                    <td>${xn.fileKetQua ? `<a href="${xn.fileKetQua}" target="_blank">Xem file</a>` : 'N/A'}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                ` : '<p>Chưa có dữ liệu xét nghiệm</p>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            htmlContent += `
+                <div class="pagination" data-start-date="${startDate ? startDate.toISOString() : ''}" data-end-date="${endDate ? endDate.toISOString() : ''}">
+                    <button onclick="fetchMedicalHistoryPage('${benhNhanId}', ${currentPage - 2}, this.parentElement.dataset.startDate ? new Date(this.parentElement.dataset.startDate) : null, this.parentElement.dataset.endDate ? new Date(this.parentElement.dataset.endDate) : null)" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>
+                    ${Array.from({ length: totalPages }, (_, i) => `
+                        <button onclick="fetchMedicalHistoryPage('${benhNhanId}', ${i}, this.parentElement.dataset.startDate ? new Date(this.parentElement.dataset.startDate) : null, this.parentElement.dataset.endDate ? new Date(this.parentElement.dataset.endDate) : null)" ${currentPage === i + 1 ? 'class="active"' : ''}>${i + 1}</button>
+                    `).join('')}
+                    <button onclick="fetchMedicalHistoryPage('${benhNhanId}', ${currentPage}, this.parentElement.dataset.startDate ? new Date(this.parentElement.dataset.startDate) : null, this.parentElement.dataset.endDate ? new Date(this.parentElement.dataset.endDate) : null)" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>
+                </div>
+            `;
+
+            Swal.fire({
+                title: 'Lịch sử khám bệnh',
+                html: htmlContent,
+                width: '1000px',
+                showCloseButton: true,
+                confirmButtonText: 'Đóng',
+                customClass: { popup: 'swal-wide' },
+                didOpen: () => {
+                    try {
+                        // Initialize Bootstrap tabs manually
+                        const tabLinks = document.querySelectorAll(`#swal2-html-container .nav-link`);
+                        if (tabLinks.length === 0) {
+                            console.error('No tab links found in SweetAlert2 modal. HTML content:', htmlContent);
+                        } else {
+                            console.log(`Found ${tabLinks.length} tab links in SweetAlert2 modal`);
+                        }
+                        tabLinks.forEach(link => {
+                            link.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                const tabId = e.target.getAttribute('href');
+                                const recordCard = e.target.closest('.record-card');
+                                const tabs = recordCard.querySelectorAll('.nav-link');
+                                const panes = recordCard.querySelectorAll('.tab-pane');
+                                tabs.forEach(tab => tab.classList.remove('active'));
+                                panes.forEach(pane => pane.classList.remove('show', 'active'));
+                                e.target.classList.add('active');
+                                const targetPane = recordCard.querySelector(tabId);
+                                if (targetPane) {
+                                    targetPane.classList.add('show', 'active');
+                                    console.log('Switched to tab:', tabId);
+                                } else {
+                                    console.error('Target pane not found for tabId:', tabId);
+                                }
+                            });
+                        });
+
+                        // Verify tab content visibility
+                        const tabPanes = document.querySelectorAll(`#swal2-html-container .tab-pane`);
+                        tabPanes.forEach(pane => {
+                            console.log(`Tab pane ${pane.id} display:`, window.getComputedStyle(pane).display);
+                        });
+
+                        // Initialize Flatpickr
+                        flatpickr('#date-range-picker', {
+                            mode: 'range',
+                            dateFormat: 'Y-m-d',
+                            defaultDate: startDate && endDate ? [startDate, endDate] : null,
+                            onChange: (selectedDates) => {
+                                console.log('Selected dates:', selectedDates);
+                                if (selectedDates.length === 2) {
+                                    const [start, end] = selectedDates;
+                                    start.setHours(0, 0, 0, 0);
+                                    end.setHours(23, 59, 59, 999);
+                                    const startFormatted = `${start.getFullYear()}-${(start.getMonth() + 1).toString().padStart(2, '0')}-${start.getDate().toString().padStart(2, '0')}`;
+                                    const endFormatted = `${end.getFullYear()}-${(end.getMonth() + 1).toString().padStart(2, '0')}-${end.getDate().toString().padStart(2, '0')}`;
+                                    console.log('Filtering range:', { start: startFormatted, end: endFormatted });
+                                    fetchMedicalHistoryPage(benhNhanId, 0, start, end);
+                                } else if (selectedDates.length === 0) {
+                                    console.log('Resetting to original data');
+                                    fetchMedicalHistoryPage(benhNhanId, 0);
+                                }
+                            }
+                        });
+                        console.log('Flatpickr and tabs initialized successfully');
+                    } catch (error) {
+                        console.error('Lỗi khi khởi tạo Flatpickr hoặc tabs:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Không thể khởi tạo bộ lọc ngày hoặc tab.',
+                            confirmButtonText: 'Đóng',
+                            timer: 3000
+                        });
+                    }
+                },
+                didRender: () => {
+                    // Additional check after rendering
+                    const activePanes = document.querySelectorAll(`#swal2-html-container .tab-pane.show.active`);
+                    if (activePanes.length === 0) {
+                        console.error('No active tab panes found after rendering');
+                    } else {
+                        activePanes.forEach(pane => {
+                            console.log(`Active tab pane ${pane.id} is visible`);
+                        });
+                    }
+                }
+            });
+        }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

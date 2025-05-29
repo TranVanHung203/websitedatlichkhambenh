@@ -10,17 +10,16 @@
     <!-- Header -->
     <header class="doctor-header">
         <div class="header-logo">
-            <h1>Bác Sĩ Online</h1>
+            <h1><a th:href="@{/bacsi/home}" href="/bacsi/home">Bác Sĩ Online</a></h1>
         </div>
         <button class="hamburger">☰</button>
         <nav class="header-nav">
             <ul>
                 <li><a th:href="@{/bacsi/quanlytaodonthuoc}" href="#quanlytaodonthuoc">Quản lý đơn thuốc</a></li>
-                <li><a th:href="@{/bacsi/lichsukham}" href="#lichsukham">Lịch sử khám bệnh</a></li>
                 <li><a th:href="@{/bacsi/lichkham/viewck}" href="#edit-schedule">Chỉnh sửa ca khám</a></li>
                 <li><a th:href="@{/bacsi/xemlichhen}" href="#appointments">Lịch hẹn khám</a></li>
                 <li><a th:href="@{/bacsi/editprofile}" href="#edit-profile">Chỉnh sửa thông tin</a></li>
-                <li><a th:href="@{/chat/msgbs}" class="chat-btn">Nhắn Tin</a></li>
+                <li><a th:href="@{/chat}" class="chat-btn">Nhắn Tin</a></li>
                 <li><a th:href="@{/logout}" href="#logout">Đăng xuất</a></li>
             </ul>
         </nav>

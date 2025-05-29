@@ -191,14 +191,21 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 
 
 
-    @Query(value = "SELECT * FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId", nativeQuery = true)
-    List<HoSoBenh> findByBenhNhanId(@Param("benhNhanId") String benhNhanId);
 
 
-    @Query(value = "SELECT * FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId",
-            countQuery = "SELECT COUNT(*) FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId",
-            nativeQuery = true)
-     Page<HoSoBenh> findByBenhNhanId(@Param("benhNhanId") String benhNhanId, Pageable pageable);
+
+		@Query(value = "SELECT * FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId",
+		           countQuery = "SELECT COUNT(*) FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId",
+		           nativeQuery = true)
+		    Page<HoSoBenh> findByBenhNhanId(@Param("benhNhanId") String benhNhanId, Pageable pageable);
+
+		    @Query(value = "SELECT * FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId AND thoi_gian_tao BETWEEN :startDate AND :endDate",
+		           countQuery = "SELECT COUNT(*) FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId AND thoi_gian_tao BETWEEN :startDate AND :endDate",
+		           nativeQuery = true)
+		    Page<HoSoBenh> findByBenhNhanIdAndThoiGianTaoBetween(@Param("benhNhanId") String benhNhanId,
+		                                                         @Param("startDate") LocalDateTime startDate,
+		                                                         @Param("endDate") LocalDateTime endDate,
+		                                                         Pageable pageable);
 
 
 }
