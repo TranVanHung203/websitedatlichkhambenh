@@ -207,5 +207,11 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 		                                                         @Param("endDate") LocalDateTime endDate,
 		                                                         Pageable pageable);
 
-
+		    @Query("SELECT h FROM HoSoBenh h WHERE h.benhNhan.benhNhanId = :benhNhanId AND h.hoSoId IN :hoSoIds " +
+		    	       "AND (:startDateTime IS NULL OR h.thoiGianTao >= :startDateTime) " +
+		    	       "AND (:endDateTime IS NULL OR h.thoiGianTao <= :endDateTime)")
+		    	List<HoSoBenh> findByIdsAndBenhNhanIdAndDateRange(@Param("hoSoIds") List<String> hoSoIds,
+		    	                                                  @Param("benhNhanId") String benhNhanId,
+		    	                                                  @Param("startDateTime") LocalDateTime startDateTime,
+		    	                                                  @Param("endDateTime") LocalDateTime endDateTime);
 }

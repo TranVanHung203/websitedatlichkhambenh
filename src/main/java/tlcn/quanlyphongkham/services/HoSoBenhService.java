@@ -242,4 +242,12 @@ public class HoSoBenhService {
         return hoSoBenhRepository.findByBenhNhanId(benhNhanId, pageable);
 	}
 
+	public List<HoSoBenh> findByIdsAndBenhNhanIdAndDateRange(List<String> hoSoIds, String benhNhanId,
+			LocalDateTime startDateTime, LocalDateTime endDateTime) {
+	
+		return hoSoBenhRepository.findByIdsAndBenhNhanIdAndDateRange(hoSoIds,benhNhanId,startDateTime,endDateTime);
+	}
+
+	
+
 }

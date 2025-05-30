@@ -1,287 +1,637 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
-	<link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
-	<link th:href="@{/css/viewlichkhambenh.css}" rel="stylesheet">
-	<title>Lịch Làm Việc Bác Sĩ</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Làm Việc Bác Sĩ</title>
+    <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+    <link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sched-primary: #b3e5fc; /* Light blue theme */
+            --sched-accent: #4fc3f7; /* Vibrant blue for highlights */
+            --sched-secondary: #ffffff; /* White for cards */
+            --sched-text: #263238; /* Dark slate for readability */
+            --sched-shadow: 0 3px 10px rgba(179, 229, 252, 0.3);
+            --sched-glow: 0 0 10px rgba(79, 195, 247, 0.7);
+        }
+
+        .sched-body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--sched-primary) 0%, #87ceeb 100%);
+            color: var(--sched-text);
+            line-height: 1.6;
+        }
+
+        .sched-doctor-schedule-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sched-header-banner {
+            background: var(--sched-accent);
+            color: var(--sched-secondary);
+            text-align: center;
+            padding: 30px 0;
+            border-radius: 15px;
+            box-shadow: var(--sched-shadow);
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .sched-header-banner h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .sched-filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .sched-filters select,
+        .sched-filters input {
+            padding: 12px;
+            font-size: 1em;
+            border: 2px solid var(--sched-accent);
+            border-radius: 8px;
+            background: var(--sched-secondary);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            width: 200px;
+        }
+
+        .sched-filters select:focus,
+        .sched-filters input:focus {
+            border-color: var(--sched-primary);
+            box-shadow: var(--sched-glow);
+            outline: none;
+        }
+
+        .sched-filters .sched-loading {
+            font-size: 0.9em;
+            color: var(--sched-accent);
+            display: none;
+            align-self: center;
+        }
+
+        #sched-infoMessage {
+            text-align: center;
+            color: var(--sched-text);
+            font-size: 1.1em;
+            margin: 20px 0;
+            padding: 10px;
+            background: rgba(179, 229, 252, 0.2);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .sched-schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--sched-secondary);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--sched-shadow);
+        }
+
+        .sched-schedule-table thead th {
+            background: var(--sched-accent);
+            color: var(--sched-secondary);
+            padding: 15px;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+
+        .sched-schedule-table tbody td {
+            padding: 20px;
+            vertical-align: top;
+            border: 1px solid rgba(179, 229, 252, 0.3);
+        }
+
+        .sched-doctor-card {
+            background: var(--sched-secondary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sched-doctor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--sched-glow);
+        }
+
+        .sched-doctor-card img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--sched-accent);
+        }
+
+        .sched-doctor-name {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: var(--sched-text);
+            white-space: nowrap;
+        }
+
+        .sched-doctor-card a {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sched-doctor-card a:hover .sched-doctor-name {
+            color: var(--sched-accent);
+        }
+
+        .sched-book-now-btn {
+            background: var(--sched-accent);
+            color: var(--sched-secondary);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-left: auto;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .sched-book-now-btn:hover {
+            background: #0288d1;
+            transform: scale(1.05);
+        }
+
+        .sched-spinner {
+            border: 4px solid var(--sched-primary);
+            border-top: 4px solid var(--sched-accent);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: sched-spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes sched-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .sched-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .sched-modal.show {
+            display: flex;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sched-modal-content {
+            background: var(--sched-secondary);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: var(--sched-shadow);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            animation: sched-popIn 0.3s ease-out;
+        }
+
+        @keyframes sched-popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .sched-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 1.5em;
+            color: var(--sched-text);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .sched-close:hover {
+            color: var(--sched-accent);
+        }
+
+        .sched-time-frame {
+            margin-bottom: 20px;
+        }
+
+        .sched-time-frame h4 {
+            font-size: 1.2em;
+            color: var(--sched-text);
+            margin-bottom: 10px;
+        }
+
+        .sched-time-frame label {
+            display: flex;
+            align-items: center;
+            background: var(--sched-primary);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .sched-time-frame label:hover {
+            background: var(--sched-accent);
+            transform: scale(1.02);
+        }
+
+        .sched-time-frame input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .sched-time-frame label[disabled] {
+            background: #e0e0e0;
+            text-decoration: line-through;
+            cursor: not-allowed;
+        }
+
+        .sched-modal-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .sched-modal-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            border: none;
+            transition: background 0.3s ease, transform 0.3s ease;
+            flex: 1;
+        }
+
+        .sched-modal-btn-primary {
+            background: var(--sched-accent);
+            color: var(--sched-secondary);
+        }
+
+        .sched-modal-btn-primary:hover {
+            background: #0288d1;
+            transform: scale(1.05);
+        }
+
+        .sched-modal-btn-secondary {
+            background: #6c757d;
+            color: var(--sched-secondary);
+        }
+
+        .sched-modal-btn-secondary:hover {
+            background: #5a6268;
+            transform: scale(1.05);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sched-header-banner h1 {
+                font-size: 2em;
+            }
+
+            .sched-filters select,
+            .sched-filters input {
+                width: 160px;
+                padding: 10px;
+            }
+
+            .sched-doctor-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .sched-doctor-card img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .sched-book-now-btn {
+                margin: 10px auto 0;
+            }
+
+            .sched-schedule-table thead th {
+                font-size: 1em;
+            }
+
+            .sched-schedule-table tbody td {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sched-header-banner h1 {
+                font-size: 1.6em;
+            }
+
+            .sched-filters {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .sched-filters select,
+            .sched-filters input {
+                width: 100%;
+                max-width: 250px;
+            }
+
+            .sched-doctor-card {
+                padding: 10px;
+            }
+
+            .sched-modal-content {
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
+<body class="sched-body">
+    <div th:replace="benhnhan/fragments/header :: header"></div>
 
-<body>
-	<div th:replace="benhnhan/fragments/header :: header"></div>
+    <div class="sched-doctor-schedule-container">
+        <div class="sched-header-banner">
+            <h1>LỊCH LÀM VIỆC CỦA BÁC SĨ</h1>
+        </div>
 
-	<div class="doctor-schedule-container">
-		<div class="header-banner">
-			<h1>LỊCH LÀM VIỆC CỦA BÁC SĨ</h1>
-		</div>
+        <div class="sched-filters">
+            <select id="specialtySelect">
+                <option value="">-- Chọn Chuyên Khoa --</option>
+                <option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.chuyenKhoaId}"
+                        th:text="${chuyenKhoa.ten}" th:selected="${chuyenKhoa.chuyenKhoaId == selectedChuyenKhoaId}">
+                </option>
+            </select>
+            <span class="sched-loading" id="specialtyLoading">Đang tải chuyên khoa...</span>
+            <input type="date" id="datePicker" th:value="${selectedNgayThangNam}">
+        </div>
 
-		<div class="filters">
-			<select id="specialtySelect">
-				<option value="">-- Chọn Chuyên Khoa --</option>
-				<option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.chuyenKhoaId}"
-					th:text="${chuyenKhoa.ten}" th:selected="${chuyenKhoa.chuyenKhoaId == selectedChuyenKhoaId}">
-				</option>
-			</select>
-			<span class="loading" id="specialtyLoading" style="display: none;">Đang tải chuyên khoa...</span>
-			<input type="date" id="datePicker" th:value="${selectedNgayThangNam}">
-		</div>
+        <div id="sched-infoMessage">
+            Vui lòng chọn chuyên khoa và ngày để xem lịch làm việc.
+        </div>
 
-		<div id="infoMessage">
-			Vui lòng chọn chuyên khoa và ngày để xem lịch làm việc.
-		</div>
+        <table class="sched-schedule-table">
+            <thead>
+                <tr>
+                    <th>Buổi Sáng<br>(7h30 - 11h30)</th>
+                    <th>Buổi Chiều<br>(13h - 16h30)</th>
+                    <th>Buổi Ngoài Giờ<br>(17h - 19h30)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div th:each="lich : ${lichKhamBenhPage}">
+                            <div th:if="${lich.ca == 'Sáng'}">
+                                <div class="sched-doctor-card">
+                                    <a th:href="@{/chitietbacsi/{bacSiId}(bacSiId=${lich.bacSi.bacSiId})}">
+                                        <img th:src="${lich.bacSi.urlAvatar != null ? lich.bacSi.urlAvatar : '/default-avatar.jpg'}" alt="Avatar">
+                                        <span class="sched-doctor-name" th:text="${lich.bacSi.ten}">Tên bác sĩ</span>
+                                    </a>
+                                    <button class="sched-book-now-btn"
+                                            th:attr="data-doctor-id=${lich.bacSi.bacSiId}, data-date=${selectedNgayThangNam}, data-ca='Sáng'"
+                                            onclick="showTimeSlots(this)">
+                                        Đặt Lịch Ngay
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <span th:if="${#lists.isEmpty(lichKhamBenhPage.?[ca == 'Sáng'])}">
+                            Không có bác sĩ làm việc buổi sáng.
+                        </span>
+                    </td>
 
-		<table class="schedule-table">
-			<thead>
-				<tr>
-					<th>Buổi Sáng<br>(7h30 - 11h30)</th>
-					<th>Buổi Chiều<br>(13h - 16h30)</th>
-					<th>Buổi Ngoài Giờ<br>(17h - 19h30)</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>
-						<div th:each="lich : ${lichKhamBenhPage}">
-							<div th:if="${lich.ca == 'Sáng'}">
-								<div class="doctor-card">
-									<a th:href="@{/chitietbacsi/{bacSiId}(bacSiId=${lich.bacSi.bacSiId})}">
-										<img th:src="${lich.bacSi.urlAvatar != null ? lich.bacSi.urlAvatar : '/default-avatar.jpg'}"
-											alt="Avatar">
-										<span class="doctor-name" th:text="${lich.bacSi.ten}">Tên bác sĩ</span>
-									</a>
-									<button class="book-now-btn"
-										th:attr="data-doctor-id=${lich.bacSi.bacSiId}, data-date=${selectedNgayThangNam}, data-ca='Sáng'"
-										onclick="showTimeSlots(this)">
-										Đặt Lịch Ngay
-									</button>
-								</div>
-							</div>
-						</div>
-						<span th:if="${#lists.isEmpty(lichKhamBenhPage.?[ca == 'Sáng'])}">
-							Không có bác sĩ làm việc buổi sáng.
-						</span>
-					</td>
+                    <td>
+                        <div th:each="lich : ${lichKhamBenhPage}">
+                            <div th:if="${lich.ca == 'Chiều'}">
+                                <div class="sched-doctor-card">
+                                    <a th:href="@{/chitietbacsi/{bacSiId}(bacSiId=${lich.bacSi.bacSiId})}">
+                                        <img th:src="${lich.bacSi.urlAvatar != null ? lich.bacSi.urlAvatar : '/default-avatar.jpg'}" alt="Avatar">
+                                        <span class="sched-doctor-name" th:text="${lich.bacSi.ten}">Tên bác sĩ</span>
+                                    </a>
+                                    <button class="sched-book-now-btn"
+                                            th:attr="data-doctor-id=${lich.bacSi.bacSiId}, data-date=${selectedNgayThangNam}, data-ca='Chiều'"
+                                            onclick="showTimeSlots(this)">
+                                        Đặt Lịch Ngay
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <span th:if="${#lists.isEmpty(lichKhamBenhPage.?[ca == 'Chiều'])}">
+                            Không có bác sĩ làm việc buổi chiều.
+                        </span>
+                    </td>
 
-					<td>
-						<div th:each="lich : ${lichKhamBenhPage}">
-							<div th:if="${lich.ca == 'Chiều'}">
-								<div class="doctor-card">
-									<a th:href="@{/chitietbacsi/{bacSiId}(bacSiId=${lich.bacSi.bacSiId})}">
-										<img th:src="${lich.bacSi.urlAvatar != null ? lich.bacSi.urlAvatar : '/default-avatar.jpg'}"
-											alt="Avatar">
-										<span class="doctor-name" th:text="${lich.bacSi.ten}">Tên bác sĩ</span>
-									</a>
-									<button class="book-now-btn"
-										th:attr="data-doctor-id=${lich.bacSi.bacSiId}, data-date=${selectedNgayThangNam}, data-ca='Chiều'"
-										onclick="showTimeSlots(this)">
-										Đặt Lịch Ngay
-									</button>
-								</div>
-							</div>
-						</div>
-						<span th:if="${#lists.isEmpty(lichKhamBenhPage.?[ca == 'Chiều'])}">
-							Không có bác sĩ làm việc buổi chiều.
-						</span>
-					</td>
+                    <td>
+                        <div th:each="lich : ${lichKhamBenhPage}">
+                            <div th:if="${lich.ca == 'Ngoài Giờ'}">
+                                <div class="sched-doctor-card">
+                                    <a th:href="@{/chitietbacsi/{bacSiId}(bacSiId=${lich.bacSi.bacSiId})}">
+                                        <img th:src="${lich.bacSi.urlAvatar != null ? lich.bacSi.urlAvatar : '/default-avatar.jpg'}" alt="Avatar">
+                                        <span class="sched-doctor-name" th:text="${lich.bacSi.ten}">Tên bác sĩ</span>
+                                    </a>
+                                    <button class="sched-book-now-btn"
+                                            th:attr="data-doctor-id=${lich.bacSi.bacSiId}, data-date=${selectedNgayThangNam}, data-ca='Ngoài Giờ'"
+                                            onclick="showTimeSlots(this)">
+                                        Đặt Lịch Ngay
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <span th:if="${#lists.isEmpty(lichKhamBenhPage.?[ca == 'Ngoài Giờ'])}">
+                            Không có bác sĩ làm việc buổi ngoài giờ.
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-					<td>
-						<div th:each="lich : ${lichKhamBenhPage}">
-							<div th:if="${lich.ca == 'Ngoài Giờ'}">
-								<div class="doctor-card">
-									<a th:href="@{/chitietbacsi/{bacSiId}(bacSiId=${lich.bacSi.bacSiId})}">
-										<img th:src="${lich.bacSi.urlAvatar != null ? lich.bacSi.urlAvatar : '/default-avatar.jpg'}"
-											alt="Avatar">
-										<span class="doctor-name" th:text="${lich.bacSi.ten}">Tên bác sĩ</span>
-									</a>
-									<button class="book-now-btn"
-										th:attr="data-doctor-id=${lich.bacSi.bacSiId}, data-date=${selectedNgayThangNam}, data-ca='Ngoài Giờ'"
-										onclick="showTimeSlots(this)">
-										Đặt Lịch Ngay
-									</button>
-								</div>
-							</div>
-						</div>
-						<span th:if="${#lists.isEmpty(lichKhamBenhPage.?[ca == 'Ngoài Giờ'])}">
-							Không có bác sĩ làm việc buổi ngoài giờ.
-						</span>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+    <!-- Modal để chọn giờ -->
+    <div id="sched-timeSlotModal" class="sched-modal">
+        <div class="sched-modal-content">
+            <span class="sched-close" onclick="closeModal()">×</span>
+            <h3>Chọn Giờ Khám</h3>
+            <div id="sched-timeSlotsContainer" class="sched-time-frame"></div>
+            <div class="sched-modal-actions">
+                <button class="sched-modal-btn sched-modal-btn-secondary" onclick="closeModal()">Hủy</button>
+                <button class="sched-modal-btn sched-modal-btn-primary" onclick="proceedToStep3()">Xác Nhận</button>
+            </div>
+        </div>
+    </div>
 
-	<!-- Modal để chọn giờ -->
-	<div id="timeSlotModal" class="modal">
-		<div class="modal-content">
-			<span class="close" onclick="closeModal()">×</span>
-			<h3>Chọn Giờ Khám</h3>
-			<div id="timeSlotsContainer"></div>
-			<div class="modal-actions">
-				<button class="modal-btn modal-btn-secondary" onclick="closeModal()">Hủy</button>
-				<button class="modal-btn modal-btn-primary" onclick="proceedToStep3()">Xác Nhận</button>
-			</div>
-		</div>
-	</div>
+    <div th:replace="benhnhan/fragments/footer :: footer"></div>
 
-	<div th:replace="benhnhan/fragments/footer :: footer"></div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const specialtySelect = document.getElementById("specialtySelect");
+            const datePicker = document.getElementById("datePicker");
+            const specialtyLoading = document.getElementById("specialtyLoading");
+            const infoMessage = document.getElementById("sched-infoMessage");
 
-	<script>
-		// Cập nhật giao diện ban đầu
-		document.addEventListener("DOMContentLoaded", function () {
-			const specialtySelect = document.getElementById("specialtySelect");
-			const datePicker = document.getElementById("datePicker");
-			const specialtyLoading = document.getElementById("specialtyLoading");
-			const infoMessage = document.getElementById("infoMessage");
+            specialtySelect.addEventListener("focus", () => {
+                specialtyLoading.style.display = "inline-block";
+            });
 
-			specialtySelect.addEventListener("focus", function () {
-				specialtyLoading.style.display = "inline-block";
-			});
+            specialtySelect.addEventListener("change", () => {
+                specialtyLoading.style.display = "none";
+                updateView();
+            });
 
-			specialtySelect.addEventListener("change", function () {
-				specialtyLoading.style.display = "none";
-				updateView();
-			});
+            datePicker.addEventListener("change", updateView);
 
-			datePicker.addEventListener("change", updateView);
+            function updateView() {
+                const selectedSpecialty = specialtySelect.value;
+                const selectedDate = datePicker.value;
 
-			function updateView() {
-				const selectedSpecialty = specialtySelect.value;
-				const selectedDate = datePicker.value;
+                if (!selectedSpecialty || !selectedDate) {
+                    infoMessage.style.display = "block";
+                } else {
+                    infoMessage.style.display = "none";
+                    const url = `/view/schedule?chuyenKhoaId=${selectedSpecialty}&ngayThangNam=${selectedDate}`;
+                    window.location.href = url;
+                }
+            }
+        });
 
-				if (!selectedSpecialty || !selectedDate) {
-					infoMessage.style.display = "block";
-				} else {
-					infoMessage.style.display = "none";
-					const url = `/view/schedule?chuyenKhoaId=${selectedSpecialty}&ngayThangNam=${selectedDate}`;
-					window.location.href = url;
-				}
-			}
-		});
+        let currentDoctorId = null;
+        let currentDate = null;
+        let currentCa = null;
 
-		// Dữ liệu tạm thời để lưu thông tin khi chọn giờ
-		let currentDoctorId = null;
-		let currentDate = null;
-		let currentCa = null;
+        function showTimeSlots(button) {
+            currentDoctorId = button.getAttribute("data-doctor-id");
+            currentDate = button.getAttribute("data-date");
+            currentCa = button.getAttribute("data-ca");
 
-		// Hiển thị modal chỉ khi nhấn nút đặt lịch
-		function showTimeSlots(button) {
-			currentDoctorId = button.getAttribute("data-doctor-id");
-			currentDate = button.getAttribute("data-date");
-			currentCa = button.getAttribute("data-ca");
+            fetch(`/user/dangkylichkham/getAvailableSlots`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ doctorId: currentDoctorId, date: currentDate })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    updateTimeSlots(data, currentCa);
+                    const modal = document.getElementById("sched-timeSlotModal");
+                    modal.classList.add("show");
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Đã có lỗi xảy ra, vui lòng thử lại!');
+                });
+        }
 
-			// Gọi API để lấy các khung giờ đã đặt
-			fetch(`/user/dangkylichkham/getAvailableSlots`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({doctorId: currentDoctorId, date: currentDate})
-			})
-				.then(response => response.json())
-				.then(data => {
-					updateTimeSlots(data, currentCa);
+        function updateTimeSlots(data, ca) {
+            const bookedSlots = data.bookedSlots || [];
+            const timeSlotsContainer = document.getElementById("sched-timeSlotsContainer");
+            timeSlotsContainer.innerHTML = '';
 
-					// Hiển thị modal chính xác khi bấm nút
-					const modal = document.getElementById("timeSlotModal");
-					modal.style.display = "flex";
-					modal.style.opacity = "1"; // Đảm bảo hiện rõ
-					modal.style.visibility = "visible";
-				})
-				.catch(error => {
-					console.error('Error:', error);
-					alert('Đã có lỗi xảy ra, vui lòng thử lại!');
-				});
-		}
+            const timeFrames = {
+                "Sáng": ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00"],
+                "Chiều": ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00"],
+                "Ngoài Giờ": ["17:00", "17:30", "18:00", "18:30", "19:00"]
+            };
 
-		// Cập nhật danh sách giờ trong modal
-		function updateTimeSlots(data, ca) {
-			const bookedSlots = data.bookedSlots || [];
-			const timeSlotsContainer = document.getElementById("timeSlotsContainer");
-			timeSlotsContainer.innerHTML = ''; // Xóa nội dung cũ
+            const timeSlots = timeFrames[ca];
+            const timeSlotContainer = document.createElement("div");
+            timeSlotContainer.classList.add("sched-time-frame");
 
-			const timeFrames = {
-				"Sáng": ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00"],
-				"Chiều": ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00"],
-				"Ngoài Giờ": ["17:00", "17:30", "18:00", "18:30", "19:00"]
-			};
+            const timeFrameTitle = document.createElement("h4");
+            timeFrameTitle.textContent = ca;
+            timeSlotContainer.appendChild(timeFrameTitle);
 
-			const timeSlots = timeFrames[ca];
-			const timeSlotContainer = document.createElement("div");
-			timeSlotContainer.classList.add("time-frame");
+            timeSlots.forEach(time => {
+                const isBooked = bookedSlots.includes(time);
+                const label = document.createElement("label");
+                const input = document.createElement("input");
+                input.type = "radio";
+                input.name = "time";
+                input.value = time;
 
-			const timeFrameTitle = document.createElement("h4");
-			timeFrameTitle.textContent = ca;
-			timeSlotContainer.appendChild(timeFrameTitle);
+                if (isBooked) {
+                    label.style.textDecoration = 'line-through';
+                    input.disabled = true;
+                    label.setAttribute('disabled', 'disabled');
+                }
 
-			timeSlots.forEach(time => {
-				const isBooked = bookedSlots.includes(time);
-				const label = document.createElement("label");
-				const input = document.createElement("input");
-				input.type = "radio";
-				input.name = "time";
-				input.value = time;
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(time));
+                timeSlotContainer.appendChild(label);
+            });
 
-				if (isBooked) {
-					label.style.textDecoration = 'line-through';
-					input.disabled = true;
-				}
+            timeSlotsContainer.appendChild(timeSlotContainer);
+        }
 
-				label.appendChild(input);
-				label.appendChild(document.createTextNode(time));
-				timeSlotContainer.appendChild(label);
-			});
+        function closeModal() {
+            const modal = document.getElementById("sched-timeSlotModal");
+            modal.classList.remove("show");
+        }
 
-			timeSlotsContainer.appendChild(timeSlotContainer);
-		}
+        document.addEventListener("DOMContentLoaded", () => {
+            const modal = document.getElementById("sched-timeSlotModal");
+            modal.classList.remove("show");
+        });
 
+        window.onclick = function (event) {
+            const modal = document.getElementById("sched-timeSlotModal");
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
 
-		// Đóng modal khi nhấn nút hoặc bên ngoài modal
-		function closeModal() {
-			const modal = document.getElementById("timeSlotModal");
-			modal.style.display = "none";
-			modal.style.opacity = "0";
-			modal.style.visibility = "hidden";
-		}
-
-		// Đảm bảo modal không hiện khi tải trang
-		document.addEventListener("DOMContentLoaded", function () {
-			const modal = document.getElementById("timeSlotModal");
-			modal.style.display = "none";
-			modal.style.opacity = "0";
-			modal.style.visibility = "hidden";
-		});
-
-		// Đóng modal khi nhấp bên ngoài nội dung modal
-		window.onclick = function (event) {
-			const modal = document.getElementById("timeSlotModal");
-			if (event.target === modal) {
-				closeModal();
-			}
-		};
-		// Chuyển đến Bước 3
-		function proceedToStep3() {
-			const selectedTime = document.querySelector('input[name="time"]:checked');
-
-			if (selectedTime) {
-				const selectedTimeValue = selectedTime.value;
-				const url = `/user/dangkylichkham/buoc3?doctorId=${currentDoctorId}&selectedDate=${currentDate}&selectedTime=${selectedTimeValue}&ca=${currentCa}`;
-				window.location.href = url;
-			} else {
-				alert('Vui lòng chọn giờ khám!');
-			}
-		}
-
-		// Đóng modal khi nhấp bên ngoài
-		window.onclick = function (event) {
-			const modal = document.getElementById("timeSlotModal");
-			if (event.target == modal) {
-				modal.style.display = "none";
-			}
-		};
-	</script>
+        function proceedToStep3() {
+            const selectedTime = document.querySelector('input[name="time"]:checked');
+            if (selectedTime) {
+                const selectedTimeValue = selectedTime.value;
+                const url = `/user/dangkylichkham/buoc3?doctorId=${currentDoctorId}&selectedDate=${currentDate}&selectedTime=${selectedTimeValue}&ca=${currentCa}`;
+                window.location.href = url;
+            } else {
+                alert('Vui lòng chọn giờ khám!');
+            }
+        }
+    </script>
 </body>
-
 </html>
