@@ -22,9 +22,24 @@ public class LichSuKhamNhanVienDTO {
     private String tanSuat;
     private String soLuong;
     private BigDecimal tongTienThuoc;
+    private String tenXetNghiem; // Tên xét nghiệm
+    private String giaXetNghiem; // Giá xét nghiệm
+    private String fileKetQua; // File kết quả xét nghiệm
+    private BigDecimal tongTienXetNghiem; // Tổng tiền xét nghiệm
     
     public String getFormattedTongTienThuoc() {
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
         return formatter.format(tongTienThuoc) + " VNĐ";
+    }
+
+    public String getFormattedTongTienXetNghiem() {
+        NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+        return formatter.format(tongTienXetNghiem) + " VNĐ";
+    }
+
+    public String getFormattedTongTienChung() {
+        BigDecimal tongTienChung = tongTienThuoc.add(tongTienXetNghiem);
+        NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+        return formatter.format(tongTienChung) + " VNĐ";
     }
 }
