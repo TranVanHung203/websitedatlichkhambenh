@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" th:href="@{/css/xemlichsukhambenh.css}">
-	<link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
+    <link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
 </head>
 <body>
     <div th:replace="nhanvien/fragments/header :: header"></div>
@@ -49,14 +49,14 @@
             </form>
 
             <div class="action-buttons">
-                <a th:href="@{/nhanvien/xemlichsukhambenh/download-pdf(startDate=${startDate != null} ? ${#temporals.format(startDate, 'yyyy-MM-dd')} : null, endDate=${endDate != null} ? ${#temporals.format(endDate, 'yyyy-MM-dd')} : null, patientName=${patientName}, doctorName=${doctorName}, phoneNumber=${phoneNumber})}"
-                   class="download-btn"><i class="fas fa-file-pdf"></i> Tải PDF</a>
+                <button type="button" class="download-btn" onclick="downloadSelectedRecords()"><i class="fas fa-file-pdf"></i> Tải PDF đã chọn</button>
             </div>
 
             <div class="table-wrapper">
                 <table class="medical-history-table" th:if="${medicalHistory != null and not #lists.isEmpty(medicalHistory)}">
                     <thead>
                         <tr>
+                            <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
                             <th><i class="fas fa-user"></i> Bệnh nhân</th>
                             <th><i class="fas fa-user-md"></i> Bác sĩ</th>
                             <th><i class="fas fa-stethoscope"></i> Chẩn đoán</th>
@@ -69,6 +69,7 @@
                     </thead>
                     <tbody>
                         <tr th:each="record, iterStat : ${medicalHistory}">
+                            <td><input type="checkbox" class="record-checkbox" th:value="${record.hoSoId}" th:attr="data-id=${record.hoSoId}"></td>
                             <td>
                                 <span th:text="${record.benhNhan?.ten ?: '-'}"></span><br>
                                 <small th:text="${record.benhNhan?.dienThoai ?: '-'}"></small>
@@ -262,6 +263,44 @@
     <script>
         function resetFilters() {
             window.location.href = '/nhanvien/xemlichsukhambenh';
+        }
+
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.record-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        }
+
+        function downloadSelectedRecords() {
+            const selectedIds = Array.from(document.querySelectorAll('.record-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+            
+            if (selectedIds.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa chọn bản ghi',
+                    text: 'Vui lòng chọn ít nhất một bản ghi để tải PDF.',
+                    confirmButtonText: 'Đóng',
+                    timer: 5000
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Xác nhận tải PDF',
+                text: `Bạn có muốn tải PDF cho ${selectedIds.length} bản ghi đã chọn?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Tải xuống',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const url = `/nhanvien/xemlichsukhambenh/download-pdf?hoSoIds=${selectedIds.join(',')}`;
+                    window.location.href = url;
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {

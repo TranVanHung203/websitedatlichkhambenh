@@ -158,5 +158,5 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 	            @Param("doctorName") String doctorName,
 	            @Param("phoneNumber") String phoneNumber,
 	            Pageable pageable);
-
+	  List<HoSoBenh> findByHoSoIdIn(List<String> hoSoIds);
 }

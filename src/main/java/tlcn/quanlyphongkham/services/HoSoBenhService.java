@@ -197,5 +197,8 @@ public class HoSoBenhService {
         return hoSoBenhRepository.findMedicalHistoryWithFilters(
                 startDate, endDate, patientName, doctorName, phoneNumber, pageable);
     }
+	  public List<HoSoBenh> findMedicalHistoryByIds(List<String> hoSoIds) {
+	        return hoSoBenhRepository.findByHoSoIdIn(hoSoIds);
+	    }
 	
 }
