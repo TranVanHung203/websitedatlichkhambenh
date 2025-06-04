@@ -2,79 +2,285 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thông Tin Bác Sĩ</title>
-    <link rel="stylesheet" href="/css/chitietbs.css">
-    <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
-    <link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Thông Tin Bác Sĩ</title>
+	<link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+	<link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+	<link th:href="@{/css/chitietbs.css}" rel="stylesheet">
 </head>
 
 <body>
-    <!-- Include Header -->
-    <div th:replace="benhnhan/fragments/header :: header"></div>
-    <div class="doctor-tabs-container">
-        <!-- Avatar and Basic Info -->
-        <div class="doctor-profile">
-            <div class="avatar-container">
-                <!-- Hiển thị ảnh đại diện của bác sĩ -->
-                <img th:src="@{${bacSi.urlAvatar}}" alt="Ảnh Đại Diện Bác Sĩ" class="doctor-avatar" />
-            </div>
-            <div class="doctor-info">
-                <!-- Hiển thị tên và thông tin cơ bản của bác sĩ -->
-                <h1 th:text="${bacSi.ten}">Hoàng Lương</h1>
-                <p><strong>Chuyên Khoa:</strong> <span th:text="${bacSi.chuyenKhoa != null ? bacSi.chuyenKhoa.ten : ''}">Tai Mũi Họng</span></p>
-                <p><strong>Điện Thoại:</strong> <span th:text="${bacSi.dienThoai != null ? bacSi.dienThoai : ''}">0901234567</span></p>
-                <p><strong>Địa Chỉ:</strong> <span th:text="${bacSi.diaChi != null ? bacSi.diaChi : ''}">123 Đường ABC, Quận 1, TP.HCM</span></p>
-            </div>
-        </div>
+	<!-- Include Header -->
+	<div th:replace="benhnhan/fragments/header :: header"></div>
+	<div class="doctor-tabs-container">
+		<!-- Avatar and Basic Info -->
+		<div class="doctor-profile">
+			<div class="avatar-container">
+				<img th:src="@{${bacSi.urlAvatar}}" alt="Ảnh Đại Diện Bác Sĩ" class="doctor-avatar" />
+			</div>
+			<div class="doctor-info">
+				<h1 th:text="${bacSi.ten}">Hoàng Lương</h1>
+				<p><strong>Chuyên Khoa:</strong> <span
+						th:text="${bacSi.chuyenKhoa != null ? bacSi.chuyenKhoa.ten : ''}"></span></p>
+				<p><strong>Điện Thoại:</strong> <span
+						th:text="${bacSi.dienThoai != null ? bacSi.dienThoai : ''}"></span></p>
+				<p><strong>Địa Chỉ:</strong> <span th:text="${bacSi.diaChi != null ? bacSi.diaChi : ''}"></span></p>
+				<form th:action="@{/chat/bacsi}" method="get" style="display:inline;">
+					<input type="hidden" name="bacSiId" th:value="${bacSi.bacSiId}" />
+					<button type="submit" class="history-chat-btn">💬 Nhắn tin</button>
+				</form>
+			</div>
+		</div>
 
-        <!-- Tab menu -->
-        <div class="tabs">
-            <button class="tab-link active" onclick="openTab(event, 'basic-info')">Thông Tin Cơ Bản</button>
-            <button class="tab-link" onclick="openTab(event, 'details-info')">Thông Tin Chi Tiết</button>
-        </div>
+		<!-- Tab menu -->
+		<div class="tabs">
+			<button class="tab-link active" onclick="openTab(event, 'basic-info')">Thông Tin Cơ Bản</button>
+			<button class="tab-link" onclick="openTab(event, 'details-info')">Thông Tin Chi Tiết</button>
+			<button class="tab-link" onclick="openTab(event, 'schedule-info')">Lịch Làm Việc</button>
+		</div>
 
-        <!-- Tab content -->
-        <div id="basic-info" class="tab-content active">
-            <h2>Thông Tin Cơ Bản</h2>
-            <p><strong>Họ và Tên:</strong> <span th:text="${bacSi.ten}">Hoàng Lương</span></p>
-            <p><strong>Ngày Sinh:</strong> <span th:text="${formattedDate != null ? formattedDate : ''}">15/05/1960</span></p>
+		<!-- Thông Tin Cơ Bản -->
+		<div id="basic-info" class="tab-content active">
+			<h2>Thông Tin Cơ Bản</h2>
+			<p><strong>Họ và Tên:</strong> <span th:text="${bacSi.ten}"></span></p>
+			<p><strong>Ngày Sinh:</strong> <span th:text="${formattedDate}"></span></p>
+			<p><strong>Giới Tính:</strong> <span th:text="${bacSi.gioiTinh}"></span></p>
+			<p><strong>Điện Thoại:</strong> <span th:text="${bacSi.dienThoai}"></span></p>
+			<p><strong>Địa Chỉ:</strong> <span th:text="${bacSi.diaChi}"></span></p>
+			<p><strong>Chuyên Khoa:</strong> <span th:text="${bacSi.chuyenKhoa.ten}"></span></p>
+		</div>
 
-            <p><strong>Giới Tính:</strong> <span th:text="${bacSi.gioiTinh != null ? bacSi.gioiTinh : ''}">Nam</span></p>
-            <p><strong>Điện Thoại:</strong> <span th:text="${bacSi.dienThoai != null ? bacSi.dienThoai : ''}">0901234567</span></p>
-            <p><strong>Địa Chỉ:</strong> <span th:text="${bacSi.diaChi != null ? bacSi.diaChi : ''}">123 Đường ABC, Quận 1, TP.HCM</span></p>
-            <p><strong>Chuyên Khoa:</strong> <span th:text="${bacSi.chuyenKhoa != null ? bacSi.chuyenKhoa.ten : ''}">Tai Mũi Họng</span></p>
-        </div>
+		<!-- Thông Tin Chi Tiết -->
+		<div id="details-info" class="tab-content">
+			<h2>Thông Tin Chi Tiết</h2>
+			<p><strong>Bằng Cấp:</strong> <span th:text="${bacSi.chiTietBacSi.bangCap}"></span></p>
+			<p><strong>Hội Nghị Nước Ngoài:</strong> <span th:text="${bacSi.chiTietBacSi.hoiNghiNuocNgoai}"></span></p>
+			<p><strong>Chứng Chỉ:</strong> <span th:text="${bacSi.chiTietBacSi.chungChi}"></span></p>
+			<p><strong>Đào Tạo Chuyên Ngành:</strong> <span th:text="${bacSi.chiTietBacSi.daoTaoChuyenNganh}"></span>
+			</p>
+			<p><strong>Lĩnh Vực Chuyên Sâu:</strong> <span th:text="${bacSi.chiTietBacSi.linhVucChuyenSau}"></span></p>
+		</div>
 
-        <div id="details-info" class="tab-content">
-            <h2>Thông Tin Chi Tiết</h2>
-            <p><strong>Bằng Cấp:</strong> <span th:text="${bacSi.chiTietBacSi.bangCap != null ? bacSi.chiTietBacSi.bangCap : ''}">Tiến sĩ, Đại học Y Dược TP.HCM</span></p>
-            <p><strong>Hội Nghị Nước Ngoài:</strong> <span th:text="${bacSi.chiTietBacSi.hoiNghiNuocNgoai != null ? bacSi.chiTietBacSi.hoiNghiNuocNgoai : ''}">Hà Lan, Hoa Kỳ, Nhật Bản</span></p>
-            <p><strong>Chứng Chỉ:</strong> <span th:text="${bacSi.chiTietBacSi.chungChi != null ? bacSi.chiTietBacSi.chungChi : ''}">Chứng nhận Tai Mũi Họng Quốc tế</span></p>
-            <p><strong>Đào Tạo Chuyên Ngành:</strong> <span th:text="${bacSi.chiTietBacSi.daoTaoChuyenNganh != null ? bacSi.chiTietBacSi.daoTaoChuyenNganh : ''}">Nội soi Tai Mũi Họng</span></p>
-            <p><strong>Lĩnh Vực Chuyên Sâu:</strong> <span th:text="${bacSi.chiTietBacSi.linhVucChuyenSau != null ? bacSi.chiTietBacSi.linhVucChuyenSau : ''}">Phẫu thuật Tai</span></p>
-            <p><strong>Giới Thiệu:</strong> <span th:text="${bacSi.chiTietBacSi.gioiThieu != null ? bacSi.chiTietBacSi.gioiThieu : ''}">Bác sĩ có kinh nghiệm 30 năm trong ngành y khoa, chuyên gia đầu ngành Tai Mũi Họng.</span></p>
-        </div>
-    </div>
-    <!-- Include Footer -->
-    <div th:replace="benhnhan/fragments/footer :: footer"></div>
+		<!-- Lịch Làm Việc -->
+		<div id="schedule-info" class="tab-content">
+			<h2 class="schedule-header">📅 Lịch Làm Việc</h2>
 
-    <script>
-        function openTab(event, tabId) {
-            // Ẩn tất cả nội dung tab
-            const tabContents = document.querySelectorAll(".tab-content");
-            tabContents.forEach((content) => content.classList.remove("active"));
+			<div class="date-picker-container">
+				<label for="ngay">🗓 Chọn ngày:</label>
+				<input type="date" id="ngay" name="ngay" th:value="${selectedDate}" class="date-picker" />
+				<button type="button" class="btn-view-schedule">Xem Lịch</button>
+			</div>
 
-            // Vô hiệu hóa tất cả các liên kết tab
-            const tabLinks = document.querySelectorAll(".tab-link");
-            tabLinks.forEach((link) => link.classList.remove("active"));
+			<table class="schedule-table">
+				<thead>
+					<tr>
+						<th>Ca</th>
+						<th>Giờ</th>
+						<th>Hành Động</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="lich : ${lichKhamBenhList}" class="schedule-row">
+						<td th:text="${lich.ca}" class="shift"></td>
+						<td class="time">
+							<span th:if="${lich.ca == 'Sáng'}">☀️ 07:30 - 11:30</span>
+							<span th:if="${lich.ca == 'Chiều'}">🌤 13:00 - 16:30</span>
+							<span th:if="${lich.ca == 'Ngoài Giờ'}">🌙 17:00 - 19:30</span>
+						</td>
+						<td>
+							<button class="book-now-btn"
+								th:attr="data-doctor-id=${bacSi.bacSiId}, data-date=${selectedDate}, data-ca=${lich.ca}"
+								onclick="showTimeSlots(this)">
+								Đặt Lịch
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 
-            // Hiển thị nội dung tab hiện tại và kích hoạt liên kết tab
-            document.getElementById(tabId).classList.add("active");
-            event.currentTarget.classList.add("active");
-        }
-    </script>
+	<!-- Modal để chọn giờ -->
+	<div id="timeSlotModal" class="modal">
+		<div class="modal-content">
+			<span class="close" onclick="closeModal()">×</span>
+			<h3>Chọn Giờ Khám</h3>
+			<div id="timeSlotsContainer"></div>
+			<div class="modal-actions">
+				<button class="modal-btn modal-btn-secondary" onclick="closeModal()">Hủy</button>
+				<button class="modal-btn modal-btn-primary" onclick="proceedToStep3()">Xác Nhận</button>
+			</div>
+		</div>
+	</div>
+	<!-- Include Footer -->
+	<div th:replace="benhnhan/fragments/footer :: footer"></div>
+
+	<script>
+		function openTab(event, tabId) {
+			const tabContents = document.querySelectorAll(".tab-content");
+			tabContents.forEach((content) => content.classList.remove("active"));
+
+			const tabLinks = document.querySelectorAll(".tab-link");
+			tabLinks.forEach((link) => link.classList.remove("active"));
+
+			document.getElementById(tabId).classList.add("active");
+			event.currentTarget.classList.add("active");
+
+			const url = new URL(window.location);
+			url.searchParams.set('tab', tabId);
+			window.history.pushState({}, '', url);
+		}
+
+		// Handle form submission for date picker
+		document.querySelector('.btn-view-schedule').addEventListener('click', function () {
+			const selectedDate = document.getElementById('ngay').value;
+			if (selectedDate) {
+				const url = new URL(window.location);
+				url.searchParams.set('ngay', selectedDate);
+				url.searchParams.set('tab', 'schedule-info');
+				window.location.href = url;
+			} else {
+				alert('Vui lòng chọn ngày!');
+			}
+		});
+
+		// On page load, check for tab query parameter and activate the corresponding tab
+		document.addEventListener('DOMContentLoaded', function () {
+			const urlParams = new URLSearchParams(window.location.search);
+			const tabId = urlParams.get('tab') || 'basic-info';
+			const tabContent = document.getElementById(tabId);
+			const tabLinks = document.querySelectorAll(".tab-link");
+
+			if (tabContent) {
+				document.querySelectorAll(".tab-content").forEach((content) => content.classList.remove("active"));
+				tabLinks.forEach((link) => link.classList.remove("active"));
+
+				tabContent.classList.add("active");
+				const activeLink = Array.from(tabLinks).find(link => link.getAttribute('onclick').includes(tabId));
+				if (activeLink) {
+					activeLink.classList.add("active");
+				}
+			}
+
+			// Đảm bảo modal không hiện khi load trang
+			const modal = document.getElementById("timeSlotModal");
+			modal.classList.remove("show");
+		});
+
+		// Dữ liệu tạm thời để lưu thông tin khi chọn giờ
+		let currentDoctorId = null;
+		let currentDate = null;
+		let currentCa = null;
+
+		// Hiển thị modal chỉ khi nhấn nút đặt lịch
+		function showTimeSlots(button) {
+			currentDoctorId = button.getAttribute("data-doctor-id");
+			currentDate = button.getAttribute("data-date");
+			currentCa = button.getAttribute("data-ca");
+
+			// Xóa nội dung cũ của modal trước khi fetch dữ liệu mới
+			const timeSlotsContainer = document.getElementById("timeSlotsContainer");
+			timeSlotsContainer.innerHTML = '';
+
+			// Gọi API để lấy các khung giờ đã đặt
+			fetch(`/user/dangkylichkham/getAvailableSlots`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({doctorId: currentDoctorId, date: currentDate})
+			})
+				.then(response => response.json())
+				.then(data => {
+					updateTimeSlots(data, currentCa);
+
+					// Hiển thị modal
+					const modal = document.getElementById("timeSlotModal");
+					modal.classList.add("show");
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					alert('Đã có lỗi xảy ra, vui lòng thử lại!');
+				});
+		}
+
+		// Cập nhật danh sách giờ trong modal
+		function updateTimeSlots(data, ca) {
+			const bookedSlots = data.bookedSlots || [];
+			const timeSlotsContainer = document.getElementById("timeSlotsContainer");
+
+			const timeFrames = {
+				"Sáng": ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00"],
+				"Chiều": ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00"],
+				"Ngoài Giờ": ["17:00", "17:30", "18:00", "18:30", "19:00"]
+			};
+
+			const timeSlots = timeFrames[ca];
+			const timeSlotContainer = document.createElement("div");
+			timeSlotContainer.classList.add("time-frame");
+
+			const timeFrameTitle = document.createElement("h4");
+			timeFrameTitle.textContent = ca;
+			timeSlotContainer.appendChild(timeFrameTitle);
+
+			timeSlots.forEach(time => {
+				const isBooked = bookedSlots.includes(time);
+				const label = document.createElement("label");
+				const input = document.createElement("input");
+				input.type = "radio";
+				input.name = "time";
+				input.value = time;
+
+				if (isBooked) {
+					label.style.textDecoration = 'line-through';
+					input.disabled = true;
+				}
+				label.appendChild(input);
+				label.appendChild(document.createTextNode(time));
+				timeSlotContainer.appendChild(label);
+			});
+
+			timeSlotsContainer.appendChild(timeSlotContainer);
+		}
+
+		// Đóng modal và reset nội dung
+		function closeModal() {
+			const modal = document.getElementById("timeSlotModal");
+			modal.classList.remove("show");
+
+			// Reset nội dung modal
+			const timeSlotsContainer = document.getElementById("timeSlotsContainer");
+			timeSlotsContainer.innerHTML = '';
+
+			// Reset lựa chọn radio (nếu có)
+			const checkedRadio = document.querySelector('input[name="time"]:checked');
+			if (checkedRadio) {
+				checkedRadio.checked = false;
+			}
+		}
+
+		// Chuyển đến Bước 3
+		function proceedToStep3() {
+			const selectedTime = document.querySelector('input[name="time"]:checked');
+
+			if (selectedTime) {
+				const selectedTimeValue = selectedTime.value;
+				const url = `/user/dangkylichkham/buoc3?doctorId=${currentDoctorId}&selectedDate=${currentDate}&selectedTime=${selectedTimeValue}&ca=${currentCa}`;
+				window.location.href = url;
+			} else {
+				alert('Vui lòng chọn giờ khám!');
+			}
+		}
+
+		// Đóng modal khi nhấp bên ngoài
+		window.onclick = function (event) {
+			const modal = document.getElementById("timeSlotModal");
+			if (event.target === modal) {
+				closeModal();
+			}
+		};
+	</script>
 </body>
 
 </html>

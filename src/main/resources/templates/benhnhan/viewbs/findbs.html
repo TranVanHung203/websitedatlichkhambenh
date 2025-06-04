@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,16 +7,16 @@
     <link rel="stylesheet" href="/css/findbs.css">
     <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
     <link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
     <div th:replace="benhnhan/fragments/header :: header"></div>
     <div class="find-bs-container">
-        <!-- Giao diện tìm kiếm bác sĩ -->
+        <!-- Search interface -->
         <div class="search-container">
             <form action="/findbs" method="get" class="search-form" id="searchForm">
                 <input type="text" name="doctorName" placeholder="Tìm bác sĩ theo tên..." class="doctor-name-input"
-                    th:value="${doctorName}" /> <!-- Hiển thị giá trị tìm kiếm trước đó -->
+                    th:value="${doctorName}" />
                 <select name="section" class="section-select">
                     <option value="all" th:selected="${currentSection == 'all'}">Tất cả chuyên khoa</option>
                     <option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.ten}"
@@ -30,7 +29,6 @@
 
         <div class="doctor-container">
             <div th:each="bacSi : ${bacSiPage.content}" class="doctor-card">
-                <!-- Link đến chi tiết bác sĩ -->
                 <a th:href="@{'/chitietbacsi/' + ${bacSi.bacSiId}}">
                     <img th:src="${bacSi.urlAvatar}" alt="Doctor Image" class="doctor-image" />
                     <h3 th:text="${bacSi.ten}" class="doctor-name"></h3>
@@ -45,8 +43,8 @@
             <a th:href="@{'/findbs?page=' + (${currentPage - 1}) +'&'+ 'section=' + ${currentSection}}"
                 th:if="${bacSiPage.hasPrevious()}" class="page-link">«</a>
             <span th:each="i : ${#numbers.sequence(0, bacSiPage.totalPages - 1)}">
-                <a th:href="@{'/findbs?page=' + ${i} + '&section=' + ${currentSection}}" th:text="${i + 1}"
-                    th:classappend="${currentPage == i} ? 'active'"></a>
+                <a th:href="@{'/findbs?page=' + ${i} +'&'+ 'section=' + ${currentSection}}" th:text="${i + 1}"
+                    th:class="${currentPage == i} ? 'page-link active' : 'page-link'"></a>
             </span>
             <a th:href="@{'/findbs?page=' + (${currentPage + 1}) +'&'+ 'section=' + ${currentSection}}"
                 th:if="${bacSiPage.hasNext()}" class="page-link">»</a>
@@ -54,5 +52,4 @@
     </div>
     <div th:replace="benhnhan/fragments/footer :: footer"></div>
 </body>
-
 </html>

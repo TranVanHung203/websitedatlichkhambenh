@@ -1,9 +1,14 @@
+
 package tlcn.quanlyphongkham.controllers;
 
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,17 +16,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,15 +43,27 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
+
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
 import tlcn.quanlyphongkham.dtos.BenhNhanDTO;
-import tlcn.quanlyphongkham.dtos.LichSuKhamDTO;
 import tlcn.quanlyphongkham.dtos.MaLichKhamBenhDTO;
+import tlcn.quanlyphongkham.dtos.MedicalHistoryDTO;
 import tlcn.quanlyphongkham.dtos.TaiKhoanProfileDTO;
 import tlcn.quanlyphongkham.dtos.UserProfileDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.BenhNhan;
 import tlcn.quanlyphongkham.entities.ChuyenKhoa;
+import tlcn.quanlyphongkham.entities.HoSoBenh;
 import tlcn.quanlyphongkham.entities.LichKhamBenh;
 import tlcn.quanlyphongkham.entities.NguoiDung;
 import tlcn.quanlyphongkham.entities.SlotThoiGian;
@@ -111,39 +136,580 @@ public class NguoiDungController {
 		return "benhnhan/editprofile/editprofile";
 	}
 
+//	@GetMapping("/user/lichsukhambenh")
+//	public String lichSuKham(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,
+//			@RequestParam(required = false) String date, // Thêm tham số date
+//			Model model) {
+//		nguoiDungId = getNguoiDungId();
+//		UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
+//		model.addAttribute("nguoiDung", userProfile.getNguoiDung());
+//		model.addAttribute("benhNhan", userProfile.getBenhNhan());
+//
+//		BenhNhan benhNhan = benhNhanService.findById(nguoiDungId);
+//
+//		if (benhNhan == null) {
+//			model.addAttribute("lichSuKhams", Collections.emptyList());
+//			return "benhnhan/lichsukham/lichsukham";
+//		}
+//
+//		Pageable pageable = PageRequest.of(page, size);
+//		Page<LichSuKhamDTO> lichSuKhams;
+//
+//		// Nếu có ngày được chọn, gọi phương thức lọc theo ngày
+//		if (date != null && !date.isEmpty()) {
+//			lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanIdAndDate(benhNhan.getBenhNhanId(), date, pageable);
+//		} else {
+//			lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhan.getBenhNhanId(), pageable);
+//		}
+//
+//		model.addAttribute("lichSuKhams", lichSuKhams);
+//		model.addAttribute("currentPage", page);
+//		model.addAttribute("totalPages", lichSuKhams.getTotalPages());
+//
+//		return "benhnhan/lichsukhambenh/lichsukhambenh";
+//	}
+//
+//	// Endpoint mới để tải PDF
+//
+//	@GetMapping("/user/lichsukhambenh/download-pdf")
+//	public ResponseEntity<InputStreamResource> downloadLichSuKhamPdf(@RequestParam(required = false) String date) throws Exception {
+//	    nguoiDungId = getNguoiDungId();
+//	    BenhNhan benhNhan = benhNhanService.findById(nguoiDungId);
+//
+//	    if (benhNhan == null) {
+//	        return ResponseEntity.badRequest().body(null);
+//	    }
+//
+//	    // Lấy toàn bộ dữ liệu (không phân trang để tải hết)
+//	    Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE); // Lấy tất cả dữ liệu
+//	    Page<LichSuKhamDTO> lichSuKhams;
+//
+//	    if (date != null && !date.isEmpty()) {
+//	        lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanIdAndDate(benhNhan.getBenhNhanId(), date, pageable);
+//	    } else {
+//	        lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhan.getBenhNhanId(), pageable);
+//	    }
+//
+//	    // Tạo PDF
+//	    ByteArrayOutputStream baos = generateLichSuKhamPdf(lichSuKhams.getContent());
+//
+//	    // Lấy tên bệnh nhân
+//	    UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
+//	    String tenBenhNhan = userProfile.getBenhNhan() != null ? userProfile.getBenhNhan().getTen() : "KhongXacDinh";
+//
+//	    // Chuẩn hóa tên bệnh nhân: bỏ dấu và thay khoảng trắng bằng dấu "_"
+//	    String tenBenhNhanChuanHoa = removeDiacritics(tenBenhNhan).replaceAll("\\s+", "_");
+//
+//	    // Lấy ngày hiện tại và định dạng thành ddMMyyyy
+//	    String ngayHienTai = new SimpleDateFormat("ddMMyyyy").format(new Date());
+//
+//	    // Tạo tên file động: tenBenhNhan_ngayHienTai.pdf
+//	    String fileName = tenBenhNhanChuanHoa + "_" + ngayHienTai + ".pdf";
+//
+//	    // Chuẩn bị response để tải file
+//	    HttpHeaders headers = new HttpHeaders();
+//	    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+//	    headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
+//	    headers.add(HttpHeaders.PRAGMA, "no-cache");
+//	    headers.add(HttpHeaders.EXPIRES, "0");
+//
+//	    InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(baos.toByteArray()));
+//
+//	    return ResponseEntity.ok()
+//	            .headers(headers)
+//	            .contentLength(baos.size())
+//	            .contentType(MediaType.APPLICATION_PDF)
+//	            .body(resource);
+//	}
+//
+//	// Hàm chuẩn hóa tên: bỏ dấu tiếng Việt
+//	private String removeDiacritics(String str) {
+//	    String normalized = Normalizer.normalize(str, Normalizer.Form.NFD);
+//	    Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+//	    return pattern.matcher(normalized).replaceAll("").replace("đ", "d").replace("Đ", "D");
+//	}
+//	
+//	
+//    private ByteArrayOutputStream generateLichSuKhamPdf(List<LichSuKhamDTO> lichSuKhams) throws Exception {
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        Document document = new Document();
+//        PdfWriter.getInstance(document, baos);
+//        document.open();
+//
+//        // Tạo font hỗ trợ tiếng Việt
+//        BaseFont baseFont = BaseFont.createFont("C:/Windows/Fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+//        Font titleFont = new Font(baseFont, 18, Font.BOLD);
+//        Font subtitleFont = new Font(baseFont, 12, Font.NORMAL);
+//        Font headerFont = new Font(baseFont, 11, Font.BOLD);
+//        Font cellFont = new Font(baseFont, 10);
+//
+//        // Tiêu đề chính
+//        Paragraph title = new Paragraph("LỊCH SỬ KHÁM BỆNH", titleFont);
+//        title.setAlignment(Element.ALIGN_CENTER);
+//        title.setSpacingAfter(10);
+//        document.add(title);
+//
+//        // Thông tin bổ sung (Tên bệnh nhân, Ngày in)
+//        UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
+//        String tenBenhNhan = userProfile.getBenhNhan() != null ? userProfile.getBenhNhan().getTen() : "Không xác định";
+//        String ngayIn = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
+//
+//        Paragraph info = new Paragraph("Bệnh nhân: " + tenBenhNhan + " | Ngày in: " + ngayIn, subtitleFont);
+//        info.setAlignment(Element.ALIGN_CENTER);
+//        info.setSpacingAfter(20);
+//        document.add(info);
+//
+//        // Tạo bảng
+//        PdfPTable table = new PdfPTable(9); // 9 cột
+//        table.setWidthPercentage(100);
+//        // Điều chỉnh độ rộng cột để cân đối hơn
+//        table.setWidths(new float[]{2f, 1.5f, 2f, 2f, 2.5f, 1.8f, 1.8f, 1.2f, 1.5f});
+//
+//        // Tiêu đề cột
+//        String[] headers = {"Tên Bác Sĩ", "Ngày Khám", "Triệu Chứng", "Chẩn Đoán", "Thuốc", "Liều Lượng", "Tần Suất", "Số Lượng", "Tổng Tiền Thuốc"};
+//        for (String header : headers) {
+//            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+//            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+//            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+//            cell.setPadding(10);
+//            cell.setBackgroundColor(new com.itextpdf.text.BaseColor(2, 136, 209)); // Màu xanh dương
+//            cell.setBackgroundColor(com.itextpdf.text.BaseColor.WHITE);
+//            cell.setBorderWidth(1);
+//            table.addCell(cell);
+//        }
+//
+//        // Dữ liệu
+//        for (LichSuKhamDTO lichSu : lichSuKhams) {
+//            // Tạo ô với nội dung, căn giữa và cho phép xuống dòng tự nhiên
+//            PdfPCell cellTenBacSi = new PdfPCell(new Phrase(lichSu.getTenBacSi(), cellFont));
+//            cellTenBacSi.setPadding(8);
+//            cellTenBacSi.setBorderWidth(1);
+//            cellTenBacSi.setHorizontalAlignment(Element.ALIGN_CENTER);
+//            cellTenBacSi.setVerticalAlignment(Element.ALIGN_MIDDLE);
+//            table.addCell(cellTenBacSi);
+//
+//            PdfPCell cellNgayKham = new PdfPCell(new Phrase(lichSu.getNgayKham(), cellFont));
+//            cellNgayKham.setPadding(8);
+//            cellNgayKham.setBorderWidth(1);
+//            cellNgayKham.setHorizontalAlignment(Element.ALIGN_CENTER);
+//            cellNgayKham.setVerticalAlignment(Element.ALIGN_MIDDLE);
+//            table.addCell(cellNgayKham);
+//
+//            PdfPCell cellTrieuChung = new PdfPCell(new Phrase(lichSu.getTrieuChung(), cellFont));
+//            cellTrieuChung.setPadding(8);
+//            cellTrieuChung.setBorderWidth(1);
+//            cellTrieuChung.setHorizontalAlignment(Element.ALIGN_LEFT); // Căn trái cho nội dung dài
+//            cellTrieuChung.setVerticalAlignment(Element.ALIGN_MIDDLE);
+//            table.addCell(cellTrieuChung);
+//
+//            PdfPCell cellChanDoan = new PdfPCell(new Phrase(lichSu.getChanDoan(), cellFont));
+//            cellChanDoan.setPadding(8);
+//            cellChanDoan.setBorderWidth(1);
+//            cellChanDoan.setHorizontalAlignment(Element.ALIGN_LEFT);
+//            cellChanDoan.setVerticalAlignment(Element.ALIGN_MIDDLE);
+//            table.addCell(cellChanDoan);
+//
+//            // Xử lý nội dung đa dòng cho cột "Thuốc"
+//            PdfPCell cellThuoc = new PdfPCell(new Phrase(lichSu.getThuoc(), cellFont));
+//            cellThuoc.setPadding(8);
+//            cellThuoc.setBorderWidth(1);
+//            cellThuoc.setHorizontalAlignment(Element.ALIGN_LEFT);
+//            cellThuoc.setVerticalAlignment(Element.ALIGN_MIDDLE);
+//            table.addCell(cellThuoc);
+//
+//            // Xử lý nội dung đa dòng cho cột "Liều Lượng"
+//            PdfPCell cellLieuLuong = new PdfPCell(new Phrase(lichSu.getLieu(), cellFont));
+//            cellLieuLuong.setPadding(8);
+//            cellLieuLuong.setBorderWidth(1);
+//            cellLieuLuong.setHorizontalAlignment(Element.ALIGN_CENTER);
+//            cellLieuLuong.setVerticalAlignment(Element.ALIGN_MIDDLE);
+//            table.addCell(cellLieuLuong);
+//
+//            // Xử lý nội dung đa dòng cho cột "Tần Suất"
+//            PdfPCell cellTanSuat = new PdfPCell(new Phrase(lichSu.getTanSuat(), cellFont));
+//            cellTanSuat.setPadding(8);
+//            cellTanSuat.setBorderWidth(1);
+//            cellTanSuat.setHorizontalAlignment(Element.ALIGN_CENTER);
+//            cellTanSuat.setVerticalAlignment(Element.ALIGN_MIDDLE);
+//            table.addCell(cellTanSuat);
+//
+//            // Xử lý nội dung đa dòng cho cột "Số Lượng"
+//            PdfPCell cellSoLuong = new PdfPCell(new Phrase(lichSu.getSoLuong(), cellFont));
+//            cellSoLuong.setPadding(8);
+//            cellSoLuong.setBorderWidth(1);
+//            cellSoLuong.setHorizontalAlignment(Element.ALIGN_CENTER);
+//            cellSoLuong.setVerticalAlignment(Element.ALIGN_MIDDLE);
+//            table.addCell(cellSoLuong);
+//
+//            PdfPCell cellTongTien = new PdfPCell(new Phrase(lichSu.getFormattedTongTienThuoc(), cellFont));
+//            cellTongTien.setPadding(8);
+//            cellTongTien.setBorderWidth(1);
+//            cellTongTien.setHorizontalAlignment(Element.ALIGN_CENTER);
+//            cellTongTien.setVerticalAlignment(Element.ALIGN_MIDDLE);
+//            table.addCell(cellTongTien);
+//        }
+//
+//        // Thêm bảng vào tài liệu
+//        document.add(table);
+//        document.close();
+//        return baos;
+//    }
+	
+	
 	@GetMapping("/user/lichsukhambenh")
-	public String lichSuKham(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,
-			@RequestParam(required = false) String date, // Thêm tham số date
-			Model model) {
-		nguoiDungId = getNguoiDungId();
-		UserProfileDTO userProfile = userProfileService.getUserProfileByNguoiDungId(nguoiDungId);
-		model.addAttribute("nguoiDung", userProfile.getNguoiDung());
-		model.addAttribute("benhNhan", userProfile.getBenhNhan());
+    public String getMedicalHistory(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "2") int size,
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Model model) {
+        try {
+            String nguoiDungId = getNguoiDungId();
+            BenhNhan benhNhan = benhNhanService.findById(nguoiDungId);
+            String benhNhanId = benhNhan.getBenhNhanId();
 
-		BenhNhan benhNhan = benhNhanService.findById(nguoiDungId);
+            if (benhNhanId == null || benhNhanId.trim().isEmpty()) {
+                model.addAttribute("error", "Mã bệnh nhân không hợp lệ");
+                return "benhnhan/lichsukhambenh/lichsukhambenh";
+            }
 
-		if (benhNhan == null) {
-			model.addAttribute("lichSuKhams", Collections.emptyList());
-			return "benhnhan/lichsukham/lichsukham";
-		}
+            // Add sorting by thoi_gian_tao in descending order
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "thoi_gian_tao"));
 
-		Pageable pageable = PageRequest.of(page, size);
-		Page<LichSuKhamDTO> lichSuKhams;
+            // Convert LocalDate to LocalDateTime for filtering
+            LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+            LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59, 999999999) : null;
 
-		// Nếu có ngày được chọn, gọi phương thức lọc theo ngày
-		if (date != null && !date.isEmpty()) {
-			lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanIdAndDate(benhNhan.getBenhNhanId(), date, pageable);
-		} else {
-			lichSuKhams = hoSoBenhService.getLichSuKhamByBenhNhanId(benhNhan.getBenhNhanId(), pageable);
-		}
+            // Fetch medical history with optional date range filtering
+            Page<HoSoBenh> medicalHistoryPage = hoSoBenhService.findByBenhNhanIdAndDateRange(benhNhanId, startDateTime, endDateTime, pageable);
 
-		model.addAttribute("lichSuKhams", lichSuKhams);
-		model.addAttribute("currentPage", page);
-		model.addAttribute("totalPages", lichSuKhams.getTotalPages());
+            // Define formatter for dd/MM/yyyy HH:mm
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-		return "benhnhan/lichsukhambenh/lichsukhambenh";
+            Page<MedicalHistoryDTO> dtos = medicalHistoryPage.map(hsb -> {
+                Hibernate.initialize(hsb.getBenhNhan());
+                Hibernate.initialize(hsb.getBacSi());
+                Hibernate.initialize(hsb.getDonThuocs());
+                Hibernate.initialize(hsb.getXetNghiems());
+                Hibernate.initialize(hsb.getPhieuXetNghiems());
+                Hibernate.initialize(hsb.getVitalSigns());
+
+                MedicalHistoryDTO dto = new MedicalHistoryDTO();
+                dto.setHoSoId(hsb.getHoSoId());
+
+                if (hsb.getBenhNhan() != null) {
+                    MedicalHistoryDTO.BenhNhanDTO benhNhanDTO = new MedicalHistoryDTO.BenhNhanDTO(
+                        hsb.getBenhNhan().getBenhNhanId(),
+                        hsb.getBenhNhan().getTen(),
+                        hsb.getBenhNhan().getDienThoai()
+                    );
+                    dto.setBenhNhan(benhNhanDTO);
+                }
+
+                if (hsb.getBacSi() != null) {
+                    MedicalHistoryDTO.BacSiDTO bacSiDTO = new MedicalHistoryDTO.BacSiDTO(
+                        hsb.getBacSi().getBacSiId(),
+                        hsb.getBacSi().getTen()
+                    );
+                    dto.setBacSi(bacSiDTO);
+                }
+
+                dto.setChanDoan(hsb.getChanDoan());
+                dto.setTrieuChung(hsb.getTrieuChung());
+                dto.setTongTien(hsb.getTongTien());
+                dto.setDaThanhToan(hsb.getDaThanhToan());
+                // Format thoiGianTao to dd/MM/yyyy HH:mm
+                dto.setThoiGianTao(hsb.getThoiGianTao() != null ? hsb.getThoiGianTao().format(formatter) : null);
+
+                if (hsb.getVitalSigns() != null && !hsb.getVitalSigns().isEmpty()) {
+                    List<MedicalHistoryDTO.VitalSignsDTO> vitalSignsDTOs = hsb.getVitalSigns().stream().map(vs -> {
+                        return new MedicalHistoryDTO.VitalSignsDTO(
+                            vs.getId(),
+                            vs.getTemperature(),
+                            vs.getHeight(),
+                            vs.getWeight(),
+                            vs.getBloodPressureSys(),
+                            vs.getBloodPressureDia(),
+                            vs.getNotes(),
+                            vs.getThoiGianTao() != null ? vs.getThoiGianTao().format(formatter) : null
+                        );
+                    }).collect(Collectors.toList());
+                    dto.setVitalSigns(vitalSignsDTOs);
+                }
+
+                if (hsb.getDonThuocs() != null && !hsb.getDonThuocs().isEmpty()) {
+                    List<MedicalHistoryDTO.DonThuocDTO> donThuocDTOs = hsb.getDonThuocs().stream().map(dt -> {
+                        Hibernate.initialize(dt.getDonThuocThuocs());
+                        List<MedicalHistoryDTO.DonThuocThuocDTO> donThuocThuocDTOs = dt.getDonThuocThuocs() != null ?
+                            dt.getDonThuocThuocs().stream().map(dtt -> {
+                                MedicalHistoryDTO.ThuocDTO thuocDTO = new MedicalHistoryDTO.ThuocDTO(
+                                    dtt.getThuoc().getTen(),
+                                    dtt.getThuoc().getGia()
+                                );
+                                return new MedicalHistoryDTO.DonThuocThuocDTO(
+                                    thuocDTO,
+                                    dtt.getLieu(),
+                                    dtt.getTanSuat(),
+                                    dtt.getSoLuong()
+                                );
+                            }).collect(Collectors.toList()) : Collections.emptyList();
+                        MedicalHistoryDTO.DonThuocDTO donThuocDTO = new MedicalHistoryDTO.DonThuocDTO(
+                            dt.getDonThuocId(),
+                            dt.getFormattedTongTienThuoc(),
+                            donThuocThuocDTOs
+                        );
+                        return donThuocDTO;
+                    }).collect(Collectors.toList());
+                    dto.setDonThuocs(donThuocDTOs);
+                }
+
+                if (hsb.getXetNghiems() != null && !hsb.getXetNghiems().isEmpty()) {
+                    List<MedicalHistoryDTO.XetNghiemDTO> xetNghiemDTOs = hsb.getXetNghiems().stream().map(xn -> {
+                        MedicalHistoryDTO.LoaiXetNghiemDTO loaiXetNghiemDTO = new MedicalHistoryDTO.LoaiXetNghiemDTO(
+                            xn.getLoaiXetNghiem().getTenXetNghiem(),
+                            xn.getLoaiXetNghiem().getGia()
+                        );
+                        return new MedicalHistoryDTO.XetNghiemDTO(
+                            loaiXetNghiemDTO,
+                            xn.getGhiChu(),
+                            xn.getTrangThai(),
+                            xn.getFileKetQua(),
+                            xn.getThoiGianTao() != null ? xn.getThoiGianTao().format(formatter) : null
+                        );
+                    }).collect(Collectors.toList());
+                    dto.setXetNghiems(xetNghiemDTOs);
+                }
+
+                if (hsb.getPhieuXetNghiems() != null && !hsb.getPhieuXetNghiems().isEmpty()) {
+                    List<MedicalHistoryDTO.PhieuXetNghiemDTO> phieuXetNghiemDTOs = hsb.getPhieuXetNghiems().stream().map(pxn -> {
+                        return new MedicalHistoryDTO.PhieuXetNghiemDTO(
+                            pxn.getMaPhieu(),
+                            pxn.getTongGia(),
+                            pxn.getThoiGianTao() != null ? pxn.getThoiGianTao().format(formatter) : null,
+                            pxn.getXetNghiemIds()
+                        );
+                    }).collect(Collectors.toList());
+                    dto.setPhieuXetNghiems(phieuXetNghiemDTOs);
+                }
+
+                return dto;
+            });
+
+            // Add data to model for the view
+            model.addAttribute("medicalHistory", dtos.getContent());
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", medicalHistoryPage.getTotalPages());
+            model.addAttribute("benhNhanId", benhNhanId);
+            model.addAttribute("startDate", startDate);
+            model.addAttribute("endDate", endDate);
+
+            return "benhnhan/lichsukhambenh/lichsukhambenh";
+        } catch (Exception e) {
+            model.addAttribute("error", "Không thể lấy lịch sử khám bệnh: " + e.getMessage());
+            return "benhnhan/lichsukhambenh/lichsukhambenh";
+        }
+    }
+
+	@GetMapping("/user/lichsukhambenh/download-pdf")
+	public ResponseEntity<?> downloadMedicalHistoryPdf(
+	        @RequestParam("benhNhanId") String benhNhanId,
+	        @RequestParam(value = "hoSoIds", required = false) List<String> hoSoIds,
+	        @RequestParam(value = "startDate", required = false) String startDateStr,
+	        @RequestParam(value = "endDate", required = false) String endDateStr) {
+	    try {
+	        if (benhNhanId == null || benhNhanId.trim().isEmpty()) {
+	            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Mã bệnh nhân không hợp lệ"));
+	        }
+
+	        // Parse dates, ignoring "undefined" or invalid values
+	        LocalDate startDate = null;
+	        LocalDate endDate = null;
+	        try {
+	            if (startDateStr != null && !startDateStr.equals("undefined") && !startDateStr.isEmpty()) {
+	                startDate = LocalDate.parse(startDateStr);
+	            }
+	            if (endDateStr != null && !endDateStr.equals("undefined") && !endDateStr.isEmpty()) {
+	                endDate = LocalDate.parse(endDateStr);
+	            }
+	        } catch (DateTimeParseException e) {
+	            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Định dạng ngày không hợp lệ"));
+	        }
+
+	        // Convert LocalDate to LocalDateTime for filtering
+	        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+	        LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59, 999999999) : null;
+
+	        // Fetch records based on hoSoIds or all records if hoSoIds is empty
+	        List<HoSoBenh> medicalHistory;
+	        if (hoSoIds != null && !hoSoIds.isEmpty()) {
+	            medicalHistory = hoSoBenhService.findByIdsAndBenhNhanIdAndDateRange(hoSoIds, benhNhanId, startDateTime, endDateTime);
+	        } else {
+	            medicalHistory = hoSoBenhService.findByBenhNhanIdAndDateRange(benhNhanId, startDateTime, endDateTime, null).getContent();
+	        }
+
+	        if (medicalHistory.isEmpty()) {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(Collections.singletonMap("error", "Không tìm thấy lịch sử khám bệnh cho bệnh nhân này"));
+	        }
+
+	        // Initialize PDF document
+	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	        PdfWriter writer = new PdfWriter(baos);
+	        PdfDocument pdf = new PdfDocument(writer);
+	        Document document = new Document(pdf);
+
+	        // Load a font that supports Vietnamese
+	        PdfFont font;
+	        try {
+	            // Try loading BeVietnamPro from resources
+	            font = PdfFontFactory.createFont("/fonts/BeVietnamPro-Regular.ttf", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+	        } catch (Exception e1) {
+	            try {
+	                // Fallback to Arial (system font)
+	                font = PdfFontFactory.createFont("C:/Windows/Fonts/arial.ttf", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+	            } catch (Exception e2) {
+	                try {
+	                    // Fallback to Times New Roman
+	                    font = PdfFontFactory.createFont("C:/Windows/Fonts/times.ttf", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+	                } catch (Exception e3) {
+	                    // Final fallback to iText's built-in Helvetica
+	                    font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+	                }
+	            }
+	        }
+	        document.setFont(font);
+
+	        // Adding title
+	        document.add(new Paragraph("Lịch Sử Khám Bệnh")
+	            .setFontSize(18)
+	            .setBold()
+	            .setTextAlignment(TextAlignment.CENTER));
+
+	        // Formatter for dates
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+	        for (HoSoBenh hsb : medicalHistory) {
+	            Hibernate.initialize(hsb.getBenhNhan());
+	            Hibernate.initialize(hsb.getBacSi());
+	            Hibernate.initialize(hsb.getDonThuocs());
+	            Hibernate.initialize(hsb.getXetNghiems());
+	            Hibernate.initialize(hsb.getVitalSigns());
+
+	            // General info
+	            document.add(new Paragraph("Mã hồ sơ: " + hsb.getHoSoId()).setBold());
+	            document.add(new Paragraph("Khám ngày: " + (hsb.getThoiGianTao() != null ? hsb.getThoiGianTao().format(formatter) : "Không có")));
+	            document.add(new Paragraph("Bệnh nhân: " + (hsb.getBenhNhan() != null ? hsb.getBenhNhan().getTen() + " (" + hsb.getBenhNhan().getDienThoai() + ")" : "Không có")));
+	            document.add(new Paragraph("Bác sĩ: " + (hsb.getBacSi() != null ? hsb.getBacSi().getTen() : "Chưa chỉ định")));
+	            document.add(new Paragraph("Chẩn đoán: " + (hsb.getChanDoan() != null ? hsb.getChanDoan() : "Chưa có")));
+	            document.add(new Paragraph("Triệu chứng: " + (hsb.getTrieuChung() != null ? hsb.getTrieuChung() : "Chưa có")));
+	            document.add(new Paragraph("Tổng tiền: " + (hsb.getTongTien() != null ? String.format("%,d VNĐ", hsb.getTongTien().longValue()) : "Chưa tính")));
+	            document.add(new Paragraph("Đã thanh toán: " + (hsb.getDaThanhToan() != null && hsb.getDaThanhToan() ? "Có" : "Chưa")));
+
+	            // Vital Signs
+	            document.add(new Paragraph("Dấu hiệu sinh tồn").setBold());
+	            if (hsb.getVitalSigns() != null && !hsb.getVitalSigns().isEmpty()) {
+	                Table table = new Table(6);
+	                table.addCell(new Paragraph("Thời gian").setFont(font));
+	                table.addCell(new Paragraph("Nhiệt độ").setFont(font));
+	                table.addCell(new Paragraph("Chiều cao").setFont(font));
+	                table.addCell(new Paragraph("Cân nặng").setFont(font));
+	                table.addCell(new Paragraph("Huyết áp").setFont(font));
+	                table.addCell(new Paragraph("Ghi chú").setFont(font));
+	                for (var vs : hsb.getVitalSigns()) {
+	                    table.addCell(new Paragraph(vs.getThoiGianTao() != null ? vs.getThoiGianTao().format(formatter) : "Không có").setFont(font));
+	                    table.addCell(new Paragraph(vs.getTemperature() != null ? vs.getTemperature() + " °C" : "Không có").setFont(font));
+	                    table.addCell(new Paragraph(vs.getHeight() != null ? vs.getHeight() + " cm" : "Không có").setFont(font));
+	                    table.addCell(new Paragraph(vs.getWeight() != null ? vs.getWeight() + " kg" : "Không có").setFont(font));
+	                    table.addCell(new Paragraph(vs.getBloodPressureSys() != null && vs.getBloodPressureDia() != null ? vs.getBloodPressureSys() + "/" + vs.getBloodPressureDia() + " mmHg" : "Không có").setFont(font));
+	                    table.addCell(new Paragraph(vs.getNotes() != null ? vs.getNotes() : "Không có").setFont(font));
+	                }
+	                document.add(table);
+	            } else {
+	                document.add(new Paragraph("Không có dữ liệu").setFont(font));
+	            }
+
+	            // Prescriptions
+	            document.add(new Paragraph("Đơn thuốc").setBold());
+	            if (hsb.getDonThuocs() != null && !hsb.getDonThuocs().isEmpty()) {
+	                Table table = new Table(5);
+	                table.addCell(new Paragraph("Đơn thuốc").setFont(font));
+	                table.addCell(new Paragraph("Thuốc").setFont(font));
+	                table.addCell(new Paragraph("Liều").setFont(font));
+	                table.addCell(new Paragraph("Tần suất").setFont(font));
+	                table.addCell(new Paragraph("Số lượng").setFont(font));
+	                for (var dt : hsb.getDonThuocs()) {
+	                    Hibernate.initialize(dt.getDonThuocThuocs());
+	                    if (dt.getDonThuocThuocs() != null && !dt.getDonThuocThuocs().isEmpty()) {
+	                        for (var dtt : dt.getDonThuocThuocs()) {
+	                            table.addCell(new Paragraph("#" + dt.getDonThuocId()).setFont(font));
+	                            table.addCell(new Paragraph(dtt.getThuoc() != null ? dtt.getThuoc().getTen() : "Không có").setFont(font));
+	                            table.addCell(new Paragraph(dtt.getLieu() != null ? dtt.getLieu() : "Không có").setFont(font));
+	                            table.addCell(new Paragraph(dtt.getTanSuat() != null ? dtt.getTanSuat() : "Không có").setFont(font));
+	                            table.addCell(new Paragraph(dtt.getSoLuong() != 0 ? String.valueOf(dtt.getSoLuong()) : "Không có").setFont(font));
+	                        }
+	                    } else {
+	                        table.addCell(new Paragraph("#" + dt.getDonThuocId()).setFont(font));
+	                        table.addCell(new Paragraph("Không có").setFont(font));
+	                        table.addCell(new Paragraph("Không có").setFont(font));
+	                        table.addCell(new Paragraph("Không có").setFont(font));
+	                        table.addCell(new Paragraph("Không có").setFont(font));
+	                    }
+	                }
+	                document.add(table);
+	            } else {
+	                document.add(new Paragraph("Không có dữ liệu").setFont(font));
+	            }
+
+	            // Tests
+	            document.add(new Paragraph("Xét nghiệm").setBold());
+	            if (hsb.getXetNghiems() != null && !hsb.getXetNghiems().isEmpty()) {
+	                Table table = new Table(4);
+	                table.addCell(new Paragraph("Loại xét nghiệm").setFont(font));
+	                table.addCell(new Paragraph("Giá").setFont(font));
+	                table.addCell(new Paragraph("Trạng thái").setFont(font));
+	                table.addCell(new Paragraph("Ghi chú").setFont(font));
+	                for (var xn : hsb.getXetNghiems()) {
+	                    table.addCell(new Paragraph(xn.getLoaiXetNghiem() != null ? xn.getLoaiXetNghiem().getTenXetNghiem() : "Không có").setFont(font));
+	                    table.addCell(new Paragraph(xn.getLoaiXetNghiem() != null && xn.getLoaiXetNghiem().getGia() != null ? String.format("%,d VNĐ", xn.getLoaiXetNghiem().getGia().longValue()) : "Không có").setFont(font));
+	                    table.addCell(new Paragraph(xn.getTrangThai() != null ? xn.getTrangThai() : "Không có").setFont(font));
+	                    table.addCell(new Paragraph(xn.getGhiChu() != null ? xn.getGhiChu() : "Không có").setFont(font));
+	                }
+	                document.add(table);
+	            } else {
+	                document.add(new Paragraph("Không có dữ liệu").setFont(font));
+	            }
+
+	            document.add(new Paragraph("----------------------------------------").setTextAlignment(TextAlignment.CENTER));
+	        }
+
+	        document.close();
+
+	        // Prepare PDF response
+	        ByteArrayResource resource = new ByteArrayResource(baos.toByteArray());
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=lich-su-kham-benh.pdf");
+	        headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
+	        headers.add(HttpHeaders.PRAGMA, "no-cache");
+	        headers.add(HttpHeaders.EXPIRES, "0");
+
+	        return ResponseEntity.ok()
+	            .headers(headers)
+	            .contentLength(baos.size())
+	            .contentType(MediaType.APPLICATION_PDF)
+	            .body(resource);
+	    } catch (Exception e) {
+	        e.printStackTrace(); // Log the full stack trace for debugging
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	            .body(Collections.singletonMap("error", "Không thể tạo PDF: " + e.getMessage()));
+	    }
 	}
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleException(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Collections.singletonMap("error", "Đã xảy ra lỗi không mong muốn: " + e.getMessage()));
+    }
+	    
 	@PostMapping("/user/updateprofile")
 	public String updateProfile(@ModelAttribute("nguoiDung") TaiKhoanProfileDTO tk,
 			@ModelAttribute("benhNhan") BenhNhanDTO benhNhanDTO, Model model) {
@@ -265,69 +831,87 @@ public class NguoiDungController {
 	}
 
 	@GetMapping("/chitietbacsi/{bacSiId}")
-	public String viewChiTietBacSi(@PathVariable("bacSiId") String bacSiId, Model model) {
-		// Lấy thông tin bác sĩ từ service
-		BacSi bacSi = bacSiService.findById(bacSiId);
+	public String viewChiTietBacSi(@PathVariable("bacSiId") String bacSiId,
+	                               @RequestParam(value = "ngay", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngay,
+	                               Model model) {
+	    BacSi bacSi = bacSiService.findById(bacSiId);
+	    if (bacSi == null) {
+	        model.addAttribute("errorMessage", "Bác sĩ không tồn tại");
+	        return "error";
+	    }
 
-		if (bacSi == null) {
-			// Xử lý nếu bác sĩ không tồn tại
-			model.addAttribute("errorMessage", "Bác sĩ không tồn tại");
-			return "error"; // Trả về trang lỗi
-		}
-		// Kiểm tra nếu ngaySinh là null
-		if (bacSi.getNgaySinh() != null) {
-			// Định dạng ngày sinh từ LocalDate
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-			String formattedDate = bacSi.getNgaySinh().format(formatter);
-			model.addAttribute("formattedDate", formattedDate);
-		} else {
-			model.addAttribute("formattedDate", "Không có thông tin");
-		}
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	    model.addAttribute("formattedDate", bacSi.getNgaySinh() != null ? bacSi.getNgaySinh().format(formatter) : "Không có thông tin");
 
-		// Thêm thông tin bác sĩ vào model để hiển thị trên trang chi tiết
-		model.addAttribute("bacSi", bacSi);
+	    if (ngay == null) {
+	        ngay = LocalDate.now();
+	    }
+	    List<LichKhamBenh> lichKhamBenhList = lichKhamBenhService.findByBacSiAndNgay(bacSi, ngay);
 
-		return "benhnhan/viewbs/chitietbs"; // Trả về view chi tiết bác sĩ
+	    model.addAttribute("bacSi", bacSi);
+	    model.addAttribute("lichKhamBenhList", lichKhamBenhList);
+	    model.addAttribute("selectedDate", ngay);
+
+	    return "benhnhan/viewbs/chitietbs";
 	}
+
 
 	@GetMapping("/user/dangkylichkham")
-	public String registerSchedule(Model model) {
-		// Fetch list of specialties and pass it to the view
-		List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa();
-		model.addAttribute("chuyenKhoaList", chuyenKhoaList);
-		return "benhnhan/dangkylichkham/buoc1"; // Return to Step 1 view
-	}
+    public String registerSchedule(Model model) {
+        List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa();
+        model.addAttribute("chuyenKhoaList", chuyenKhoaList);
+        return "benhnhan/dangkylichkham/buoc1"; 
+    }
 
-	@PostMapping("/user/dangkylichkham/doctor")
-	public String getDoctorsBySpecialty(@RequestParam("service") String serviceId, Model model) {
+    // API lấy danh sách bác sĩ theo chuyên khoa
+    @PostMapping("/user/dangkylichkham/doctor")
+    @ResponseBody
+    public String getDoctorsBySpecialty(@RequestParam("service") String serviceId) {
+        System.out.println("Service ID nhận được: " + serviceId); // Debug
 
-		List<BacSiDTO> bacSiList = bacSiService.getBacSiByChuyenKhoa(serviceId);
-		model.addAttribute("bacSiList", bacSiList);
-		model.addAttribute("selectedService", serviceId); // Add selected service to model
-		return "benhnhan/dangkylichkham/buoc1"; // Return to the same view with updated doctors list
-	}
+        List<BacSiDTO> bacSiList = bacSiService.getBacSiByChuyenKhoa(serviceId);
+
+        if (bacSiList == null || bacSiList.isEmpty()) {
+            System.out.println("Không tìm thấy bác sĩ cho chuyên khoa: " + serviceId);
+            return "<option value=''>Không có bác sĩ</option>";
+        }
+
+        StringBuilder options = new StringBuilder();
+        for (BacSiDTO bacSi : bacSiList) {
+            options.append("<option value='").append(bacSi.getId()).append("'>")
+                   .append(bacSi.getTen()).append("</option>");
+        }
+
+        return options.toString();
+    }
 
 	@PostMapping("/user/dangkylichkham/next")
-	public String proceedToStep2(@RequestParam("doctor") String doctorId, @RequestParam("service") String serviceId,
-			Model model) {
+	public String proceedToStep2(@RequestParam("service") String serviceId, 
+	                             @RequestParam("doctor") String doctorId, 
+	                             Model model) {
+	    if (serviceId == null || serviceId.isEmpty()) {
+	        throw new IllegalArgumentException("Chuyên khoa không được để trống.");
+	    }
+	    if (doctorId == null || doctorId.isEmpty()) {
+	        throw new IllegalArgumentException("Bác sĩ không được để trống.");
+	    }
 
-		model.addAttribute("doctorId", doctorId);
+	    model.addAttribute("doctorId", doctorId);
+	    model.addAttribute("serviceId", serviceId);
 
-		return "/benhnhan/dangkylichkham/buoc2";
+	 
+
+	    return "benhnhan/dangkylichkham/buoc2";
 	}
 
+
+
 	public LocalDate parseDate(String dateStr) {
-
-		if (dateStr != null && !dateStr.isEmpty()) {
-
-			if (dateStr.matches("\\d{4}-\\d{2}-\\d{1}$")) {
-				dateStr = dateStr.substring(0, 8) + "0" + dateStr.charAt(8);
-			}
-
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-			return LocalDate.parse(dateStr, formatter);
-		}
-		return null;
+	    if (dateStr != null && !dateStr.isEmpty()) {
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
+	        return LocalDate.parse(dateStr, formatter);
+	    }
+	    return null;
 	}
 
 	@PostMapping("/user/dangkylichkham/getAvailableSlots")
@@ -373,7 +957,8 @@ public class NguoiDungController {
 
 	@GetMapping("/user/dangkylichkham/buoc3")
 	public String proceedToStep3(@RequestParam("doctorId") String doctorId,
-			@RequestParam("selectedDate") String selectedDate, @RequestParam("selectedTime") String selectedTime,
+			@RequestParam("selectedDate") String selectedDate, 
+			@RequestParam("selectedTime") String selectedTime,
 			@RequestParam("ca") String ca, Model model) {
 
 		// Fetch the doctor information using doctorId
@@ -404,58 +989,70 @@ public class NguoiDungController {
 
 	@PostMapping("/user/dangkylichkham/confirm")
 	public ResponseEntity<Map<String, String>> confirmBooking(@RequestBody Map<String, String> requestData) {
-		String doctorId = requestData.get("doctorId");
-		String selectedDate = requestData.get("selectedDate");
-		String selectedTime = requestData.get("selectedTime");
-		String ca = requestData.get("selectedCa");
-		LocalDate selectedDates;
-		nguoiDungId = getNguoiDungId();
-		try {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-			selectedDates = LocalDate.parse(selectedDate, formatter);
-		} catch (DateTimeParseException e) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-d");
-			selectedDates = LocalDate.parse(selectedDate, formatter);
-		}
+	    String doctorId = requestData.get("doctorId");
+	    String selectedDate = requestData.get("selectedDate");
+	    String selectedTime = requestData.get("selectedTime");
+	    String ca = requestData.get("selectedCa");
+	    LocalDate selectedDates;
+	    nguoiDungId = getNguoiDungId();
+	    
+	    try {
+	        DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+	            .appendPattern("yyyy")
+	            .appendLiteral('-')
+	            .appendPattern("M")
+	            .appendLiteral('-')
+	            .appendPattern("d")
+	            .parseDefaulting(ChronoField.MONTH_OF_YEAR, 1)
+	            .parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
+	            .toFormatter();
+	        
+	        selectedDates = LocalDate.parse(selectedDate, formatter);
+	    } catch (DateTimeParseException e) {
+	        Map<String, String> response = new HashMap<>();
+	        response.put("status", "error");
+	        response.put("message", "Định dạng ngày không hợp lệ. Vui lòng nhập đúng định dạng yyyy-MM-dd.");
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	    }
 
-		// Tìm Lịch Khám Bệnh theo doctorId, selectedDate và ca
-		MaLichKhamBenhDTO lichKhamBenh = lichKhamBenhService.findByDoctorIdAndDateAndCa(doctorId, selectedDates, ca);
-		BenhNhan benhnhan = benhNhanService.findById(nguoiDungId);
-		Optional<LichKhamBenh> lichkham = lichKhamBenhService.findById(lichKhamBenh.getMaLichKhamBenh());
-		SlotThoiGian check = slotThoiGianService.findExist(calculateStartTime(selectedTime), benhnhan.getBenhNhanId(),
-				lichKhamBenh.getMaLichKhamBenh());
+	    // Tìm Lịch Khám Bệnh theo doctorId, selectedDate và ca
+	    MaLichKhamBenhDTO lichKhamBenh = lichKhamBenhService.findByDoctorIdAndDateAndCa(doctorId, selectedDates, ca);
+	    BenhNhan benhnhan = benhNhanService.findById(nguoiDungId);
+	    Optional<LichKhamBenh> lichkham = lichKhamBenhService.findById(lichKhamBenh.getMaLichKhamBenh());
+	    SlotThoiGian check = slotThoiGianService.findExist(calculateStartTime(selectedTime), benhnhan.getBenhNhanId(),
+	            lichKhamBenh.getMaLichKhamBenh());
 
-		if (lichKhamBenh != null && check == null) {
-			SlotThoiGian slotThoiGian = new SlotThoiGian();
-			slotThoiGian.setSlotId(UUID.randomUUID().toString()); // Tạo ID ngẫu nhiên cho Slot
-			slotThoiGian.setLichKhamBenh(lichkham.get()); // Liên kết với lịch khám bệnh đã tìm được
+	    if (lichKhamBenh != null && check == null) {
+	        SlotThoiGian slotThoiGian = new SlotThoiGian();
+	        slotThoiGian.setSlotId(UUID.randomUUID().toString()); // Tạo ID ngẫu nhiên cho Slot
+	        slotThoiGian.setLichKhamBenh(lichkham.get()); // Liên kết với lịch khám bệnh đã tìm được
 
-			// Xác định giờ bắt đầu và kết thúc dựa trên `ca` và `selectedTime`
-			LocalTime thoiGianBatDau = calculateStartTime(selectedTime);
-			LocalTime thoiGianKetThuc = calculateEndTime(selectedTime);
+	        // Xác định giờ bắt đầu và kết thúc dựa trên `ca` và `selectedTime`
+	        LocalTime thoiGianBatDau = calculateStartTime(selectedTime);
+	        LocalTime thoiGianKetThuc = calculateEndTime(selectedTime);
 
-			slotThoiGian.setThoiGianBatDau(thoiGianBatDau);
-			slotThoiGian.setThoiGianKetThuc(thoiGianKetThuc);
-			slotThoiGian.setTrangThai("pending");
-			slotThoiGian.setBenhNhan(benhnhan);
+	        slotThoiGian.setThoiGianBatDau(thoiGianBatDau);
+	        slotThoiGian.setThoiGianKetThuc(thoiGianKetThuc);
+	        slotThoiGian.setTrangThai("pending");
+	        slotThoiGian.setBenhNhan(benhnhan);
 
-			// Lưu SlotThoiGian vào cơ sở dữ liệu
-			slotThoiGianService.save(slotThoiGian);
+	        // Lưu SlotThoiGian vào cơ sở dữ liệu
+	        slotThoiGianService.save(slotThoiGian);
 
-			// Return a response with a success message
-			Map<String, String> response = new HashMap<>();
-			response.put("status", "success");
-			response.put("message", "Booking confirmed successfully");
+	        // Return a response with a success message
+	        Map<String, String> response = new HashMap<>();
+	        response.put("status", "success");
+	        response.put("message", "Booking confirmed successfully");
 
-			return ResponseEntity.ok(response);
-		} else {
-			// Return a response with a failure message
-			Map<String, String> response = new HashMap<>();
-			response.put("status", "failure");
-			response.put("message", "Đã có người đặt khung giờ này vui lòng thực hiện lại");
+	        return ResponseEntity.ok(response);
+	    } else {
+	        // Return a response with a failure message
+	        Map<String, String> response = new HashMap<>();
+	        response.put("status", "failure");
+	        response.put("message", "Đã có người đặt khung giờ này, vui lòng thực hiện lại");
 
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-		}
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	    }
 	}
 
 	@GetMapping("/user/lichsudatlich")
@@ -512,4 +1109,28 @@ public class NguoiDungController {
 		return "benhnhan/xemchuyenkhoa/xemchitietchuyenkhoa"; // Trang chi tiết chuyên khoa
 	}
 
+	@GetMapping("/test-font")
+	public ResponseEntity<?> testFont() {
+	    try {
+	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	        PdfWriter writer = new PdfWriter(baos);
+	        PdfDocument pdf = new PdfDocument(writer);
+	        Document document = new Document(pdf);
+	        PdfFont font = PdfFontFactory.createFont("/fonts/BeVietnamPro-Black.ttf", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+	        document.add(new Paragraph("Kiểm tra font tiếng Việt: Định dạng, Chẩn đoán, Triệu chứng").setFont(font));
+	        document.close();
+	        ByteArrayResource resource = new ByteArrayResource(baos.toByteArray());
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=test-font.pdf");
+	        return ResponseEntity.ok()
+	            .headers(headers)
+	            .contentLength(baos.size())
+	            .contentType(MediaType.APPLICATION_PDF)
+	            .body(resource);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	            .body(Collections.singletonMap("error", "Không thể tạo PDF: " + e.getMessage()));
+	    }
+	}
 }

@@ -1,205 +1,513 @@
 <!DOCTYPE html>
-<html lang="vi">
-
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Bước 2 - Đặt Lịch Khám</title>
-	<link th:href="@{/css/dangkylichkham.css}" rel="stylesheet">
-	<link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bước 2 - Đặt Lịch Khám</title>
+    <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --book-primary: #b3e5fc; /* Light blue theme */
+            --book-accent: #4fc3f7; /* Vibrant blue for highlights */
+            --book-secondary: #ffffff; /* White for cards */
+            --book-text: #263238; /* Dark slate for readability */
+            --book-shadow: 0 3px 10px rgba(179, 229, 252, 0.3);
+            --book-glow: 0 0 10px rgba(79, 195, 247, 0.7);
+        }
+
+        .book-body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--book-primary) 0%, #87ceeb 100%);
+            color: var(--book-text);
+            line-height: 1.6;
+        }
+
+        .book-dk-container {
+            max-width: 900px;
+            margin: 100px auto;
+            padding: 30px;
+            background: var(--book-secondary);
+            border-radius: 15px;
+            box-shadow: var(--book-shadow);
+            position: relative;
+            overflow: hidden;
+            animation: book-fadeIn 1s ease-out;
+        }
+
+        @keyframes book-fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .book-dk-step {
+            display: none;
+        }
+
+        .book-dk-step.active {
+            display: block;
+        }
+
+        .book-dk-title {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--book-text);
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            position: relative;
+            animation: book-glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes book-glow {
+            0% { text-shadow: 0 0 5px var(--book-accent); }
+            100% { text-shadow: 0 0 15px var(--book-glow); }
+        }
+
+        .book-dk-instructions {
+            background: rgba(179, 229, 252, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--book-accent);
+            animation: book-slideIn 1s ease-out;
+        }
+
+        @keyframes book-slideIn {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        .book-dk-instructions p {
+            font-weight: 700;
+            color: var(--book-accent);
+            margin-bottom: 10px;
+        }
+
+        .book-dk-instructions ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .book-dk-instructions li {
+            font-size: 1.1em;
+            color: var(--book-text);
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .book-dk-instructions li::before {
+            content: '✔';
+            position: absolute;
+            left: 0;
+            color: var(--book-accent);
+            font-size: 1.2em;
+        }
+
+        .book-dk-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .book-dk-schedule-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .book-dk-calendar {
+            background: var(--book-secondary);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--book-shadow);
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .book-dk-calendar h3 {
+            font-size: 1.5em;
+            color: var(--book-text);
+            margin-bottom: 15px;
+        }
+
+        .book-dk-date-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 15px;
+        }
+
+        .book-dk-date-grid .book-dk-date {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--book-primary);
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+            font-size: 1em;
+            color: var(--book-text);
+        }
+
+        .book-dk-date-grid .book-dk-date.empty {
+            background: transparent;
+            cursor: default;
+        }
+
+        .book-dk-date-grid .book-dk-date.today {
+            background: var(--book-accent);
+            color: var(--book-secondary);
+            font-weight: 700;
+        }
+
+        .book-dk-date-grid .book-dk-date:hover:not(.empty) {
+            background: var(--book-accent);
+            color: var(--book-secondary);
+            transform: scale(1.1);
+        }
+
+        .book-dk-date-grid .book-dk-date.selected {
+            background: #0288d1;
+            color: var(--book-secondary);
+            box-shadow: var(--book-glow);
+        }
+
+        #book-selected-date {
+            margin-top: 15px;
+            font-size: 15px;
+            color: var(--book-text);
+            animation: book-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes book-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .book-dk-time-slots {
+            background: var(--book-secondary);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--book-shadow);
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .book-dk-time-slots h3 {
+            font-size: 1.5em;
+            color: var(--book-text);
+            margin-bottom: 15px;
+        }
+
+        .book-time-frame {
+            margin-bottom: 20px;
+        }
+
+        .book-time-frame h4 {
+            font-size: 1.2em;
+            color: var(--book-text);
+            margin-bottom: 10px;
+        }
+
+        .book-time-frame label {
+            display: flex;
+            align-items: center;
+            background: var(--book-primary);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .book-time-frame label:hover {
+            background: var(--book-accent);
+            color: var(--book-secondary);
+            transform: scale(1.02);
+        }
+
+        .book-time-frame input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .book-time-frame label[disabled] {
+            background: #e0e0e0;
+            text-decoration: line-through;
+            cursor: not-allowed;
+            color: #bbb;
+        }
+
+        .book-dk-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .book-dk-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+            flex: 1;
+            text-align: center;
+        }
+
+        .book-dk-btn-primary {
+            background: var(--book-accent);
+            color: var(--book-secondary);
+        }
+
+        .book-dk-btn-primary:hover {
+            background: #0288d1;
+            transform: scale(1.05);
+        }
+
+        .book-dk-btn-secondary {
+            background: #6c757d;
+            color: var(--book-secondary);
+        }
+
+        .book-dk-btn-secondary:hover {
+            background: #5a6268;
+            transform: scale(1.05);
+        }
+
+        /* Responsive Design */
+        @media (max-width:768px) {
+            .book-dk-container {
+                margin: 80px auto;
+                padding: 20px;
+                width: 90%;
+            }
+
+            .book-dk-title {
+                font-size: 1.8em;
+            }
+
+            .book-dk-schedule-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .book-dk-date-grid .book-dk-date {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9em;
+            }
+
+            .book-dk-btn {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .book-dk-title {
+                font-size: 1.5em;
+            }
+
+            .book-dk-date-grid {
+                gap: 5px;
+            }
+
+            .book-dk-date-grid .book-dk-date {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8em;
+            }
+
+            .book-dk-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .book-dk-btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
+<body class="book-body">
+    <div th:replace="benhnhan/fragments/header :: header"></div>
 
-<body>
-	<div th:replace="benhnhan/fragments/header :: header"></div> <!-- Header -->
-	<input type="hidden" name="doctor-id" id="doctor-id" th:value="${doctorId}">
+    <div class="book-dk-container">
+        <div class="book-dk-step book-dk-step-2 active">
+            <h2 class="book-dk-title">TIỆN LỢI - NHANH CHÓNG</h2>
+            <div class="book-dk-instructions">
+                <p><strong>Cách đặt hẹn:</strong></p>
+                <ul>
+                    <li>Bước 2: Chọn ngày và giờ bạn muốn khám để đặt hẹn khám bệnh.</li>
+                </ul>
+            </div>
+            <form class="book-dk-form" th:action="@{/user/dangkylichkham/buoc3}" method="get">
+                <input type="hidden" name="doctorId" id="book-hidden-doctorId" th:value="${doctorId ?: ''}">
+                <input type="hidden" name="selectedDate" id="book-hidden-selectedDate">
+                <input type="hidden" name="selectedTime" id="book-hidden-selectedTime">
+                <input type="hidden" name="ca" id="book-hidden-ca">
 
-	<!-- Step 2 -->
-	<div class="dk-container">
-		<div class="dk-step dk-step-2 active">
-			<h2 class="dk-title">TIỆN LỢI - NHANH CHÓNG</h2>
-			<div class="dk-instructions">
-				<p><strong>Cách đặt hẹn:</strong></p>
-				<ul>
-					<li>Bước 2: Chọn ngày và giờ bạn muốn khám để đặt hẹn khám bệnh.</li>
-				</ul>
-			</div>
-			<form class="dk-form">
-				<div class="dk-schedule-container">
-					<!-- Calendar -->
-					<div class="dk-calendar" id="calendar">
-						<h3 id="month-name"></h3>
-						<div class="dk-date-grid" id="month"></div>
-						<p id="selected-date">Bạn chưa chọn ngày.</p>
-					</div>
-					<!-- Time Slots -->
-					<div class="dk-time-slots" id="available-time-slots">
-						<h3>Chọn Giờ</h3>
-					</div>
-				</div>
-				<div class="dk-actions">
-					<button type="button" class="dk-btn dk-btn-secondary"
-						onclick="window.location.href='/user/dangkylichkham'">TRỞ LẠI</button>
-					<!-- Sửa nút tiếp theo để gửi POST -->
-					<button type="button" class="dk-btn dk-btn-primary" onclick="proceedToStep3()">TIẾP THEO</button>
-				</div>
-			</form>
-		</div>
-	</div>
+                <div class="book-dk-schedule-container">
+                    <div class="book-dk-calendar" id="book-calendar">
+                        <h3 id="book-month-name"></h3>
+                        <div class="book-dk-date-grid" id="book-month"></div>
+                        <p id="book-selected-date">Bạn chưa chọn ngày.</p>
+                    </div>
+                    <div class="book-dk-time-slots" id="book-available-time-slots">
+                        <h3>Chọn Giờ</h3>
+                    </div>
+                </div>
+                <div class="book-dk-actions">
+                    <button type="button" class="book-dk-btn book-dk-btn-secondary" 
+                            onclick="window.location.href='/user/dangkylichkham'">TRỞ LẠI</button>
+                    <button type="button" class="book-dk-btn book-dk-btn-primary" onclick="proceedToStep3()">TIẾP THEO</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-	<!-- Inline JavaScript for Step 2 -->
-	<script>
-		let selectedDate = null;
-		let selectedTime = null;
-		let doctorId = document.getElementById("doctor-id").value;
+    <script>
+        let selectedDate = null;
+        let doctorId = document.getElementById("book-hidden-doctorId").value;
 
-		// Initialize the current month and year
-		const today = new Date();
-		const currentMonth = today.getMonth(); // 0-based month (0 = January, 11 = December)
-		const currentYear = today.getFullYear();
-		const currentDate = today.getDate();
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        const currentDate = today.getDate();
 
-		// Display the month and year in the calendar header
-		document.getElementById("month-name").textContent = `${getMonthName(currentMonth)} ${currentYear}`;
+        document.getElementById("book-month-name").textContent = `${getMonthName(currentMonth)} ${currentYear}`;
+        generateCalendar(currentMonth, currentYear);
 
-		// Generate the calendar for the current month
-		generateCalendar(currentMonth, currentYear);
+        function generateCalendar(month, year) {
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const monthGrid = document.getElementById("book-month");
 
-		function generateCalendar(month, year) {
-			const daysInMonth = new Date(year, month + 1, 0).getDate(); // Get the number of days in the month
-			const firstDayOfMonth = new Date(year, month, 1).getDay(); // Get the day of the week for the 1st day of the month
-			const monthGrid = document.getElementById("month");
+            monthGrid.innerHTML = '';
 
-			// Clear any existing dates in the grid
-			monthGrid.innerHTML = '';
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                monthGrid.innerHTML += `<div class="book-dk-date empty"></div>`;
+            }
 
-			// Add empty cells for the days before the 1st day of the month
-			for (let i = 0; i < firstDayOfMonth; i++) {
-				monthGrid.innerHTML += `<div class="dk-date empty"></div>`;
-			}
+            for (let day = 1; day <= daysInMonth; day++) {
+                const isToday = day === currentDate;
+                const dayClass = isToday ? 'book-dk-date today' : 'book-dk-date';
+                monthGrid.innerHTML += `<button type="button" class="${dayClass}" onclick="selectDate(${day}, ${month + 1}, ${year})">${day}</button>`;
+            }
+        }
 
-			// Add the actual days of the month to the calendar
-			for (let day = 1; day <= daysInMonth; day++) {
-				const isToday = day === currentDate;
-				const dayClass = isToday ? 'dk-date today' : 'dk-date';
+        function getMonthName(month) {
+            const months = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            return months[month];
+        }
 
-				monthGrid.innerHTML += `<button type="button" class="${dayClass}" onclick="selectDate(${day}, ${month + 1}, ${year})">${day}</button>`;
-			}
-		}
+        function selectDate(day, month, year) {
+            selectedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+            document.getElementById("book-selected-date").textContent = `Ngày đã chọn: ${selectedDate}`;
 
-		function getMonthName(month) {
-			const months = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
-			return months[month];
-		}
+            const buttons = document.querySelectorAll('.book-dk-date');
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
 
-		function selectDate(day, month, year) {
-			selectedDate = `${year}-${month}-${day}`;
-			document.getElementById("selected-date").textContent = `Ngày đã chọn: ${selectedDate}`;
+            fetch(`/user/dangkylichkham/getAvailableSlots`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ doctorId: doctorId, date: selectedDate })
+            })
+                .then(response => response.json())
+                .then(data => updateAvailableSlots(data))
+                .catch(error => console.error('Error:', error));
+        }
 
-			// Fetch available slots for the selected date and doctor
-			fetch(`/user/dangkylichkham/getAvailableSlots`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({doctorId: doctorId, date: selectedDate})
-			})
-				.then(response => response.json())
-				.then(data => {
-					updateAvailableSlots(data);
-				});
-		}
+        function updateAvailableSlots(data) {
+            const bookedSlots = data.bookedSlots || [];
+            const caList = data.caList || [];
+            const timeSlotsContainer = document.getElementById("book-available-time-slots");
+            timeSlotsContainer.innerHTML = '<h3>Chọn Giờ</h3>';
 
-		function updateAvailableSlots(data) {
-			const bookedSlots = data.bookedSlots;
-			const caList = data.caList;
-			const timeSlotsContainer = document.getElementById("available-time-slots");
-			timeSlotsContainer.innerHTML = ''; // Clear existing slots
+            const timeFrames = {
+                "Sáng": ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00"],
+                "Chiều": ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00"],
+                "Ngoài Giờ": ["17:00", "17:30", "18:00", "18:30", "19:00"]
+            };
 
-			const timeFrames = {
-				"Sáng": ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"],
-				"Chiều": ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"],
-				"Ngoài Giờ": ["17:00", "17:30", "18:00", "18:30", "19:00", "19:30"]
-			};
+            for (const timeFrame in timeFrames) {
+                if (caList.includes(timeFrame)) {
+                    const timeSlots = timeFrames[timeFrame];
+                    const timeSlotContainer = document.createElement("div");
+                    timeSlotContainer.classList.add("book-time-frame");
 
-			for (const timeFrame in timeFrames) {
-				if (caList.includes(timeFrame)) {
-					const timeSlots = timeFrames[timeFrame];
-					const timeSlotContainer = document.createElement("div");
-					timeSlotContainer.classList.add("time-frame");
+                    const timeFrameTitle = document.createElement("h4");
+                    timeFrameTitle.textContent = timeFrame;
+                    timeSlotContainer.appendChild(timeFrameTitle);
 
-					const timeFrameTitle = document.createElement("h4");
-					timeFrameTitle.textContent = timeFrame;
-					timeSlotContainer.appendChild(timeFrameTitle);
+                    timeSlots.forEach(time => {
+                        const isBooked = bookedSlots.includes(time);
+                        const label = document.createElement("label");
+                        const input = document.createElement("input");
+                        input.type = "radio";
+                        input.name = "time";
+                        input.value = time;
 
-					timeSlots.forEach(time => {
-						const isBooked = bookedSlots.includes(time);
-						const label = document.createElement("label");
-						const input = document.createElement("input");
-						input.type = "radio";
-						input.name = "time";
-						input.value = time;
+                        if (isBooked) {
+                            label.setAttribute('disabled', 'disabled');
+                            input.disabled = true;
+                        }
 
-						if (isBooked) {
-							label.style.textDecoration = 'line-through'; // Gạch chéo nếu đã có lịch
-							input.disabled = true; // Disable nếu đã có lịch
-						}
+                        label.appendChild(input);
+                        label.appendChild(document.createTextNode(time));
+                        timeSlotContainer.appendChild(label);
+                    });
 
-						label.appendChild(input);
-						label.appendChild(document.createTextNode(time));
-						timeSlotContainer.appendChild(label);
-					});
+                    timeSlotsContainer.appendChild(timeSlotContainer);
+                }
+            }
+        }
 
-					timeSlotsContainer.appendChild(timeSlotContainer);
-				}
-			}
-		}
+        function proceedToStep3() {
+            const selectedTime = document.querySelector('input[name="time"]:checked');
+            if (selectedTime) {
+                const selectedTimeValue = selectedTime.value;
+                const selectedTimeHour = parseInt(selectedTimeValue.split(':')[0], 10);
+                const selectedTimeMinute = parseInt(selectedTimeValue.split(':')[1], 10);
 
-		function proceedToStep3() {
-			const selectedTime = document.querySelector('input[name="time"]:checked');
+                let ca = '';
+                if ((selectedTimeHour > 7 || (selectedTimeHour === 7 && selectedTimeMinute >= 30)) && (selectedTimeHour < 12 || (selectedTimeHour === 11 && selectedTimeMinute <= 30))) {
+                    ca = 'Sáng';
+                } else if ((selectedTimeHour >= 13 && selectedTimeHour < 17) || (selectedTimeHour === 16 && selectedTimeMinute <= 30)) {
+                    ca = 'Chiều';
+                } else if ((selectedTimeHour >= 17 && selectedTimeHour < 20) || (selectedTimeHour === 19 && selectedTimeMinute <= 30)) {
+                    ca = 'Ngoài Giờ';
+                } else {
+                    alert('Giờ khám không hợp lệ! Vui lòng chọn lại!');
+                    return;
+                }
 
-			if (selectedTime) {
-				const selectedTimeValue = selectedTime.value;  // Giá trị giờ đã chọn
-				const selectedTimeHour = parseInt(selectedTimeValue.split(':')[0], 10);  // Lấy giờ từ giá trị giờ (ví dụ: "13:00" -> 13)
-				const selectedTimeMinute = parseInt(selectedTimeValue.split(':')[1], 10);  // Lấy phút từ giá trị giờ (ví dụ: "13:30" -> 30)
+                const doctorId = document.getElementById("book-hidden-doctorId").value;
+                if (!doctorId || !selectedDate || !selectedTimeValue || !ca) {
+                    alert('Dữ liệu không đầy đủ, vui lòng chọn lại!');
+                    return;
+                }
 
-				// Xác định ca dựa trên giờ và phút
-				let ca = '';
+                document.getElementById("book-hidden-selectedDate").value = selectedDate;
+                document.getElementById("book-hidden-selectedTime").value = selectedTimeValue;
+                document.getElementById("book-hidden-ca").value = ca;
 
-				if ((selectedTimeHour > 7 || (selectedTimeHour === 7 && selectedTimeMinute >= 30)) && (selectedTimeHour < 12 || (selectedTimeHour === 11 && selectedTimeMinute <= 30))) {
-					// 7h30 - 11h30 => Ca Sáng
-					ca = 'Sáng';
-				} else if ((selectedTimeHour >= 13 && selectedTimeHour < 17) || (selectedTimeHour === 16 && selectedTimeMinute <= 30)) {
-					// 13h - 16h30 => Ca Chiều
-					ca = 'Chiều';
-				} else if ((selectedTimeHour >= 17 && selectedTimeHour < 20) || (selectedTimeHour === 19 && selectedTimeMinute <= 30)) {
-					// 17h - 19h30 => Ca Tối
-					ca = 'Tối';
-				} else {
-					alert('Giờ khám không hợp lệ! Vui lòng chọn lại!');
-					return;
-				}
-
-				// Xây dựng URL cho request GET
-				const url = new URL('/user/dangkylichkham/buoc3', window.location.origin);
-				const params = new URLSearchParams();
-				params.append("doctorId", doctorId);  // doctorId cần được xác định từ đâu đó
-				params.append("selectedDate", selectedDate);  // selectedDate cần được xác định từ đâu đó
-				params.append("selectedTime", selectedTimeValue);
-				params.append("ca", ca);  // Gán giá trị của ca vào tham số
-
-				// Thêm tham số vào URL
-				url.search = params.toString();
-
-				// Chuyển hướng tới URL đã xây dựng
-				window.location.href = url.toString();
-			} else {
-				alert('Vui lòng chọn giờ khám!');
-			}
-
-		}
-
-
-	</script>
+                document.querySelector(".book-dk-form").submit();
+            } else {
+                alert('Vui lòng chọn giờ khám!');
+            }
+        }
+    </script>
 </body>
-
 </html>

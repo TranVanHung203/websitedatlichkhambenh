@@ -58,8 +58,10 @@ public class WebSecurityConfig {
                         .requestMatchers("/bacsi/**", "/bacsi").hasRole("BacSi")
                         .requestMatchers("/nhanvien/**").hasRole("NhanVien")
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/chat/msgbn").hasRole("BenhNhan") 
+                        .requestMatchers("/chat/msgbs").hasRole("BacSi") 
                         .requestMatchers("/home", "/view/schedule", "/findbs", "/departments/**", "/chitietbacsi/**", "/user/dangkylichkham").permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")

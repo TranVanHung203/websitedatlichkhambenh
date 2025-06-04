@@ -42,6 +42,10 @@
 				<label>Giới Tính:</label>
 				<span id="patientGender"></span>
 			</div>
+			<div>
+				<label for="trieuChung">Triệu Chứng:</label>
+				<input type="text" name="trieuChung" id="trieuChung" required />
+			</div>
 
 			<label for="drugSearch">Tìm Kiếm Thuốc:</label>
 			<!-- Tìm kiếm thuốc -->
@@ -147,12 +151,14 @@
 						drugs.forEach(drug => {
 							if (!selectedDrugs.has(drug.thuocId)) {
 								$('#drugResults').append(`
-                                    <div class="drug-card" onclick="selectDrug(${drug.thuocId}, '${drug.ten}')">
-                                        <p><strong>${drug.ten}</strong></p>
-                                    </div>
-                                `);
+            <div class="drug-card" onclick="selectDrug(${drug.thuocId}, '${drug.ten}', '${drug.nhaCungCap}')">
+                <p><strong>${drug.ten}</strong></p>
+                <small>Nhà cung cấp: ${drug.nhaCungCap}</small>
+            </div>
+        `);
 							}
 						});
+
 					} else {
 						alert('Không tìm thấy thuốc.');
 					}

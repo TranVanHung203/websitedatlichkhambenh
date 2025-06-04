@@ -24,7 +24,9 @@ public class SlotThoiGianService {
 		return slotThoiGianRepository.findByLichKhamBenh_MaLichKhamBenh(lichKhamBenh);
 	}
 
-
+	public SlotThoiGian findById(String slotId) {
+        return slotThoiGianRepository.findById(slotId).orElse(null);
+    }
 
 	public void save(SlotThoiGian slotThoiGian) {
 		slotThoiGianRepository.save(slotThoiGian);

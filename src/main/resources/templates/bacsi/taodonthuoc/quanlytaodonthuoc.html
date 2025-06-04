@@ -1,134 +1,809 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Quản Lý Đơn Thuốc</title>
-	<link th:href="@{/css/headerbacsi.css}" rel="stylesheet">
-	<link th:href="@{/css/quanlytaodonthuoc.css}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem Lịch Sử Khám Bệnh</title>
+    <link th:href="@{/css/headerbacsi.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        /* Bọc toàn bộ style trong class .main-content để tránh xung đột */
+        .main-content * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
 
-	<!-- Add SweetAlert CSS and JS -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.10/dist/sweetalert2.min.css">
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.10/dist/sweetalert2.all.min.js"></script>
+        .main-content {
+            position: relative; /* Ensure main-content respects padding */
+        }
+
+        .main-content body {
+            background: linear-gradient(135deg, #e6f0fa 0%, #d1e3fa 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            padding: 200px 20px 20px; /* Increased padding-top to 200px */
+            min-height: 100vh;
+        }
+
+        .main-content .container {
+            max-width: 1000px;
+            margin: 60px auto; /* Increased margin-top from 40px to 60px */
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 50, 100, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .main-content .container:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0, 50, 100, 0.2);
+        }
+
+        .main-content h1 {
+            color: #2563eb;
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .main-content .search-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: center;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
+        }
+
+        .main-content .search-filter label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 15px;
+        }
+
+        .main-content .search-filter input {
+            padding: 10px 15px;
+            border: 1px solid #d1e3fa;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #fff;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 50, 100, 0.1);
+            width: 200px;
+        }
+
+        .main-content .search-filter input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            background: #fff;
+            outline: none;
+        }
+
+        .main-content .search-filter button {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .main-content .search-filter button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .main-content .date-filter {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .main-content .date-filter label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 15px;
+        }
+
+        .main-content .date-filter #dateRangePicker {
+            padding: 10px 15px;
+            border: 1px solid #d1e3fa;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #fff;
+            width: 250px;
+        }
+
+        .main-content .date-filter button {
+            background: linear-gradient(90deg, #f87171, #ef4444);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .main-content .date-filter button:hover {
+            background: linear-gradient(90deg, #dc2626, #b91c1c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .main-content .patient-info {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .main-content .patient-info h2 {
+            color: #2563eb;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .main-content .patient-info p {
+            margin: 10px 0;
+            font-size: 16px;
+            display: flex;
+        }
+
+        .main-content .patient-info p strong {
+            color: #4a5568;
+            width: 180px;
+            font-weight: 600;
+        }
+
+        .main-content .history {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
+        }
+
+        .main-content .history h2 {
+            color: #2563eb;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .main-content .history table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .main-content .history th,
+        .main-content .history td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #d1e3fa;
+        }
+
+        .main-content .history th {
+            background: #e6f0fa;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 15px;
+        }
+
+        .main-content .history td {
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        .main-content .history tr:hover {
+            background: #e6f0fa;
+            transition: background 0.3s ease;
+        }
+
+        .main-content .history button {
+            background: linear-gradient(45deg, #60a5fa, #3b82f6);
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .main-content .history button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .main-content .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .main-content .pagination button {
+            padding: 8px 15px;
+            border: none;
+            background: #e6f0fa;
+            color: #4a5568;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .main-content .pagination button.active {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .main-content .pagination button:hover:not(:disabled) {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .main-content .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .main-content .swal2-container .record-card {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .main-content .swal2-container .nav-tabs {
+            margin-top: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .main-content .swal2-container .nav-tabs .nav-link {
+            color: #495057;
+            border-radius: 5px 5px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .main-content .swal2-container .nav-tabs .nav-link.active {
+            color: #2563eb;
+            background: #f8fafc;
+            border-color: #dee2e6 #dee2e6 #f8fafc;
+        }
+
+        .main-content .swal2-container .nav-tabs .nav-link:hover {
+            color: #3b82f6;
+            background: #e6f0fa;
+        }
+
+        .main-content .swal2-container .tab-content {
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            background: #f8fafc;
+            display: block;
+        }
+
+        .main-content .swal2-container .tab-pane {
+            display: none;
+        }
+
+        .main-content .swal2-container .tab-pane.active {
+            display: block;
+        }
+
+        .main-content .swal2-container .tab-pane.show {
+            display: block;
+        }
+
+        .main-content .swal2-container .table {
+            width: 100%;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+
+        .main-content .swal2-container .table th,
+        .main-content .swal2-container .table td {
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .main-content .swal2-container .table th {
+            background: #e6f0fa;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .main-content .swal2-container .table td {
+            background: #fff;
+        }
+
+        @media (max-width: 600px) {
+            .main-content body {
+                padding-top: 150px; /* Adjusted for smaller screens to 150px */
+            }
+
+            .main-content .container {
+                padding: 20px;
+                margin: 20px auto;
+            }
+
+            .main-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .main-content .search-filter {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .main-content .search-filter input,
+            .main-content .search-filter button {
+                width: 100%;
+            }
+
+            .main-content .date-filter {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .main-content .date-filter #dateRangePicker,
+            .main-content .date-filter button {
+                width: 100%;
+            }
+
+            .main-content .patient-info h2,
+            .main-content .history h2 {
+                font-size: 1.5rem;
+            }
+
+            .main-content .patient-info p {
+                font-size: 14px;
+            }
+
+            .main-content .patient-info p strong {
+                width: 140px;
+            }
+
+            .main-content .history th,
+            .main-content .history td {
+                font-size: 13px;
+                padding: 10px;
+            }
+
+            .main-content .history button {
+                font-size: 13px;
+                padding: 6px 12px;
+            }
+
+            .main-content .pagination button {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-	<div th:replace="bacsi/fragments/header :: header"></div>
+    <div th:replace="bacsi/fragments/header :: header"></div>
 
-	<h1>Quản Lý Đơn Thuốc</h1>
+    <div class="main-content">
+        <div class="container">
+            <h1>Xem Lịch Sử Khám Bệnh</h1>
 
-	<button class="create-button" onclick="window.location.href='/bacsi/taodonthuoc'">Tạo Đơn Thuốc</button>
-	<form method="get" th:action="@{/bacsi/quanlytaodonthuoc}">
-		<input type="text" name="search" placeholder="Nhập tên bệnh nhân cần tìm" th:value="${search}" />
-	</form>
+            <div class="search-filter">
+                <label for="phone">Nhập SĐT bệnh nhân:</label>
+                <input type="text" id="phone" name="phone" placeholder="Nhập số điện thoại..." th:value="${phone}" required>
+                <button type="button" onclick="searchPatient()">Tìm Kiếm</button>
+            </div>
 
-	<!-- Kiểm tra nếu không có đơn thuốc -->
-	<div th:if="${#lists.isEmpty(donThuocs)}" class="no-results">
-		<p>Không tìm thấy thông tin bệnh nhân.</p>
-	</div>
+            <div class="content-wrapper" id="patientContent" style="display: none;">
+                <div class="patient-info">
+                    <h2>Thông Tin Bệnh Nhân</h2>
+                    <p><strong>Tên:</strong> <span id="patientName"></span></p>
+                    <p><strong>Ngày Sinh:</strong> <span id="patientDob"></span></p>
+                    <p><strong>Giới Tính:</strong> <span id="patientGender"></span></p>
+                    <p><strong>Địa Chỉ:</strong> <span id="patientAddress"></span></p>
+                    <p><strong>Số Điện Thoại:</strong> <span id="patientPhone"></span></p>
+                </div>
 
-	<!-- Hiển thị bảng đơn thuốc -->
-	<div th:unless="${#lists.isEmpty(donThuocs)}">
-		<table>
-			<thead>
-				<tr>
-					<th>Bệnh Nhân</th>
-					<th>Chẩn Đoán</th>
-					<th>Thời Gian Tạo Đơn</th>
-					<th>Tên Thuốc</th>
-					<th>Liều Lượng</th>
-					<th>Tần Suất / lần</th>
-					<th>Số Lượng</th> <!-- Thêm cột tiêu đề -->
-					<th>Tổng Tiền Thuốc</th>
-					<th>Hành Động</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="donThuoc : ${donThuocs}">
-					<td th:text="${donThuoc.hoSoBenh.benhNhan.ten}"></td>
-					<td th:text="${donThuoc.hoSoBenh.chanDoan}"></td>
-					<td th:text="${donThuoc.formattedDate}"></td>
-					<td>
-						<ul>
-							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.thuoc.ten}"></li>
-						</ul>
-					</td>
-					<td>
-						<ul>
-							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.lieu}"></li>
-						</ul>
-					</td>
-					<td>
-						<ul>
-							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.tanSuat}"></li>
-						</ul>
-					</td>
-					<td>
-						<ul>
-							<!-- Hiển thị số lượng thuốc -->
-							<li th:each="thuoc : ${donThuoc.donThuocThuocs}" th:text="${thuoc.soLuong}"></li>
-						</ul>
-					</td>
-					<td th:text="${donThuoc.formattedTongTienThuoc}"></td>
-					<td>
-						<form th:action="@{|/bacsi/xoadonthuoc/${donThuoc.donThuocId}|}" method="post">
-							<button type="submit"
-								onclick="return confirm('Bạn có chắc chắn muốn xóa đơn thuốc này?')">Xóa</button>
-						</form>
-						<a th:href="@{|/bacsi/capnhatdonthuoc?id=${donThuoc.donThuocId}|}" class="edit-button">Sửa</a>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+                <div class="date-filter" id="dateFilter" style="display: none;">
+                    <label>Lọc theo khoảng ngày:</label>
+                    <input type="text" id="dateRangePicker" placeholder="Chọn khoảng ngày">
+                    <button onclick="resetDateFilter()">Xóa bộ lọc</button>
+                </div>
 
+                <div class="history" id="historyContent" style="display: none;">
+                    <h2>Lịch Sử Khám Bệnh</h2>
+                    <table id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>Ngày Khám</th>
+                                <th>Chẩn Đoán</th>
+                                <th>Triệu Chứng</th>
+                                <th>Bác Sĩ</th>
+                                <th>Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody"></tbody>
+                    </table>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-		<!-- Pagination -->
-		<div class="pagination">
-			<!-- Link đến trang trước -->
-			<span th:if="${currentPage > 0}">
-				<a
-					th:href="@{|/bacsi/quanlytaodonthuoc?page=${currentPage - 1}&search=${search != null ? search : ''}|}">Trang
-					Trước</a>
-			</span>
+    <script>
+        let medicalHistoryData = [];
+        let currentPage = 0;
+        let totalPages = 1;
+        let currentBenhNhanId = null;
+        let startDate = null;
+        let endDate = null;
 
-			<!-- Danh sách các trang -->
-			<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-				<a th:href="@{|/bacsi/quanlytaodonthuoc?page=${i}&search=${search != null ? search : ''}|}"
-					th:classappend="${i == currentPage} ? 'active' : ''" th:text="${i + 1}"></a>
-			</span>
+        function searchPatient() {
+            const phone = $('#phone').val().trim();
+            if (!phone) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Cảnh báo',
+                    text: 'Vui lòng nhập số điện thoại.',
+                    confirmButtonText: 'Đóng',
+                    confirmButtonColor: '#2563eb'
+                });
+                return;
+            }
 
-			<!-- Link đến trang sau -->
-			<span th:if="${currentPage < totalPages - 1}">
-				<a
-					th:href="@{|/bacsi/quanlytaodonthuoc?page=${currentPage + 1}&search=${search != null ? search : ''}|}">Trang
-					Sau</a>
-			</span>
-		</div>
-	</div>
-	<script>
-		// Hiển thị thông báo thành công
-		let successMessage = /*[[${successMessage}]]*/ null;
-		if (successMessage) {
-			Swal.fire({
-				icon: 'success',
-				title: 'Thành công!',
-				text: successMessage,
-				confirmButtonText: 'OK'
-			});
-		}
+            $.ajax({
+                url: '/bacsi/findPatientByPhone',
+                method: 'GET',
+                data: { phone: phone },
+                success: function(response) {
+                    if (response && response.benhNhanId) {
+                        currentBenhNhanId = response.benhNhanId;
+                        $('#patientContent').show();
+                        $('#dateFilter').show();
+                        $('#patientName').text(response.ten || 'Không có');
+                        $('#patientDob').text(response.ngaySinh || 'Không có');
+                        $('#patientGender').text(response.gioiTinh || 'Không có');
+                        $('#patientAddress').text(response.diaChi || 'Không có');
+                        $('#patientPhone').text(response.dienThoai || 'Không có');
 
-		// Hiển thị thông báo lỗi
-		let errorMessage = /*[[${errorMessage}]]*/ null;
-		if (errorMessage) {
-			Swal.fire({
-				icon: 'error',
-				title: 'Thất bại!',
-				text: errorMessage,
-				confirmButtonText: 'OK'
-			});
-		}
-	</script>
+                        fetchMedicalHistory(currentBenhNhanId, 0);
+                    } else {
+                        $('#patientContent').hide();
+                        $('#dateFilter').hide();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Không tìm thấy',
+                            text: 'Không tìm thấy bệnh nhân với số điện thoại này.',
+                            confirmButtonText: 'Đóng',
+                            confirmButtonColor: '#2563eb'
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    $('#patientContent').hide();
+                    $('#dateFilter').hide();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Lỗi khi tìm kiếm bệnh nhân: ' + (xhr.responseJSON?.message || xhr.statusText),
+                        confirmButtonText: 'Đóng',
+                        confirmButtonColor: '#2563eb'
+                    });
+                }
+            });
+        }
+
+        function fetchMedicalHistory(benhNhanId, page) {
+            let url = `/bacsi/medical-history?benhNhanId=${benhNhanId}&page=${page}&size=5`;
+            if (startDate && endDate) {
+                const startFormatted = startDate.toISOString().split('T')[0];
+                const endFormatted = endDate.toISOString().split('T')[0];
+                url += `&startDate=${startFormatted}&endDate=${endFormatted}`;
+            }
+            $.ajax({
+                url: url,
+                method: 'GET',
+                success: function(data) {
+                    if (data && data.content) {
+                        medicalHistoryData = data.content;
+                        totalPages = data.totalPages || 1;
+                        currentPage = page;
+                        if (medicalHistoryData.length > 0) {
+                            $('#historyContent').show();
+                            renderMedicalHistoryTable();
+                            renderPagination();
+                        } else {
+                            $('#historyContent').hide();
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Không có dữ liệu',
+                                text: 'Không có lịch sử khám bệnh trong khoảng thời gian này.',
+                                confirmButtonText: 'Đóng',
+                                confirmButtonColor: '#2563eb'
+                            });
+                        }
+                    } else {
+                        $('#historyContent').hide();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi dữ liệu',
+                            text: 'Dữ liệu trả về từ API không hợp lệ.',
+                            confirmButtonText: 'Đóng',
+                            confirmButtonColor: '#2563eb'
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    $('#historyContent').hide();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Lỗi khi lấy lịch sử khám: ' + (xhr.responseJSON?.message || xhr.statusText),
+                        confirmButtonText: 'Đóng',
+                        confirmButtonColor: '#2563eb'
+                    });
+                }
+            });
+        }
+
+        function renderMedicalHistoryTable() {
+            const tbody = $('#historyTableBody');
+            tbody.empty();
+            medicalHistoryData.forEach((record, index) => {
+                const row = `
+                    <tr>
+                        <td>${new Date(record.thoiGianTao).toLocaleString('vi-VN')}</td>
+                        <td>${record.chanDoan || 'Chưa có'}</td>
+                        <td>${record.trieuChung || 'Chưa có'}</td>
+                        <td>${record.bacSi?.ten || 'Chưa chỉ định'}</td>
+                        <td>
+                            <button onclick="showMedicalDetails(${index})">Xem Chi Tiết</button>
+                        </td>
+                    </tr>`;
+                tbody.append(row);
+            });
+        }
+
+        function changePage(page) {
+            if (page < 0 || page >= totalPages || page === currentPage) return;
+            fetchMedicalHistory(currentBenhNhanId, page);
+        }
+
+        function renderPagination() {
+            const pagination = $('#pagination');
+            pagination.empty();
+            const prevButton = `<button onclick="changePage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''}>Previous</button>`;
+            const nextButton = `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages - 1 ? 'disabled' : ''}>Next</button>`;
+            pagination.append(prevButton);
+            for (let i = 0; i < totalPages; i++) {
+                const pageButton = `<button onclick="changePage(${i})" ${currentPage === i ? 'class="active"' : ''}>${i + 1}</button>`;
+                pagination.append(pageButton);
+            }
+            pagination.append(nextButton);
+        }
+
+        function showMedicalDetails(index) {
+            const record = medicalHistoryData[index];
+            if (!record) return;
+            const recordId = `record-${currentPage * 5 + index}`;
+            let htmlContent = `
+                <div class="record-card">
+                    <h4>Khám ngày: ${new Date(record.thoiGianTao).toLocaleString('vi-VN')}</h4>
+                    <p><strong>Bệnh nhân:</strong> ${record.benhNhan?.ten || 'N/A'} (${record.benhNhan?.dienThoai || 'N/A'})</p>
+                    <p><strong>Bác sĩ:</strong> ${record.bacSi?.ten || 'Chưa chỉ định'}</p>
+                    <p><strong>Chẩn đoán:</strong> ${record.chanDoan || 'Chưa có'}</p>
+                    <p><strong>Triệu chứng:</strong> ${record.trieuChung || 'Chưa có'}</p>
+                    <p><strong>Tổng tiền:</strong> ${record.tongTien ? record.tongTien.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa tính'}</p>
+                    <p><strong>Đã thanh toán:</strong> ${record.daThanhToan ? 'Có' : 'Chưa'}</p>
+                    <ul class="nav nav-tabs" id="tabs-${recordId}">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#vital-${recordId}" data-bs-toggle="tab"><i class="fas fa-heartbeat"></i> Dấu hiệu sinh tồn</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#prescription-${recordId}" data-bs-toggle="tab"><i class="fas fa-prescription-bottle"></i> Đơn thuốc</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#test-${recordId}" data-bs-toggle="tab"><i class="fas fa-vial"></i> Xét nghiệm</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="vital-${recordId}">
+                            ${record.vitalSigns && record.vitalSigns.length > 0 ? `
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Thời gian</th>
+                                            <th>Nhiệt độ</th>
+                                            <th>Chiều cao</th>
+                                            <th>Cân nặng</th>
+                                            <th>Huyết áp</th>
+                                            <th>Ghi chú</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${record.vitalSigns.map(vs => `
+                                            <tr>
+                                                <td>${vs.thoiGianTao ? new Date(vs.thoiGianTao).toLocaleString('vi-VN') : 'N/A'}</td>
+                                                <td>${vs.temperature != null ? vs.temperature + ' °C' : 'N/A'}</td>
+                                                <td>${vs.height != null ? vs.height + ' cm' : 'N/A'}</td>
+                                                <td>${vs.weight != null ? vs.weight + ' kg' : 'N/A'}</td>
+                                                <td>${vs.bloodPressureSys != null && vs.bloodPressureDia != null ? vs.bloodPressureSys + '/' + vs.bloodPressureDia + ' mmHg' : 'N/A'}</td>
+                                                <td>${vs.notes || 'Không có'}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            ` : '<p>Chưa có dữ liệu dấu hiệu sinh tồn</p>'}
+                        </div>
+                        <div class="tab-pane fade" id="prescription-${recordId}">
+                            ${record.donThuocs && record.donThuocs.length > 0 ? `
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Đơn thuốc</th>
+                                            <th>Thuốc</th>
+                                            <th>Liều</th>
+                                            <th>Tần suất</th>
+                                            <th>Số lượng</th>
+                                            <th>Tổng tiền</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${record.donThuocs.map(dt => `
+                                            <tr>
+                                                <td>#${dt.donThuocId || 'N/A'}</td>
+                                                <td>
+                                                    ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.thuoc?.tenThuoc || 'N/A').join('<br>') : 'N/A'}
+                                                </td>
+                                                <td>
+                                                    ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.lieu || 'N/A').join('<br>') : 'N/A'}
+                                                </td>
+                                                <td>
+5358                                            ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.tanSuat || 'N/A').join('<br>') : 'N/A'}
+                                                </td>
+                                                <td>
+                                                    ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.soLuong || 'N/A').join('<br>') : 'N/A'}
+                                                </td>
+                                                <td>${dt.formattedTongTienThuoc || 'N/A'}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            ` : '<p>Chưa có dữ liệu đơn thuốc</p>'}
+                        </div>
+                        <div class="tab-pane fade" id="test-${recordId}">
+                            ${record.xetNghiems && record.xetNghiems.length > 0 ? `
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Loại xét nghiệm</th>
+                                            <th>Giá</th>
+                                            <th>Trạng thái</th>
+                                            <th>Ghi chú</th>
+                                            <th>Kết quả</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${record.xetNghiems.map(xn => `
+                                            <tr>
+                                                <td>${xn.loaiXetNghiem?.tenXetNghiem || 'N/A'}</td>
+                                                <td>${xn.loaiXetNghiem?.gia != null ? xn.loaiXetNghiem.gia.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}</td>
+                                                <td>${xn.trangThai || 'N/A'}</td>
+                                                <td>${xn.ghiChu || 'Không có'}</td>
+                                                <td>${xn.fileKetQua ? `<a href="${xn.fileKetQua}" target="_blank">Xem file</a>` : 'N/A'}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            ` : '<p>Chưa có dữ liệu xét nghiệm</p>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            Swal.fire({
+                title: 'Chi Tiết Lần Khám',
+                html: htmlContent,
+                width: '900px',
+                showCloseButton: true,
+                confirmButtonText: 'Đóng',
+                confirmButtonColor: '#2563eb',
+                customClass: { popup: 'swal-wide' },
+                didOpen: () => {
+                    const tabLinks = document.querySelectorAll(`#swal2-html-container .nav-link`);
+                    tabLinks.forEach(link => {
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const tabId = e.target.getAttribute('href');
+                            const recordCard = e.target.closest('.record-card');
+                            const tabs = recordCard.querySelectorAll('.nav-link');
+                            const panes = recordCard.querySelectorAll('.tab-pane');
+                            tabs.forEach(tab => tab.classList.remove('active'));
+                            panes.forEach(pane => pane.classList.remove('show', 'active'));
+                            e.target.classList.add('active');
+                            const targetPane = recordCard.querySelector(tabId);
+                            if (targetPane) {
+                                targetPane.classList.add('show', 'active');
+                            }
+                        });
+                    });
+                }
+            });
+        }
+
+        function resetDateFilter() {
+            $('#dateRangePicker').val('');
+            startDate = null;
+            endDate = null;
+            if (currentBenhNhanId) {
+                fetchMedicalHistory(currentBenhNhanId, 0);
+            }
+        }
+
+        $(document).ready(function() {
+            $('#phone').on('keypress', function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    searchPatient();
+                }
+            });
+
+            flatpickr('#dateRangePicker', {
+                mode: 'range',
+                dateFormat: 'Y-m-d',
+                onChange: function(selectedDates) {
+                    if (selectedDates.length === 2) {
+                        startDate = selectedDates[0];
+                        endDate = selectedDates[1];
+                        startDate.setHours(0, 0, 0, 0);
+                        endDate.setHours(23, 59, 59, 999);
+                        if (currentBenhNhanId) {
+                            fetchMedicalHistory(currentBenhNhanId, 0);
+                        }
+                    } else if (selectedDates.length === 0) {
+                        resetDateFilter();
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

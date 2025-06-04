@@ -1,4 +1,7 @@
 <header th:fragment="header">
+	<link rel="stylesheet" th:href="@{/css/headernhanvien.css}">
+    
+
     <div class="custom-header top-bar">
         <div class="logo">
             <img th:src="@{/images/logobenhvien.png}" alt="Logo" class="logo-img">
@@ -12,8 +15,9 @@
     </div>
     <nav class="custom-header">
         <ul>
-          
             <li><a th:href="@{/nhanvien/dangkylichkham}">Đặt lịch khám</a></li>
+            <li><a th:href="@{/nhanvien/xemlichbacsi}">Xem lịch làm việc bác sĩ</a></li>
+            <li><a th:href="@{/nhanvien/xemlichsukhambenh}">Xem đơn thuốc của bệnh nhân</a></li>
             <li><a th:href="@{/logout}" class="logout">Đăng Xuất</a></li>
         </ul>
     </nav>

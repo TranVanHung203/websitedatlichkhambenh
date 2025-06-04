@@ -1,200 +1,295 @@
-* {
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+/* Scoped to .main-content to avoid conflicts with headerbacsi.css */
+.main-content {
+    padding-top: 100px; /* Accounts for fixed header (60px height + 15px padding * 2) */
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e6f0fa 0%, #d1e3fa 100%);
+    font-family: 'Inter', sans-serif;
+    color: #2d3748;
 }
 
-body {
-    margin: 0;
-    padding: 20px;
-    background-color: #e3f2fd;
-}
-
-.schedule-container {
+.main-content .schedule-container {
     max-width: 1000px;
     margin: 0 auto;
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-top: 100px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
 }
 
-.header {
+.main-content .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
 
-.header h2 {
-    color: #2a9d8f; /* Màu xanh chủ đạo */
+.main-content .header h2 {
+    font-size: 1.8rem;
+    color: #2563eb;
+    font-weight: 700;
 }
 
-.date-picker {
+.main-content .date-picker {
     display: flex;
-    align-items: center;
     gap: 10px;
-}
-
-.date-picker label {
-    color: #333;
-    font-weight: bold;
-}
-
-.view-button {
-    background-color: #2a9d8f; /* Màu xanh chủ đạo */
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.view-button:hover {
-    background-color: #21867a; /* Màu xanh đậm hơn khi hover */
-}
-
-.schedule-section {
-    margin-bottom: 30px;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
 }
 
-.section-header h3 {
-    color: #2a9d8f; /* Màu xanh chủ đạo */
-    font-size: 18px;
+.main-content .date-picker label {
+    font-weight: 600;
+    color: #4a5568;
 }
 
-.add-button {
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
+.main-content .date-picker input[type="date"] {
+    padding: 8px;
+    border: 1px solid #d1e3fa;
+    border-radius: 6px;
     font-size: 14px;
 }
 
-.add-button:hover {
-    background-color: #388e3c;
+.main-content .date-picker .view-button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
 }
 
-.schedule-table {
+.main-content .date-picker .view-button:hover {
+    background: #2563eb;
+}
+
+.main-content .message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 250px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: white;
+    z-index: 1002; /* Above popup (z-index: 1001) */
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: slideIn 0.3s ease forwards, fadeOut 0.3s ease 3.7s forwards;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.main-content .error-message {
+    background-color: #dc2626;
+    border: 1px solid #b91c1c;
+}
+
+.main-content .success-message {
+    background-color: #10b981;
+    border: 1px solid #059669;
+}
+
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+.main-content .schedule-section {
+    margin-top: 20px;
+}
+
+.main-content .add-session-button {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 15px;
+    transition: background 0.3s ease;
+}
+
+.main-content .add-session-button:hover {
+    background: #059669;
+}
+
+.main-content .schedule-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    background: #f8fafc;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.schedule-table th,
-.schedule-table td {
+.main-content .schedule-table th,
+.main-content .schedule-table td {
     padding: 12px;
-    border: 1px solid #ddd;
-    text-align: center;
+    text-align: left;
+    border-bottom: 1px solid #d1e3fa;
 }
 
-.schedule-table th {
-    background-color: #bbdefb;
-    color: #2a9d8f; /* Màu xanh chủ đạo */
+.main-content .schedule-table th {
+    background: #e6f0fa;
+    font-weight: 600;
+    color: #4a5568;
 }
 
-.schedule-table tbody tr:nth-child(even) {
-    background-color: #f0f0f0;
-}
-
-.edit-button,
-.delete-button {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+.main-content .schedule-table td {
     font-size: 14px;
 }
 
-.edit-button {
-    background-color: #2a9d8f; /* Màu xanh chủ đạo */
-    color: #fff;
+.main-content .schedule-table .delete-button {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
 }
 
-.edit-button:hover {
-    background-color: #21867a;
+.main-content .schedule-table .delete-button:hover {
+    background: #dc2626;
 }
 
-.delete-button {
-    background-color: #e53935;
-    color: #fff;
-    margin-left: 5px;
+.main-content .popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1001; /* Above header */
 }
 
-.delete-button:hover {
-    background-color: #d32f2f;
-}
-
-.popup {
-    display: none; /* Ẩn pop-up mặc định */
+.main-content .popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 300px;
-    padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    border-radius: 8px;
-    z-index: 1000;
 }
 
-.popup-content {
-    text-align: center;
-}
-
-.popup-content h3 {
-    color: #2a9d8f; /* Màu xanh chủ đạo */
-    margin-bottom: 20px;
-}
-
-.popup-content label {
-    display: block;
-    margin-top: 10px;
-    color: #333;
-}
-
-.popup-content select {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.save-button {
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-top: 15px;
-}
-
-.save-button:hover {
-    background-color: #388e3c;
-}
-
-.close-button {
+.main-content .popup-content .close-button {
     position: absolute;
     top: 10px;
     right: 10px;
-    color: #999;
-    font-size: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #4a5568;
     cursor: pointer;
+    transition: color 0.2s ease;
+    z-index: 1002; /* Ensure above other popup content */
+    line-height: 1;
 }
 
-.close-button:hover {
-    color: #333;
+.main-content .popup-content .close-button:hover {
+    color: #2563eb;
+}
+
+.main-content .popup-content h3 {
+    margin-bottom: 15px;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.main-content .popup-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.main-content .popup-content select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #d1e3fa;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.main-content .popup-content .save-button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
+}
+
+.main-content .popup-content .save-button:hover {
+    background: #2563eb;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 80px; /* Smaller padding for mobile due to header min-height: 50px */
+    }
+
+    .main-content .schedule-container {
+        padding: 15px;
+    }
+
+    .main-content .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .main-content .header h2 {
+        font-size: 1.5rem;
+    }
+
+    .main-content .date-picker {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .main-content .date-picker input[type="date"],
+    .main-content .date-picker .view-button {
+        width: 100%;
+    }
+
+    .main-content .schedule-table th,
+    .main-content .schedule-table td {
+        font-size: 13px;
+        padding: 10px;
+    }
+
+    .main-content .popup-content {
+        width: 90%;
+        max-width: 350px;
+        padding: 15px;
+        max-height: 70vh;
+    }
+
+    .main-content .message {
+        top: 10px;
+        right: 10px;
+        min-width: 200px;
+        font-size: 13px;
+        padding: 10px 15px;
+    }
 }

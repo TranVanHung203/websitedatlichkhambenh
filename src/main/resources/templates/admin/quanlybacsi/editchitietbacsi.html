@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="main-content">
-        <h1>Edit Doctor Details</h1>
+        <h1>Chỉnh sửa thông tin chi tiết bác sĩ</h1>
         <form th:action="@{'/admin/qlbs/update-chitiet/' + ${doctor.bacSiId}}" th:object="${chiTietBacSi}" method="post">
             <label for="bangCap">Bằng Cấp:</label>
             <input type="text" id="bangCap" th:field="*{bangCap}" />

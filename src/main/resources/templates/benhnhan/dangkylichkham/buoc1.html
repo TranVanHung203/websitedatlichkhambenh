@@ -1,78 +1,269 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bước 1 - Đặt Lịch Khám</title>
-    <link th:href="@{/css/dangkylichkham.css}" rel="stylesheet">
     <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
-</head>
-<body>
-    <div th:replace="benhnhan/fragments/header :: header"></div> <!-- Header -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --book-primary: #b3e5fc; /* Light blue theme */
+            --book-accent: #4fc3f7; /* Vibrant blue for highlights */
+            --book-secondary: #ffffff; /* White for cards */
+            --book-text: #263238; /* Dark slate for readability */
+            --book-shadow: 0 3px 10px rgba(179, 229, 252, 0.3);
+            --book-glow: 0 0 10px rgba(79, 195, 247, 0.7);
+        }
 
-    <div class="dk-container">
-        <div class="dk-step dk-step-1 active">
-            <h2 class="dk-title">TIỆN LỢI - NHANH CHÓNG</h2>
-            <div class="dk-instructions">
+        .book-body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--book-primary) 0%, #87ceeb 100%);
+            color: var(--book-text);
+            line-height: 1.6;
+        }
+
+        .book-dk-container {
+            max-width: 800px;
+            margin: 100px auto;
+            padding: 30px;
+            background: var(--book-secondary);
+            border-radius: 15px;
+            box-shadow: var(--book-shadow);
+            position: relative;
+            overflow: hidden;
+            animation: book-fadeIn 1s ease-out;
+        }
+
+        @keyframes book-fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .book-dk-step {
+            display: none;
+        }
+
+        .book-dk-step.active {
+            display: block;
+        }
+
+        .book-dk-title {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--book-text);
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            position: relative;
+            animation: book-glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes book-glow {
+            0% { text-shadow: 0 0 5px var(--book-accent); }
+            100% { text-shadow: 0 0 15px var(--book-glow); }
+        }
+
+        .book-dk-instructions {
+            background: rgba(179, 229, 252, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--book-accent);
+            animation: book-slideIn 1s ease-out;
+        }
+
+        @keyframes book-slideIn {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        .book-dk-instructions p {
+            font-weight: 700;
+            color: var(--book-accent);
+            margin-bottom: 10px;
+        }
+
+        .book-dk-instructions ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .book-dk-instructions li {
+            font-size: 1.1em;
+            color: var(--book-text);
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .book-dk-instructions li::before {
+            content: '✔';
+            position: absolute;
+            left: 0;
+            color: var(--book-accent);
+            font-size: 1.2em;
+        }
+
+        .book-dk-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .book-dk-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .book-dk-form-group label {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: var(--book-text);
+        }
+
+        .book-dk-form-group select {
+            padding: 12px;
+            font-size: 1em;
+            border: 2px solid var(--book-accent);
+            border-radius: 8px;
+            background: var(--book-secondary);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+        }
+
+        .book-dk-form-group select:focus {
+            border-color: var(--book-primary);
+            box-shadow: var(--book-glow);
+            outline: none;
+        }
+
+        .book-dk-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .book-dk-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            background: var(--book-accent);
+            color: var(--book-secondary);
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .book-dk-btn:hover {
+            background: #0288d1;
+            transform: scale(1.05);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .book-dk-container {
+                margin: 80px auto;
+                padding: 20px;
+                width: 90%;
+            }
+
+            .book-dk-title {
+                font-size: 1.8em;
+            }
+
+            .book-dk-instructions {
+                padding: 15px;
+            }
+
+            .book-dk-form-group select {
+                padding: 10px;
+            }
+
+            .book-dk-btn {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .book-dk-title {
+                font-size: 1.5em;
+            }
+
+            .book-dk-instructions li {
+                font-size: 1em;
+            }
+
+            .book-dk-form-group label {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body class="book-body">
+    <div th:replace="benhnhan/fragments/header :: header"></div>
+
+    <div class="book-dk-container">
+        <div class="book-dk-step book-dk-step-1 active">
+            <h2 class="book-dk-title">TIỆN LỢI - NHANH CHÓNG</h2>
+            <div class="book-dk-instructions">
                 <p><strong>Cách đặt hẹn:</strong></p>
                 <ul>
                     <li>Bước 1: Vui lòng lựa chọn Chuyên khoa và Bác sĩ tư vấn.</li>
                 </ul>
             </div>
-            <form class="dk-form" method="post" action="/user/dangkylichkham/next">
-                <div class="dk-form-group">
+            <form class="book-dk-form" method="post" th:action="@{/user/dangkylichkham/next}">
+                <div class="book-dk-form-group">
                     <label for="service">Chuyên khoa</label>
                     <select id="service" name="service" required>
                         <option value="">Vui lòng chọn</option>
-                        <option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.chuyenKhoaId}" th:text="${chuyenKhoa.ten}"></option>
+                        <option th:each="chuyenKhoa : ${chuyenKhoaList}" 
+                                th:value="${chuyenKhoa.chuyenKhoaId}" 
+                                th:text="${chuyenKhoa.ten}">
+                        </option>
                     </select>
                 </div>
 
-                <!-- Phần bác sĩ sẽ ẩn cho đến khi người dùng chọn Dịch vụ -->
-                <div class="dk-form-group" id="doctor-container" style="display:none;">
+                <div class="book-dk-form-group" id="doctor-container" style="display:none;">
                     <label for="doctor">Bác sĩ</label>
                     <select id="doctor" name="doctor" required>
-                        
-                        <option th:each="bacSi : ${bacSiList}" th:value="${bacSi.id}" th:text="${bacSi.ten}"></option>
+                        <option value="">Vui lòng chọn chuyên khoa trước</option>
                     </select>
                 </div>
 
-                <div class="dk-actions">
-                    <button type="submit" class="dk-btn dk-btn-primary">TIẾP THEO</button>
+                <div class="book-dk-actions">
+                    <button type="submit" class="book-dk-btn book-dk-btn-primary">TIẾP THEO</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script th:inline="javascript">
-        /* Khi người dùng chọn Dịch vụ Khám, fetch danh sách bác sĩ tương ứng */
         document.getElementById("service").addEventListener("change", function () {
-            var serviceId = this.value; // Lấy ID của dịch vụ đã chọn
-            var doctorContainer = document.getElementById("doctor-container");
-            
-            if (serviceId) {
-                // Hiện phần bác sĩ nếu có dịch vụ đã chọn
-                doctorContainer.style.display = "block"; 
+            const serviceId = this.value;
+            const doctorContainer = document.getElementById("doctor-container");
+            const doctorSelect = document.getElementById("doctor");
 
-                // Gửi ID của dịch vụ lên backend để lấy danh sách bác sĩ
+            if (serviceId) {
+                doctorContainer.style.display = "block";
                 fetch("/user/dangkylichkham/doctor", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    body: "service=" + serviceId // Gửi ID của dịch vụ
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ service: serviceId })
                 })
                 .then(response => response.text())
-                .then(data => {
-                    // Cập nhật danh sách bác sĩ vào dropdown
-                    document.getElementById("doctor").innerHTML = data;
-                });
+                .then(data => { doctorSelect.innerHTML = data; })
+                .catch(error => console.error("Lỗi khi lấy danh sách bác sĩ:", error));
             } else {
-                // Ẩn phần bác sĩ nếu không có dịch vụ được chọn
                 doctorContainer.style.display = "none";
+                doctorSelect.innerHTML = "<option value=''>Vui lòng chọn chuyên khoa trước</option>";
             }
         });
     </script>
-
 </body>
 </html>

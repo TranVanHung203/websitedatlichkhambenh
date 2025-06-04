@@ -1,5 +1,10 @@
 package tlcn.quanlyphongkham.controllers;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +29,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import tlcn.quanlyphongkham.dtos.LichKhamBenhDTO;
 import tlcn.quanlyphongkham.dtos.NguoiDungDTO;
@@ -32,10 +39,12 @@ import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.ChiTietBacSi;
 import tlcn.quanlyphongkham.entities.ChuyenKhoa;
 import tlcn.quanlyphongkham.entities.LichKhamBenh;
+import tlcn.quanlyphongkham.entities.LoaiXetNghiem;
 import tlcn.quanlyphongkham.entities.Thuoc;
 import tlcn.quanlyphongkham.services.BacSiService;
 import tlcn.quanlyphongkham.services.ChuyenKhoaService;
 import tlcn.quanlyphongkham.services.LichKhamBenhService;
+import tlcn.quanlyphongkham.services.LoaiXetNghiemService;
 import tlcn.quanlyphongkham.services.NguoiDungService;
 import tlcn.quanlyphongkham.services.ThuocService;
 
@@ -52,19 +61,38 @@ public class AdminController {
 
 	@Autowired
 	private ThuocService thuocService;
+	
+	@Autowired
+	private LoaiXetNghiemService loaiXetNghiemService;
 
 	@GetMapping("/admin/qltk")
 	public String getAllNguoiDung(Model model,
 	        @RequestParam(defaultValue = "1") int page, 
 	        @RequestParam(defaultValue = "") String search) {
 	    
+	    int pageSize = 5; // Số bản ghi mỗi trang (đã định nghĩa trong service)
+	    int visiblePages = 4; // Số trang hiển thị trên thanh phân trang (giống qlbs)
+
 	    // Lấy danh sách người dùng với phân trang và tìm kiếm
 	    Page<NguoiDungDTO> nguoiDungPage = nguoiDungService.getAllNguoiDungQLTK(search, page);
 	    
+	    int totalPages = nguoiDungPage.getTotalPages();
+
+	    // Tính toán startPage và endPage để cố định số trang hiển thị
+	    int startPage = Math.max(0, page - 1 - visiblePages / 2); // page bắt đầu từ 1 nên trừ 1
+	    int endPage = Math.min(startPage + visiblePages - 1, totalPages - 1);
+
+	    // Điều chỉnh nếu ở cuối danh sách trang
+	    if (endPage - startPage < visiblePages - 1) {
+	        startPage = Math.max(0, endPage - visiblePages + 1);
+	    }
+
 	    // Thêm dữ liệu vào model
 	    model.addAttribute("nguoiDungPage", nguoiDungPage);
 	    model.addAttribute("currentPage", page);
-	    model.addAttribute("totalPages", nguoiDungPage.getTotalPages());
+	    model.addAttribute("totalPages", totalPages);
+	    model.addAttribute("startPage", startPage + 1); // +1 vì frontend hiển thị từ 1
+	    model.addAttribute("endPage", endPage + 1);     // +1 vì frontend hiển thị từ 1
 	    model.addAttribute("search", search);
 
 	    return "admin/quanlytaikhoan/quanlytaikhoan"; // Tên của trang giao diện Thymeleaf
@@ -229,34 +257,49 @@ public class AdminController {
 	}
 
 	@GetMapping("/admin/qlbs")
-	public String qlbs(@RequestParam(defaultValue = "0") int page, @RequestParam(required = false) String search,
-			Model model) {
-		int pageSize = 10; // Số bác sĩ trên mỗi trang
+	public String qlbs(@RequestParam(defaultValue = "0") int page, 
+	                   @RequestParam(required = false) String search,
+	                   Model model) {
+	    int pageSize = 10; // Số bác sĩ trên mỗi trang
+	    int visiblePages = 4; // Số trang hiển thị trên thanh phân trang
 
-		Page<BacSi> doctorPage;
-		if (search != null && !search.isEmpty()) {
-			// Tìm kiếm theo số điện thoại
-			doctorPage = bacSiService.searchByPhone(search, PageRequest.of(page, pageSize));
-		} else {
-			// Hiển thị danh sách mặc định
-			doctorPage = bacSiService.getDoctorsPaginated(page, pageSize);
-		}
+	    Page<BacSi> doctorPage;
+	    if (search != null && !search.isEmpty()) {
+	        doctorPage = bacSiService.searchByPhone(search, PageRequest.of(page, pageSize));
+	    } else {
+	        doctorPage = bacSiService.getDoctorsPaginated(page, pageSize);
+	    }
 
-		model.addAttribute("doctors", doctorPage.getContent());
-		model.addAttribute("currentPage", page);
-		model.addAttribute("totalPages", doctorPage.getTotalPages());
-		model.addAttribute("search", search); // Giữ giá trị ô tìm kiếm sau khi tìm
-		
-		 // Thêm thông báo nếu không tìm thấy kết quả
-	    model.addAttribute("noResults", doctorPage.getTotalElements() == 0);
+	    int totalPages = doctorPage.getTotalPages();
 	    
-		return "admin/quanlybacsi/quanlybacsi";
+	    // Tính toán startPage và endPage để cố định số trang hiển thị
+	    int startPage = Math.max(0, page - visiblePages / 2);
+	    int endPage = Math.min(startPage + visiblePages - 1, totalPages - 1);
+	    
+	    // Điều chỉnh nếu ở cuối danh sách trang
+	    if (endPage - startPage < visiblePages - 1) {
+	        startPage = Math.max(0, endPage - visiblePages + 1);
+	    }
+
+	    model.addAttribute("doctors", doctorPage.getContent());
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", totalPages);
+	    model.addAttribute("startPage", startPage);
+	    model.addAttribute("endPage", endPage);
+	    model.addAttribute("search", search);
+	    model.addAttribute("noResults", doctorPage.getTotalElements() == 0);
+
+	    return "admin/quanlybacsi/quanlybacsi";
 	}
 
+
 	@GetMapping("/admin/qlck")
-	public String qlck(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "") String ten,
+	public String qlck(@RequestParam(defaultValue = "0") int page,
+	                   @RequestParam(defaultValue = "") String ten,
 	                   Model model) {
-	    int pageSize = 10; // Số chuyên khoa mỗi trang
+	    int pageSize = 7; // Số chuyên khoa mỗi trang
+	    int visiblePages = 4; // Số trang hiển thị trên thanh phân trang
+
 	    Page<ChuyenKhoa> chuyenKhoaPage;
 
 	    if (ten.isEmpty()) {
@@ -265,41 +308,75 @@ public class AdminController {
 	        chuyenKhoaPage = chuyenKhoaService.searchChuyenKhoasPaginated(ten, page, pageSize);
 	    }
 
+	    int totalPages = chuyenKhoaPage.getTotalPages();
+
+	    // Tính toán startPage và endPage để cố định số trang hiển thị
+	    int startPage = Math.max(0, page - visiblePages / 2);
+	    int endPage = Math.min(startPage + visiblePages - 1, totalPages - 1);
+
+	    // Điều chỉnh nếu ở cuối danh sách trang
+	    if (endPage - startPage < visiblePages - 1) {
+	        startPage = Math.max(0, endPage - visiblePages + 1);
+	    }
+
 	    model.addAttribute("chuyenkhoas", chuyenKhoaPage.getContent());
 	    model.addAttribute("currentPage", page);
-	    model.addAttribute("totalPages", chuyenKhoaPage.getTotalPages());
+	    model.addAttribute("totalPages", totalPages);
+	    model.addAttribute("startPage", startPage);
+	    model.addAttribute("endPage", endPage);
 	    model.addAttribute("searchQuery", ten);
-
-	    // Add the noResults attribute
 	    model.addAttribute("noResults", chuyenKhoaPage.getTotalElements() == 0);
 
 	    return "admin/quanlychuyenkhoa/quanlychuyenkhoa";
 	}
 
 
+
+
 	@GetMapping("/admin/qlt")
-	public String qlt(@RequestParam(defaultValue = "0") int page, 
-	                  @RequestParam(defaultValue = "") String ten, 
+	public String qlt(@RequestParam(defaultValue = "0") int page,
+	                  @RequestParam(required = false) String searchType,
+	                  @RequestParam(defaultValue = "") String query,
 	                  Model model) {
-	    int pageSize = 10; // Number of drugs per page
+	    int pageSize = 8; // Số thuốc mỗi trang
+	    int visiblePages = 4; // Số trang hiển thị trên thanh phân trang (giống qlbs)
+
 	    Page<Thuoc> thuocPage;
 
-	    if (ten.isEmpty()) {
+	    if (query.isEmpty()) {
 	        thuocPage = thuocService.getThuocsPaginated(page, pageSize);
 	    } else {
-	        thuocPage = thuocService.searchThuocsPaginated(ten, page, pageSize);
+	        if ("nhaCungCap".equals(searchType)) {
+	            thuocPage = thuocService.searchThuocsByNhaCungCapPaginated(query, page, pageSize);
+	        } else {
+	            thuocPage = thuocService.searchThuocsPaginated(query, page, pageSize);
+	        }
+	    }
+
+	    int totalPages = thuocPage.getTotalPages();
+
+	    // Tính toán startPage và endPage để cố định số trang hiển thị
+	    int startPage = Math.max(0, page - visiblePages / 2);
+	    int endPage = Math.min(startPage + visiblePages - 1, totalPages - 1);
+
+	    // Điều chỉnh nếu ở cuối danh sách trang
+	    if (endPage - startPage < visiblePages - 1) {
+	        startPage = Math.max(0, endPage - visiblePages + 1);
 	    }
 
 	    model.addAttribute("thuocs", thuocPage.getContent());
 	    model.addAttribute("currentPage", page);
-	    model.addAttribute("totalPages", thuocPage.getTotalPages());
-	    model.addAttribute("searchQuery", ten); // Add the search query to the model
-
-	    // Add a flag for no results
-	    model.addAttribute("noResults", thuocPage.isEmpty()); // Indicate no results were found
+	    model.addAttribute("totalPages", totalPages);
+	    model.addAttribute("startPage", startPage);
+	    model.addAttribute("endPage", endPage);
+	    model.addAttribute("searchQuery", "ten".equals(searchType) ? query : "");
+	    model.addAttribute("searchNhaCungCap", "nhaCungCap".equals(searchType) ? query : "");
+	    model.addAttribute("noResults", thuocPage.isEmpty());
 
 	    return "admin/quanlythuoc/quanlythuoc";
 	}
+
+
 
 
 
@@ -315,13 +392,41 @@ public class AdminController {
 		return "admin/quanlybacsi/editbacsi";
 	}
 
-	// Cập nhật thông tin bác sĩ và chi tiết bác sĩ
 	@PostMapping("/admin/qlbs/update/{bacSiId}")
-	public String updateDoctor(@PathVariable("bacSiId") String bacSiId, BacSi updatedDoctor,
-			ChiTietBacSi updatedChiTiet) {
-		bacSiService.updateDoctor(bacSiId, updatedDoctor, updatedChiTiet);
-		return "redirect:/admin/qlbs";
+	public String updateDoctor(@PathVariable("bacSiId") String bacSiId,
+	                           @ModelAttribute BacSi updatedDoctor,
+	                           @ModelAttribute ChiTietBacSi updatedChiTiet,
+	                           @RequestParam(value = "avatar", required = false) MultipartFile avatarFile,
+	                           @RequestParam(value = "redirect", required = false) String redirectPage) {
+	    try {
+	        // Kiểm tra và lưu file ảnh nếu có
+	        if (avatarFile != null && !avatarFile.isEmpty()) {
+	            String uploadDir = "uploads/";
+	            Path uploadPath = Paths.get(uploadDir);
+	            if (!Files.exists(uploadPath)) {
+	                Files.createDirectories(uploadPath);
+	            }
+	            String fileName = UUID.randomUUID().toString() + "_" + avatarFile.getOriginalFilename();
+	            Path filePath = uploadPath.resolve(fileName);
+	            Files.copy(avatarFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+	            updatedDoctor.setUrlAvatar("/uploads/" + fileName);
+	        }
+
+	        // Cập nhật thông tin bác sĩ và chi tiết bác sĩ
+	        bacSiService.updateDoctor(bacSiId, updatedDoctor, updatedChiTiet);
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return "error";
+	    }
+
+	    // Kiểm tra nếu cần chuyển hướng đến trang edit chi tiết
+	    if ("edit-details".equals(redirectPage)) {
+	        return "redirect:/admin/qlbs/edit-chitiet/" + bacSiId;
+	    }
+
+	    return "redirect:/admin/qlbs";
 	}
+
 
 	@PostMapping("/admin/delete-thuoc")
 	public String deleteThuoc(@RequestParam Long thuocId) {
@@ -404,5 +509,80 @@ public class AdminController {
 																	// lý cập nhật
 		return "redirect:/admin/qlbs"; // Quay lại danh sách bác sĩ sau khi cập nhật
 	}
+	  // Hiển thị danh sách loại xét nghiệm với phân trang và tìm kiếm
+    @GetMapping("/admin/qlxn")
+    public String getAllLoaiXetNghiem(@RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "") String search,
+                                     Model model) {
+        int pageSize = 8; // Số loại xét nghiệm mỗi trang
+        int visiblePages = 4; // Số trang hiển thị trên thanh phân trang
 
+        Page<LoaiXetNghiem> loaiXetNghiemPage;
+
+        if (search.isEmpty()) {
+            loaiXetNghiemPage = loaiXetNghiemService.getLoaiXetNghiemsPaginated(page, pageSize);
+        } else {
+            loaiXetNghiemPage = loaiXetNghiemService.searchLoaiXetNghiemsPaginated(search, page, pageSize);
+        }
+
+        int totalPages = loaiXetNghiemPage.getTotalPages();
+
+        // Tính toán startPage và endPage để cố định số trang hiển thị
+        int startPage = Math.max(0, page - visiblePages / 2);
+        int endPage = Math.min(startPage + visiblePages - 1, totalPages - 1);
+
+        // Điều chỉnh nếu ở cuối danh sách trang
+        if (endPage - startPage < visiblePages - 1) {
+            startPage = Math.max(0, endPage - visiblePages + 1);
+        }
+
+        model.addAttribute("loaiXetNghiems", loaiXetNghiemPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        model.addAttribute("searchQuery", search);
+        model.addAttribute("noResults", loaiXetNghiemPage.isEmpty());
+
+        return "admin/quanlyloaixetnghiem/quanlyloaixetnghiem";
+    }
+    // Hiển thị form thêm loại xét nghiệm
+    @GetMapping("/admin/add-loaixetnghiem")
+    public String showAddLoaiXetNghiemForm(Model model) {
+        model.addAttribute("loaiXetNghiem", new LoaiXetNghiem());
+        return "admin/quanlyloaixetnghiem/addloaixetnghiem";
+    }
+
+    // Thêm loại xét nghiệm mới
+    @PostMapping("/admin/add-loaixetnghiem")
+    public String addLoaiXetNghiem(@ModelAttribute LoaiXetNghiem loaiXetNghiem) {
+        loaiXetNghiemService.saveLoaiXetNghiem(loaiXetNghiem);
+        return "redirect:/admin/qlxn";
+    }
+
+    // Hiển thị form chỉnh sửa loại xét nghiệm
+    @GetMapping("/admin/edit-loaixetnghiem")
+    public String showEditLoaiXetNghiemForm(@RequestParam Long id, Model model) {
+        LoaiXetNghiem loaiXetNghiem = loaiXetNghiemService.getLoaiXetNghiemById(id);
+        model.addAttribute("loaiXetNghiem", loaiXetNghiem);
+        return "admin/quanlyloaixetnghiem/editloaixetnghiem";
+    }
+
+    // Cập nhật loại xét nghiệm
+    @PostMapping("/admin/update-loaixetnghiem")
+    public String updateLoaiXetNghiem(@ModelAttribute LoaiXetNghiem loaiXetNghiem) {
+        loaiXetNghiemService.updateLoaiXetNghiem(loaiXetNghiem);
+        return "redirect:/admin/qlxn";
+    }
+
+    @PostMapping("/admin/delete-loaixetnghiem")
+    public String deleteLoaiXetNghiem(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+        if (loaiXetNghiemService.deleteLoaiXetNghiem(id)) {
+            redirectAttributes.addFlashAttribute("message", "Loại xét nghiệm đã được xóa thành công.");
+            return "redirect:/admin/qlxn";
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy loại xét nghiệm để xóa.");
+            return "redirect:/admin/qlxn";
+        }
+    }
 }
