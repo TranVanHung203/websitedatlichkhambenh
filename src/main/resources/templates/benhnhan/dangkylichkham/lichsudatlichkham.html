@@ -1,108 +1,367 @@
 <!DOCTYPE html>
-<html lang="vi">
-
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Lịch sử Đặt Lịch Khám Bệnh</title>
-	<link th:href="@{/css/lichsudatlichkham.css}" rel="stylesheet">
-	<link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
-	<link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem Lịch Hẹn Khám</title>
+    <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
+    <link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hist-primary: #b3e5fc; /* Light blue theme */
+            --hist-accent: #4fc3f7; /* Vibrant blue for highlights */
+            --hist-secondary: #ffffff; /* White for cards */
+            --hist-text: #263238; /* Dark slate for readability */
+            --hist-shadow: 0 3px 10px rgba(179, 229, 252, 0.3);
+            --hist-glow: 0 0 10px rgba(79, 195, 247, 0.7);
+        }
+
+        .hist-body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--hist-primary) 0%, #87ceeb 100%);
+            color: var(--hist-text);
+            line-height: 1.6;
+        }
+
+        .hist-container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+            background: var(--hist-secondary);
+            border-radius: 15px;
+            box-shadow: var(--hist-shadow);
+            position: relative;
+            overflow: hidden;
+            animation: hist-fadeIn 1s ease-out;
+        }
+
+        @keyframes hist-fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .hist-container h1 {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--hist-text);
+            margin: 0 0 30px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            position: relative;
+            animation: hist-glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes hist-glow {
+            0% { text-shadow: 0 0 5px var(--hist-accent); }
+            100% { text-shadow: 0 0 15px var(--hist-glow); }
+        }
+
+        .hist-filter-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: rgba(179, 229, 252, 0.1);
+            border-radius: 10px;
+        }
+
+        .hist-filter-container label {
+            font-size: 1.1em;
+            color: var(--hist-text);
+            align-self: center;
+            font-weight: 500;
+        }
+
+        .hist-filter-container input {
+            padding: 10px;
+            font-size: 1em;
+            border: 2px solid var(--hist-accent);
+            border-radius: 8px;
+            background: var(--hist-secondary);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            width: 200px;
+        }
+
+        .hist-filter-container input:focus {
+            border-color: var(--hist-primary);
+            box-shadow: var(--hist-glow);
+            outline: none;
+        }
+
+        .hist-filter-btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 8px;
+            border: none;
+            background: var(--hist-accent);
+            color: var(--hist-secondary);
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .hist-filter-btn:hover {
+            background: #0288d1;
+            transform: scale(1.05);
+        }
+
+        .hist-no-history-message {
+            text-align: center;
+            font-size: 1.2em;
+            color: var(--hist-text);
+            padding: 20px;
+            background: rgba(179, 229, 252, 0.2);
+            border-radius: 10px;
+            margin: 20px 0;
+            animation: hist-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes hist-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .hist-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--hist-secondary);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--hist-shadow);
+        }
+
+        .hist-table thead th {
+            background: var(--hist-accent);
+            color: var(--hist-secondary);
+            padding: 15px;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+
+        .hist-table tbody td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(179, 229, 252, 0.3);
+            transition: background 0.3s ease;
+        }
+
+        .hist-table tbody tr:hover {
+            background: rgba(179, 229, 252, 0.1);
+        }
+
+        .hist-chat-btn, .hist-cancel-btn {
+            background: var(--hist-accent);
+            color: var(--hist-secondary);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s ease, transform 0.3s ease;
+            margin: 0 5px;
+        }
+
+        .hist-cancel-btn {
+            background: #ff4d4d;
+        }
+
+        .hist-chat-btn:hover {
+            background: #0288d1;
+            transform: translateY(-2px);
+        }
+
+        .hist-cancel-btn:hover {
+            background: #e60000;
+            transform: translateY(-2px);
+        }
+
+        .hist-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            padding: 10px;
+            background: rgba(179, 229, 252, 0.1);
+            border-radius: 10px;
+        }
+
+        .hist-page-btn {
+            padding: 8px 15px;
+            font-size: 1em;
+            border: none;
+            background: var(--hist-accent);
+            color: var(--hist-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .hist-page-btn:hover {
+            background: #0288d1;
+            transform: scale(1.05);
+        }
+
+        .hist-page-btn.disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+            transform: none;
+        }
+
+        .hist-pagination span {
+            font-size: 1em;
+            color: var(--hist-text);
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hist-container {
+                width: 95%;
+                margin: 20px auto;
+                padding: 15px;
+            }
+
+            .hist-container h1 {
+                font-size: 2em;
+            }
+
+            .hist-filter-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .hist-filter-container input {
+                width: 100%;
+                max-width: 250px;
+            }
+
+            .hist-table thead th {
+                font-size: 1em;
+            }
+
+            .hist-table tbody td {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+
+            .hist-chat-btn, .hist-cancel-btn {
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hist-container h1 {
+                font-size: 1.6em;
+            }
+
+            .hist-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .hist-filter-container {
+                padding: 10px;
+            }
+
+            .hist-pagination {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
 </head>
+<body class="hist-body">
+    <div th:replace="benhnhan/fragments/header :: header"></div>
 
-<body>
-	<div th:replace="benhnhan/fragments/header :: header"></div>
-	<div class="history-container">
-		<h1>Lịch Sử Đặt Lịch Khám Bệnh</h1>
+    <div class="hist-container">
+        <h1>Xem Lịch Hẹn Khám</h1>
 
-		<!-- Bộ lọc tìm kiếm theo ngày -->
-		<div class="history-filter-container">
-			<label for="date">Ngày:</label>
-			<input type="date" id="date" name="date" th:value="${date}" />
-			<button class="history-filter-btn" onclick="filterDate(event)">Lọc</button>
-		</div>
+        <div class="hist-filter-container">
+            <label for="date">Ngày:</label>
+            <input type="date" id="date" name="date" th:value="${date}" />
+            <button class="hist-filter-btn" onclick="filterDate(event)">Lọc</button>
+        </div>
 
-		<!-- Kiểm tra nếu không có lịch sử -->
-		<div th:if="${#lists.isEmpty(slots)}" class="no-history-message">
-			<p>Không có lịch sử đặt lịch khám bệnh!</p>
-		</div>
+        <div th:if="${#lists.isEmpty(slots)}" class="hist-no-history-message">
+            <p>Không có lịch sử đặt lịch khám bệnh!</p>
+        </div>
 
-		<!-- Bảng lịch sử đặt lịch khám bệnh -->
-		<table th:if="${!#lists.isEmpty(slots)}" class="history-table">
-			<thead>
-				<tr>
-					<th>Bác Sĩ</th>
-					<th>Ngày</th>
-					<th>Giờ</th>
-					<th>Trạng thái</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="slot : ${slots}">
-					<td>
-						<span th:text="${slot.lichKhamBenh.bacSi.ten}">Dr. Nguyễn Văn A</span>
-						<form th:action="@{/chat/bacsi}" method="get" style="display:inline;">
-							<input type="hidden" name="bacSiId" th:value="${slot.lichKhamBenh.bacSi.bacSiId}" />
-							<button type="submit" class="history-chat-btn">💬Nhắn tin</button>
-						</form>
-					</td>
+        <table th:if="${!#lists.isEmpty(slots)}" class="hist-table">
+            <thead>
+                <tr>
+                    <th>Bác Sĩ</th>
+                    <th>Ngày</th>
+                    <th>Giờ</th>
+                    <th>Trạng Thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="slot : ${slots}">
+                    <td>
+                        <span th:text="${slot.lichKhamBenh.bacSi.ten}">Dr. Nguyễn Văn A</span>
+                        <form th:action="@{/chat/bacsi}" method="get" style="display:inline;">
+                            <input type="hidden" name="bacSiId" th:value="${slot.lichKhamBenh.bacSi.bacSiId}" />
+                            <button type="submit" class="hist-chat-btn">💬 Nhắn Tin</button>
+                        </form>
+                    </td>
+                    <td th:text="${slot.lichKhamBenh.ngayThangNam}">10/12/2024</td>
+                    <td th:text="${slot.thoiGianBatDau}">08:00</td>
+                    <td>
+                        <div th:if="${slot.trangThai == 'pending'}">
+                            <form th:action="@{/user/cancel}" method="post" style="display:inline;">
+                                <input type="hidden" name="slotId" th:value="${slot.slotId}" />
+                                <input type="hidden" name="date" th:value="${date}" />
+                                <input type="hidden" name="page" th:value="${currentPage}" />
+                                <button type="submit" class="hist-cancel-btn">Hủy</button>
+                            </form>
+                        </div>
+                        <div th:unless="${slot.trangThai == 'pending'}" th:text="${slot.trangThai}">
+                            <!-- Slot status like 'confirmed', 'completed', etc. -->
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
-					<td th:text="${slot.lichKhamBenh.ngayThangNam}">10/12/2024</td>
-					<td th:text="${slot.thoiGianBatDau}">08:00</td>
-					<td>
-						<div th:if="${slot.trangThai == 'pending'}">
-							<form th:action="@{/user/cancel}" method="post" style="display:inline;">
-								<input type="hidden" name="slotId" th:value="${slot.slotId}" />
-								<input type="hidden" name="date" th:value="${date}" />
-								<input type="hidden" name="page" th:value="${currentPage}" />
-								<button type="submit" class="history-cancel-btn">Hủy</button>
-							</form>
-						</div>
-						<div th:unless="${slot.trangThai == 'pending'}" th:text="${slot.trangThai}">
-							<!-- Slot status like 'confirmed', 'completed', etc. -->
-						</div>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+        <div th:if="${!#lists.isEmpty(slots)}" class="hist-pagination">
+            <button th:if="${currentPage > 0}" th:data-page="${currentPage - 1}" 
+                    onclick="navigatePage(event)" class="hist-page-btn">« Trước</button>
+            <span>Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
+            <button th:if="${currentPage < totalPages - 1}" th:data-page="${currentPage + 1}" 
+                    onclick="navigatePage(event)" class="hist-page-btn">Tiếp »</button>
+        </div>
+    </div>
 
-		<!-- Phân trang -->
-		<div th:if="${!#lists.isEmpty(slots)}" class="history-pagination">
-			<!-- Previous Button (only visible if not on the first page) -->
-			<button th:if="${currentPage > 0}" th:data-page="${currentPage - 1}" onclick="navigatePage(event)">«
-				Trước</button>
+    <div th:replace="benhnhan/fragments/footer :: footer"></div>
 
-			<span>Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
+    <script>
+        function filterDate(event) {
+            const date = document.getElementById('date').value;
+            if (date) {
+                window.location.href = '/user/lichsudatlich?date=' + date;
+            } else {
+                alert('Vui lòng chọn ngày!');
+            }
+        }
 
-			<!-- Next Button (only visible if not on the last page) -->
-			<button th:if="${currentPage < totalPages - 1}" th:data-page="${currentPage + 1}"
-				onclick="navigatePage(event)">Tiếp »</button>
-		</div>
-	</div>
-	<div th:replace="benhnhan/fragments/footer :: footer"></div>
+        function navigatePage(event) {
+            const page = event.target.getAttribute('data-page');
+            const totalPages = parseInt('${totalPages}', 10);
+            const date = document.getElementById('date').value || '${date}';
 
-	<script>
-		function filterDate(event) {
-			var date = document.getElementById('date').value;
-			if (date) {
-				window.location.href = '/user/lichsudatlich?date=' + date;
-			} else {
-				alert('Vui lòng chọn ngày!');
-			}
-		}
-
-		function navigatePage(event) {
-			var page = event.target.getAttribute('data-page');
-			var totalPages = parseInt('${totalPages}', 10); // Total pages from Thymeleaf
-			var date = document.getElementById('date').value || '${date}'; // Use default date if not selected
-
-			// Ensure the page number is valid
-			if (page < 0 || page >= totalPages) {
-				return; // Do nothing if page is out of range
-			}
-			window.location.href = '/user/lichsudatlich?date=' + date + '&page=' + page;
-		}
-	</script>
+            if (page < 0 || page >= totalPages) return;
+            window.location.href = '/user/lichsudatlich?date=' + date + '&page=' + page;
+        }
+    </script>
 </body>
-
 </html>

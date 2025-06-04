@@ -134,29 +134,56 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 			""", nativeQuery = true)
 	List<Object[]> findPaymentDetailsBySlotId(@Param("slotId") String slotId);
 
-	 @Query(value = "SELECT hsb.* FROM ho_so_benh hsb " +
-	            "JOIN benh_nhan bn ON hsb.benh_nhan_id = bn.benh_nhan_id " +
-	            "JOIN bac_si bs ON hsb.bac_si_id = bs.bac_si_id " +
-	            "WHERE (:startDate IS NULL OR hsb.thoi_gian_tao >= :startDate) " +
-	            "AND (:endDate IS NULL OR hsb.thoi_gian_tao <= :endDate) " +
-	            "AND (:patientName IS NULL OR bn.ten LIKE %:patientName%) " +
-	            "AND (:doctorName IS NULL OR bs.ten LIKE %:doctorName%) " +
-	            "AND (:phoneNumber IS NULL OR bn.dien_thoai LIKE %:phoneNumber%)",
-	            countQuery = "SELECT COUNT(*) FROM ho_so_benh hsb " +
-	                    "JOIN benh_nhan bn ON hsb.benh_nhan_id = bn.benh_nhan_id " +
-	                    "JOIN bac_si bs ON hsb.bac_si_id = bs.bac_si_id " +
-	                    "WHERE (:startDate IS NULL OR hsb.thoi_gian_tao >= :startDate) " +
-	                    "AND (:endDate IS NULL OR hsb.thoi_gian_tao <= :endDate) " +
-	                    "AND (:patientName IS NULL OR bn.ten LIKE %:patientName%) " +
-	                    "AND (:doctorName IS NULL OR bs.ten LIKE %:doctorName%) " +
-	                    "AND (:phoneNumber IS NULL OR bn.dien_thoai LIKE %:phoneNumber%)",
-	            nativeQuery = true)
-	    Page<HoSoBenh> findMedicalHistoryWithFilters(
-	            @Param("startDate") LocalDateTime startDate,
-	            @Param("endDate") LocalDateTime endDate,
-	            @Param("patientName") String patientName,
-	            @Param("doctorName") String doctorName,
-	            @Param("phoneNumber") String phoneNumber,
-	            Pageable pageable);
-	  List<HoSoBenh> findByHoSoIdIn(List<String> hoSoIds);
+
+
+
+
+
+
+		@Query(value = "SELECT * FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId",
+		           countQuery = "SELECT COUNT(*) FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId",
+		           nativeQuery = true)
+		    Page<HoSoBenh> findByBenhNhanId(@Param("benhNhanId") String benhNhanId, Pageable pageable);
+
+		    @Query(value = "SELECT * FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId AND thoi_gian_tao BETWEEN :startDate AND :endDate",
+		           countQuery = "SELECT COUNT(*) FROM ho_so_benh WHERE benh_nhan_id = :benhNhanId AND thoi_gian_tao BETWEEN :startDate AND :endDate",
+		           nativeQuery = true)
+		    Page<HoSoBenh> findByBenhNhanIdAndThoiGianTaoBetween(@Param("benhNhanId") String benhNhanId,
+		                                                         @Param("startDate") LocalDateTime startDate,
+		                                                         @Param("endDate") LocalDateTime endDate,
+		                                                         Pageable pageable);
+
+		    @Query("SELECT h FROM HoSoBenh h WHERE h.benhNhan.benhNhanId = :benhNhanId AND h.hoSoId IN :hoSoIds " +
+		    	       "AND (:startDateTime IS NULL OR h.thoiGianTao >= :startDateTime) " +
+		    	       "AND (:endDateTime IS NULL OR h.thoiGianTao <= :endDateTime)")
+		    	List<HoSoBenh> findByIdsAndBenhNhanIdAndDateRange(@Param("hoSoIds") List<String> hoSoIds,
+		    	                                                  @Param("benhNhanId") String benhNhanId,
+		    	                                                  @Param("startDateTime") LocalDateTime startDateTime,
+		    	                                                  @Param("endDateTime") LocalDateTime endDateTime);
+
+		 @Query(value = "SELECT hsb.* FROM ho_so_benh hsb " +
+		            "JOIN benh_nhan bn ON hsb.benh_nhan_id = bn.benh_nhan_id " +
+		            "JOIN bac_si bs ON hsb.bac_si_id = bs.bac_si_id " +
+		            "WHERE (:startDate IS NULL OR hsb.thoi_gian_tao >= :startDate) " +
+		            "AND (:endDate IS NULL OR hsb.thoi_gian_tao <= :endDate) " +
+		            "AND (:patientName IS NULL OR bn.ten LIKE %:patientName%) " +
+		            "AND (:doctorName IS NULL OR bs.ten LIKE %:doctorName%) " +
+		            "AND (:phoneNumber IS NULL OR bn.dien_thoai LIKE %:phoneNumber%)",
+		            countQuery = "SELECT COUNT(*) FROM ho_so_benh hsb " +
+		                    "JOIN benh_nhan bn ON hsb.benh_nhan_id = bn.benh_nhan_id " +
+		                    "JOIN bac_si bs ON hsb.bac_si_id = bs.bac_si_id " +
+		                    "WHERE (:startDate IS NULL OR hsb.thoi_gian_tao >= :startDate) " +
+		                    "AND (:endDate IS NULL OR hsb.thoi_gian_tao <= :endDate) " +
+		                    "AND (:patientName IS NULL OR bn.ten LIKE %:patientName%) " +
+		                    "AND (:doctorName IS NULL OR bs.ten LIKE %:doctorName%) " +
+		                    "AND (:phoneNumber IS NULL OR bn.dien_thoai LIKE %:phoneNumber%)",
+		            nativeQuery = true)
+		    Page<HoSoBenh> findMedicalHistoryWithFilters(
+		            @Param("startDate") LocalDateTime startDate,
+		            @Param("endDate") LocalDateTime endDate,
+		            @Param("patientName") String patientName,
+		            @Param("doctorName") String doctorName,
+		            @Param("phoneNumber") String phoneNumber,
+		            Pageable pageable);
+		  List<HoSoBenh> findByHoSoIdIn(List<String> hoSoIds);
 }

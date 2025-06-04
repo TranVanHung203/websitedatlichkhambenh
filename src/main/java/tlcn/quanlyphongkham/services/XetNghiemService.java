@@ -130,6 +130,7 @@ public class XetNghiemService {
             XetNghiem xetNghiem = xetNghiemRepository.findById(xetNghiemId)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy xét nghiệm: " + xetNghiemId));
             xetNghiem.setFileKetQua("/files/xetnghiem/" + filename);
+            xetNghiem.setTrangThai("Đã có kết quả");
             xetNghiemRepository.save(xetNghiem);
         }
 

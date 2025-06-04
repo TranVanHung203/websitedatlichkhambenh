@@ -433,54 +433,58 @@ public class NhanVienController {
 			String ca = lich.getCa();
 			List<String> timeList = timeFrames.getOrDefault(ca, new ArrayList<>());
 			List<SlotThoiGian> existingSlots = lich.getSlotThoiGian();
-
+			
 			if (existingSlots == null || existingSlots.isEmpty()) {
-				LichBacSiDTO dto = new LichBacSiDTO();
-				dto.setNgayThangNam(date);
-				dto.setCaKham(ca);
-				dto.setThoiGianBatDau("---");
-				dto.setThoiGianKetThuc("---");
-				dto.setTrangThai("Chưa có slot");
-				dto.setTenBenhNhan("---");
-				dto.setSoDienThoai("---");
-				result.add(dto);
+			    LichBacSiDTO dto = new LichBacSiDTO();
+			    
+			    dto.setNgayThangNam(date);
+			    dto.setCaKham(ca);
+			    dto.setThoiGianBatDau("---");
+			    dto.setThoiGianKetThuc("---");
+			    dto.setTrangThai("Chưa có slot");
+			    dto.setTenBenhNhan("---");
+			    dto.setSoDienThoai("---");
+			    dto.setDaThanhToan(false); // Default to 0 since no HoSoBenh exists
+			    result.add(dto);
 			} else {
-				for (SlotThoiGian slot : existingSlots) {
-					LichBacSiDTO dto = new LichBacSiDTO();
-					dto.setNgayThangNam(date);
-					dto.setCaKham(ca);
-					dto.setThoiGianBatDau(slot.getThoiGianBatDau().toString());
-					dto.setThoiGianKetThuc(slot.getThoiGianKetThuc().toString());
+			    for (SlotThoiGian slot : existingSlots) {
+			        LichBacSiDTO dto = new LichBacSiDTO();
+			        dto.setNgayThangNam(date);
+			        dto.setCaKham(ca);
+			        dto.setThoiGianBatDau(slot.getThoiGianBatDau().toString());
+			        dto.setThoiGianKetThuc(slot.getThoiGianKetThuc().toString());
 
-					String trangThai = slot.getTrangThai();
-					if ("checked-in".equals(trangThai)) {
-						dto.setTrangThai("Đang khám");
-					} else if ("pending".equals(trangThai)) {
-						dto.setTrangThai("Đang chờ");
-					} else if ("completed".equals(trangThai)) {
-						dto.setTrangThai("Đã khám xong");
-					} else if ("cancelled".equals(trangThai)) {
-						dto.setTrangThai("Đã hủy");
-					} else if (trangThai != null && !trangThai.isBlank()) {
-						dto.setTrangThai("Đã đặt");
-					} else {
-						dto.setTrangThai("Chưa đặt");
-					}
+			        String trangThai = slot.getTrangThai();
+			        if ("checked-in".equals(trangThai)) {
+			            dto.setTrangThai("Đang khám");
+			        } else if ("pending".equals(trangThai)) {
+			            dto.setTrangThai("Đang chờ");
+			        } else if ("completed".equals(trangThai)) {
+			            dto.setTrangThai("Đã khám xong");
+			        } else if ("cancelled".equals(trangThai)) {
+			            dto.setTrangThai("Đã hủy");
+			        } else if (trangThai != null && !trangThai.isBlank()) {
+			            dto.setTrangThai("Đã đặt");
+			        } else {
+			            dto.setTrangThai("Chưa đặt");
+			        }
 
-					if (List.of("Đã đặt", "Đã khám xong", "Đang khám", "Đang chờ", "Đã hủy")
-							.contains(dto.getTrangThai()) && slot.getBenhNhan() != null) {
-						BenhNhan benhNhan = slot.getBenhNhan();
-						dto.setTenBenhNhan(benhNhan.getTen() != null ? benhNhan.getTen() : "Không xác định");
-						dto.setSoDienThoai(
-								benhNhan.getDienThoai() != null ? benhNhan.getDienThoai() : "Không xác định");
-					} else {
-						dto.setTenBenhNhan("---");
-						dto.setSoDienThoai("---");
-					}
+			        if (List.of("Đã đặt", "Đã khám xong", "Đang khám", "Đang chờ", "Đã hủy")
+			                .contains(dto.getTrangThai()) && slot.getBenhNhan() != null) {
+			            BenhNhan benhNhan = slot.getBenhNhan();
+			            dto.setTenBenhNhan(benhNhan.getTen() != null ? benhNhan.getTen() : "Không xác định");
+			            dto.setSoDienThoai(
+			                    benhNhan.getDienThoai() != null ? benhNhan.getDienThoai() : "Không xác định");
+			        } else {
+			            dto.setTenBenhNhan("---");
+			            dto.setSoDienThoai("---");
+			        }
 
-					dto.setSlotId(slot.getSlotId());
-					result.add(dto);
-				}
+			        dto.setSlotId(slot.getSlotId());
+			        // Set daThanhToan with null check for hoSoBenh
+			        dto.setDaThanhToan(slot.getHoSoBenh() != null ? slot.getHoSoBenh().getDaThanhToan() : false);
+			        result.add(dto);
+			    }
 			}
 		}
 
@@ -551,7 +555,7 @@ public class NhanVienController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 	}
-
+//Thanh toán cho tiền mặt
 	@PostMapping("/nhanvien/xemlichbacsi/payment/confirm")
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> confirmPayment(@RequestParam("hoSoId") String hoSoId) {
@@ -600,6 +604,7 @@ public class NhanVienController {
 
 			// Tìm hồ sơ bệnh
 			HoSoBenh hoSoBenh = hoSoBenhService.findById(hoSoId);
+			
 			if (hoSoBenh == null) {
 				logger.warn("Không tìm thấy hồ sơ bệnh với hoSoId: {}", hoSoId);
 				response.put("status", "error");
@@ -650,19 +655,25 @@ public class NhanVienController {
 			String partnerCode = "MOMOLRJZ20181206"; // Thay bằng partnerCode thực tế từ MoMo
 			String accessKey = "mTCKt9W3eU1m39TW"; // Thay bằng accessKey thực tế
 			String secretKey = "SetA5RDnLHvt51AULf51DyauxUo3kDU6"; // Thay bằng secretKey thực tế
-			String redirectUrl = "http://localhost:8080/nhanvien/xemlichbacsi/payment/confirm-momo";
+			String IdBacSi=hoSoBenh.getBacSi().getBacSiId();
+			String idBacSi = URLEncoder.encode(IdBacSi, "UTF-8");
+			LocalDateTime thoiGianTao = hoSoBenh.getThoiGianTao();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // Format as yyyy-MM-dd
+			String ngay = thoiGianTao.format(formatter);
+			String encodedNgay = URLEncoder.encode(ngay, StandardCharsets.UTF_8.name());
+			String redirectUrl = "http://localhost:8080/nhanvien/xemlichbacsi/payment/confirm-momo?idBacSi="+idBacSi+"&ngay="+encodedNgay;
 			String ipnUrl = "http://localhost:8080/nhanvien/xemlichbacsi/payment/momo-ipn";
 			String requestId = UUID.randomUUID().toString();
 			String orderId = "ORDER_" + hoSoId + "_" + System.currentTimeMillis();
 			String orderInfo = "Thanh toán hồ sơ bệnh " + hoSoId;
 			String requestType = "payWithCC".equals(paymentMethod) ? "payWithCC" : "payWithATM";
 			String extraData = "";
-
+			
 			// Tạo chữ ký
 			String rawSignature = "accessKey=" + accessKey + "&amount=" + amountLong + "&extraData=" + extraData
 					+ "&ipnUrl=" + ipnUrl + "&orderId=" + orderId + "&orderInfo=" + orderInfo + "&partnerCode="
 					+ partnerCode + "&redirectUrl=" + redirectUrl + "&requestId=" + requestId + "&requestType="
-					+ requestType;
+					+ requestType ;
 
 			String signature = hmacSha256(rawSignature, secretKey);
 
@@ -680,6 +691,7 @@ public class NhanVienController {
 			requestBody.put("extraData", extraData);
 			requestBody.put("requestType", requestType);
 			requestBody.put("signature", signature);
+			requestBody.put("idBacSi", idBacSi);
 			requestBody.put("lang", "vi");
 
 			// Gọi API MoMo
@@ -802,31 +814,43 @@ public class NhanVienController {
 		return "PENDING"; // Giả lập, cần thay bằng logic thực tế
 	}
 
-	@GetMapping("/nhanvien/xemlichbacsi/payment/confirm-momo")
-	public RedirectView confirmMomoPayment(@RequestParam("partnerCode") String partnerCode,
-			@RequestParam("orderId") String orderId, @RequestParam("requestId") String requestId,
-			@RequestParam("amount") String amount, @RequestParam("orderInfo") String orderInfo,
-			@RequestParam("orderType") String orderType, @RequestParam("transId") String transId,
-			@RequestParam("resultCode") String resultCode, @RequestParam("message") String message,
-			@RequestParam("payType") String payType, @RequestParam("responseTime") String responseTime,
-			@RequestParam("extraData") String extraData, @RequestParam("signature") String signature) {
+	@GetMapping("nhanvien/xemlichbacsi/payment/confirm-momo")
+    public RedirectView confirmMomoPayment(
+            @RequestParam("partnerCode") String partnerCode,
+            @RequestParam("orderId") String orderId,
+            @RequestParam("requestId") String requestId,
+            @RequestParam("amount") String amount,
+            @RequestParam("orderInfo") String orderInfo,
+            @RequestParam("orderType") String orderType,
+            @RequestParam("transId") String transId,
+            @RequestParam("resultCode") String resultCode,
+            @RequestParam("message") String message,
+            @RequestParam("idBacSi") String idBacSi,
+            @RequestParam("responseTime") String responseTime,
+            @RequestParam("extraData") String extraData,
+            @RequestParam("signature") String signature,
+            @RequestParam("ngay") String ngay) {
 
-		// Giải mã orderId để lấy hoSoId (giả sử orderId có định dạng
-		// "ORDER_<hoSoId>_<timestamp>")
-		String hoSoId = extractHoSoIdFromOrderId(orderId); // Hàm tự định nghĩa để trích xuất hoSoId
+        // Extract hoSoId from orderId
+        String hoSoId = extractHoSoIdFromOrderId(orderId);
 
-		if ("0".equals(resultCode)) { // Thanh toán thành công (resultCode = 0 theo tài liệu MoMo)
-			// Cập nhật trạng thái da_thanh_toan trong cơ sở dữ liệu
-			updatePaymentStatus(hoSoId);
+        // Encode query parameters
+        String encodedIdBacSi = URLEncoder.encode(idBacSi, StandardCharsets.UTF_8);
+        String encodedNgay = URLEncoder.encode(ngay, StandardCharsets.UTF_8);
 
-			// Chuyển hướng về trang xem lịch bác sĩ
-			return new RedirectView("/nhanvien/xemlichbacsi");
-		} else {
-			// Xử lý trường hợp thanh toán thất bại (có thể log lỗi hoặc chuyển hướng đến
-			// trang lỗi)
-			return new RedirectView("/nhanvien/xemlichbacsi?error=Thanh+toan+that+bai");
-		}
-	}
+        // Base redirect URL
+        String redirectUrl = "/nhanvien/xemlichbacsi?doctorId=" + encodedIdBacSi + "&date=" + encodedNgay;
+
+        if ("0".equals(resultCode)) {
+            // Update payment status
+            updatePaymentStatus(hoSoId);
+            return new RedirectView(redirectUrl);
+        } else {
+            // Append error message for failed payment
+            redirectUrl += "&error=" + URLEncoder.encode("Thanh toan that bai", StandardCharsets.UTF_8);
+            return new RedirectView(redirectUrl);
+        }
+    }
 
 	// Hàm trích xuất hoSoId từ orderId (tùy chỉnh theo định dạng của bạn)
 	private String extractHoSoIdFromOrderId(String orderId) {

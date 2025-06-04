@@ -7,231 +7,13 @@
     <title>Khám Bệnh - Bước 3</title>
     <link rel="stylesheet" th:href="@{/css/xemlichhen.css}">
     <link rel="stylesheet" th:href="@{/css/headerbacsi.css}">
+    <link rel="stylesheet" th:href="@{/css/quytrinhkhambenh_Step3.css}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <style>
-        .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding-top: 80px;
-        }
-        .patient-info, .ke-don {
-            margin-bottom: 30px;
-            padding: 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-        }
-        .patient-info h2, .ke-don h2 {
-            color: #007bff;
-            margin-bottom: 15px;
-            font-size: 24px;
-        }
-        .patient-info p {
-            margin: 8px 0;
-            font-size: 16px;
-        }
-        .patient-info p strong {
-            color: #333;
-            width: 150px;
-            display: inline-block;
-        }
-        .tab-nav {
-            display: flex;
-            border-bottom: 2px solid #dee2e6;
-            margin-bottom: 20px;
-        }
-        .tab-nav button {
-            padding: 10px 20px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            font-size: 16px;
-            font-weight: 500;
-            color: #6c757d;
-            cursor: pointer;
-            transition: color 0.3s, border-color 0.3s;
-        }
-        .tab-nav button.active {
-            color: #007bff;
-            border-bottom: 3px solid #007bff;
-        }
-        .tab-nav button:hover:not(.active) {
-            color: #0056b3;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        .form-group input:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-        .save-btn {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            margin: 10px 0;
-            min-width: 120px;
-            transition: background-color 0.3s;
-        }
-        .save-btn:hover {
-            background-color: #0056b3;
-        }
-        .save-btn i {
-            margin-right: 5px;
-        }
-        .search-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            align-items: center;
-        }
-        .search-container input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .search-container button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-        .search-container button:hover {
-            background-color: #0056b3;
-        }
-        .drug-card {
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 12px;
-            margin: 8px;
-            cursor: pointer;
-            background-color: #fff;
-            width: 220px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s, box-shadow 0.3s;
-        }
-        .drug-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background-color: #f1f1f1;
-        }
-        .drug-card p {
-            margin: 0;
-            font-weight: 500;
-            color: #333;
-        }
-        .drug-card small {
-            color: #6c757d;
-            font-size: 12px;
-        }
-        .selected-drug {
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 10px 0;
-            background-color: #f8f9fa;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 100px;
-            gap: 10px;
-            align-items: center;
-            animation: slideIn 0.3s ease;
-        }
-        .selected-drug p {
-            margin: 0;
-            font-weight: 500;
-            color: #333;
-        }
-        .selected-drug .form-group {
-            margin: 0;
-        }
-        .selected-drug .form-group input {
-            padding: 6px;
-            font-size: 13px;
-        }
-        .selected-drug button {
-            padding: 8px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: background-color 0.3s;
-        }
-        .selected-drug button:hover {
-            background-color: #c82333;
-        }
-        .section-title {
-            font-size: 18px;
-            color: #007bff;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 5px;
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @media (max-width: 600px) {
-            .drug-card {
-                width: 100%;
-                margin: 5px 0;
-            }
-            .selected-drug {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-            .selected-drug p, .selected-drug .form-group input, .selected-drug button {
-                font-size: 12px;
-            }
-            .search-container {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .search-container input, .search-container button {
-                width: 100%;
-            }
-            .save-btn {
-                width: 100%;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -247,6 +29,9 @@
             <p><strong>Địa chỉ:</strong> <span th:text="${benhNhan?.diaChi ?: 'Không có'}"></span></p>
             <p><strong>Triệu chứng:</strong> <span th:text="${hoSoBenh?.trieuChung ?: 'Không có'}"></span></p>
             <p><strong>Chẩn đoán:</strong> <span th:text="${hoSoBenh?.chanDoan ?: 'Không có'}"></span></p>
+            <button class="history-btn" th:attr="data-benh-nhan-id=${benhNhan?.benhNhanId}" onclick="viewMedicalHistory(this)" th:disabled="${benhNhan?.benhNhanId == null}">
+                <i class="fas fa-history"></i> Xem lịch sử khám
+            </button>
         </div>
 
         <div class="tab-nav">
@@ -293,6 +78,9 @@
     </div>
 
     <script>
+        let currentBenhNhanId = null;
+        let medicalHistoryData = [];
+
         function redirectToStep(button) {
             const url = button.getAttribute('data-url');
             console.log('Redirecting to:', url);
@@ -301,7 +89,8 @@
                     icon: 'error',
                     title: 'Lỗi',
                     text: 'URL chuyển hướng không tồn tại.',
-                    confirmButtonText: 'Đóng'
+                    confirmButtonText: 'Đóng',
+                    confirmButtonColor: '#2563eb'
                 });
                 return;
             }
@@ -314,7 +103,8 @@
                     icon: 'error',
                     title: 'Lỗi',
                     text: `Thông tin không hợp lệ: benhNhanId=${benhNhanId}, hoSoId=${hoSoId}, slotId=${slotId}`,
-                    confirmButtonText: 'Đóng'
+                    confirmButtonText: 'Đóng',
+                    confirmButtonColor: '#2563eb'
                 });
                 return;
             }
@@ -344,7 +134,7 @@
                     title: 'Cảnh báo',
                     text: 'Vui lòng nhập tên thuốc.',
                     confirmButtonText: 'Đóng',
-                    confirmButtonColor: '#007bff'
+                    confirmButtonColor: '#2563eb'
                 });
                 return;
             }
@@ -372,7 +162,7 @@
                             title: 'Không tìm thấy',
                             text: 'Không có thuốc nào khớp với tên tìm kiếm.',
                             confirmButtonText: 'Đóng',
-                            confirmButtonColor: '#007bff'
+                            confirmButtonColor: '#2563eb'
                         });
                     }
                 },
@@ -383,7 +173,7 @@
                         title: 'Lỗi',
                         text: 'Lỗi khi tìm kiếm thuốc, vui lòng thử lại.',
                         confirmButtonText: 'Đóng',
-                        confirmButtonColor: '#007bff'
+                        confirmButtonColor: '#2563eb'
                     });
                 }
             });
@@ -440,96 +230,438 @@
 
             $('#ke-don-form').on('submit', function(event) {
                 event.preventDefault();
-                const formData = $(this).serializeArray();
+                
+                Swal.fire({
+                    icon: 'question',
+                    title: 'Xác nhận hoàn thành',
+                    text: 'Bạn có chắc chắn hoàn thành đơn thuốc này không?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Hoàn thành',
+                    cancelButtonText: 'Hủy',
+                    confirmButtonColor: '#2563eb',
+                    cancelButtonColor: '#dc3545'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const formData = $(this).serializeArray();
+                        const data = {
+                            hoSoId: formData.find(item => item.name === 'hoSoId').value,
+                            benhNhanId: formData.find(item => item.name === 'benhNhanId').value,
+                            slotId: formData.find(item => item.name === 'slotId').value,
+                            drugs: []
+                        };
 
-                const data = {
-                    hoSoId: formData.find(item => item.name === 'hoSoId').value,
-                    benhNhanId: formData.find(item => item.name === 'benhNhanId').value,
-                    slotId: formData.find(item => item.name === 'slotId').value,
-                    drugs: []
-                };
+                        const drugIds = formData.filter(item => item.name === 'drugIds[]').map(item => item.value);
+                        const lieus = formData.filter(item => item.name === 'lieu[]').map(item => item.value);
+                        const tanSuats = formData.filter(item => item.name === 'tanSuat[]').map(item => item.value);
+                        const soLuongs = formData.filter(item => item.name === 'soLuong[]').map(item => item.value);
 
-                const drugIds = formData.filter(item => item.name === 'drugIds[]').map(item => item.value);
-                const lieus = formData.filter(item => item.name === 'lieu[]').map(item => item.value);
-                const tanSuats = formData.filter(item => item.name === 'tanSuat[]').map(item => item.value);
-                const soLuongs = formData.filter(item => item.name === 'soLuong[]').map(item => item.value);
-
-                if (!data.hoSoId || !data.benhNhanId || !data.slotId) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi',
-                        text: 'Thiếu thông tin hồ sơ, bệnh nhân hoặc lịch khám bệnh.',
-                        confirmButtonText: 'Đóng',
-                        confirmButtonColor: '#007bff'
-                    });
-                    return;
-                }
-
-                if (drugIds.length === 0) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Cảnh báo',
-                        text: 'Vui lòng chọn ít nhất một loại thuốc.',
-                        confirmButtonText: 'Đóng',
-                        confirmButtonColor: '#007bff'
-                    });
-                    return;
-                }
-
-                for (let i = 0; i < drugIds.length; i++) {
-                    data.drugs.push({
-                        thuocId: drugIds[i],
-                        lieu: lieus[i],
-                        tanSuat: tanSuats[i],
-                        soLuong: soLuongs[i]
-                    });
-                }
-
-                console.log('Saving ke don:', data);
-
-                $.ajax({
-                    url: '/bacsi/step3/save',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(data),
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Thành công',
-                                text: 'Đơn thuốc đã được lưu!',
-                                confirmButtonText: 'Đóng',
-                                confirmButtonColor: '#007bff'
-                            }).then(() => {
-                                if (response.redirectUrl) {
-                                    window.location.href = response.redirectUrl;
-                                } else {
-                                    window.location.reload();
-                                }
-                            });
-                        } else {
+                        if (!data.hoSoId || !data.benhNhanId || !data.slotId) {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Lỗi',
-                                text: response.message || 'Vui lòng thử lại.',
+                                text: 'Thiếu thông tin hồ sơ, bệnh nhân hoặc lịch khám bệnh.',
                                 confirmButtonText: 'Đóng',
-                                confirmButtonColor: '#007bff'
+                                confirmButtonColor: '#2563eb'
+                            });
+                            return;
+                        }
+
+                        if (drugIds.length === 0) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Cảnh báo',
+                                text: 'Vui lòng chọn ít nhất một loại thuốc.',
+                                confirmButtonText: 'Đóng',
+                                confirmButtonColor: '#2563eb'
+                            });
+                            return;
+                        }
+
+                        for (let i = 0; i < drugIds.length; i++) {
+                            data.drugs.push({
+                                thuocId: drugIds[i],
+                                lieu: lieus[i],
+                                tanSuat: tanSuats[i],
+                                soLuong: soLuongs[i]
                             });
                         }
-                    },
-                    error: function(xhr) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Lỗi',
-                            text: 'Lỗi khi lưu đơn thuốc: ' + (xhr.responseJSON?.message || xhr.statusText),
-                            confirmButtonText: 'Đóng',
-                            confirmButtonColor: '#007bff'
+
+                        console.log('Saving ke don:', data);
+
+                        $.ajax({
+                            url: '/bacsi/step3/save',
+                            method: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify(data),
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Thành công',
+                                        text: 'Đơn thuốc đã được lưu!',
+                                        confirmButtonText: 'Đóng',
+                                        confirmButtonColor: '#2563eb'
+                                    }).then(() => {
+                                        if (response.redirectUrl) {
+                                            window.location.href = response.redirectUrl;
+                                        } else {
+                                            window.location.reload();
+                                        }
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Lỗi',
+                                        text: response.message || 'Vui lòng thử lại.',
+                                        confirmButtonText: 'Đóng',
+                                        confirmButtonColor: '#2563eb'
+                                    });
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Lỗi',
+                                    text: 'Lỗi khi lưu đơn thuốc: ' + (xhr.responseJSON?.message || xhr.statusText),
+                                    confirmButtonText: 'Đóng',
+                                    confirmButtonColor: '#2563eb'
+                                });
+                            }
                         });
                     }
                 });
             });
         });
+
+        // Medical history functions
+        function viewMedicalHistory(button) {
+            currentBenhNhanId = button.getAttribute('data-benh-nhan-id');
+            if (!currentBenhNhanId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không tìm thấy ID bệnh nhân.',
+                    confirmButtonText: 'Đóng',
+                    confirmButtonColor: '#2563eb',
+                    timer: 3000
+                });
+                return;
+            }
+            console.log('Fetching medical history for benhNhanId:', currentBenhNhanId);
+            fetchMedicalHistoryPage(currentBenhNhanId, 0);
+        }
+
+        function fetchMedicalHistoryPage(benhNhanId, page, startDate = null, endDate = null) {
+            let url = `/bacsi/medical-history?benhNhanId=${benhNhanId}&page=${page}&size=2`;
+            if (startDate && endDate) {
+                const startFormatted = `${startDate.getFullYear()}-${(startDate.getMonth() + 1).toString().padStart(2, '0')}-${startDate.getDate().toString().padStart(2, '0')}`;
+                const endFormatted = `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')}-${endDate.getDate().toString().padStart(2, '0')}`;
+                url += `&startDate=${startFormatted}&endDate=${endFormatted}`;
+                console.log('Fetching with date range:', { startDate: startFormatted, endDate: endFormatted, url });
+            }
+            console.log('Fetching URL:', url);
+            fetch(url, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API response:', JSON.stringify(data, null, 2));
+                    medicalHistoryData = data.content || [];
+                    if (!medicalHistoryData.length) {
+                        console.warn('No medical history data returned for benhNhanId:', benhNhanId);
+                    } else {
+                        console.log('Medical history records:', medicalHistoryData);
+                        medicalHistoryData.forEach(record => {
+                            console.log('Record details:', {
+                                hoSoId: record.hoSoId,
+                                thoiGianTao: record.thoiGianTao,
+                                vitalSigns: record.vitalSigns,
+                                donThuocs: record.donThuocs,
+                                xetNghiems: record.xetNghiems,
+                                phieuXetNghiems: record.phieuXetNghiems
+                            });
+                        });
+                    }
+                    renderMedicalHistory(medicalHistoryData, page + 1, data.totalPages, benhNhanId, startDate, endDate);
+                })
+                .catch(error => {
+                    console.error('Lỗi khi lấy lịch sử khám:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Có lỗi xảy ra',
+                        html: `Không thể tải lịch sử khám: ${error.message}`,
+                        confirmButtonText: 'Đóng',
+                        confirmButtonColor: '#2563eb',
+                        timer: 5000
+                    });
+                });
+        }
+
+        function resetDateFilter() {
+            document.getElementById('date-range-picker').value = '';
+            fetchMedicalHistoryPage(currentBenhNhanId, 0);
+        }
+
+        function formatDateVN(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+        }
+
+        function renderMedicalHistory(data, currentPage, totalPages, benhNhanId, startDate = null, endDate = null) {
+            if (!data || data.length === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Không có dữ liệu',
+                    text: 'Bệnh nhân này chưa có lịch sử khám bệnh.',
+                    confirmButtonText: 'Đóng',
+                    confirmButtonColor: '#2563eb',
+                    timer: 3000
+                });
+                return;
+            }
+
+            let htmlContent = `
+                <div class="date-filter">
+                    <label>Lọc theo khoảng ngày:</label>
+                    <input type="text" id="date-range-picker" placeholder="Chọn khoảng ngày" />
+                    <button onclick="resetDateFilter()">Xóa bộ lọc</button>
+                </div>
+                ${startDate && endDate ? `
+                    <p class="filter-info">Đang lọc từ ${formatDateVN(startDate)} đến ${formatDateVN(endDate)}</p>
+                ` : ''}
+                <h3>Lịch sử khám bệnh</h3>
+            `;
+
+            data.forEach((record, index) => {
+                const recordId = `record-${(currentPage - 1) * 2 + index}`;
+                htmlContent += `
+                    <div class="record-card">
+                        <h4>Khám ngày: ${new Date(record.thoiGianTao).toLocaleString('vi-VN')}</h4>
+                        <p><strong>Bệnh nhân:</strong> ${record.benhNhan?.ten || 'N/A'} (${record.benhNhan?.dienThoai || 'N/A'})</p>
+                        <p><strong>Bác sĩ:</strong> ${record.bacSi?.ten || 'Chưa chỉ định'}</p>
+                        <p><strong>Chẩn đoán:</strong> ${record.chanDoan || 'Chưa có'}</p>
+                        <p><strong>Triệu chứng:</strong> ${record.trieuChung || 'Chưa có'}</p>
+                        <p><strong>Tổng tiền:</strong> ${record.tongTien ? record.tongTien.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa tính'}</p>
+                        <p><strong>Đã thanh toán:</strong> ${record.daThanhToan ? 'Có' : 'Chưa'}</p>
+                        <ul class="nav nav-tabs" id="tabs-${recordId}">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#vital-${recordId}" data-bs-toggle="tab"><i class="fas fa-heartbeat"></i> Dấu hiệu sinh tồn</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#prescription-${recordId}" data-bs-toggle="tab"><i class="fas fa-prescription-bottle"></i> Đơn thuốc</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#test-${recordId}" data-bs-toggle="tab"><i class="fas fa-vial"></i> Xét nghiệm</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="vital-${recordId}">
+                                ${record.vitalSigns && record.vitalSigns.length > 0 ? `
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Thời gian</th>
+                                                <th>Nhiệt độ</th>
+                                                <th>Chiều cao</th>
+                                                <th>Cân nặng</th>
+                                                <th>Huyết áp</th>
+                                                <th>Ghi chú</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${record.vitalSigns.map(vs => `
+                                                <tr>
+                                                    <td>${vs.thoiGianTao ? new Date(vs.thoiGianTao).toLocaleString('vi-VN') : 'N/A'}</td>
+                                                    <td>${vs.temperature != null ? vs.temperature + ' °C' : 'N/A'}</td>
+                                                    <td>${vs.height != null ? vs.height + ' cm' : 'N/A'}</td>
+                                                    <td>${vs.weight != null ? vs.weight + ' kg' : 'N/A'}</td>
+                                                    <td>${vs.bloodPressureSys != null && vs.bloodPressureDia != null ? vs.bloodPressureSys + '/' + vs.bloodPressureDia + ' mmHg' : 'N/A'}</td>
+                                                    <td>${vs.notes || 'Không có'}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                ` : '<p>Chưa có dữ liệu dấu hiệu sinh tồn</p>'}
+                            </div>
+                            <div class="tab-pane fade" id="prescription-${recordId}">
+                                ${record.donThuocs && record.donThuocs.length > 0 ? `
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Đơn thuốc</th>
+                                                <th>Thuốc</th>
+                                                <th>Liều</th>
+                                                <th>Tần suất</th>
+                                                <th>Số lượng</th>
+                                                <th>Tổng tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${record.donThuocs.map(dt => `
+                                                <tr>
+                                                    <td>#${dt.donThuocId || 'N/A'}</td>
+                                                    <td>
+                                                        ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.thuoc?.tenThuoc || 'N/A').join('<br>') : 'N/A'}
+                                                    </td>
+                                                    <td>
+                                                        ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.lieu || 'N/A').join('<br>') : 'N/A'}
+                                                    </td>
+                                                    <td>
+                                                        ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.tanSuat || 'N/A').join('<br>') : 'N/A'}
+                                                    </td>
+                                                    <td>
+                                                        ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.soLuong || 'N/A').join('<br>') : 'N/A'}
+                                                    </td>
+                                                    <td>${dt.formattedTongTienThuoc || 'N/A'}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                ` : '<p>Chưa có dữ liệu đơn thuốc</p>'}
+                            </div>
+                            <div class="tab-pane fade" id="test-${recordId}">
+                                ${record.xetNghiems && record.xetNghiems.length > 0 ? `
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Loại xét nghiệm</th>
+                                                <th>Giá</th>
+                                                <th>Trạng thái</th>
+                                                <th>Ghi chú</th>
+                                                <th>Kết quả</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${record.xetNghiems.map(xn => `
+                                                <tr>
+                                                    <td>${xn.loaiXetNghiem?.tenXetNghiem || 'N/A'}</td>
+                                                    <td>${xn.loaiXetNghiem?.gia != null ? xn.loaiXetNghiem.gia.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}</td>
+                                                    <td>${xn.trangThai || 'N/A'}</td>
+                                                    <td>${xn.ghiChu || 'Không có'}</td>
+                                                    <td>${xn.fileKetQua ? `<a href="${xn.fileKetQua}" target="_blank">Xem file</a>` : 'N/A'}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                ` : '<p>Chưa có dữ liệu xét nghiệm</p>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            htmlContent += `
+                <div class="pagination" data-start-date="${startDate ? startDate.toISOString() : ''}" data-end-date="${endDate ? endDate.toISOString() : ''}">
+                    <button onclick="fetchMedicalHistoryPage('${benhNhanId}', ${currentPage - 2}, this.parentElement.dataset.startDate ? new Date(this.parentElement.dataset.startDate) : null, this.parentElement.dataset.endDate ? new Date(this.parentElement.dataset.endDate) : null)" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>
+                    ${Array.from({ length: totalPages }, (_, i) => `
+                        <button onclick="fetchMedicalHistoryPage('${benhNhanId}', ${i}, this.parentElement.dataset.startDate ? new Date(this.parentElement.dataset.startDate) : null, this.parentElement.dataset.endDate ? new Date(this.parentElement.dataset.endDate) : null)" ${currentPage === i + 1 ? 'class="active"' : ''}>${i + 1}</button>
+                    `).join('')}
+                    <button onclick="fetchMedicalHistoryPage('${benhNhanId}', ${currentPage}, this.parentElement.dataset.startDate ? new Date(this.parentElement.dataset.startDate) : null, this.parentElement.dataset.endDate ? new Date(this.parentElement.dataset.endDate) : null)" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>
+                </div>
+            `;
+
+            Swal.fire({
+                title: 'Lịch sử khám bệnh',
+                html: htmlContent,
+                width: '1000px',
+                showCloseButton: true,
+                confirmButtonText: 'Đóng',
+                confirmButtonColor: '#2563eb',
+                customClass: { popup: 'swal-wide' },
+                didOpen: () => {
+                    try {
+                        // Initialize Bootstrap tabs manually
+                        const tabLinks = document.querySelectorAll(`#swal2-html-container .nav-link`);
+                        if (tabLinks.length === 0) {
+                            console.error('No tab links found in SweetAlert2 modal. HTML content:', htmlContent);
+                        } else {
+                            console.log(`Found ${tabLinks.length} tab links in SweetAlert2 modal`);
+                        }
+                        tabLinks.forEach(link => {
+                            link.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                const tabId = e.target.getAttribute('href');
+                                const recordCard = e.target.closest('.record-card');
+                                const tabs = recordCard.querySelectorAll('.nav-link');
+                                const panes = recordCard.querySelectorAll('.tab-pane');
+                                tabs.forEach(tab => tab.classList.remove('active'));
+                                panes.forEach(pane => pane.classList.remove('show', 'active'));
+                                e.target.classList.add('active');
+                                const targetPane = recordCard.querySelector(tabId);
+                                if (targetPane) {
+                                    targetPane.classList.add('show', 'active');
+                                    console.log('Switched to tab:', tabId);
+                                } else {
+                                    console.error('Target pane not found for tabId:', tabId);
+                                }
+                            });
+                        });
+
+                        // Verify tab content visibility
+                        const tabPanes = document.querySelectorAll(`#swal2-html-container .tab-pane`);
+                        tabPanes.forEach(pane => {
+                            console.log(`Tab pane ${pane.id} display:`, window.getComputedStyle(pane).display);
+                        });
+
+                        // Initialize Flatpickr
+                        flatpickr('#date-range-picker', {
+                            mode: 'range',
+                            dateFormat: 'Y-m-d',
+                            defaultDate: startDate && endDate ? [startDate, endDate] : null,
+                            onChange: (selectedDates) => {
+                                console.log('Selected dates:', selectedDates);
+                                if (selectedDates.length === 2) {
+                                    const [start, end] = selectedDates;
+                                    start.setHours(0, 0, 0, 0);
+                                    end.setHours(23, 59, 59, 999);
+                                    const startFormatted = `${start.getFullYear()}-${(start.getMonth() + 1).toString().padStart(2, '0')}-${start.getDate().toString().padStart(2, '0')}`;
+                                    const endFormatted = `${end.getFullYear()}-${(end.getMonth() + 1).toString().padStart(2, '0')}-${end.getDate().toString().padStart(2, '0')}`;
+                                    console.log('Filtering range:', { start: startFormatted, end: endFormatted });
+                                    fetchMedicalHistoryPage(benhNhanId, 0, start, end);
+                                } else if (selectedDates.length === 0) {
+                                    console.log('Resetting to original data');
+                                    fetchMedicalHistoryPage(benhNhanId, 0);
+                                }
+                            }
+                        });
+                        console.log('Flatpickr and tabs initialized successfully');
+                    } catch (error) {
+                        console.error('Lỗi khi khởi tạo Flatpickr hoặc tabs:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Không thể khởi tạo bộ lọc ngày hoặc tab.',
+                            confirmButtonText: 'Đóng',
+                            confirmButtonColor: '#2563eb',
+                            timer: 3000
+                        });
+                    }
+                },
+                didRender: () => {
+                    // Additional check after rendering
+                    const activePanes = document.querySelectorAll(`#swal2-html-container .tab-pane.show.active`);
+                    if (activePanes.length === 0) {
+                        console.error('No active tab panes found after rendering');
+                    } else {
+                        activePanes.forEach(pane => {
+                            console.log(`Active tab pane ${pane.id} is visible`);
+                        });
+                    }
+                }
+            });
+        }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

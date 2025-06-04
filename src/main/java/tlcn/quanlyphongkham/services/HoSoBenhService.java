@@ -187,6 +187,23 @@ public class HoSoBenhService {
 
 		return dto;
 	}
+    public Page<HoSoBenh> findByBenhNhanId(String benhNhanId, Pageable pageable) {
+        return hoSoBenhRepository.findByBenhNhanId(benhNhanId, pageable);
+    }
+
+	public Page<HoSoBenh> findByBenhNhanIdAndDateRange(String benhNhanId, LocalDateTime startDate,
+			LocalDateTime endDate, Pageable pageable) {
+		if (startDate != null && endDate != null) {
+            return hoSoBenhRepository.findByBenhNhanIdAndThoiGianTaoBetween(benhNhanId, startDate, endDate, pageable);
+        }
+        return hoSoBenhRepository.findByBenhNhanId(benhNhanId, pageable);
+	}
+
+	public List<HoSoBenh> findByIdsAndBenhNhanIdAndDateRange(List<String> hoSoIds, String benhNhanId,
+			LocalDateTime startDateTime, LocalDateTime endDateTime) {
+	
+		return hoSoBenhRepository.findByIdsAndBenhNhanIdAndDateRange(hoSoIds,benhNhanId,startDateTime,endDateTime);
+	}
 	public Page<HoSoBenh> findMedicalHistoryWithFilters(
             LocalDateTime startDate,
             LocalDateTime endDate,
@@ -201,4 +218,5 @@ public class HoSoBenhService {
 	        return hoSoBenhRepository.findByHoSoIdIn(hoSoIds);
 	    }
 	
+
 }

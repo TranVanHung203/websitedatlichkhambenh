@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,6 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -94,7 +97,6 @@ import tlcn.quanlyphongkham.services.SlotThoiGianService;
 import tlcn.quanlyphongkham.services.ThuocService;
 import tlcn.quanlyphongkham.services.VitalSignsService;
 import tlcn.quanlyphongkham.services.XetNghiemService;
-
 @Controller
 public class BacSiController {
 	@Autowired
@@ -221,15 +223,31 @@ public class BacSiController {
 		}
 	}
 
-	// Phương thức xóa lịch khám
 	@DeleteMapping("/bacsi/lichkham/delete")
 	public ResponseEntity<String> deleteLichKham(@RequestParam("id") String lichId) {
-		try {
-			lichKhamBenhService.deleteLichKham(lichId);
-			return ResponseEntity.ok("Lịch khám đã được xóa thành công");
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi xóa lịch khám");
-		}
+	    try {
+	        // Fetch the LichKhamBenh entity with its associated SlotThoiGian
+	        Optional<LichKhamBenh> lichKhamBenhOptional = lichKhamBenhService.findById(lichId);
+	        LichKhamBenh lichKhamBenh = lichKhamBenhOptional.orElse(null);
+	        
+	        if (lichKhamBenh == null) {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lịch khám không tồn tại");
+	        }
+
+	        // Check if there are any associated SlotThoiGian records
+	        List<SlotThoiGian> slots = lichKhamBenh.getSlotThoiGian();
+	        if (slots != null && !slots.isEmpty()) {
+	            // If any SlotThoiGian exists, prevent deletion
+	            return ResponseEntity.status(HttpStatus.CONFLICT)
+	                .body("Đã có dữ liệu ca khám, vui lòng vào lịch hẹn khám để hủy các ca khám");
+	        }
+
+	        // If no slots exist, proceed with deletion
+	        lichKhamBenhService.deleteLichKham(lichId);
+	        return ResponseEntity.ok("Lịch khám đã được xóa thành công");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi xóa lịch khám");
+	    }
 	}
 
 	@GetMapping("/bacsi/editprofile")
@@ -1147,124 +1165,166 @@ public class BacSiController {
     
     
     
-    @GetMapping("bacsi/medical-history")
-    public ResponseEntity<List<MedicalHistoryDTO>> getMedicalHistory(@RequestParam("benhNhanId") String benhNhanId) {
-        List<HoSoBenh> medicalHistory = hoSoBenhService.findByBenhNhanId(benhNhanId);
-
-        List<MedicalHistoryDTO> dtos = medicalHistory.stream().map(hsb -> {
-            // Initialize lazy-loaded relationships
-            Hibernate.initialize(hsb.getBenhNhan());
-            Hibernate.initialize(hsb.getBacSi());
-            Hibernate.initialize(hsb.getDonThuocs());
-            Hibernate.initialize(hsb.getXetNghiems());
-            Hibernate.initialize(hsb.getPhieuXetNghiems());
-            Hibernate.initialize(hsb.getVitalSigns());
-
-            MedicalHistoryDTO dto = new MedicalHistoryDTO();
-            dto.setHoSoId(hsb.getHoSoId());
-            
-            // Map BenhNhan
-            if (hsb.getBenhNhan() != null) {
-                MedicalHistoryDTO.BenhNhanDTO benhNhanDTO = new MedicalHistoryDTO.BenhNhanDTO(
-                    hsb.getBenhNhan().getBenhNhanId(),
-                    hsb.getBenhNhan().getTen(),
-                    hsb.getBenhNhan().getDienThoai()
-                );
-                dto.setBenhNhan(benhNhanDTO);
+    @GetMapping("/bacsi/medical-history")
+    public ResponseEntity<?> getMedicalHistory(
+            @RequestParam("benhNhanId") String benhNhanId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "2") int size,
+            @RequestParam(value = "startDate", required = false) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) LocalDate endDate) {
+        try {
+            if (benhNhanId == null || benhNhanId.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Invalid benhNhanId"));
             }
 
-            // Map BacSi
-            if (hsb.getBacSi() != null) {
-                MedicalHistoryDTO.BacSiDTO bacSiDTO = new MedicalHistoryDTO.BacSiDTO(
-                    hsb.getBacSi().getBacSiId(),
-                    hsb.getBacSi().getTen()
-                );
-                dto.setBacSi(bacSiDTO);
-            }
+            // Add sorting by thoi_gian_tao in descending order
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "thoi_gian_tao"));
 
-            dto.setChanDoan(hsb.getChanDoan());
-            dto.setTrieuChung(hsb.getTrieuChung());
-            dto.setTongTien(hsb.getTongTien());
-            dto.setDaThanhToan(hsb.getDaThanhToan());
-            dto.setThoiGianTao(hsb.getThoiGianTao() != null ? hsb.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+            // Convert LocalDate to LocalDateTime for filtering
+            LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+            LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59, 999999999) : null;
 
-            // Map VitalSigns
-            if (hsb.getVitalSigns() != null) {
-                List<MedicalHistoryDTO.VitalSignsDTO> vitalSignsDTOs = hsb.getVitalSigns().stream().map(vs -> {
-                    return new MedicalHistoryDTO.VitalSignsDTO(
-                        vs.getId(),
-                        vs.getTemperature(),
-                        vs.getHeight(),
-                        vs.getWeight(),
-                        vs.getBloodPressureSys(),
-                        vs.getBloodPressureDia(),
-                        vs.getNotes(),
-                        vs.getThoiGianTao() != null ? vs.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null
+            // Fetch medical history with optional date range filtering
+            Page<HoSoBenh> medicalHistoryPage = hoSoBenhService.findByBenhNhanIdAndDateRange(benhNhanId, startDateTime, endDateTime, pageable);
+
+            Page<MedicalHistoryDTO> dtos = medicalHistoryPage.map(hsb -> {
+                Hibernate.initialize(hsb.getBenhNhan());
+                Hibernate.initialize(hsb.getBacSi());
+                Hibernate.initialize(hsb.getDonThuocs());
+                Hibernate.initialize(hsb.getXetNghiems());
+                Hibernate.initialize(hsb.getPhieuXetNghiems());
+                Hibernate.initialize(hsb.getVitalSigns());
+
+                MedicalHistoryDTO dto = new MedicalHistoryDTO();
+                dto.setHoSoId(hsb.getHoSoId());
+
+                if (hsb.getBenhNhan() != null) {
+                    MedicalHistoryDTO.BenhNhanDTO benhNhanDTO = new MedicalHistoryDTO.BenhNhanDTO(
+                        hsb.getBenhNhan().getBenhNhanId(),
+                        hsb.getBenhNhan().getTen(),
+                        hsb.getBenhNhan().getDienThoai()
                     );
-                }).collect(Collectors.toList());
-                dto.setVitalSigns(vitalSignsDTOs);
-            }
+                    dto.setBenhNhan(benhNhanDTO);
+                }
 
-            // Map DonThuoc
-            if (hsb.getDonThuocs() != null) {
-                List<MedicalHistoryDTO.DonThuocDTO> donThuocDTOs = hsb.getDonThuocs().stream().map(dt -> {
-                    Hibernate.initialize(dt.getDonThuocThuocs());
-                    List<MedicalHistoryDTO.DonThuocThuocDTO> donThuocThuocDTOs = dt.getDonThuocThuocs().stream().map(dtt -> {
-                        MedicalHistoryDTO.ThuocDTO thuocDTO = new MedicalHistoryDTO.ThuocDTO(
-                            dtt.getThuoc().getTen(),
-                            dtt.getThuoc().getGia()
-                        );
-                        return new MedicalHistoryDTO.DonThuocThuocDTO(
-                            thuocDTO,
-                            dtt.getLieu(),
-                            dtt.getTanSuat(),
-                            dtt.getSoLuong()
+                if (hsb.getBacSi() != null) {
+                    MedicalHistoryDTO.BacSiDTO bacSiDTO = new MedicalHistoryDTO.BacSiDTO(
+                        hsb.getBacSi().getBacSiId(),
+                        hsb.getBacSi().getTen()
+                    );
+                    dto.setBacSi(bacSiDTO);
+                }
+
+                dto.setChanDoan(hsb.getChanDoan());
+                dto.setTrieuChung(hsb.getTrieuChung());
+                dto.setTongTien(hsb.getTongTien());
+                dto.setDaThanhToan(hsb.getDaThanhToan());
+                dto.setThoiGianTao(hsb.getThoiGianTao() != null ? hsb.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+
+                if (hsb.getVitalSigns() != null && !hsb.getVitalSigns().isEmpty()) {
+                    List<MedicalHistoryDTO.VitalSignsDTO> vitalSignsDTOs = hsb.getVitalSigns().stream().map(vs -> {
+                        return new MedicalHistoryDTO.VitalSignsDTO(
+                            vs.getId(),
+                            vs.getTemperature(),
+                            vs.getHeight(),
+                            vs.getWeight(),
+                            vs.getBloodPressureSys(),
+                            vs.getBloodPressureDia(),
+                            vs.getNotes(),
+                            vs.getThoiGianTao() != null ? vs.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null
                         );
                     }).collect(Collectors.toList());
-                    MedicalHistoryDTO.DonThuocDTO donThuocDTO = new MedicalHistoryDTO.DonThuocDTO(
-                        dt.getDonThuocId(),
-                        dt.getFormattedTongTienThuoc(),
-                        donThuocThuocDTOs
-                    );
-                    return donThuocDTO;
-                }).collect(Collectors.toList());
-                dto.setDonThuocs(donThuocDTOs);
-            }
+                    dto.setVitalSigns(vitalSignsDTOs);
+                }
 
-            // Map XetNghiem
-            if (hsb.getXetNghiems() != null) {
-                List<MedicalHistoryDTO.XetNghiemDTO> xetNghiemDTOs = hsb.getXetNghiems().stream().map(xn -> {
-                    MedicalHistoryDTO.LoaiXetNghiemDTO loaiXetNghiemDTO = new MedicalHistoryDTO.LoaiXetNghiemDTO(
-                        xn.getLoaiXetNghiem().getTenXetNghiem(),
-                        xn.getLoaiXetNghiem().getGia()
-                    );
-                    return new MedicalHistoryDTO.XetNghiemDTO(
-                        loaiXetNghiemDTO,
-                        xn.getGhiChu(),
-                        xn.getTrangThai(),
-                        xn.getFileKetQua(),
-                        xn.getThoiGianTao() != null ? xn.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null
-                    );
-                }).collect(Collectors.toList());
-                dto.setXetNghiems(xetNghiemDTOs);
-            }
+                if (hsb.getDonThuocs() != null && !hsb.getDonThuocs().isEmpty()) {
+                    List<MedicalHistoryDTO.DonThuocDTO> donThuocDTOs = hsb.getDonThuocs().stream().map(dt -> {
+                        Hibernate.initialize(dt.getDonThuocThuocs());
+                        List<MedicalHistoryDTO.DonThuocThuocDTO> donThuocThuocDTOs = dt.getDonThuocThuocs() != null ?
+                            dt.getDonThuocThuocs().stream().map(dtt -> {
+                                MedicalHistoryDTO.ThuocDTO thuocDTO = new MedicalHistoryDTO.ThuocDTO(
+                                    dtt.getThuoc().getTen(),
+                                    dtt.getThuoc().getGia()
+                                );
+                                return new MedicalHistoryDTO.DonThuocThuocDTO(
+                                    thuocDTO,
+                                    dtt.getLieu(),
+                                    dtt.getTanSuat(),
+                                    dtt.getSoLuong()
+                                );
+                            }).collect(Collectors.toList()) : null;
+                        MedicalHistoryDTO.DonThuocDTO donThuocDTO = new MedicalHistoryDTO.DonThuocDTO(
+                            dt.getDonThuocId(),
+                            dt.getFormattedTongTienThuoc(),
+                            donThuocThuocDTOs
+                        );
+                        return donThuocDTO;
+                    }).collect(Collectors.toList());
+                    dto.setDonThuocs(donThuocDTOs);
+                }
 
-            // Map PhieuXetNghiem
-            if (hsb.getPhieuXetNghiems() != null) {
-                List<MedicalHistoryDTO.PhieuXetNghiemDTO> phieuXetNghiemDTOs = hsb.getPhieuXetNghiems().stream().map(pxn -> {
-                    return new MedicalHistoryDTO.PhieuXetNghiemDTO(
-                        pxn.getMaPhieu(),
-                        pxn.getTongGia(),
-                        pxn.getThoiGianTao() != null ? pxn.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null,
-                        pxn.getXetNghiemIds()
-                    );
-                }).collect(Collectors.toList());
-                dto.setPhieuXetNghiems(phieuXetNghiemDTOs);
-            }
+                if (hsb.getXetNghiems() != null && !hsb.getXetNghiems().isEmpty()) {
+                    List<MedicalHistoryDTO.XetNghiemDTO> xetNghiemDTOs = hsb.getXetNghiems().stream().map(xn -> {
+                        MedicalHistoryDTO.LoaiXetNghiemDTO loaiXetNghiemDTO = new MedicalHistoryDTO.LoaiXetNghiemDTO(
+                            xn.getLoaiXetNghiem().getTenXetNghiem(),
+                            xn.getLoaiXetNghiem().getGia()
+                        );
+                        return new MedicalHistoryDTO.XetNghiemDTO(
+                            loaiXetNghiemDTO,
+                            xn.getGhiChu(),
+                            xn.getTrangThai(),
+                            xn.getFileKetQua(),
+                            xn.getThoiGianTao() != null ? xn.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null
+                        );
+                    }).collect(Collectors.toList());
+                    dto.setXetNghiems(xetNghiemDTOs);
+                }
 
-            return dto;
-        }).collect(Collectors.toList());
+                if (hsb.getPhieuXetNghiems() != null && !hsb.getPhieuXetNghiems().isEmpty()) {
+                    List<MedicalHistoryDTO.PhieuXetNghiemDTO> phieuXetNghiemDTOs = hsb.getPhieuXetNghiems().stream().map(pxn -> {
+                        return new MedicalHistoryDTO.PhieuXetNghiemDTO(
+                            pxn.getMaPhieu(),
+                            pxn.getTongGia(),
+                            pxn.getThoiGianTao() != null ? pxn.getThoiGianTao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null,
+                            pxn.getXetNghiemIds()
+                        );
+                    }).collect(Collectors.toList());
+                    dto.setPhieuXetNghiems(phieuXetNghiemDTOs);
+                }
 
-        return ResponseEntity.ok(dtos);
+                return dto;
+            });
+
+            return ResponseEntity.ok(dtos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Collections.singletonMap("error", "Unable to fetch medical history: " + e.getMessage()));
+        }
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleException(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Collections.singletonMap("error", "An unexpected error occurred: " + e.getMessage()));
+    }
+    
+    @GetMapping("/bacsi/findPatientByPhone")
+    public ResponseEntity<?> findPatientByPhone(@RequestParam String phone) {
+        try {
+            BenhNhan benhNhan = benhNhanService.findByPhone(phone);
+            if (benhNhan != null) {
+                return ResponseEntity.ok(benhNhan);
+            } else {
+                return ResponseEntity.status(404).body("Không tìm thấy bệnh nhân với số điện thoại: " + phone);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Lỗi khi tìm kiếm bệnh nhân: " + e.getMessage());
+        }
+    }
+    
+	@GetMapping("/bacsi/home")
+	public String home(Model model) {
+		return "bacsi/home/home"; // Your Thymeleaf template
+	}
+
 }

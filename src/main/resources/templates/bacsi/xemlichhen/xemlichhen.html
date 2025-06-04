@@ -2,421 +2,455 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Lịch Hẹn Khám Bệnh</title>
-	<link rel="stylesheet" th:href="@{/css/xemlichhen.css}">
-	<link rel="stylesheet" th:href="@{/css/headerbacsi.css}">
-	<!-- Thêm thư viện SweetAlert2 -->
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	<!-- Thêm Font Awesome cho icon -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-	<style>
-		.start-exam-btn, .history-btn {
-			padding: 8px 16px;
-			background-color: #007bff;
-			color: white;
-			border: none;
-			border-radius: 6px;
-			cursor: pointer;
-			margin-left: 12px;
-			font-size: 14px;
-			font-weight: 500;
-			transition: background-color 0.3s ease, transform 0.2s ease;
-			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-		}
-		.history-btn {
-			background-color: #17a2b8;
-		}
-		.start-exam-btn:hover:not(:disabled), .history-btn:hover:not(:disabled) {
-			background-color: #0056b3;
-			transform: translateY(-1px);
-		}
-		.history-btn:hover:not(:disabled) {
-			background-color: #138496;
-		}
-		.start-exam-btn:disabled {
-			background-color: #d6d6d6;
-			color: #6c757d;
-			cursor: not-allowed;
-			box-shadow: none;
-		}
-		.search-bar {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			gap: 20px;
-			padding: 10px;
-			margin-bottom: 20px;
-		}
-		.reload-btn {
-			padding: 8px 16px;
-			background-color: #28a745;
-			color: white;
-			border: none;
-			border-radius: 6px;
-			cursor: pointer;
-			font-size: 14px;
-			font-weight: 500;
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			transition: background-color 0.3s ease, transform 0.2s ease;
-			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-		}
-		.reload-btn:hover {
-			background-color: #218838;
-			transform: translateY(-1px);
-		}
-		.reload-btn i {
-			font-size: 16px;
-		}
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Hẹn Khám Bệnh</title>
+    <link rel="stylesheet" th:href="@{/css/xemlichhen.css}">
+    <link rel="stylesheet" th:href="@{/css/headerbacsi.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 
 <body>
-	<div th:replace="bacsi/fragments/header :: header"></div>
+    <div th:replace="bacsi/fragments/header :: header"></div>
+    <div class="search-bar">
+        <div>
+            <label for="search-date">Tìm theo ngày:</label>
+            <input type="text" id="search-date" name="search-date" th:value="${date}" />
+        </div>
+        <div>
+            <label for="search-name">Tìm theo tên:</label>
+            <input type="text" id="search-name" placeholder="Nhập tên bệnh nhân..." />
+        </div>
+        <div>
+            <label for="sort-type">Sắp xếp:</label>
+            <select id="sort-type" class="sort-select">
+                <option value="time-asc">Theo giờ tăng dần</option>
+                <option value="time-desc">Theo giờ giảm dần</option>
+                <option value="name-asc">Theo tên A-Z</option>
+                <option value="name-desc">Theo tên Z-A</option>
+            </select>
+        </div>
+        <button class="reload-btn" onclick="window.location.reload()">
+            <i class="fas fa-sync-alt"></i> Tải lại
+        </button>
+    </div>
+    <div id="appointments-container" class="appointments-container">
+        <div th:each="lichKham : ${lichKhamDTOList}" class="appointment-day"
+            th:attr="data-date=${lichKham.ngayThangNam},data-ma-lich-id=${lichKham.maLichKhamBenh}">
+            <h3>Ca: <span th:text="${lichKham.ca}"></span> | Ngày: <span th:text="${lichKham.ngayThangNam}"></span></h3>
+            <div th:each="slot : ${lichKham.slotThoiGianList}" class="appointment-card"
+                th:attr="data-name=${slot.benhNhan?.ten},data-time=${slot.thoiGianBatDau},data-slot-id=${slot.slotId}">
+                <div class="appointment-header">
+                    <h4>Thời gian: <span th:text="${slot.thoiGianBatDau}"></span> - <span
+                            th:text="${slot.thoiGianKetThuc}"></span></h4>
+                </div>
+                <div class="appointment-body">
+                    <p><strong>Tên bệnh nhân:</strong> <span th:text="${slot.benhNhan?.ten}">Nguyễn Văn A</span></p>
+                    <p><strong>Số điện thoại:</strong> <span th:text="${slot.benhNhan?.dienThoai}">0123456789</span></p>
+                </div>
+                <div class="appointment-footer">
+                    <label><strong>Trạng thái:</strong></label>
+                    <select class="status-select">
+                        <option value="pending" th:selected="${slot.trangThai == 'pending'}">Đang chờ</option>
+                        <option value="checked-in" th:selected="${slot.trangThai == 'checked-in'}">Đang khám</option>
+                        <option value="completed" th:selected="${slot.trangThai == 'completed'}">Đã khám</option>
+                        <option value="cancelled" th:selected="${slot.trangThai == 'cancelled'}">Đã hủy</option>
+                    </select>
+                    <button class="start-exam-btn"
+                        th:disabled="${!(slot.trangThai == 'pending' || slot.trangThai == 'checked-in' || slot.trangThai == 'in-progress') || slot.benhNhan?.benhNhanId == null}"
+                        th:attr="data-benh-nhan-id=${slot.benhNhan?.benhNhanId}" onclick="startExamination(this)">
+                        Bắt đầu khám
+                    </button>
+                    <button class="history-btn" th:attr="data-benh-nhan-id=${slot.benhNhan?.benhNhanId}"
+                        onclick="viewMedicalHistory(this)" th:disabled="${slot.benhNhan?.benhNhanId == null}">Xem lịch
+                        sử khám</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const searchDateInput = document.getElementById('search-date');
+        const searchNameInput = document.getElementById('search-name');
+        const sortTypeSelect = document.getElementById('sort-type');
+        const appointmentsContainer = document.getElementById('appointments-container');
 
-	<div class="search-bar">
-		<div>
-			<label for="search-date">Tìm theo ngày:</label>
-			<input type="date" id="search-date" name="search-date" th:value="${date}" />
-		</div>
-		<div>
-			<label for="search-name">Tìm theo tên:</label>
-			<input type="text" id="search-name" placeholder="Nhập tên bệnh nhân..." />
-		</div>
-		<div>
-			<label for="sort-type">Sắp xếp:</label>
-			<select id="sort-type" class="sort-select">
-				<option value="time-asc">Theo giờ tăng dần</option>
-				<option value="time-desc">Theo giờ giảm dần</option>
-				<option value="name-asc">Theo tên A-Z</option>
-				<option value="name-desc">Theo tên Z-A</option>
-			</select>
-		</div>
-		<button class="reload-btn" onclick="window.location.reload()">
-			<i class="fas fa-sync-alt"></i> Tải lại
-		</button>
-	</div>
+        // Khởi tạo Flatpickr cho search-date
+        flatpickr("#search-date", {
+            dateFormat: "Y-m-d",
+        });
 
-	<div id="appointments-container" class="appointments-container">
-		<div th:each="lichKham : ${lichKhamDTOList}" class="appointment-day"
-			th:attr="data-date=${lichKham.ngayThangNam},data-ma-lich-id=${lichKham.maLichKhamBenh}">
-			<h3>Ca: <span th:text="${lichKham.ca}"></span> | Ngày: <span th:text="${lichKham.ngayThangNam}"></span></h3>
+        searchDateInput.addEventListener('change', () => {
+            const selectedDate = searchDateInput.value;
+            if (selectedDate) {
+                window.location.href = `/bacsi/xemlichhen?date=${selectedDate}`;
+            }
+        });
 
-			<div th:each="slot : ${lichKham.slotThoiGianList}" class="appointment-card"
-				th:attr="data-name=${slot.benhNhan?.ten},data-time=${slot.thoiGianBatDau},data-slot-id=${slot.slotId}">
+        searchNameInput.addEventListener('input', () => {
+            const searchName = searchNameInput.value.toLowerCase();
+            const appointmentCards = appointmentsContainer.querySelectorAll('.appointment-card');
+            appointmentCards.forEach(card => {
+                const patientName = card.getAttribute('data-name')?.toLowerCase() || '';
+                card.style.display = patientName.includes(searchName) ? '' : 'none';
+            });
+        });
 
-				<div class="appointment-header">
-					<h4>Thời gian: <span th:text="${slot.thoiGianBatDau}"></span> - <span
-							th:text="${slot.thoiGianKetThuc}"></span></h4>
-				</div>
+        sortTypeSelect.addEventListener('change', () => {
+            const sortOrder = sortTypeSelect.value;
+            const appointmentDays = Array.from(appointmentsContainer.querySelectorAll('.appointment-day'));
+            appointmentDays.forEach(day => {
+                const appointmentCards = Array.from(day.querySelectorAll('.appointment-card'));
+                appointmentCards.sort((a, b) => {
+                    if (sortOrder === 'time-asc') {
+                        return a.getAttribute('data-time').localeCompare(b.getAttribute('data-time'));
+                    } else if (sortOrder === 'time-desc') {
+                        return b.getAttribute('data-time').localeCompare(a.getAttribute('data-time'));
+                    } else if (sortOrder === 'name-asc') {
+                        return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
+                    } else if (sortOrder === 'name-desc') {
+                        return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
+                    }
+                });
+                appointmentCards.forEach(card => day.appendChild(card));
+            });
+        });
 
-				<div class="appointment-body">
-					<p><strong>Tên bệnh nhân:</strong> <span th:text="${slot.benhNhan?.ten}">Nguyễn Văn A</span></p>
-					<p><strong>Số điện thoại:</strong> <span th:text="${slot.benhNhan?.dienThoai}">0123456789</span></p>
-				</div>
+        document.querySelectorAll('.status-select').forEach(select => {
+            select.addEventListener('change', (event) => {
+                const status = event.target.value;
+                const appointmentCard = event.target.closest('.appointment-card');
+                const slotId = appointmentCard.getAttribute('data-slot-id');
+                updateAppointmentStatus(slotId, status, appointmentCard);
+            });
+        });
 
-				<div class="appointment-footer">
-					<label><strong>Trạng thái:</strong></label>
-					<select class="status-select">
-						<option value="pending" th:selected="${slot.trangThai == 'pending'}">Đang chờ</option>
-						<option value="checked-in" th:selected="${slot.trangThai == 'checked-in'}">Đang khám</option>
-						<option value="completed" th:selected="${slot.trangThai == 'completed'}">Đã khám</option>
-						<option value="cancelled" th:selected="${slot.trangThai == 'cancelled'}">Đã hủy</option>
-					</select>
-					<button class="start-exam-btn" 
-						th:disabled="${slot.trangThai != 'pending' || slot.benhNhan?.benhNhanId == null}"
-						th:attr="data-benh-nhan-id=${slot.benhNhan?.benhNhanId}"
-						onclick="startExamination(this)">Bắt đầu khám</button>
-					<button class="history-btn" 
-						th:attr="data-benh-nhan-id=${slot.benhNhan?.benhNhanId}"
-						onclick="viewMedicalHistory(this)"
-						th:disabled="${slot.benhNhan?.benhNhanId == null}">Xem lịch sử khám</button>
-				</div>
-			</div>
-		</div>
-	</div>
+        function startExamination(button) {
+            const benhNhanId = button.getAttribute('data-benh-nhan-id');
+            const appointmentCard = button.closest('.appointment-card');
+            const slotId = appointmentCard.getAttribute('data-slot-id');
+            if (!benhNhanId || !slotId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không tìm thấy ID bệnh nhân hoặc ID slot.',
+                    confirmButtonText: 'Đóng',
+                    timer: 3000
+                });
+                return;
+            }
+            window.location.href = `/bacsi/step1?benhNhanId=${benhNhanId}&slotId=${slotId}`;
+        }
 
-	<script>
-		const searchDateInput = document.getElementById('search-date');
-		const searchNameInput = document.getElementById('search-name');
-		const sortTypeSelect = document.getElementById('sort-type');
-		const appointmentsContainer = document.getElementById('appointments-container');
+        let currentBenhNhanId = null;
+        let medicalHistoryData = [];
 
-		// Filter by date and reload the page with the selected date
-		searchDateInput.addEventListener('input', () => {
-			const selectedDate = searchDateInput.value;
-			window.location.href = `/bacsi/xemlichhen?date=${selectedDate}`;
-		});
+        function viewMedicalHistory(button) {
+            currentBenhNhanId = button.getAttribute('data-benh-nhan-id');
+            if (!currentBenhNhanId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không tìm thấy ID bệnh nhân.',
+                    confirmButtonText: 'Đóng',
+                    timer: 3000
+                });
+                return;
+            }
+            fetchMedicalHistoryPage(currentBenhNhanId, 0);
+        }
 
-		// Filter by name
-		searchNameInput.addEventListener('input', () => {
-			const searchName = searchNameInput.value.toLowerCase();
-			const appointmentCards = appointmentsContainer.querySelectorAll('.appointment-card');
+        function fetchMedicalHistoryPage(benhNhanId, page, startDate = null, endDate = null) {
+            let url = `/bacsi/medical-history?benhNhanId=${benhNhanId}&page=${page}&size=2`;
+            if (startDate && endDate) {
+                // Định dạng ngày thủ công thành YYYY-MM-DD
+                const startFormatted = `${startDate.getFullYear()}-${(startDate.getMonth() + 1).toString().padStart(2, '0')}-${startDate.getDate().toString().padStart(2, '0')}`;
+                const endFormatted = `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')}-${endDate.getDate().toString().padStart(2, '0')}`;
+                url += `&startDate=${startFormatted}&endDate=${endFormatted}`;
+                console.log('Fetching with date range:', { startDate: startFormatted, endDate: endFormatted, url });
+            }
+            fetch(url, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API response:', data);
+                    medicalHistoryData = data.content || [];
+                    renderMedicalHistory(medicalHistoryData, page + 1, data.totalPages, benhNhanId, startDate, endDate);
+                })
+                .catch(error => {
+                    console.error('Lỗi khi lấy lịch sử khám:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Có lỗi xảy ra',
+                        html: `Không thể tải lịch sử khám: ${error.message}`,
+                        confirmButtonText: 'Đóng',
+                        timer: 5000
+                    });
+                });
+        }
 
-			appointmentCards.forEach(card => {
-				const patientName = card.getAttribute('data-name')?.toLowerCase() || '';
-				card.style.display = patientName.includes(searchName) ? '' : 'none';
-			});
-		});
+        function resetDateFilter() {
+            document.getElementById('date-range-picker').value = '';
+            fetchMedicalHistoryPage(currentBenhNhanId, 0);
+        }
 
-		// Sort by time or name
-		sortTypeSelect.addEventListener('change', () => {
-			const sortOrder = sortTypeSelect.value;
-			const appointmentDays = Array.from(appointmentsContainer.querySelectorAll('.appointment-day'));
+        function formatDateVN(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+        }
 
-			appointmentDays.forEach(day => {
-				const appointmentCards = Array.from(day.querySelectorAll('.appointment-card'));
+        function renderMedicalHistory(data, currentPage, totalPages, benhNhanId, startDate = null, endDate = null) {
+            if (!data || data.length === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Không có dữ liệu',
+                    text: 'Bệnh nhân này chưa có lịch sử khám bệnh.',
+                    confirmButtonText: 'Đóng',
+                    timer: 3000
+                });
+                return;
+            }
 
-				appointmentCards.sort((a, b) => {
-					if (sortOrder === 'time-asc') {
-						return a.getAttribute('data-time').localeCompare(b.getAttribute('data-time'));
-					} else if (sortOrder === 'time-desc') {
-						return b.getAttribute('data-time').localeCompare(a.getAttribute('data-time'));
-					} else if (sortOrder === 'name-asc') {
-						return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
-					} else if (sortOrder === 'name-desc') {
-						return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
-					}
-				});
+            let htmlContent = `
+                <div class="date-filter">
+                    <label>Lọc theo khoảng ngày:</label>
+                    <input type="text" id="date-range-picker" placeholder="Chọn khoảng ngày" />
+                    <button onclick="resetDateFilter()">Xóa bộ lọc</button>
+                </div>
+                ${startDate && endDate ? `
+                    <p class="filter-info">Đang lọc từ ${formatDateVN(startDate)} đến ${formatDateVN(endDate)}</p>
+                ` : ''}
+                <h3>Lịch sử khám bệnh</h3>
+            `;
 
-				appointmentCards.forEach(card => day.appendChild(card));
-			});
-		});
+            data.forEach((record, index) => {
+                const recordId = `record-${(currentPage - 1) * 2 + index}`;
+                htmlContent += `
+                    <div class="record-card">
+                        <h4>Khám ngày: ${new Date(record.thoiGianTao).toLocaleString('vi-VN')}</h4>
+                        <p><strong>Bệnh nhân:</strong> ${record.benhNhan?.ten || 'N/A'} (${record.benhNhan?.dienThoai || 'N/A'})</p>
+                        <p><strong>Bác sĩ:</strong> ${record.bacSi?.ten || 'Chưa chỉ định'}</p>
+                        <p><strong>Chẩn đoán:</strong> ${record.chanDoan || 'Chưa có'}</p>
+                        <p><strong>Triệu chứng:</strong> ${record.trieuChung || 'Chưa có'}</p>
+                        <p><strong>Tổng tiền:</strong> ${record.tongTien ? record.tongTien.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa tính'}</p>
+                        <p><strong>Đã thanh toán:</strong> ${record.daThanhToan ? 'Có' : 'Chưa'}</p>
+                        <ul class="nav nav-tabs" id="tabs-${recordId}">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#vital-${recordId}" data-bs-toggle="tab"><i class="fas fa-heartbeat"></i> Dấu hiệu sinh tồn</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#prescription-${recordId}" data-bs-toggle="tab"><i class="fas fa-prescription-bottle"></i> Đơn thuốc</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#test-${recordId}" data-bs-toggle="tab"><i class="fas fa-vial"></i> Xét nghiệm</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="vital-${recordId}">
+                                ${record.vitalSigns && record.vitalSigns.length > 0 ? `
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Thời gian</th>
+                                                <th>Nhiệt độ</th>
+                                                <th>Chiều cao</th>
+                                                <th>Cân nặng</th>
+                                                <th>Huyết áp</th>
+                                                <th>Ghi chú</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${record.vitalSigns.map(vs => `
+                                                <tr>
+                                                    <td>${vs.thoiGianTao ? new Date(vs.thoiGianTao).toLocaleString('vi-VN') : 'N/A'}</td>
+                                                    <td>${vs.temperature ? vs.temperature + ' °C' : 'N/A'}</td>
+                                                    <td>${vs.height ? vs.height + ' cm' : 'N/A'}</td>
+                                                    <td>${vs.weight ? vs.weight + ' kg' : 'N/A'}</td>
+                                                    <td>${vs.bloodPressureSys && vs.bloodPressureDia ? vs.bloodPressureSys + '/' + vs.bloodPressureDia + ' mmHg' : 'N/A'}</td>
+                                                    <td>${vs.notes || 'Không có'}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                ` : '<p>Chưa có dữ liệu</p>'}
+                            </div>
+                            <div class="tab-pane fade" id="prescription-${recordId}">
+                                ${record.donThuocs && record.donThuocs.length > 0 ? `
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Đơn thuốc</th>
+                                                <th>Thuốc</th>
+                                                <th>Liều</th>
+                                                <th>Tần suất</th>
+                                                <th>Số lượng</th>
+                                                <th>Tổng tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${record.donThuocs.map(dt => `
+                                                <tr>
+                                                    <td>#${dt.donThuocId}</td>
+                                                    <td>
+                                                        ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.thuoc.tenThuoc).join('<br>') : 'N/A'}
+                                                    </td>
+                                                    <td>
+                                                        ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.lieu || 'N/A').join('<br>') : 'N/A'}
+                                                    </td>
+                                                    <td>
+                                                        ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.tanSuat || 'N/A').join('<br>') : 'N/A'}
+                                                    </td>
+                                                    <td>
+                                                        ${dt.donThuocThuocs && dt.donThuocThuocs.length > 0 ? dt.donThuocThuocs.map(dtt => dtt.soLuong || 'N/A').join('<br>') : 'N/A'}
+                                                    </td>
+                                                    <td>${dt.formattedTongTienThuoc || 'N/A'}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                ` : '<p>Chưa có dữ liệu</p>'}
+                            </div>
+                            <div class="tab-pane fade" id="test-${recordId}">
+                                ${record.xetNghiems && record.xetNghiems.length > 0 ? `
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Loại xét nghiệm</th>
+                                                <th>Giá</th>
+                                                <th>Trạng thái</th>
+                                                <th>Ghi chú</th>
+                                                <th>Kết quả</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${record.xetNghiems.map(xn => `
+                                                <tr>
+                                                    <td>${xn.loaiXetNghiem?.tenXetNghiem || 'N/A'}</td>
+                                                    <td>${xn.loaiXetNghiem?.gia ? xn.loaiXetNghiem.gia.toLocaleString('vi-VN') + ' VNĐ' : 'N/A'}</td>
+                                                    <td>${xn.trangThai || 'N/A'}</td>
+                                                    <td>${xn.ghiChu || 'Không có'}</td>
+                                                    <td>${xn.fileKetQua ? `<a href="${xn.fileKetQua}" target="_blank">Xem file</a>` : 'N/A'}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                ` : '<p>Chưa có dữ liệu</p>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
 
-		// Handle status change via select
-		document.querySelectorAll('.status-select').forEach(select => {
-			select.addEventListener('change', (event) => {
-				const status = event.target.value;
-				const appointmentCard = event.target.closest('.appointment-card');
-				const slotId = appointmentCard.getAttribute('data-slot-id');
-				updateAppointmentStatus(slotId, status, appointmentCard);
-			});
-		});
+            htmlContent += `
+                <div class="pagination" data-start-date="${startDate ? startDate.toISOString() : ''}" data-end-date="${endDate ? endDate.toISOString() : ''}">
+                    <button onclick="fetchMedicalHistoryPage('${benhNhanId}', ${currentPage - 2}, this.parentElement.dataset.startDate ? new Date(this.parentElement.dataset.startDate) : null, this.parentElement.dataset.endDate ? new Date(this.parentElement.dataset.endDate) : null)" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>
+                    ${Array.from({ length: totalPages }, (_, i) => `
+                        <button onclick="fetchMedicalHistoryPage('${benhNhanId}', ${i}, this.parentElement.dataset.startDate ? new Date(this.parentElement.dataset.startDate) : null, this.parentElement.dataset.endDate ? new Date(this.parentElement.dataset.endDate) : null)" ${currentPage === i + 1 ? 'class="active"' : ''}>${i + 1}</button>
+                    `).join('')}
+                    <button onclick="fetchMedicalHistoryPage('${benhNhanId}', ${currentPage}, this.parentElement.dataset.startDate ? new Date(this.parentElement.dataset.startDate) : null, this.parentElement.dataset.endDate ? new Date(this.parentElement.dataset.endDate) : null)" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>
+                </div>
+            `;
 
-		// Handle start examination button
-		function startExamination(button) {
-			const benhNhanId = button.getAttribute('data-benh-nhan-id');
-			const appointmentCard = button.closest('.appointment-card');
-			const slotId = appointmentCard.getAttribute('data-slot-id');
+            Swal.fire({
+                title: 'Lịch sử khám bệnh',
+                html: htmlContent,
+                width: '1000px',
+                showCloseButton: true,
+                confirmButtonText: 'Đóng',
+                customClass: { popup: 'swal-wide' },
+                didOpen: () => {
+                    try {
+                        flatpickr('#date-range-picker', {
+                            mode: 'range',
+                            dateFormat: 'Y-m-d',
+                            defaultDate: startDate && endDate ? [startDate, endDate] : null,
+                            onChange: (selectedDates) => {
+                                console.log('Selected dates:', selectedDates);
+                                if (selectedDates.length === 2) {
+                                    const [start, end] = selectedDates;
+                                    // Set startDate to 00:00:00 and endDate to 23:59:59
+                                    start.setHours(0, 0, 0, 0);
+                                    end.setHours(23, 59, 59, 999);
+                                    const startFormatted = `${start.getFullYear()}-${(start.getMonth() + 1).toString().padStart(2, '0')}-${start.getDate().toString().padStart(2, '0')}`;
+                                    const endFormatted = `${end.getFullYear()}-${(end.getMonth() + 1).toString().padStart(2, '0')}-${end.getDate().toString().padStart(2, '0')}`;
+                                    console.log('Filtering range:', { start: startFormatted, end: endFormatted });
+                                    fetchMedicalHistoryPage(benhNhanId, 0, start, end);
+                                } else if (selectedDates.length === 0) {
+                                    console.log('Resetting to original data');
+                                    fetchMedicalHistoryPage(benhNhanId, 0);
+                                }
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Lỗi khi khởi tạo Flatpickr:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Không thể khởi tạo bộ lọc ngày.',
+                            confirmButtonText: 'Đóng',
+                            timer: 3000
+                        });
+                    }
+                }
+            });
+        }
 
-			if (!benhNhanId || !slotId) {
-				Swal.fire({
-					icon: 'error',
-					title: 'Lỗi',
-					text: 'Không tìm thấy ID bệnh nhân hoặc ID slot. Vui lòng kiểm tra dữ liệu.',
-					confirmButtonText: 'Đóng',
-					timer: 3000
-				});
-				return;
-			}
-			console.log('Redirecting to /bacsi/step1?benhNhanId=' + benhNhanId + '&slotId=' + slotId); // Debug
-			window.location.href = `/bacsi/step1?benhNhanId=${benhNhanId}&slotId=${slotId}`;
-		}
-
-		// Handle view medical history button
-		function viewMedicalHistory(button) {
-			const benhNhanId = button.getAttribute('data-benh-nhan-id');
-			if (!benhNhanId) {
-				Swal.fire({
-					icon: 'error',
-					title: 'Lỗi',
-					text: 'Không tìm thấy ID bệnh nhân. Vui lòng kiểm tra dữ liệu.',
-					confirmButtonText: 'Đóng',
-					timer: 3000
-				});
-				return;
-			}
-
-			fetch(`/bacsi/medical-history?benhNhanId=${benhNhanId}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-				.then(response => response.json())
-				.then(data => {
-					if (data && data.length > 0) {
-						let htmlContent = '<h3>Lịch sử khám bệnh</h3>';
-						data.forEach(record => {
-							htmlContent += `
-								<div style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
-									<h4>Hồ sơ khám: ${record.thoiGianTao}</h4>
-									<p><strong>Bệnh nhân:</strong> ${record.benhNhan.ten} (${record.benhNhan.dienThoai})</p>
-									<p><strong>Bác sĩ:</strong> ${record.bacSi ? record.bacSi.ten : 'Chưa chỉ định'}</p>
-									<p><strong>Chẩn đoán:</strong> ${record.chanDoan || 'Chưa có'}</p>
-									<p><strong>Triệu chứng:</strong> ${record.trieuChung || 'Chưa có'}</p>
-									<p><strong>Tổng tiền:</strong> ${record.tongTien ? record.tongTien.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa tính'}</p>
-									<p><strong>Đã thanh toán:</strong> ${record.daThanhToan ? 'Có' : 'Chưa'}</p>
-							`;
-
-							// Vital Signs
-							if (record.vitalSigns && record.vitalSigns.length > 0) {
-								htmlContent += '<h5>Dấu hiệu sinh tồn:</h5><ul>';
-								record.vitalSigns.forEach(vs => {
-									htmlContent += `
-										<li>
-											Thời gian: ${vs.thoiGianTao}<br>
-											Nhiệt độ: ${vs.temperature ? vs.temperature + ' °C' : 'Chưa ghi'}<br>
-											Chiều cao: ${vs.height ? vs.height + ' cm' : 'Chưa ghi'}<br>
-											Cân nặng: ${vs.weight ? vs.weight + ' kg' : 'Chưa ghi'}<br>
-											Huyết áp: ${vs.bloodPressureSys && vs.bloodPressureDia ? vs.bloodPressureSys + '/' + vs.bloodPressureDia + ' mmHg' : 'Chưa ghi'}<br>
-											Ghi chú: ${vs.notes || 'Không có'}
-										</li>
-									`;
-								});
-								htmlContent += '</ul>';
-							} else {
-								htmlContent += '<p><strong>Dấu hiệu sinh tồn:</strong> Chưa có</p>';
-							}
-
-							// Prescriptions
-							if (record.donThuocs && record.donThuocs.length > 0) {
-								htmlContent += '<h5>Đơn thuốc:</h5><ul>';
-								record.donThuocs.forEach(dt => {
-									htmlContent += `<li>Đơn thuốc #${dt.donThuocId} (Tổng: ${dt.formattedTongTienThuoc})<ul>`;
-									if (dt.donThuocThuocs && dt.donThuocThuocs.length > 0) {
-										dt.donThuocThuocs.forEach(dtt => {
-											htmlContent += `
-												<li>
-													Thuốc: ${dtt.thuoc.tenThuoc}<br>
-													Liều: ${dtt.lieu || 'Chưa ghi'}<br>
-													Tần suất: ${dtt.tanSuat || 'Chưa ghi'}<br>
-													Số lượng: ${dtt.soLuong || 'Chưa ghi'}
-												</li>
-											`;
-										});
-									} else {
-										htmlContent += '<li>Chưa có thuốc</li>';
-									}
-									htmlContent += '</ul></li>';
-								});
-								htmlContent += '</ul>';
-							} else {
-								htmlContent += '<p><strong>Đơn thuốc:</strong> Chưa có</p>';
-							}
-
-							// Tests
-							if (record.xetNghiems && record.xetNghiems.length > 0) {
-								htmlContent += '<h5>Xét nghiệm:</h5><ul>';
-								record.xetNghiems.forEach(xn => {
-									htmlContent += `
-										<li>
-											Loại xét nghiệm: ${xn.loaiXetNghiem.tenXetNghiem}<br>
-											Giá: ${xn.loaiXetNghiem.gia ? xn.loaiXetNghiem.gia.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa ghi'}<br>
-											Trạng thái: ${xn.trangThai || 'Chưa ghi'}<br>
-											Ghi chú: ${xn.ghiChu || 'Không có'}<br>
-											Kết quả: ${xn.fileKetQua ? `<a href="${xn.fileKetQua}" target="_blank">Xem file</a>` : 'Chưa có'}
-										</li>
-									`;
-								});
-								htmlContent += '</ul>';
-							} else {
-								htmlContent += '<p><strong>Xét nghiệm:</strong> Chưa có</p>';
-							}
-
-							// Test Forms
-							if (record.phieuXetNghiems && record.phieuXetNghiems.length > 0) {
-								htmlContent += '<h5>Phiếu xét nghiệm:</h5><ul>';
-								record.phieuXetNghiems.forEach(pxn => {
-									htmlContent += `
-										<li>
-											Mã phiếu: ${pxn.maPhieu}<br>
-											Tổng giá: ${pxn.tongGia ? pxn.tongGia.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa tính'}<br>
-											Thời gian tạo: ${pxn.thoiGianTao}<br>
-											Xét nghiệm: ${pxn.xetNghiemIds ? pxn.xetNghiemIds.join(', ') : 'Chưa có'}
-										</li>
-									`;
-								});
-								htmlContent += '</ul>';
-							} else {
-								htmlContent += '<p><strong>Phiếu xét nghiệm:</strong> Chưa có</p>';
-							}
-
-							htmlContent += '</div>';
-						});
-
-						Swal.fire({
-							title: 'Lịch sử khám bệnh',
-							html: htmlContent,
-							width: '800px',
-							showCloseButton: true,
-							confirmButtonText: 'Đóng',
-							customClass: {
-								popup: 'swal-wide'
-							}
-						});
-					} else {
-						Swal.fire({
-							icon: 'info',
-							title: 'Không có dữ liệu',
-							text: 'Bệnh nhân này chưa có lịch sử khám bệnh.',
-							confirmButtonText: 'Đóng',
-							timer: 3000
-						});
-					}
-				})
-				.catch(error => {
-					console.error('Lỗi khi lấy lịch sử khám:', error);
-					Swal.fire({
-						icon: 'error',
-						title: 'Có lỗi xảy ra',
-						text: 'Không thể tải lịch sử khám. Vui lòng thử lại sau.',
-						confirmButtonText: 'Đóng',
-						timer: 3000
-					});
-				});
-		}
-
-		function updateAppointmentStatus(slotId, status, appointmentCard) {
-			fetch('/bacsi/update-appointment-status', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					slotId: slotId,
-					status: status
-				})
-			})
-				.then(response => response.json())
-				.then(data => {
-					if (data.success) {
-						Swal.fire({
-							icon: 'success',
-							title: 'Cập nhật thành công',
-							text: 'Trạng thái lịch khám đã được cập nhật.',
-							confirmButtonText: 'Đóng',
-							timer: 3000
-						});
-						// Update the button's disabled state
-						const startExamButton = appointmentCard.querySelector('.start-exam-btn');
-						const benhNhanId = startExamButton.getAttribute('data-benh-nhan-id');
-						startExamButton.disabled = !(status === 'pending' && benhNhanId);
-					} else {
-						Swal.fire({
-							icon: 'error',
-							title: 'Có lỗi xảy ra',
-							text: 'Vui lòng thử lại sau.',
-							confirmButtonText: 'Đóng',
-							timer: 3000
-						});
-					}
-				})
-				.catch(error => {
-					console.error('Lỗi khi cập nhật trạng thái:', error);
-					Swal.fire({
-						icon: 'error',
-						title: 'Có lỗi xảy ra',
-						text: 'Vui lòng thử lại sau.',
-						confirmButtonText: 'Đóng',
-						timer: 3000
-					});
-				});
-		}
-	</script>
+        function updateAppointmentStatus(slotId, status, appointmentCard) {
+            fetch('/bacsi/update-appointment-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slotId, status })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Cập nhật thành công',
+                            text: 'Trạng thái lịch khám đã được cập nhật.',
+                            confirmButtonText: 'Đóng',
+                            timer: 3000
+                        });
+                        const startExamButton = appointmentCard.querySelector('.start-exam-btn');
+                        const benhNhanId = startExamButton.getAttribute('data-benh-nhan-id');
+                        startExamButton.disabled = !(['pending', 'checked-in'].includes(status) && benhNhanId);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Có lỗi xảy ra',
+                            text: 'Vui lòng thử lại sau.',
+                            confirmButtonText: 'Đóng',
+                            timer: 3000
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi khi cập nhật trạng thái:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Có lỗi xảy ra',
+                        text: 'Vui lòng thử lại sau.',
+                        confirmButtonText: 'Đóng',
+                        timer: 3000
+                    });
+                });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

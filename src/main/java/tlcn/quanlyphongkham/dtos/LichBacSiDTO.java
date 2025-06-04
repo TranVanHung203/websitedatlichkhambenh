@@ -18,4 +18,5 @@ public class LichBacSiDTO {
     private String tenBenhNhan;
     private String soDienThoai;
     private String slotId;
+    private Boolean daThanhToan;
 }
