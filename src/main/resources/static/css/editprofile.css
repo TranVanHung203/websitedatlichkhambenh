@@ -1,143 +1,171 @@
 /* General Styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f0f2f5;
+    background: linear-gradient(135deg, #e6f0fa 0%, #b3d4fc 100%); /* Soft blue gradient background */
+    color: #2d3748;
+    line-height: 1.6;
 }
 
 /* Container Layout */
 .edit-profile-container {
     display: flex;
-    margin: 20px;
-}
-
-/* Sidebar Styles */
-.edit-profile-sidebar {
-    width: 250px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 40px auto;
     padding: 20px;
+    gap: 20px;
 }
 
-.edit-profile-sidebar ul {
+/* Sidebar Styles (Adjusted for edit-profile-nav) */
+.edit-profile-nav {
+    width: 250px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.edit-profile-nav ul {
     list-style: none;
     padding: 0;
     display: flex;
-    flex-direction: column; /* Đưa các mục xuống hàng */
-}
-
-.edit-profile-sidebar ul li {
-    margin-bottom: 15px;
-}
-
-.edit-profile-sidebar ul li a {
-    text-decoration: none;
-    color: #4267B2;
-    font-weight: bold;
-}
-
-.edit-profile-sidebar ul li a:hover {
-    text-decoration: underline;
-}
-
-/* Navigation Styles */
-.edit-profile-nav ul {
-    display: flex;
-    justify-content: space-between;
-    list-style-type: none;
-    background-color: #2a7abd;
-    margin: 0;
-    padding: 10px 20px;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .edit-profile-nav ul li {
-    margin: 0 10px;
+    margin: 0;
 }
 
 .edit-profile-nav ul li a {
-    color: white;
     text-decoration: none;
-    font-weight: bold;
-    font-size: 13px;
+    color: #3182ce; /* Vibrant blue for links */
+    font-weight: 600;
+    font-size: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: block;
+    transition: all 0.3s ease;
 }
 
-.edit-profile-nav ul li a.edit-profile img {
-    vertical-align: middle;
-}
-
-.edit-profile-nav ul li a.logout {
-    background-color: #ff6f61;
-    padding: 5px 10px;
-    border-radius: 5px;
+.edit-profile-nav ul li a:hover {
+    background: #3182ce;
+    color: #fff;
+    transform: translateX(5px); /* Subtle slide effect on hover */
+    box-shadow: 0 4px 12px rgba(49, 130, 206, 0.2);
 }
 
 /* Profile Content Styles */
 .edit-profile-content {
     flex-grow: 1;
-    background-color: white;
-    margin-left: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .edit-profile-form h3 {
-    margin-top: 20px;
-    color: #4267B2;
+    font-size: 24px;
+    font-weight: 700;
+    color: #3182ce; /* Vibrant blue for headings */
+    margin: 0 0 20px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.edit-profile-form h3::after {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #3182ce, #63b3ed); /* Blue gradient underline */
+    bottom: 0;
+    left: 0;
 }
 
 /* Edit Form Styles */
 .edit-profile-form label {
     display: block;
-    margin: 10px 0 5px;
-    font-weight: bold;
+    margin: 15px 0 5px;
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 15px;
 }
 
 .edit-profile-form input,
 .edit-profile-form select {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    box-sizing: border-box; /* Đảm bảo tính toán chiều rộng và chiều cao đúng */
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 2px solid #cbd5e0;
+    box-sizing: border-box;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: #f8fafc;
 }
 
-/* Canh lề đều giữa các ô trong form */
+.edit-profile-form input:focus,
+.edit-profile-form select:focus {
+    border-color: #3182ce; /* Vibrant blue on focus */
+    box-shadow: 0 0 10px rgba(49, 130, 206, 0.2);
+    outline: none;
+    background: #fff;
+}
+
+.edit-profile-form input[readonly] {
+    background: #e2e8f0;
+    cursor: not-allowed;
+    color: #718096;
+}
+
+/* Form Section Layout */
 .edit-profile-form .edit-form-section {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px; /* Khoảng cách giữa các ô */
+    gap: 25px; /* Increased gap for better spacing */
 }
 
-/* Các input và select nằm đều nhau và responsive */
+/* Responsive Input and Select Fields */
 .edit-profile-form .edit-form-section input,
 .edit-profile-form .edit-form-section select {
-    flex: 1 1 calc(50% - 20px); /* Chia 50% chiều rộng và trừ khoảng cách giữa các ô */
-    min-width: 250px; /* Chiều rộng tối thiểu để tránh các ô quá nhỏ */
+    flex: 1 1 calc(50% - 25px); /* 50% width minus gap */
+    min-width: 280px; /* Slightly wider minimum for better usability */
 }
 
-/* Đảm bảo khoảng cách giữa các trường input và select */
+/* Ensure consistent spacing */
 .edit-profile-form .edit-form-section input[type="date"],
 .edit-profile-form .edit-form-section input[type="text"],
 .edit-profile-form .edit-form-section input[type="email"],
-.edit-profile-form .edit-form-section input[type="password"],
 .edit-profile-form .edit-form-section select {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 /* Button Styles */
 .save-changes-btn {
-    background-color: #4267B2;
-    color: white;
+    background: linear-gradient(90deg, #3182ce, #63b3ed); /* Blue gradient for button */
+    color: #fff;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
+    display: block;
+    margin: 20px auto 0;
+    transition: all 0.3s ease;
 }
 
 .save-changes-btn:hover {
-    background-color: #365899;
+    background: linear-gradient(90deg, #2b6cb0, #4299e1); /* Darker blue on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(49, 130, 206, 0.3);
 }

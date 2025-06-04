@@ -1,79 +1,122 @@
-/* Xóa lề và padding mặc định của body */
+/* Resetting default body margin and padding for a clean layout */
 body {
     margin: 0;
     padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f7fa; /* Light background for better contrast */
 }
 
-/* Styling cho thanh trên cùng */
+/* Styling the top bar with a modern gradient and shadow */
 .top-bar {
-    background-color: #0056b3; /* Màu xanh đậm hơn để tăng độ tương phản */
+    background: linear-gradient(90deg, #0056b3, #007bff); /* Gradient for visual appeal */
     color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
-    margin: 0; /* Đảm bảo không có lề */
-    width: 100%; /* Giãn toàn chiều rộng */
-    box-sizing: border-box; /* Bao gồm padding trong tính toán chiều rộng */
+    padding: 15px 30px;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Subtle shadow for depth */
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Ensures top bar stays above other elements */
 }
 
-/* Styling cho logo */
+/* Enhancing the logo with a slight scale effect on hover */
 .logo-img {
-    height: 50px; /* Điều chỉnh kích thước logo */
+    height: 60px; /* Slightly larger logo for prominence */
+    transition: transform 0.3s ease;
 }
 
-/* Styling cho thông tin liên hệ */
+.logo-img:hover {
+    transform: scale(1.05); /* Subtle zoom effect on hover */
+}
+
+/* Styling contact info with better spacing and readability */
 .contact-info p {
-    margin: 2px 0;
+    margin: 4px 0;
     font-size: 14px;
+    font-weight: 300; /* Lighter weight for elegance */
+    line-height: 1.5;
+    opacity: 0.9; /* Slight transparency for a softer look */
 }
 
-/* Styling cho thanh điều hướng */
+/* Styling the navigation bar with a matching gradient and shadow */
 nav.custom-header {
-    background-color: #0056b3; /* Đồng bộ màu với thanh trên cùng */
-    margin: 0; /* Đảm bảo không có lề */
-    width: 100%; /* Giãn toàn chiều rộng */
-    box-sizing: border-box; /* Bao gồm padding trong tính toán chiều rộng */
+    background: linear-gradient(90deg, #0056b3, #007bff);
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 15px 0; /* Increased padding for a taller nav bar */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Lighter shadow for nav */
 }
 
+/* Navigation list with flexbox and wider spacing for better separation */
 nav.custom-header ul {
     list-style: none;
     margin: 0;
-    padding: 10px 20px;
+    padding: 0 40px; /* Increased side padding for wider layout */
     display: flex;
-    justify-content: space-around; /* Phân bố đều các phần tử */
+    justify-content: center;
     align-items: center;
+    gap: 40px; /* Increased gap for more spacing between list items */
 }
 
+/* Removing unnecessary margin from list items */
 nav.custom-header ul li {
-    margin-right: 0; /* Loại bỏ margin-right để tránh chồng chéo */
+    margin: 0;
 }
 
+/* Styling navigation links with smooth hover effects and more padding */
 nav.custom-header ul li a {
     text-decoration: none;
     color: white;
-    padding: 10px 15px;
+    padding: 14px 25px; /* More padding for larger clickable area */
     display: inline-block;
-    transition: background-color 0.3s, color 0.3s;
-    border-radius: 5px;
+    transition: all 0.3s ease; /* Smooth transition for all changes */
+    border-radius: 10px; /* Slightly rounder corners for elegance */
     font-size: 16px;
-    font-weight: 500; /* Chữ đậm hơn để dễ đọc */
+    font-weight: 500;
+    position: relative; /* For pseudo-element effects */
 }
 
+/* Adding an underline effect on hover for links */
 nav.custom-header ul li a:hover {
-    background-color: #007bff; /* Màu nền khi hover */
-    color: #fff; /* Màu chữ khi hover */
+    background-color: rgba(255, 255, 255, 0.25); /* Slightly stronger overlay on hover */
+    color: #fff;
 }
 
-/* Styling cho nút đăng xuất */
+nav.custom-header ul li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+nav.custom-header ul li a:hover::after {
+    width: 85%; /* Wider underline on hover for better visibility */
+}
+
+/* Styling the logout button with a bold, distinct look and extra padding */
 nav.custom-header ul li a.logout {
-    background-color: #ff4d4d; /* Màu đỏ nền cho nút đăng xuất */
+    background-color: #ff4d4d;
     color: white;
-    border-radius: 5px;
-    padding: 10px 20px;
-    transition: background-color 0.3s;
+    border-radius: 10px;
+    padding: 14px 30px; /* Extra padding for a more prominent button */
+    font-weight: 600; /* Bolder for emphasis */
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow for button */
 }
 
+/* Hover effect for logout button with a darker shade and slight lift */
 nav.custom-header ul li a.logout:hover {
-    background-color: #e60000; /* Màu đỏ đậm hơn khi hover */
+    background-color: #e60000;
+    transform: translateY(-2px); /* Slight lift for interactivity */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
 }
