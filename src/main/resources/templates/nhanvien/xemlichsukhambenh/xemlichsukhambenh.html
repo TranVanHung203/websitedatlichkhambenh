@@ -2,278 +2,321 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Đơn thuốc của bệnh nhân</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem Lịch Sử Khám Bệnh - Nhân Viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" th:href="@{/css/xemlichsukhambenh.css}">
     <link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
 </head>
 <body>
-    <!-- Header nhân viên -->
-    <div th:replace="~{nhanvien/fragments/header :: header}"></div>
+    <div th:replace="nhanvien/fragments/header :: header"></div>
+    <div class="medical-history-container">
+        <div class="medical-history-content">
+            <h1 class="section-title"><i class="fas fa-notes-medical"></i> Xem Lịch Sử Khám Bệnh</h1>
+            <p class="section-subtitle">Danh sách lịch sử khám bệnh của bệnh nhân</p>
 
-    <div class="container">
-        <h1>Đơn thuốc của bệnh nhân</h1>
+            <div th:if="${error != null}" class="error-message">
+                <p th:text="${error} ?: 'Không có lỗi'"></p>
+            </div>
 
-        <!-- Thanh tìm kiếm và lọc -->
-        <div class="search-bar">
-            <div>
-                <label for="search-date">Tìm theo ngày:</label>
-                <input type="date" id="search-date" name="search-date" th:value="${date}" />
-            </div>
-            <div>
-                <label for="search-benh-nhan">Tìm theo tên bệnh nhân:</label>
-                <input type="text" id="search-benh-nhan" placeholder="Nhập tên bệnh nhân..."
-                    th:value="${tenBenhNhan}" />
-            </div>
-            <div>
-                <label for="search-bac-si">Tìm theo tên bác sĩ:</label>
-                <input type="text" id="search-bac-si" placeholder="Nhập tên bác sĩ..." th:value="${tenBacSi}" />
-            </div>
-            <div>
-                <label for="search-dien-thoai">Tìm theo SĐT:</label>
-                <input type="text" id="search-dien-thoai" placeholder="Nhập SĐT..." th:value="${dienThoai}" />
-            </div>
-            <button onclick="applyFilters()">Lọc</button>
-            <button onclick="exportSelected()">Xuất File</button>
-        </div>
+            <form class="filter-form" th:action="@{/nhanvien/xemlichsukhambenh}" method="get">
+                <div>
+                    <label><i class="fas fa-calendar-alt"></i> Từ ngày:</label>
+                    <input type="date" name="startDate" th:value="${startDate != null} ? ${#temporals.format(startDate, 'yyyy-MM-dd')} : ''">
+                </div>
+                <div>
+                    <label><i class="fas fa-calendar-alt"></i> Đến ngày:</label>
+                    <input type="date" name="endDate" th:value="${endDate != null} ? ${#temporals.format(endDate, 'yyyy-MM-dd')} : ''">
+                </div>
+                <div>
+                    <label><i class="fas fa-user"></i> Tên bệnh nhân:</label>
+                    <input type="text" name="patientName" th:value="${patientName ?: ''}" placeholder="Nhập tên bệnh nhân">
+                </div>
+                <div>
+                    <label><i class="fas fa-user-md"></i> Tên bác sĩ:</label>
+                    <input type="text" name="doctorName" th:value="${doctorName ?: ''}" placeholder="Nhập tên bác sĩ">
+                </div>
+                <div>
+                    <label><i class="fas fa-phone"></i> Số điện thoại:</label>
+                    <input type="text" name="phoneNumber" th:value="${phoneNumber ?: ''}" placeholder="Nhập số điện thoại">
+                </div>
+                <button type="submit" class="filter-btn"><i class="fas fa-filter"></i> Lọc</button>
+                <button type="button" class="filter-btn" onclick="resetFilters()"><i class="fas fa-undo"></i> Xóa bộ lọc</button>
+            </form>
 
-        <!-- Bảng lịch sử khám -->
-        <table class="history-table">
-            <thead>
-                <tr>
-                    <th>Chọn</th>
-                    <th>Tên Bác Sĩ Khám</th>
-                    <th>Tên Bệnh Nhân</th>
-                    <th>Số Điện Thoại</th>
-                    <th>Ngày Khám</th>
-                    <th>Chẩn Đoán</th>
-                    <th>Triệu Chứng</th>
-                    <th>Hành Động</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="lichSu : ${lichSuKhams}">
-                    <td>
-                        <input type="checkbox" class="select-row" th:attr="data-id=${lichSu.hashCode()}, data-ten-bac-si=${lichSu.tenBacSi}, data-ten-benh-nhan=${lichSu.tenBenhNhan}, data-dien-thoai=${lichSu.dienThoai}, data-ngay-kham=${lichSu.ngayKham}, data-chan-doan=${lichSu.chanDoan}, data-trieu-chung=${lichSu.trieuChung}, data-thuoc=${lichSu.thuoc}, data-lieu=${lichSu.lieu}, data-tan-suat=${lichSu.tanSuat}, data-so-luong=${lichSu.soLuong}, data-tong-tien=${lichSu.formattedTongTienThuoc}">
-                    </td>
-                    <td th:text="${lichSu.tenBacSi}"></td>
-                    <td th:text="${lichSu.tenBenhNhan}"></td>
-                    <td th:text="${lichSu.dienThoai}"></td>
-                    <td th:text="${lichSu.ngayKham}"></td>
-                    <td th:text="${lichSu.chanDoan}"></td>
-                    <td th:text="${lichSu.trieuChung}"></td>
-                    <td>
-                        <button class="view-details-btn"
-                            th:attr="data-thuoc=${lichSu.thuoc}, data-lieu=${lichSu.lieu}, data-tan-suat=${lichSu.tanSuat}, data-so-luong=${lichSu.soLuong}, data-tong-tien=${lichSu.formattedTongTienThuoc}"
-                            onclick="showDetails(this)">
-                            Xem Chi Tiết
-                        </button>
-                    </td>
-                </tr>
-                <tr th:if="${lichSuKhams.isEmpty()}">
-                    <td colspan="9" class="no-data">Không có lịch sử khám bệnh</td>
-                </tr>
-            </tbody>
-        </table>
+            <div class="action-buttons">
+                <button type="button" class="download-btn" onclick="downloadSelectedRecords()"><i class="fas fa-file-pdf"></i> Tải PDF đã chọn</button>
+            </div>
 
-        <!-- Modal hiển thị chi tiết -->
-        <div id="detailsModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal()">×</span>
-                <h2>Chi Tiết Đơn Thuốc</h2>
-                <table class="details-table">
+            <div class="table-wrapper">
+                <table class="medical-history-table" th:if="${medicalHistory != null and not #lists.isEmpty(medicalHistory)}">
                     <thead>
                         <tr>
-                            <th>Tên Thuốc</th>
-                            <th>Liều Lượng</th>
-                            <th>Tần Suất</th>
-                            <th>Số Lượng</th>
+                            <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                            <th><i class="fas fa-user"></i> Bệnh nhân</th>
+                            <th><i class="fas fa-user-md"></i> Bác sĩ</th>
+                            <th><i class="fas fa-stethoscope"></i> Chẩn đoán</th>
+                            <th><i class="fas fa-heartbeat"></i> Triệu chứng</th>
+                            <th><i class="fas fa-money-bill"></i> Tổng tiền</th>
+                            <th><i class="fas fa-check-circle"></i> Thanh toán</th>
+                            <th><i class="fas fa-calendar-alt"></i> Ngày khám</th>
+                            <th><i class="fas fa-info-circle"></i> Chi tiết</th>
                         </tr>
                     </thead>
-                    <tbody id="details-body"></tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="3" style="text-align: right;"><strong>Tổng Tiền:</strong></td>
-                            <td id="modal-tong-tien"></td>
+                    <tbody>
+                        <tr th:each="record, iterStat : ${medicalHistory}">
+                            <td><input type="checkbox" class="record-checkbox" th:value="${record.hoSoId}" th:attr="data-id=${record.hoSoId}"></td>
+                            <td>
+                                <span th:text="${record.benhNhan?.ten ?: '-'}"></span><br>
+                                <small th:text="${record.benhNhan?.dienThoai ?: '-'}"></small>
+                            </td>
+                            <td th:text="${record.bacSi?.ten ?: '-'}"></td>
+                            <td><pre th:text="${record.chanDoan ?: '-'}"></pre></td>
+                            <td><pre th:text="${record.trieuChung ?: '-'}"></pre></td>
+                            <td th:text="${record.tongTien != null} ? ${#numbers.formatDecimal(record.tongTien, 0, 'COMMA', 0, 'POINT')} + ' VNĐ' : '-'"></td>
+                            <td th:text="${record.daThanhToan != null and record.daThanhToan} ? 'Đã thanh toán' : 'Chưa thanh toán'"></td>
+                            <td th:text="${record.thoiGianTao ?: '-'}"></td>
+                            <td>
+                                <button class="detail-btn" data-bs-toggle="modal" th:attr="data-bs-target='#detailModal-' + ${iterStat.count}">
+                                    <i class="fas fa-eye"></i> Xem chi tiết
+                                </button>
+                            </td>
                         </tr>
-                    </tfoot>
+                    </tbody>
                 </table>
+                <div class="no-data" th:if="${medicalHistory == null or #lists.isEmpty(medicalHistory)}">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Không tìm thấy lịch sử khám bệnh.</p>
+                </div>
             </div>
-        </div>
 
-        <!-- Phân trang -->
-        <div class="pagination" th:if="${totalPages > 1}">
-            <a th:if="${currentPage > 0}" href="#" onclick="goToPage(${currentPage - 1})">Trang trước</a>
-            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                <a href="#" th:onclick="|goToPage(${i})|" th:class="${i == currentPage} ? 'active' : ''"
-                    th:text="${i + 1}"></a>
-            </span>
-            <a th:if="${currentPage < totalPages - 1}" href="#" onclick="goToPage(${currentPage + 1})">Trang sau</a>
+            <!-- Modal for Details -->
+            <div th:each="record, iterStat : ${medicalHistory}" class="modal fade" th:id="'detailModal-' + ${iterStat.count}" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="detailModalLabel">Chi tiết hồ sơ khám bệnh</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="nav nav-tabs" th:id="'tabs-' + ${iterStat.count}">
+                                <li class="nav-item">
+                                    <a class="nav-link active" th:href="'#vital-' + ${iterStat.count}" data-bs-toggle="tab"><i class="fas fa-heartbeat"></i> Dấu hiệu sinh tồn</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" th:href="'#prescription-' + ${iterStat.count}" data-bs-toggle="tab"><i class="fas fa-prescription-bottle"></i> Đơn thuốc</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" th:href="'#test-' + ${iterStat.count}" data-bs-toggle="tab"><i class="fas fa-vial"></i> Xét nghiệm</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" th:id="'vital-' + ${iterStat.count}">
+                                    <div th:if="${record.vitalSigns != null and not #lists.isEmpty(record.vitalSigns)}">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Thời gian</th>
+                                                    <th>Nhiệt độ</th>
+                                                    <th>Chiều cao</th>
+                                                    <th>Cân nặng</th>
+                                                    <th>Huyết áp</th>
+                                                    <th>Ghi chú</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="vs : ${record.vitalSigns}">
+                                                    <td th:text="${vs.thoiGianTao ?: '-'}"></td>
+                                                    <td th:text="${vs.temperature != 0.0} ? ${vs.temperature} + ' °C' : '-'"></td>
+                                                    <td th:text="${vs.height != 0.0} ? ${vs.height} + ' cm' : '-'"></td>
+                                                    <td th:text="${vs.weight != 0.0} ? ${vs.weight} + ' kg' : '-'"></td>
+                                                    <td th:text="${vs.bloodPressureSys != 0 and vs.bloodPressureDia != 0} ? ${vs.bloodPressureSys} + '/' + ${vs.bloodPressureDia} + ' mmHg' : '-'"></td>
+                                                    <td th:text="${vs.notes ?: '-'}"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div th:unless="${record.vitalSigns != null and not #lists.isEmpty(record.vitalSigns)}">
+                                        <p>Không có dữ liệu</p>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" th:id="'prescription-' + ${iterStat.count}">
+                                    <div th:if="${record.donThuocs != null and not #lists.isEmpty(record.donThuocs)}">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Thuốc</th>
+                                                    <th>Liều</th>
+                                                    <th>Tần suất</th>
+                                                    <th>Số lượng</th>
+                                                    <th>Tổng tiền</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="dt : ${record.donThuocs}">
+                                                    <td>
+                                                        <div th:if="${dt.donThuocThuocs != null and not #lists.isEmpty(dt.donThuocThuocs)}">
+                                                            <div th:each="dtt : ${dt.donThuocThuocs}">
+                                                                <span th:text="${dtt.thuoc?.tenThuoc ?: '-'}"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div th:unless="${dt.donThuocThuocs != null and not #lists.isEmpty(dt.donThuocThuocs)}">
+                                                            -
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div th:if="${dt.donThuocThuocs != null and not #lists.isEmpty(dt.donThuocThuocs)}">
+                                                            <div th:each="dtt : ${dt.donThuocThuocs}">
+                                                                <span th:text="${dtt.lieu ?: '-'}"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div th:unless="${dt.donThuocThuocs != null and not #lists.isEmpty(dt.donThuocThuocs)}">
+                                                            -
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div th:if="${dt.donThuocThuocs != null and not #lists.isEmpty(dt.donThuocThuocs)}">
+                                                            <div th:each="dtt : ${dt.donThuocThuocs}">
+                                                                <span th:text="${dtt.tanSuat ?: '-'}"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div th:unless="${dt.donThuocThuocs != null and not #lists.isEmpty(dt.donThuocThuocs)}">
+                                                            -
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div th:if="${dt.donThuocThuocs != null and not #lists.isEmpty(dt.donThuocThuocs)}">
+                                                            <div th:each="dtt : ${dt.donThuocThuocs}">
+                                                                <span th:text="${dtt.soLuong != 0 ? dtt.soLuong : '-'}"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div th:unless="${dt.donThuocThuocs != null and not #lists.isEmpty(dt.donThuocThuocs)}">
+                                                            -
+                                                        </div>
+                                                    </td>
+                                                    <td th:text="${dt.formattedTongTienThuoc ?: '-'}"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div th:unless="${record.donThuocs != null and not #lists.isEmpty(record.donThuocs)}">
+                                        <p>Không có dữ liệu</p>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" th:id="'test-' + ${iterStat.count}">
+                                    <div th:if="${record.xetNghiems != null and not #lists.isEmpty(record.xetNghiems)}">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Loại xét nghiệm</th>
+                                                    <th>Giá</th>
+                                                    <th>Trạng thái</th>
+                                                    <th>Ghi chú</th>
+                                                    <th>Kết quả</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="xn : ${record.xetNghiems}">
+                                                    <td th:text="${xn.loaiXetNghiem?.tenXetNghiem ?: '-'}"></td>
+                                                    <td th:text="${xn.loaiXetNghiem?.gia != 0} ? ${#numbers.formatDecimal(xn.loaiXetNghiem.gia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ' : '-'"></td>
+                                                    <td th:text="${xn.trangThai ?: '-'}"></td>
+                                                    <td th:text="${xn.ghiChu ?: '-'}"></td>
+                                                    <td>
+                                                        <a th:if="${xn.fileKetQua != '-'}" th:href="${xn.fileKetQua}" target="_blank">Xem file</a>
+                                                        <span th:unless="${xn.fileKetQua != '-'}">-</span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div th:unless="${record.xetNghiems != null and not #lists.isEmpty(record.xetNghiems)}">
+                                        <p>Không có dữ liệu</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pagination-container" th:if="${totalPages > 1}">
+                <a class="pagination-btn" th:href="@{/nhanvien/xemlichsukhambenh(page=${currentPage - 1}, startDate=${startDate != null} ? ${#temporals.format(startDate, 'yyyy-MM-dd')} : null, endDate=${endDate != null} ? ${#temporals.format(endDate, 'yyyy-MM-dd')} : null, patientName=${patientName}, doctorName=${doctorName}, phoneNumber=${phoneNumber})}"
+                   th:classappend="${currentPage == 0} ? 'disabled'" th:text="'Trang trước'"></a>
+                <div class="pagination-numbers">
+                    <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                       th:href="@{/nhanvien/xemlichsukhambenh(page=${i}, startDate=${startDate != null} ? ${#temporals.format(startDate, 'yyyy-MM-dd')} : null, endDate=${endDate != null} ? ${#temporals.format(endDate, 'yyyy-MM-dd')} : null, patientName=${patientName}, doctorName=${doctorName}, phoneNumber=${phoneNumber})}"
+                       th:classappend="${i == currentPage} ? 'active'" th:text="${i + 1}"></a>
+                </div>
+                <a class="pagination-btn" th:href="@{/nhanvien/xemlichsukhambenh(page=${currentPage + 1}, startDate=${startDate != null} ? ${#temporals.format(startDate, 'yyyy-MM-dd')} : null, endDate=${endDate != null} ? ${#temporals.format(endDate, 'yyyy-MM-dd')} : null, patientName=${patientName}, doctorName=${doctorName}, phoneNumber=${phoneNumber})}"
+                   th:classappend="${currentPage == totalPages - 1} ? 'disabled'" th:text="'Trang sau'"></a>
+            </div>
         </div>
     </div>
 
-    <script th:inline="javascript">
-        // Truyền tham số từ server sang JavaScript
-        const filterParams = {
-            tenBenhNhan: /*[[${tenBenhNhan}]]*/ '',
-            tenBacSi: /*[[${tenBacSi}]]*/ '',
-            date: /*[[${date}]]*/ '',
-            dienThoai: /*[[${dienThoai}]]*/ ''
-        };
-
-        // Hàm kiểm tra và vô hiệu hóa các checkbox khác
-        function toggleCheckboxes() {
-            const checkboxes = document.querySelectorAll('.select-row');
-            const checkedCheckbox = Array.from(checkboxes).find(checkbox => checkbox.checked);
-
-            if (checkedCheckbox) {
-                // Nếu có checkbox được chọn, vô hiệu hóa các checkbox khác
-                checkboxes.forEach(checkbox => {
-                    if (checkbox !== checkedCheckbox) {
-                        checkbox.disabled = true;
-                    }
-                });
-            } else {
-                // Nếu không có checkbox nào được chọn, kích hoạt lại tất cả
-                checkboxes.forEach(checkbox => {
-                    checkbox.disabled = false;
-                });
-            }
+    <script>
+        function resetFilters() {
+            window.location.href = '/nhanvien/xemlichsukhambenh';
         }
 
-        // Thêm sự kiện change cho tất cả checkbox
-        document.querySelectorAll('.select-row').forEach(checkbox => {
-            checkbox.addEventListener('change', toggleCheckboxes);
-        });
-
-        function applyFilters() {
-            const date = document.getElementById('search-date').value;
-            const tenBenhNhan = document.getElementById('search-benh-nhan').value;
-            const tenBacSi = document.getElementById('search-bac-si').value;
-            const dienThoai = document.getElementById('search-dien-thoai').value;
-
-            let url = '/nhanvien/xemlichsukhambenh?page=0&size=5';
-            if (date) url += `&date=${date}`;
-            if (tenBenhNhan) url += `&tenBenhNhan=${encodeURIComponent(tenBenhNhan)}`;
-            if (tenBacSi) url += `&tenBacSi=${encodeURIComponent(tenBacSi)}`;
-            if (dienThoai) url += `&dienThoai=${encodeURIComponent(dienThoai)}`;
-
-            window.location.href = url;
-        }
-
-        function goToPage(page) {
-            let url = `/nhanvien/xemlichsukhambenh?page=${page}&size=5`;
-            if (filterParams.date) url += `&date=${filterParams.date}`;
-            if (filterParams.tenBenhNhan) url += `&tenBenhNhan=${encodeURIComponent(filterParams.tenBenhNhan)}`;
-            if (filterParams.tenBacSi) url += `&tenBacSi=${encodeURIComponent(filterParams.tenBacSi)}`;
-            if (filterParams.dienThoai) url += `&dienThoai=${encodeURIComponent(filterParams.dienThoai)}`;
-
-            window.location.href = url;
-        }
-
-        // Hiển thị modal chi tiết
-        function showDetails(button) {
-            const thuoc = button.getAttribute('data-thuoc') || 'Không có thuốc';
-            const lieu = button.getAttribute('data-lieu') || 'Không có liều lượng';
-            const tanSuat = button.getAttribute('data-tan-suat') || 'Không có tần suất';
-            const soLuong = button.getAttribute('data-so-luong') || 'Không có số lượng';
-            const tongTien = button.getAttribute('data-tong-tien') || '0 VND';
-
-            const thuocArray = thuoc.split('\n').filter(item => item.trim() !== '');
-            const lieuArray = lieu.split('\n').filter(item => item.trim() !== '');
-            const tanSuatArray = tanSuat.split('\n').filter(item => item.trim() !== '');
-            const soLuongArray = soLuong.split('\n').filter(item => item.trim() !== '');
-
-            const tbody = document.getElementById('details-body');
-            tbody.innerHTML = ''; // Xóa nội dung cũ
-
-            for (let i = 0; i < thuocArray.length; i++) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${thuocArray[i].replace('- ', '') || '-'}</td>
-                    <td>${lieuArray[i] || '-'}</td>
-                    <td>${tanSuatArray[i] || '-'}</td>
-                    <td>${soLuongArray[i] || '-'}</td>
-                `;
-                tbody.appendChild(row);
-            }
-
-            document.getElementById('modal-tong-tien').textContent = tongTien;
-
-            const modal = document.getElementById('detailsModal');
-            modal.style.display = 'flex';
-        }
-
-        // Đóng modal
-        function closeModal() {
-            const modal = document.getElementById('detailsModal');
-            modal.style.display = 'none';
-        }
-
-        // Đóng modal khi nhấp bên ngoài
-        window.onclick = function(event) {
-            const modal = document.getElementById('detailsModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
-
-        // Xuất file PDF cho dòng được chọn
-        function exportSelected() {
-            const selectedRows = document.querySelectorAll('.select-row:checked');
-            if (selectedRows.length === 0) {
-                alert('Vui lòng chọn một dòng để xuất file!');
-                return;
-            }
-            if (selectedRows.length > 1) {
-                alert('Vui lòng chỉ chọn một dòng để xuất file!');
-                return;
-            }
-
-            const row = selectedRows[0];
-            const data = {
-                tenBacSi: row.getAttribute('data-ten-bac-si') || 'Không xác định',
-                tenBenhNhan: row.getAttribute('data-ten-benh-nhan') || 'Không xác định',
-                dienThoai: row.getAttribute('data-dien-thoai') || 'Không có',
-                ngayKham: row.getAttribute('data-ngay-kham') || 'Không xác định',
-                chanDoan: row.getAttribute('data-chan-doan') || 'Không có',
-                trieuChung: row.getAttribute('data-trieu-chung') || 'Không có',
-                thuoc: (row.getAttribute('data-thuoc') || 'Không có thuốc').split('\n').filter(item => item.trim() !== ''),
-                lieu: (row.getAttribute('data-lieu') || 'Không có liều lượng').split('\n').filter(item => item.trim() !== ''),
-                tanSuat: (row.getAttribute('data-tan-suat') || 'Không có tần suất').split('\n').filter(item => item.trim() !== ''),
-                soLuong: (row.getAttribute('data-so-luong') || 'Không có số lượng').split('\n').filter(item => item.trim() !== ''),
-                tongTien: row.getAttribute('data-tong-tien') || '0 VND'
-            };
-
-            // Gửi POST request đến endpoint
-            fetch('/nhanvien/xemlichsukhambenh/download-pdf', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json; charset=UTF-8'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', `don_thuoc_${data.tenBenhNhan}_${data.ngayKham}.pdf`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-            })
-            .catch(error => {
-                console.error('Error downloading PDF:', error);
-                alert('Có lỗi xảy ra khi tải file PDF!');
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.record-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
             });
         }
-    </script>
-</body>
 
+        function downloadSelectedRecords() {
+            const selectedIds = Array.from(document.querySelectorAll('.record-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+            
+            if (selectedIds.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa chọn bản ghi',
+                    text: 'Vui lòng chọn ít nhất một bản ghi để tải PDF.',
+                    confirmButtonText: 'Đóng',
+                    timer: 5000
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Xác nhận tải PDF',
+                text: `Bạn có muốn tải PDF cho ${selectedIds.length} bản ghi đã chọn?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Tải xuống',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const url = `/nhanvien/xemlichsukhambenh/download-pdf?hoSoIds=${selectedIds.join(',')}`;
+                    window.location.href = url;
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const errorMessage = document.querySelector('.error-message');
+            if (errorMessage && errorMessage.textContent.trim()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Có lỗi xảy ra',
+                    text: errorMessage.textContent.trim(),
+                    confirmButtonText: 'Đóng',
+                    timer: 5000
+                });
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div th:replace="nhanvien/fragments/footer :: footer"></div>
+</body>
 </html>

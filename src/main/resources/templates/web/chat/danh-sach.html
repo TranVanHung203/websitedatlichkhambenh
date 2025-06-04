@@ -1,28 +1,29 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>Chat Phòng Khám</title>
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
-    <script>
-        dayjs.extend(dayjs_plugin_relativeTime);
-        function formatFriendlyTime(timestamp) {
-            const now = dayjs();
-            const time = dayjs(timestamp);
-            if (!time.isValid()) return "";
-            const diffMinutes = now.diff(time, 'minute');
-            if (diffMinutes < 1) return "Vừa xong";
-            if (diffMinutes < 60) return `${diffMinutes} phút trước`;
-            if (now.isSame(time, 'day')) return `Hôm nay lúc ${time.format("HH:mm")}`;
-            if (now.subtract(1, 'day').isSame(time, 'day')) return `Hôm qua lúc ${time.format("HH:mm")}`;
-            return `${time.format("DD/MM/YYYY")} lúc ${time.format("HH:mm")}`;
-        }
-    </script>
-    <style>
-        body {
+	<meta charset="UTF-8">
+	<title>Chat Phòng Khám</title>
+	<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
+	<script>
+		dayjs.extend(dayjs_plugin_relativeTime);
+		function formatFriendlyTime(timestamp) {
+			const now = dayjs();
+			const time = dayjs(timestamp);
+			if (!time.isValid()) return "";
+			const diffMinutes = now.diff(time, 'minute');
+			if (diffMinutes < 1) return "Vừa xong";
+			if (diffMinutes < 60) return `${diffMinutes} phút trước`;
+			if (now.isSame(time, 'day')) return `Hôm nay lúc ${time.format("HH:mm")}`;
+			if (now.subtract(1, 'day').isSame(time, 'day')) return `Hôm qua lúc ${time.format("HH:mm")}`;
+			return `${time.format("DD/MM/YYYY")} lúc ${time.format("HH:mm")}`;
+		}
+	</script>
+	<style>
+	  body {
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
             padding: 0;
@@ -39,22 +40,17 @@
             padding: 20px;
         }
 
-        .doctor-card {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            background: #f9f9f9;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: background 0.2s, transform 0.3s;
-        }
-
-        .doctor-card:hover {
-            background: #e9f0ff;
-            transform: scale(1.02);
-        }
+		.doctor-card {
+			padding: 10px;
+			margin-bottom: 10px;
+			border-radius: 8px;
+			background: #f9f9f9;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			transition: background 0.2s, transform 0.3s;
+		}
 
         .avatar {
             width: 40px;
@@ -319,11 +315,43 @@
             }
         }
 
-        @keyframes popIn {
-            0% {
-                transform: scale(0.9);
-                opacity: 0;
-            }
+		@keyframes slideUp {
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		@keyframes popIn {
+			0% {
+				transform: scale(0.9);
+				opacity: 0;
+			}
+
+			100% {
+				transform: scale(1);
+				opacity: 1;
+			}
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateX(10px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+
+		#previewContainer {
+			margin-top: 10px;
+			display: none;
+			flex-wrap: wrap;
+			gap: 10px;
+		}
 
             100% {
                 transform: scale(1);
@@ -439,316 +467,344 @@
         .other .bubble .file-link {
             color: #007bff;
         }
-    </style>
+
+		.back-button {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 10px;
+			padding: 8px 16px;
+			background: #6c757d;
+			color: white;
+			border-radius: 6px;
+			text-decoration: none;
+			font-size: 14px;
+			transition: background 0.2s;
+		}
+
+		.back-button:hover {
+			background: #5a6268;
+		}
+
+		.back-button::before {
+			content: '←';
+			font-size: 16px;
+		}
+	</style>
 </head>
+
 <body>
-    <div id="sidebar">
-        <h3>Bác sĩ đã nhắn</h3>
-        <input type="text" id="searchDoctors" placeholder="Tìm kiếm bác sĩ...">
-        <div id="contactList">Đang tải...</div>
-    </div>
+	<div id="sidebar">
+		<div>
+			<a th:href="@{/home}" class="back-button"></a>
+			<h3>Bác sĩ đã nhắn</h3>
+		</div>
+		<input type="text" id="searchDoctors" placeholder="Tìm kiếm bác sĩ...">
+		<div id="contactList">Đang tải...</div>
+	</div>
 
-    <div id="chat-container">
-        <h2 id="chatTitle">Chọn bác sĩ để bắt đầu</h2>
-        <input type="text" id="searchMessages" placeholder="Tìm kiếm tin nhắn...">
-        <div id="messages"></div>
-        <div id="scrollToBottomBtn" onclick="scrollToBottom()"></div>
+	<div id="chat-container">
+		<h2 id="chatTitle">Chọn bác sĩ để bắt đầu</h2>
+		<input type="text" id="searchMessages" placeholder="Tìm kiếm tin nhắn...">
+		<div id="messages"></div>
+		<div id="scrollToBottomBtn" onclick="scrollToBottom()"></div>
 
-        <div id="previewContainer"></div>
+		<div id="previewContainer"></div>
 
-        <div id="input-container">
-            <textarea id="messageInput" placeholder="Nhập tin nhắn..." rows="2"></textarea>
-            <input type="file" id="fileInput" accept="image/*,.doc,.docx,.pdf" multiple>
-            <label for="fileInput"></label>
-            <button onclick="sendMessage()">Gửi</button>
-        </div>
-        <div id="warningText"></div>
-    </div>
+		<div id="input-container">
+			<textarea id="messageInput" placeholder="Nhập tin nhắn..." rows="2"></textarea>
+			<input type="file" id="fileInput" accept="image/*,.doc,.docx,.pdf" multiple>
+			<label for="fileInput"></label>
+			<button onclick="sendMessage()">Gửi</button>
+		</div>
+		<div id="warningText"></div>
+	</div>
 
-    <div id="imageModal" onclick="this.style.display='none'">
-        <img id="modalImage" src="">
-    </div>
+	<div id="imageModal" onclick="this.style.display='none'">
+		<img id="modalImage" src="">
+	</div>
 
-    <script>
-        let stompClient = null;
-        let chatContext = {};
-        let selectedFiles = [];
-        let currentSubscription = null;
-        let doctorList = [];
+	<script>
+		let stompClient = null;
+		let chatContext = {};
+		let selectedFiles = [];
+		let currentSubscription = null;
+		let doctorList = [];
 
-        function renderMessage(msg, isBenhNhan, prepend = false) {
-            const el = document.createElement("div");
-            const isSelf = (msg.tuBenhNhan === isBenhNhan);
-            const time = msg.thoiGian ? formatFriendlyTime(msg.thoiGian) : 'vừa xong';
-            el.className = "msg " + (isSelf ? "self" : "other");
+		function renderMessage(msg, isBenhNhan, prepend = false) {
+			const el = document.createElement("div");
+			const isSelf = (msg.tuBenhNhan === isBenhNhan);
+			const time = msg.thoiGian ? formatFriendlyTime(msg.thoiGian) : 'vừa xong';
+			el.className = "msg " + (isSelf ? "self" : "other");
 
-            let contentHtml = msg.noiDung.replace(/\n/g, '<br>');
+			let contentHtml = msg.noiDung.replace(/\n/g, '<br>');
 
-            if (msg.noiDung.startsWith("/uploads/chat-files")) {
-                const isImage = msg.noiDung.match(/\.(jpg|jpeg|png|gif)$/i);
-                const isDoc = msg.noiDung.match(/\.(doc|docx|pdf)$/i);
-                const filename = msg.noiDung.split('/').pop();
-                const originalFileName = filename.substring(37); // UUID (36 ký tự) + "-"
-                if (isImage) {
-                    contentHtml = `<img src="${msg.noiDung}" style="max-width: 200px; border-radius: 8px; cursor: zoom-in;" onclick="showImageModal('${msg.noiDung}')">`;
-                } else if (isDoc) {
-                    contentHtml = `<a href="${msg.noiDung}" download="${originalFileName}" class="file-link" title="${originalFileName}">${originalFileName}</a>`;
-                }
-            }
+			if (msg.noiDung.startsWith("/uploads/chat-files")) {
+				const isImage = msg.noiDung.match(/\.(jpg|jpeg|png|gif)$/i);
+				const isDoc = msg.noiDung.match(/\.(doc|docx|pdf)$/i);
+				const filename = msg.noiDung.split('/').pop();
+				const originalFileName = filename.substring(37); // UUID (36 ký tự) + "-"
+				if (isImage) {
+					contentHtml = `<img src="${msg.noiDung}" style="max-width: 200px; border-radius: 8px; cursor: zoom-in;" onclick="showImageModal('${msg.noiDung}')">`;
+				} else if (isDoc) {
+					contentHtml = `<a href="${msg.noiDung}" download="${originalFileName}" class="file-link" title="${originalFileName}">${originalFileName}</a>`;
+				}
+			}
 
-            el.innerHTML = `
+			el.innerHTML = `
             <div class="bubble">
               <span class="meta">${isSelf ? "Bạn" : (isBenhNhan ? "Bác sĩ" : "Bệnh nhân")}</span>
               ${contentHtml}
               <div class="time">${time}</div>
             </div>`;
-            const messagesDiv = document.getElementById("messages");
-            if (prepend) {
-                messagesDiv.insertBefore(el, messagesDiv.firstChild);
-            } else {
-                messagesDiv.appendChild(el);
-            }
-            if (!prepend) {
-                scrollToBottom();
-            }
-        }
+			const messagesDiv = document.getElementById("messages");
+			if (prepend) {
+				messagesDiv.insertBefore(el, messagesDiv.firstChild);
+			} else {
+				messagesDiv.appendChild(el);
+			}
+			if (!prepend) {
+				scrollToBottom();
+			}
+		}
 
-        function showImageModal(url) {
-            const modal = document.getElementById("imageModal");
-            const modalImg = document.getElementById("modalImage");
-            modalImg.src = url;
-            modal.style.display = "block";
-        }
+		function showImageModal(url) {
+			const modal = document.getElementById("imageModal");
+			const modalImg = document.getElementById("modalImage");
+			modalImg.src = url;
+			modal.style.display = "block";
+		}
 
-        function clearPreview() {
-            const previewContainer = document.getElementById("previewContainer");
-            previewContainer.innerHTML = "";
-            previewContainer.style.display = "none";
-            document.getElementById("fileInput").value = '';
-            selectedFiles = [];
-        }
+		function clearPreview() {
+			const previewContainer = document.getElementById("previewContainer");
+			previewContainer.innerHTML = "";
+			previewContainer.style.display = "none";
+			document.getElementById("fileInput").value = '';
+			selectedFiles = [];
+		}
 
-        function removePreview(index) {
-            selectedFiles.splice(index, 1);
-            updatePreview();
-        }
+		function removePreview(index) {
+			selectedFiles.splice(index, 1);
+			updatePreview();
+		}
 
-        function updatePreview() {
-            const previewContainer = document.getElementById("previewContainer");
-            previewContainer.innerHTML = "";
-            if (selectedFiles.length === 0) {
-                previewContainer.style.display = "none";
-                return;
-            }
-            previewContainer.style.display = "flex";
-            selectedFiles.forEach((file, index) => {
-                const isImage = file.type.startsWith("image/");
-                const previewItem = document.createElement("div");
-                previewItem.className = "preview-item";
-                if (isImage) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        previewItem.innerHTML = `
+		function updatePreview() {
+			const previewContainer = document.getElementById("previewContainer");
+			previewContainer.innerHTML = "";
+			if (selectedFiles.length === 0) {
+				previewContainer.style.display = "none";
+				return;
+			}
+			previewContainer.style.display = "flex";
+			selectedFiles.forEach((file, index) => {
+				const isImage = file.type.startsWith("image/");
+				const previewItem = document.createElement("div");
+				previewItem.className = "preview-item";
+				if (isImage) {
+					const reader = new FileReader();
+					reader.onload = function (e) {
+						previewItem.innerHTML = `
                             <img class="preview-image" src="${e.target.result}" alt="Preview">
                             <button onclick="removePreview(${index})">×</button>
                         `;
-                        previewContainer.appendChild(previewItem);
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    previewItem.innerHTML = `
+						previewContainer.appendChild(previewItem);
+					};
+					reader.readAsDataURL(file);
+				} else {
+					previewItem.innerHTML = `
                         <div class="preview-file">${file.name}</div>
                         <button onclick="removePreview(${index})">×</button>
                     `;
-                    previewContainer.appendChild(previewItem);
-                }
-            });
-        }
+					previewContainer.appendChild(previewItem);
+				}
+			});
+		}
 
-        function scrollToBottom() {
-            const div = document.getElementById("messages");
-            setTimeout(() => {
-                div.scrollTop = div.scrollHeight;
-            }, 100);
-        }
+		function scrollToBottom() {
+			const div = document.getElementById("messages");
+			setTimeout(() => {
+				div.scrollTop = div.scrollHeight;
+			}, 100);
+		}
 
-        function updateScrollButtonVisibility() {
-            const messagesDiv = document.getElementById("messages");
-            const scrollBtn = document.getElementById("scrollToBottomBtn");
-            const isAtBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 50;
-            scrollBtn.classList.toggle("visible", !isAtBottom);
-        }
+		function updateScrollButtonVisibility() {
+			const messagesDiv = document.getElementById("messages");
+			const scrollBtn = document.getElementById("scrollToBottomBtn");
+			const isAtBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 50;
+			scrollBtn.classList.toggle("visible", !isAtBottom);
+		}
 
-        function sendMessage() {
-            const input = document.getElementById("messageInput");
-            const warning = document.getElementById("warningText");
-            const content = input.value.trim();
+		function sendMessage() {
+			const input = document.getElementById("messageInput");
+			const warning = document.getElementById("warningText");
+			const content = input.value.trim();
 
-            warning.innerText = '';
+			warning.innerText = '';
 
-            if (selectedFiles.length === 0 && content === '') {
-                warning.innerText = "Tin nhắn hoặc tệp không được để trống.";
-                return;
-            }
+			if (selectedFiles.length === 0 && content === '') {
+				warning.innerText = "Tin nhắn hoặc tệp không được để trống.";
+				return;
+			}
 
-            if (content !== '') {
-                const msg = {
-                    noiDung: content,
-                    tuBenhNhan: chatContext.isBenhNhan,
-                    benhNhanId: chatContext.benhNhanId,
-                    bacSiId: chatContext.bacSiId
-                };
-                stompClient.send("/app/chat", {}, JSON.stringify(msg));
-            }
+			if (content !== '') {
+				const msg = {
+					noiDung: content,
+					tuBenhNhan: chatContext.isBenhNhan,
+					benhNhanId: chatContext.benhNhanId,
+					bacSiId: chatContext.bacSiId
+				};
+				stompClient.send("/app/chat", {}, JSON.stringify(msg));
+			}
 
-            if (selectedFiles.length > 0) {
-                const uploadPromises = selectedFiles.map(file => {
-                    const formData = new FormData();
-                    formData.append("file", file);
-                    return fetch("/api/chat/upload", {
-                        method: "POST",
-                        body: formData
-                    }).then(res => res.text());
-                });
+			if (selectedFiles.length > 0) {
+				const uploadPromises = selectedFiles.map(file => {
+					const formData = new FormData();
+					formData.append("file", file);
+					return fetch("/api/chat/upload", {
+						method: "POST",
+						body: formData
+					}).then(res => res.text());
+				});
 
-                Promise.all(uploadPromises).then(urls => {
-                    urls.forEach(url => {
-                        const msg = {
-                            noiDung: url,
-                            tuBenhNhan: chatContext.isBenhNhan,
-                            benhNhanId: chatContext.benhNhanId,
-                            bacSiId: chatContext.bacSiId
-                        };
-                        stompClient.send("/app/chat", {}, JSON.stringify(msg));
-                    });
-                    clearPreview();
-                });
-            }
+				Promise.all(uploadPromises).then(urls => {
+					urls.forEach(url => {
+						const msg = {
+							noiDung: url,
+							tuBenhNhan: chatContext.isBenhNhan,
+							benhNhanId: chatContext.benhNhanId,
+							bacSiId: chatContext.bacSiId
+						};
+						stompClient.send("/app/chat", {}, JSON.stringify(msg));
+					});
+					clearPreview();
+				});
+			}
 
-            input.value = '';
-            input.style.height = "auto";
-            input.focus();
-        }
+			input.value = '';
+			input.style.height = "auto";
+			input.focus();
+		}
 
-        function connectSocket(context) {
-            if (stompClient !== null) {
-                if (currentSubscription) {
-                    currentSubscription.unsubscribe();
-                    currentSubscription = null;
-                }
-                stompClient.disconnect();
-                stompClient = null;
-            }
+		function connectSocket(context) {
+			if (stompClient !== null) {
+				if (currentSubscription) {
+					currentSubscription.unsubscribe();
+					currentSubscription = null;
+				}
+				stompClient.disconnect();
+				stompClient = null;
+			}
 
-            const socket = new SockJS('/ws');
-            stompClient = Stomp.over(socket);
-            stompClient.connect({}, function () {
-                currentSubscription = stompClient.subscribe('/topic/messages', function (message) {
-                    const msg = JSON.parse(message.body);
-                    if (msg.benhNhanId === context.benhNhanId && msg.bacSiId === context.bacSiId) {
-                        renderMessage(msg, context.isBenhNhan);
-                        updateScrollButtonVisibility();
-                    }
-                });
+			const socket = new SockJS('/ws');
+			stompClient = Stomp.over(socket);
+			stompClient.connect({}, function () {
+				currentSubscription = stompClient.subscribe('/topic/messages', function (message) {
+					const msg = JSON.parse(message.body);
+					if (msg.benhNhanId === context.benhNhanId && msg.bacSiId === context.bacSiId) {
+						renderMessage(msg, context.isBenhNhan);
+						updateScrollButtonVisibility();
+					}
+				});
 
-                document.getElementById("messages").innerHTML = '';
-                fetch(`/api/chat/history?benhNhanId=${context.benhNhanId}&bacSiId=${context.bacSiId}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        data.forEach(m => renderMessage(m, context.isBenhNhan));
-                        scrollToBottom();
-                        updateScrollButtonVisibility();
-                    });
-            });
-        }
+				document.getElementById("messages").innerHTML = '';
+				fetch(`/api/chat/history?benhNhanId=${context.benhNhanId}&bacSiId=${context.bacSiId}`)
+					.then(res => res.json())
+					.then(data => {
+						data.forEach(m => renderMessage(m, context.isBenhNhan));
+						scrollToBottom();
+						updateScrollButtonVisibility();
+					});
+			});
+		}
 
-        function renderDoctorList(doctors) {
-            const container = document.getElementById("contactList");
-            container.innerHTML = '';
-            doctors.forEach(bacSi => {
-                const card = document.createElement("div");
-                card.className = "doctor-card";
-                card.innerHTML = `
+		function renderDoctorList(doctors) {
+			const container = document.getElementById("contactList");
+			container.innerHTML = '';
+			doctors.forEach(bacSi => {
+				const card = document.createElement("div");
+				card.className = "doctor-card";
+				card.innerHTML = `
                     <img class="avatar" src="${bacSi.urlAvatar || '/images/default-doctor.png'}" alt="avatar">
                     <div class="info">
                         <div class="name">${bacSi.ten}</div>
                         <div class="phone">${bacSi.dienThoai || ""}</div>
                     </div>`;
-                card.onclick = () => {
-                    chatContext.bacSiId = bacSi.bacSiId;
-                    document.getElementById("chatTitle").innerText = `Đang trò chuyện với ${bacSi.ten}`;
-                    connectSocket(chatContext);
-                };
-                container.appendChild(card);
-            });
-        }
+				card.onclick = () => {
+					chatContext.bacSiId = bacSi.bacSiId;
+					document.getElementById("chatTitle").innerText = `Đang trò chuyện với ${bacSi.ten}`;
+					connectSocket(chatContext);
+				};
+				container.appendChild(card);
+			});
+		}
 
-        window.onload = () => {
-            fetch('/api/user/info')
-                .then(res => res.json())
-                .then(user => {
-                    chatContext.isBenhNhan = user.isBenhNhan;
-                    chatContext.benhNhanId = user.id;
+		window.onload = () => {
+			fetch('/api/user/info')
+				.then(res => res.json())
+				.then(user => {
+					chatContext.isBenhNhan = user.isBenhNhan;
+					chatContext.benhNhanId = user.id;
 
-                    if (!user.isBenhNhan) {
-                        document.getElementById("contactList").innerText = "Chức năng chỉ dành cho bệnh nhân.";
-                        return;
-                    }
+					if (!user.isBenhNhan) {
+						document.getElementById("contactList").innerText = "Chức năng chỉ dành cho bệnh nhân.";
+						return;
+					}
 
-                    fetch(`/api/chat/contacts?benhNhanId=${user.id}`)
-                        .then(res => res.json())
-                        .then(data => {
-                            doctorList = data;
-                            renderDoctorList(data);
-                        });
-                });
+					fetch(`/api/chat/contacts?benhNhanId=${user.id}`)
+						.then(res => res.json())
+						.then(data => {
+							doctorList = data;
+							renderDoctorList(data);
+						});
+				});
 
-            const input = document.getElementById("messageInput");
-            input.addEventListener("keydown", function (e) {
-                if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            });
+			const input = document.getElementById("messageInput");
+			input.addEventListener("keydown", function (e) {
+				if (e.key === "Enter" && !e.shiftKey) {
+					e.preventDefault();
+					sendMessage();
+				}
+			});
 
-            input.addEventListener("input", function () {
-                input.style.height = "auto";
-                input.style.height = Math.min(input.scrollHeight, 120) + "px";
-            });
+			input.addEventListener("input", function () {
+				input.style.height = "auto";
+				input.style.height = Math.min(input.scrollHeight, 120) + "px";
+			});
 
-            document.getElementById("fileInput").addEventListener("change", function () {
-                const files = Array.from(this.files);
-                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-                if (files.every(file => validTypes.includes(file.type))) {
-                    selectedFiles = files;
-                    updatePreview();
-                } else {
-                    clearPreview();
-                    document.getElementById("warningText").innerText = "Vui lòng chỉ chọn tệp hình ảnh, Word hoặc PDF.";
-                }
-            });
+			document.getElementById("fileInput").addEventListener("change", function () {
+				const files = Array.from(this.files);
+				const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+				if (files.every(file => validTypes.includes(file.type))) {
+					selectedFiles = files;
+					updatePreview();
+				} else {
+					clearPreview();
+					document.getElementById("warningText").innerText = "Vui lòng chỉ chọn tệp hình ảnh, Word hoặc PDF.";
+				}
+			});
 
-            document.getElementById("searchMessages").addEventListener("input", function () {
-                const keyword = this.value.toLowerCase();
-                const messages = document.querySelectorAll(".msg");
-                messages.forEach(msg => {
-                    const content = msg.querySelector(".bubble").textContent.toLowerCase();
-                    msg.style.display = content.includes(keyword) ? "flex" : "none";
-                });
-                updateScrollButtonVisibility();
-            });
+			document.getElementById("searchMessages").addEventListener("input", function () {
+				const keyword = this.value.toLowerCase();
+				const messages = document.querySelectorAll(".msg");
+				messages.forEach(msg => {
+					const content = msg.querySelector(".bubble").textContent.toLowerCase();
+					msg.style.display = content.includes(keyword) ? "flex" : "none";
+				});
+				updateScrollButtonVisibility();
+			});
 
-            document.getElementById("searchDoctors").addEventListener("input", function () {
-                const keyword = this.value.toLowerCase();
-                const filteredDoctors = doctorList.filter(bacSi =>
-                    bacSi.ten.toLowerCase().includes(keyword)
-                );
-                renderDoctorList(filteredDoctors);
-            });
+			document.getElementById("searchDoctors").addEventListener("input", function () {
+				const keyword = this.value.toLowerCase();
+				const filteredDoctors = doctorList.filter(bacSi =>
+					bacSi.ten.toLowerCase().includes(keyword)
+				);
+				renderDoctorList(filteredDoctors);
+			});
 
-            const messagesDiv = document.getElementById("messages");
-            messagesDiv.addEventListener("scroll", updateScrollButtonVisibility);
-        };
-    </script>
+			const messagesDiv = document.getElementById("messages");
+			messagesDiv.addEventListener("scroll", updateScrollButtonVisibility);
+		};
+	</script>
 </body>
+
 </html>

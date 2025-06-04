@@ -10,7 +10,7 @@
     <script>
         dayjs.extend(dayjs_plugin_relativeTime);
         let stompClient = null;
-        let chatContext = { bacSiId: '', benhNhanId: '' };
+        let chatContext = {bacSiId: '', benhNhanId: ''};
         let rawContacts = [];
         let selectedFiles = [];
 
@@ -286,7 +286,6 @@
             messagesDiv.addEventListener("scroll", updateScrollButtonVisibility);
         };
     </script>
-
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -310,7 +309,7 @@
         #sidebar h4 {
             margin-top: 0;
             color: #007bff;
-            font-size: 16px;
+            font-size: 1.2em;
             margin-bottom: 12px;
         }
 
@@ -683,17 +682,43 @@
                 transform: scale(0.9);
                 opacity: 0;
             }
+
             100% {
                 transform: scale(1);
                 opacity: 1;
             }
         }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding: 8px 16px;
+            background: #6c757d;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .back-button:hover {
+            background: #5a6268;
+        }
+
+        .back-button::before {
+            content: '←';
+            font-size: 16px;
+        }
     </style>
 </head>
-
 <body>
     <div id="sidebar">
-        <h4>Bệnh nhân</h4>
+        <div>
+			<a th:href="@{/bacsi/editprofile}" class="back-button"></a>
+            <h4>Bệnh nhân</h4> 
+        </div>
         <input type="text" id="searchInput" placeholder="Tìm theo tên hoặc số điện thoại...">
         <div id="contactList">Đang tải...</div>
     </div>

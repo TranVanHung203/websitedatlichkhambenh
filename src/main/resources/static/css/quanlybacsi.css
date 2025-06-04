@@ -1,95 +1,142 @@
-
+/* Reset Default Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
 
 /* Main Content Styles */
 .main-content {
     margin-left: 230px;
-    padding: 20px;
-    padding-top: 80px; /* to avoid overlapping with the header */
+    padding: 40px;
+    padding-top: 100px; /* Avoid overlapping with header */
+    padding-bottom: 80px; /* Ensure pagination doesn't overlap content */
     width: calc(100% - 250px);
+    background: linear-gradient(145deg, #e9ecef 0%, #f8f9fa 100%); /* Gradient nền nhẹ */
+    min-height: 100vh;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease-in-out;
 }
 
-h1 {
+/* Success and Error Messages */
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 16px;
+    border-radius: 10px;
     text-align: center;
-    color: #333;
-    font-size: 24px;
     margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-button {
-    margin-top: 30px;
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 16px;
+    border-radius: 10px;
+    text-align: center;
     margin-bottom: 20px;
-    padding: 10px 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Heading Styles */
+h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1e3a8a; /* Xanh dương đậm */
+    margin-bottom: 30px;
+    text-align: left;
+    letter-spacing: -0.5px;
+}
+
+/* Search Form Styles */
+#searchForm {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    align-items: center;
+}
+
+#searchInput {
+    padding: 14px 20px;
+    width: 400px;
+    max-width: 100%;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    border-radius: 10px;
+    font-size: 16px;
+    color: #2d3748;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s, transform 0.2s;
 }
 
-.btn-add {
-    background-color: #28a745;
-    color: #fff;
-    float: right;
+#searchInput:focus {
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.2);
+    transform: translateY(-2px);
+    outline: none;
 }
 
-.btn-add:hover {
-    background-color: #218838;
-    transform: scale(1.05);
-}
-
-.btn-edit {
-    color: #007bff;
-    padding: 6px 12px;
-    background-color: #fff;
-    border: 1px solid #007bff;
-    border-radius: 4px;
-    transition: background-color 0.3s, color 0.3s, transform 0.2s;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-}
-
-.btn-edit:hover {
-    background-color: #007bff;
-    color: #fff;
-    transform: scale(1.05);
+/* No Results Message */
+.no-results-message {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 16px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* Table Styles */
 table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     margin-top: 20px;
-    border-radius: 8px;
+    background-color: #ffffff;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 table th,
 table td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    vertical-align: middle;
-    font-size: 14px;
+    padding: 16px;
     text-align: center;
+    font-size: 15px;
+    color: #2d3748;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 table th {
-    background-color: #007bff;
-    color: #fff;
+    background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%); /* Gradient xanh */
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
     font-size: 14px;
+    letter-spacing: 0.5px;
 }
 
 table td {
-    color: #333;
+    background-color: #ffffff;
 }
 
-table tr:nth-child(even) {
-    background-color: #f9f9f9;
+table tr:nth-child(even) td {
+    background-color: #f9fafb;
 }
 
 table tr:hover {
-    background-color: #f1f1f1;
+    background-color: #e3f2fd;
+    transform: translateY(-2px);
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 /* Avatar Styles */
@@ -98,42 +145,151 @@ td img {
     height: 50px;
     border-radius: 50%;
     object-fit: cover;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s;
 }
 
 td img:hover {
     transform: scale(1.1);
 }
+
+/* Button Styles */
+button, a.btn-edit {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-decoration: none;
+}
+
+button:focus, a.btn-edit:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+.btn-add {
+    background: linear-gradient(90deg, #10b981 0%, #34d399 100%); /* Xanh lá gradient */
+    color: #ffffff;
+    float: right;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    border-radius: 10px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.btn-add:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
+}
+
+.btn-add:focus {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+}
+
+.btn-edit {
+    background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%); /* Vàng gradient */
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.btn-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.btn-edit:focus {
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+}
+
+/* Pagination Styles */
 .pagination {
     position: fixed;
     bottom: 20px;
-    left: 57%;
+    left: 50%;
     transform: translateX(-50%);
-    background: #fff;
-    padding: 10px 15px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    transition: box-shadow 0.3s;
+}
+
+.pagination:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .pagination a {
-    padding: 8px 12px;
-    margin: 0 5px;
+    padding: 10px 16px;
     text-decoration: none;
-    color: #007bff;
-    border-radius: 4px;
-    background-color: #fff;
-    transition: all 0.3s;
+    color: #2563eb;
+    font-size: 15px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
 }
 
 .pagination a.active {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
+    background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 
 .pagination a:hover {
-    background-color: #0056b3;
-    color: white;
+    background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
+.pagination a:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+        padding-bottom: 60px; /* Adjust for pagination */
+    }
+
+    #searchInput {
+        width: 100%;
+    }
+
+    table {
+        font-size: 14px;
+    }
+
+    table th,
+    table td {
+        padding: 12px;
+    }
+
+    .btn-add,
+    .btn-edit {
+        font-size: 13px;
+        padding: 10px 16px;
+    }
+
+    .pagination {
+        padding: 10px;
+        gap: 6px;
+    }
+
+    td img {
+        width: 40px;
+        height: 40px;
+    }
+}

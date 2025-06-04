@@ -7,42 +7,267 @@
     <link th:href="@{/css/headerbenhnhan.css}" rel="stylesheet">
     <link th:href="@{/css/footerbenhnhan.css}" rel="stylesheet">
     <link th:href="@{/css/home.css}" rel="stylesheet">
-</head>
-<body>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --health-primary: #b3e5fc; /* Light blue as dominant color */
+            --health-accent: #4fc3f7; /* Slightly darker blue for contrast */
+            --health-secondary: #ffffff; /* Clean white for clarity */
+            --health-bg: #e6f3fa; /* Very light blue background */
+            --health-text: #263238; /* Dark slate for readability */
+            --health-shadow: 0 3px 10px rgba(179, 229, 252, 0.3);
+        }
 
+        /* Scoped body for home page */
+        .health-body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--health-bg);
+            color: var(--health-text);
+            line-height: 1.6;
+        }
+
+        /* Banner Section */
+        .health-banner {
+            position: relative;
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(120deg, var(--health-primary) 0%, var(--health-accent) 100%);
+            padding: 20px;
+            margin-top: 0; /* Removed excess spacing, aligns closer to header */
+            overflow: hidden;
+        }
+
+        .health-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(179, 229, 252, 0.5), rgba(179, 229, 252, 0.5)),
+                        url('/images/medical-pattern.png') repeat;
+            opacity: 0.15;
+            z-index: 1;
+        }
+
+        .health-banner-content {
+            position: relative;
+            z-index: 2;
+            max-width: 850px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: var(--health-shadow);
+        }
+
+        .health-banner-content h1 {
+            font-size: 3em;
+            font-weight: 700;
+            color: var(--health-text);
+            margin: 0 0 15px;
+            animation: slideInFromLeft 1s ease-out forwards;
+        }
+
+        .health-banner-content p {
+            font-size: 1.4em;
+            font-style: italic;
+            color: var(--health-text);
+            margin: 0 0 25px;
+            animation: slideInFromRight 1s ease-out 0.3s forwards;
+            opacity: 0;
+        }
+
+        .health-banner-content .cta-button {
+            display: inline-block;
+            padding: 14px 30px;
+            background: var(--health-accent);
+            color: var(--health-secondary);
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 400;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .health-banner-content .cta-button:hover {
+            background: var(--health-primary);
+            transform: scale(1.05);
+        }
+
+        @keyframes slideInFromLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInFromRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        /* Services Section */
+        .health-services {
+            max-width: 1250px;
+            margin: 40px auto; /* Reduced margin for tighter layout */
+            padding: 50px 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 30px;
+        }
+
+        .health-service {
+            background: var(--health-secondary);
+            border-radius: 15px;
+            box-shadow: var(--health-shadow);
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .health-service::before {
+            content: '✚'; /* Medical cross symbol */
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 2.2em;
+            color: var(--health-accent);
+            opacity: 0.25;
+            transition: opacity 0.3s ease;
+        }
+
+        .health-service:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 5px 15px rgba(179, 229, 252, 0.4);
+        }
+
+        .health-service:hover::before {
+            opacity: 0.5;
+        }
+
+        .health-service a {
+            display: block;
+            padding: 15px;
+            color: var(--health-text);
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: 400;
+            transition: color 0.3s ease;
+        }
+
+        .health-service a:hover {
+            color: var(--health-accent);
+        }
+
+        .health-service-icon {
+            font-size: 2.8em;
+            color: var(--health-accent);
+            margin-bottom: 15px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .health-banner {
+                min-height: 420px;
+                margin-top: 0; /* Tight fit under mobile header */
+            }
+
+            .health-banner-content {
+                padding: 30px;
+            }
+
+            .health-banner-content h1 {
+                font-size: 2.3em;
+            }
+
+            .health-banner-content p {
+                font-size: 1.2em;
+            }
+
+            .health-banner-content .cta-button {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+
+            .health-services {
+                padding: 40px 10px;
+                gap: 20px;
+            }
+
+            .health-service {
+                padding: 20px;
+            }
+
+            .health-service a {
+                font-size: 1.1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .health-banner-content h1 {
+                font-size: 1.9em;
+            }
+
+            .health-banner-content p {
+                font-size: 1em;
+            }
+
+            .health-service {
+                padding: 15px;
+            }
+
+            .health-service-icon {
+                font-size: 2.2em;
+            }
+        }
+    </style>
+</head>
+<body class="health-body">
     <!-- Include Header -->
     <div th:replace="benhnhan/fragments/header :: header"></div>
 
     <!-- Main Content Section -->
     <main>
-        <section class="banner">
-            <div class="banner-content">
-                <h1>Chào mừng đến hệ thống khám bệnh!</h1>
-                <p>Trung tâm y tế chất lượng cao</p>
+        <section class="health-banner">
+            <div class="health-banner-content">
+                <h1>Chào Mừng Đến Hệ Thống Y Tế Của Sự Chăm Sóc!</h1>
+                <p>Đồng hành cùng bạn vì một sức khỏe bền vững</p>
+                <a th:href="@{/user/dangkylichkham}" class="cta-button">Đặt Lịch Ngay</a>
             </div>
         </section>
 
         <!-- Services Section -->
-        <section class="services">
-            <div class="service">
+        <section class="health-services">
+            <div class="health-service">
+                <div class="health-service-icon">📅</div>
                 <a th:href="@{/view/schedule}">Lịch Làm Việc</a>
             </div>
-            <div class="service">
+            <div class="health-service">
+                <div class="health-service-icon">🩺</div>
                 <a th:href="@{/user/dangkylichkham}">Đặt Hẹn Khám</a>
             </div>
-            <div class="service">
-                <a th:href="@{/health-chart}">Chỉ số sức khỏe</a>
+            <div class="health-service">
+                <div class="health-service-icon">📊</div>
+                <a th:href="@{/health-chart}">Chỉ Số Sức Khỏe</a>
             </div>
-             <div class="service">
-                <a th:href="@{/chat/msgbn}">💬 Nhắn tin</a>
+            <div class="health-service">
+                <div class="health-service-icon">💬</div>
+                <a th:href="@{/chat/msgbn}">Nhắn Tin</a>
             </div>
-           
-         
         </section>
     </main>
 
     <!-- Include Footer -->
     <div th:replace="benhnhan/fragments/footer :: footer"></div>
-
 </body>
 </html>

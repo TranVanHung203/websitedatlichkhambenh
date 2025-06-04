@@ -23,7 +23,7 @@ public class DonThuoc implements Serializable {
     @Column(name = "don_thuoc_id")
     private Long donThuocId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ho_so_id")
     private HoSoBenh hoSoBenh;
 

@@ -1,350 +1,1203 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-
 <head>
-	<meta charset="UTF-8">
-	<title>Xem Lịch Bác Sĩ</title>
-	<link rel="stylesheet" th:href="@{/css/xemlichbacsi.css}">
-	<link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem Lịch Bác Sĩ</title>
+    <link rel="stylesheet" th:href="@{/css/xemlichbacsi.css}">
+    <link rel="stylesheet" th:href="@{/css/headerbenhnhan.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Scoped to .container to avoid conflicts with headerbenhnhan.css */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .container__title {
+            color: #1a3c5e;
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .container__doctor-select {
+            margin-bottom: 30px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .container__doctor-select select,
+        .container__doctor-select input[type="date"] {
+            padding: 12px 15px;
+            width: 200px;
+            border-radius: 8px;
+            border: 2px solid #d1dbe3;
+            font-size: 16px;
+            background-color: #f9fafc;
+            color: #34495e;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container__doctor-select select:hover,
+        .container__doctor-select input[type="date"]:hover {
+            border-color: #3498db;
+        }
+
+        .container__doctor-select select:focus,
+        .container__doctor-select input[type="date"]:focus {
+            border-color: #2980b9;
+            box-shadow: 0 0 8px rgba(41, 128, 185, 0.3);
+        }
+
+        .container__reload-btn {
+            padding: 12px 20px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .container__reload-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .container__schedule-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .container__schedule-table th {
+            background-color: #2c6b9e;
+            color: #ffffff;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid #1a4a75;
+        }
+
+        .container__schedule-table td {
+            padding: 15px;
+            border: 1px solid #e0e6eb;
+            font-size: 15px;
+            color: #1a2c3d;
+            text-align: center;
+            background-color: #f9fbfc;
+        }
+
+        .container__schedule-table tr:nth-child(even) td {
+            background-color: #e8f0f5;
+        }
+
+        .container__schedule-table tr:hover td {
+            background-color: #d9e6f0;
+            transition: background-color 0.2s ease;
+        }
+
+        .container__schedule-table th:nth-child(6),
+        .container__schedule-table td:nth-child(6) {
+            width: 120px;
+            text-align: center;
+        }
+
+        .container__no-data {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 25px;
+            font-style: italic;
+            font-size: 16px;
+            background-color: #f4f7f9;
+            border-radius: 8px;
+        }
+
+        .container__pagination-controls {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .container__pagination-controls button.active {
+            background-color: #1d6fa5;
+            color: #fff;
+            font-weight: bold;
+            cursor: default;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .container__pagination-controls button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .container__pagination-controls button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .container__pagination-controls button:hover {
+            background-color: #2980b9;
+        }
+
+        .container__register-btn {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .container__register-btn:hover {
+            background-color: #45a049;
+        }
+
+        .container__checkin-btn {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .container__checkin-btn:hover {
+            background-color: #e68900;
+        }
+
+        .container__checked-in {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .container__status-in-progress {
+            color: #0d6efd;
+            font-weight: bold;
+        }
+
+        .container__status-cancelled {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .container__status-paid {
+            color: #8b5cf6;
+            font-weight: bold;
+        }
+
+        .container__modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .container__modal-content {
+            background-color: #ffffff;
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .container__modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .container__modal-close:hover,
+        .container__modal-close:focus {
+            color: #1a2c3d;
+            text-decoration: none;
+        }
+
+        .container__modal-content h2 {
+            color: #1a3c5e;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .container__modal-content h3 {
+            color: #2c6b9e;
+            margin: 20px 0 10px;
+            font-size: 18px;
+        }
+
+        .container__detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .container__detail-table th,
+        .container__detail-table td {
+            padding: 12px;
+            border: 1px solid #e0e6eb;
+            text-align: left;
+            font-size: 15px;
+        }
+
+        .container__detail-table th {
+            background-color: #2c6b9e;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .container__detail-table td {
+            background-color: #f9fbfc;
+        }
+
+        .container__detail-table tr:nth-child(even) td {
+            background-color: #e8f0f5;
+        }
+
+        .container__phieu-xet-nghiem-table th:nth-child(1),
+        .container__phieu-xet-nghiem-table td:nth-child(1) {
+            width: 70%;
+        }
+
+        .container__phieu-xet-nghiem-table th:nth-child(2),
+        .container__phieu-xet-nghiem-table td:nth-child(2) {
+            width: 30%;
+            text-align: right;
+        }
+
+        .container__total {
+            text-align: right;
+            font-size: 18px;
+            margin-top: 20px;
+            color: #1a2c3d;
+        }
+
+        .container__total span {
+            font-weight: bold;
+            color: #2c6b9e;
+        }
+
+        .container__modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .container__payment-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%);
+            color: #ffffff;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3);
+        }
+
+        .container__payment-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .container__payment-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+        }
+
+        .container__cancel-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            background-color: #dc3545;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .container__cancel-btn:hover {
+            background-color: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            .container__modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 15px;
+            }
+
+            .container__detail-table th,
+            .container__detail-table td {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .container__schedule-table {
+                font-size: 14px;
+            }
+
+            .container__schedule-table th,
+            .container__schedule-table td {
+                padding: 12px;
+            }
+
+            .container__phieu-xet-nghiem-table th:nth-child(1),
+            .container__phieu-xet-nghiem-table td:nth-child(1) {
+                width: 65%;
+            }
+
+            .container__phieu-xet-nghiem-table th:nth-child(2),
+            .container__phieu-xet-nghiem-table td:nth-child(2) {
+                width: 35%;
+            }
+
+            .container__doctor-select {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .container__doctor-select select,
+            .container__doctor-select input[type="date"],
+            .container__doctor-select button {
+                width: 100%;
+                max-width: 300px;
+                margin-bottom: 10px;
+            }
+
+            .container__pagination-controls button {
+                padding: 8px 15px;
+                font-size: 14px;
+                margin: 5px;
+            }
+
+            .container__payment-btn,
+            .container__cancel-btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+        }
+
+        .container__disabled-btn {
+            background-color: #6c757d !important;
+            cursor: not-allowed !important;
+            opacity: 0.6 !important;
+        }
+
+        .container__disabled-btn:hover {
+            background-color: #6c757d !important;
+            transform: none !important;
+        }
+
+        .container__review-payment-btn {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .container__review-payment-btn:hover {
+            background-color: #138496;
+        }
+
+        .container__payment-method {
+            margin: 15px 0;
+        }
+
+        .container__payment-method label {
+            display: block;
+            margin: 5px 0;
+        }
+    </style>
 </head>
-
 <body>
-	<!-- Header nhân viên -->
-	<div th:replace="~{nhanvien/fragments/header :: header}"></div>
+    <!-- Header nhân viên -->
+    <div th:replace="~{nhanvien/fragments/header :: header}"></div>
 
-	<div class="container">
-		<!-- Thông báo tùy chỉnh -->
-		<div class="notification" id="notification" style="display: none;"></div>
+    <div class="container">
+        <h1 class="container__title">Xem Lịch Làm Việc Của Bác Sĩ</h1>
 
-		<h1>Xem Lịch Làm Việc Của Bác Sĩ</h1>
+        <!-- Chọn chuyên khoa, bác sĩ, ngày và nút reload -->
+        <div class="container__doctor-select">
+            <select id="chuyenKhoaSelect" onchange="loadDoctorsBySpecialty()">
+                <option value="">Chọn chuyên khoa</option>
+                <option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.chuyenKhoaId}" th:text="${chuyenKhoa.ten}"></option>
+            </select>
+            <select id="doctorSelect" onchange="loadSchedule()">
+                <option value="">Chọn bác sĩ</option>
+            </select>
+            <input type="date" id="dateSelect" onchange="loadSchedule()" />
+            <button id="reloadScheduleBtn" class="container__reload-btn">Tải lại lịch</button>
+        </div>
 
-		<!-- Chọn chuyên khoa, bác sĩ và ngày -->
-		<div class="doctor-select">
-			<select id="chuyenKhoaSelect" onchange="loadDoctorsBySpecialty()">
-				<option value="">Chọn chuyên khoa</option>
-				<option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.chuyenKhoaId}"
-					th:text="${chuyenKhoa.ten}"></option>
-			</select>
+        <!-- Phân trang theo ca khám -->
+        <div class="container__pagination-controls">
+            <div id="paginationButtons"></div>
+        </div>
 
-			<select id="doctorSelect" onchange="loadSchedule()">
-				<option value="">Chọn bác sĩ</option>
-			</select>
+        <!-- Bảng lịch khám -->
+        <table class="container__schedule-table" id="scheduleTable">
+            <thead>
+                <tr>
+                    <th>Giờ bắt đầu</th>
+                    <th>Giờ kết thúc</th>
+                    <th>Trạng thái</th>
+                    <th>Tên bệnh nhân</th>
+                    <th>Số điện thoại</th>
+                    <th>Thanh toán</th>
+                </tr>
+            </thead>
+            <tbody id="scheduleBody">
+                <tr>
+                    <td colspan="6" class="container__no-data">Vui lòng chọn chuyên khoa, bác sĩ và ngày để xem lịch</td>
+                </tr>
+            </tbody>
+        </table>
 
-			<input type="date" id="dateSelect" onchange="loadSchedule()" />
-		</div>
+        <!-- Modal thanh toán -->
+        <div id="paymentModal" class="container__modal">
+            <div class="container__modal-content">
+                <span class="container__modal-close">×</span>
+                <h2>Chi Tiết Thanh Toán</h2>
+                <div id="paymentDetails">
+                    <!-- Thông tin hồ sơ bệnh -->
+                    <h3>Hồ Sơ Bệnh</h3>
+                    <table class="container__detail-table">
+                        <tr>
+                            <th>Chẩn đoán</th>
+                            <td id="chanDoan">---</td>
+                        </tr>
+                        <tr>
+                            <th>Triệu chứng</th>
+                            <td id="trieuChung">---</td>
+                        </tr>
+                    </table>
 
-		<!-- Phân trang theo ca khám -->
-		<div class="pagination-controls">
-			<!-- Nút phân trang sẽ hiển thị theo dữ liệu -->
-			<div id="paginationButtons"></div>
-		</div>
+                    <!-- Danh sách đơn thuốc -->
+                    <h3>Đơn Thuốc</h3>
+                    <table class="container__detail-table" id="donThuocTable">
+                        <thead>
+                            <tr>
+                                <th>Tên thuốc</th>
+                                <th>Số lượng</th>
+                                <th>Liều dùng</th>
+                                <th>Tần suất</th>
+                                <th>Giá</th>
+                            </tr>
+                        </thead>
+                        <tbody id="donThuocBody">
+                            <tr>
+                                <td colspan="5" class="container__no-data">Không có đơn thuốc</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-		<!-- Bảng lịch khám -->
-		<table class="schedule-table" id="scheduleTable">
-			<thead>
-				<tr>
-					<th>Giờ bắt đầu</th>
-					<th>Giờ kết thúc</th>
-					<th>Trạng thái</th>
-					<th>Tên bệnh nhân</th>
-					<th>Số điện thoại</th>
-				</tr>
-			</thead>
-			<tbody id="scheduleBody">
-				<tr>
-					<td colspan="5" class="no-data">Vui lòng chọn chuyên khoa, bác sĩ và ngày để xem lịch</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+                    <!-- Danh sách phiếu xét nghiệm -->
+                    <h3>Phiếu Xét Nghiệm</h3>
+                    <table class="container__detail-table container__phieu-xet-nghiem-table" id="phieuXetNghiemTable">
+                        <thead>
+                            <tr>
+                                <th>Tên xét nghiệm</th>
+                                <th>Giá (VNĐ)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="phieuXetNghiemBody">
+                            <tr>
+                                <td colspan="2" class="container__no-data">Không có xét nghiệm</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-	<!-- Script -->
-	<script>
-		let fullScheduleData = [];
-		let availableCaList = [];
+                    <!-- Tổng tiền -->
+                    <div class="container__total">
+                        <strong>Tổng tiền:</strong>
+                        <span id="tongTien">0 VNĐ</span>
+                    </div>
 
-		function loadDoctorsBySpecialty() {
-			const chuyenKhoaId = document.getElementById('chuyenKhoaSelect').value;
-			const doctorSelect = document.getElementById('doctorSelect');
-			const tbody = document.getElementById('scheduleBody');
+                    <!-- Chọn phương thức thanh toán -->
+                    <h3>Chọn phương thức thanh toán</h3>
+                    <div class="container__payment-method">
+                        <label><input type="radio" name="paymentMethod" value="cash" checked> Thanh toán bằng tiền mặt</label>
+                        <label><input type="radio" name="paymentMethod" value="creditCard"> Thanh toán bằng Credit Card</label>
+                    </div>
+                </div>
+                <div class="container__modal-footer">
+                    <button id="confirmPaymentBtn" class="container__payment-btn">Xác nhận thanh toán</button>
+                    <button id="cancelPaymentBtn" class="container__cancel-btn">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-			doctorSelect.innerHTML = '<option value="">Đang tải...</option>';
-			tbody.innerHTML = '<tr><td colspan="5" class="no-data">Vui lòng chọn chuyên khoa, bác sĩ và ngày để xem lịch</td></tr>';
+    <script>
+        let fullScheduleData = [];
+        let availableCaList = [];
+        let currentSlotId = null;
+        let currentCa = null;
+        let currentHoSoId = null;
 
-			if (!chuyenKhoaId) {
-				doctorSelect.innerHTML = '<option value="">Chọn bác sĩ</option>';
-				return;
-			}
+        // Initialize the page with query parameters
+        function initializePage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const doctorId = urlParams.get('doctorId');
+            const date = urlParams.get('date');
+            const error = urlParams.get('error');
 
-			fetch('/nhanvien/xemlichbacsi/doctors-by-specialty?chuyenKhoaId=' + chuyenKhoaId)
-				.then(response => response.json())
-				.then(data => {
-					doctorSelect.innerHTML = '<option value="">Chọn bác sĩ</option>';
-					if (!Array.isArray(data) || data.length === 0) {
-						doctorSelect.innerHTML = '<option value="">Không có bác sĩ trong chuyên khoa này</option>';
-						return;
-					}
-					data.forEach(doctor => {
-						const option = document.createElement('option');
-						option.value = doctor.bacSiId;
-						option.textContent = doctor.ten;
-						doctorSelect.appendChild(option);
-					});
-				})
-				.catch(error => {
-					console.error('Lỗi:', error);
-					doctorSelect.innerHTML = '<option value="">Đã xảy ra lỗi khi tải danh sách bác sĩ</option>';
-				});
-		}
+            if (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: decodeURIComponent(error),
+                });
+            }
 
-		function loadSchedule() {
-			const doctorId = document.getElementById('doctorSelect').value;
-			const selectedDate = document.getElementById('dateSelect').value;
-			const tbody = document.getElementById('scheduleBody');
+            if (doctorId && date) {
+                document.getElementById('dateSelect').value = date;
+                const doctorSelect = document.getElementById('doctorSelect');
+                const chuyenKhoaId = document.getElementById('chuyenKhoaSelect').value;
 
-			if (!doctorId || !selectedDate) {
-				tbody.innerHTML = '<tr><td colspan="5" class="no-data">Vui lòng chọn chuyên khoa, bác sĩ và ngày để xem lịch</td></tr>';
-				return;
-			}
+                if (chuyenKhoaId) {
+                    loadDoctorsBySpecialty().then(() => {
+                        if (doctorSelect.querySelector(`option[value="${doctorId}"]`)) {
+                            doctorSelect.value = doctorId;
+                            loadSchedule();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: 'Bác sĩ không thuộc chuyên khoa đã chọn!',
+                            });
+                        }
+                    });
+                } else {
+                    if (doctorSelect.querySelector(`option[value="${doctorId}"]`)) {
+                        doctorSelect.value = doctorId;
+                        loadSchedule();
+                    } else {
+                        fetch(`/nhanvien/xemlichbacsi/doctors-by-specialty?chuyenKhoaId=0`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const doctor = data.find(d => d.bacSiId === doctorId);
+                                if (doctor) {
+                                    const option = document.createElement('option');
+                                    option.value = doctor.bacSiId;
+                                    option.textContent = doctor.ten;
+                                    doctorSelect.appendChild(option);
+                                    doctorSelect.value = doctorId;
+                                    loadSchedule();
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Lỗi',
+                                        text: 'Không tìm thấy bác sĩ!',
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Lỗi:', error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Lỗi',
+                                    text: 'Không thể tải thông tin bác sĩ!',
+                                });
+                            });
+                    }
+                }
+            }
 
-			fetch(`/nhanvien/xemlichbacsi/schedule?doctorId=${doctorId}&date=${selectedDate}`)
-				.then(response => response.json())
-				.then(data => {
-					fullScheduleData = data;
-					availableCaList = [...new Set(data.map(item => item.caKham))];
-					createPaginationButtons();
-					if (availableCaList.length > 0) {
-						showPage(availableCaList[0]);
-					} else {
-						tbody.innerHTML = '<tr><td colspan="5" class="no-data">Không có lịch khám cho bác sĩ trong ngày này</td></tr>';
-					}
-				})
-				.catch(error => {
-					console.error('Error:', error);
-					tbody.innerHTML = '<tr><td colspan="5" class="no-data">Đã xảy ra lỗi khi tải lịch</td></tr>';
-				});
-		}
+            // Bind reload button
+            document.getElementById('reloadScheduleBtn').onclick = function () {
+                loadSchedule();
+            };
+        }
 
-		function createPaginationButtons() {
-			const paginationContainer = document.getElementById('paginationButtons');
-			paginationContainer.innerHTML = '';
-			availableCaList.forEach(ca => {
-				const button = document.createElement('button');
-				button.textContent = 'Ca ' + ca;
-				button.onclick = () => showPage(ca);
-				paginationContainer.appendChild(button);
-			});
-		}
+        function loadDoctorsBySpecialty() {
+            return new Promise((resolve, reject) => {
+                const chuyenKhoaId = document.getElementById('chuyenKhoaSelect').value;
+                const doctorSelect = document.getElementById('doctorSelect');
+                const tbody = document.getElementById('scheduleBody');
 
-		function showPage(ca) {
-			const tbody = document.getElementById('scheduleBody');
-			tbody.innerHTML = '';
+                doctorSelect.innerHTML = '<option value="">Đang tải...</option>';
+                tbody.innerHTML = '<tr><td colspan="6" class="container__no-data">Vui lòng chọn chuyên khoa, bác sĩ và ngày để xem lịch</td></tr>';
 
-			// Khung giờ mặc định cho từng ca
-			const khungGioCa = {
-				"Sáng": ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"],
-				"Chiều": ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"],
-				"Ngoài Giờ": ["17:00", "17:30", "18:00", "18:30", "19:00", "19:30"]
-			};
+                if (!chuyenKhoaId) {
+                    doctorSelect.innerHTML = '<option value="">Chọn bác sĩ</option>';
+                    resolve();
+                    return;
+                }
 
-			// Cập nhật trạng thái active cho các nút
-			const buttons = document.querySelectorAll('.pagination-controls button');
-			buttons.forEach(btn => {
-				btn.classList.toggle('active', btn.textContent === 'Ca ' + ca);
-			});
+                fetch('/nhanvien/xemlichbacsi/doctors-by-specialty?chuyenKhoaId=' + chuyenKhoaId)
+                    .then(response => response.json())
+                    .then(data => {
+                        doctorSelect.innerHTML = '<option value="">Chọn bác sĩ</option>';
+                        if (!Array.isArray(data) || data.length === 0) {
+                            doctorSelect.innerHTML = '<option value="">Không có bác sĩ trong chuyên khoa này</option>';
+                            resolve();
+                            return;
+                        }
+                        data.forEach(doctor => {
+                            const option = document.createElement('option');
+                            option.value = doctor.bacSiId;
+                            option.textContent = doctor.ten;
+                            doctorSelect.appendChild(option);
+                        });
+                        resolve();
+                    })
+                    .catch(error => {
+                        console.error('Lỗi:', error);
+                        doctorSelect.innerHTML = '<option value="">Đã xảy ra lỗi khi tải danh sách bác sĩ</option>';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Không thể tải danh sách bác sĩ!',
+                        });
+                        reject(error);
+                    });
+            });
+        }
 
-			const timeSlots = khungGioCa[ca];
-			if (!timeSlots) {
-				tbody.innerHTML = `<tr><td colspan="5" class="no-data">Không có khung giờ mặc định cho ca ${ca}</td></tr>`;
-				return;
-			}
+        function loadSchedule() {
+            const doctorId = document.getElementById('doctorSelect').value;
+            const selectedDate = document.getElementById('dateSelect').value;
+            const tbody = document.getElementById('scheduleBody');
 
-			// Tạo map từ giờ bắt đầu -> thông tin slot
-			const slotMap = {};
-			fullScheduleData
-				.filter(item => item.caKham === ca && item.thoiGianBatDau !== "---")
-				.forEach(item => {
-					slotMap[item.thoiGianBatDau] = item;
-				});
+            if (!doctorId || !selectedDate) {
+                tbody.innerHTML = '<tr><td colspan="6" class="container__no-data">Vui lòng chọn chuyên khoa, bác sĩ và ngày để xem lịch</td></tr>';
+                return;
+            }
 
-			// Lấy thông tin doctorId và date từ các input
-			const doctorId = document.getElementById('doctorSelect').value;
-			const selectedDate = document.getElementById('dateSelect').value;
+            fetch(`/nhanvien/xemlichbacsi/schedule?doctorId=${doctorId}&date=${selectedDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    fullScheduleData = data;
+                    availableCaList = [...new Set(data.map(item => item.caKham))];
+                    createPaginationButtons();
+                    const activeCa = getCurrentCa() || currentCa;
 
-			// Duyệt qua khung giờ mặc định
-			for (let i = 0; i < timeSlots.length - 1; i++) {
-				const start = timeSlots[i];
-				const end = timeSlots[i + 1];
-				const slot = slotMap[start];
+                    if (availableCaList.length > 0) {
+                        if (activeCa && availableCaList.includes(activeCa)) {
+                            showPage(activeCa);
+                        } else {
+                            showPage(availableCaList[0]);
+                            currentCa = availableCaList[0];
+                        }
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="6" class="container__no-data">Không có lịch khám cho bác sĩ trong ngày này</td></tr>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+                    tbody.innerHTML = '<tr><td colspan="6" class="container__no-data">Đã xảy ra lỗi khi tải lịch</td></tr>';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Không thể tải lịch khám!',
+                    });
+                });
+        }
 
-				const row = document.createElement('tr');
-				if (slot) {
-					// Nếu đã có slot, hiển thị trạng thái và thông tin bệnh nhân
-					if (slot.trangThai === "Đã đặt"||slot.trangThai=="Đang chờ") {
-						row.innerHTML = `
+        function createPaginationButtons() {
+            const paginationContainer = document.getElementById('paginationButtons');
+            paginationContainer.innerHTML = '';
+            availableCaList.forEach(ca => {
+                const button = document.createElement('button');
+                button.textContent = 'Ca ' + ca;
+                button.className = currentCa === ca ? 'active' : '';
+                button.onclick = () => showPage(ca);
+                paginationContainer.appendChild(button);
+            });
+        }
+
+        function showPage(ca) {
+            const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = '';
+
+            const khungGioCa = {
+                "Sáng": ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"],
+                "Chiều": ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"],
+                "Ngoài Giờ": ["17:00", "17:30", "18:00", "18:30", "19:00", "19:30"]
+            };
+
+            const buttons = document.querySelectorAll('.container__pagination-controls button');
+            buttons.forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === 'Ca ' + ca);
+            });
+
+            currentCa = ca;
+
+            const timeSlots = khungGioCa[ca];
+            if (!timeSlots) {
+                tbody.innerHTML = `<tr><td colspan="6" class="container__no-data">Không có khung giờ mặc định cho ca ${ca}</td></tr>`;
+                return;
+            }
+
+            const slotMap = {};
+            fullScheduleData
+                .filter(item => item.caKham === ca && item.thoiGianBatDau !== "---")
+                .forEach(item => {
+                    slotMap[item.thoiGianBatDau] = item;
+                });
+
+            const doctorId = document.getElementById('doctorSelect').value;
+            const selectedDate = document.getElementById('dateSelect').value;
+
+            for (let i = 0; i < timeSlots.length - 1; i++) {
+                const start = timeSlots[i];
+                const end = timeSlots[i + 1];
+                const slot = slotMap[start];
+
+                const row = document.createElement('tr');
+                if (slot) {
+                    if (slot.trangThai === "Đã đặt" || slot.trangThai === "Đang chờ") {
+                        row.innerHTML = `
+                            <td>${start}</td>
+                            <td>${end}</td>
+                            <td>
+                                ${slot.trangThai}
+                                <button class="container__checkin-btn" onclick="checkInPatient('${slot.slotId}', '${ca}')">
+                                    Check-in
+                                </button>
+                            </td>
+                            <td>${slot.tenBenhNhan}</td>
+                            <td>${slot.soDienThoai}</td>
+                            <td>-</td>
+                        `;
+                    } else if (slot.trangThai === "Đã khám xong") {
+                        const buttonHtml = slot.daThanhToan == 1
+                            ? `<button class="container__payment-btn container__disabled-btn" disabled>Đã thanh toán</button>`
+                            : `<button class="container__payment-btn" onclick="showPaymentModal('${slot.slotId}', '${ca}')">Thanh toán</button>`;
+                        row.innerHTML = `
+                            <td>${start}</td>
+                            <td>${end}</td>
+                            <td>
+                                <span class="container__checked-in">✅ ${slot.trangThai}</span>
+                            </td>
+                            <td>${slot.tenBenhNhan}</td>
+                            <td>${slot.soDienThoai}</td>
+                            <td>${buttonHtml}</td>
+                        `;
+                    } else if (slot.trangThai === "Đang khám") {
+                        row.innerHTML = `
+                            <td>${start}</td>
+                            <td>${end}</td>
+                            <td><span class="container__status-in-progress">🩺 ${slot.trangThai}</span></td>
+                            <td>${slot.tenBenhNhan}</td>
+                            <td>${slot.soDienThoai}</td>
+                            <td>-</td>
+                        `;
+                    } else if (slot.trangThai === "Đã hủy") {
+                        row.innerHTML = `
+                            <td>${start}</td>
+                            <td>${end}</td>
+                            <td><span class="container__status-cancelled">❌ ${slot.trangThai}</span></td>
+                            <td>${slot.tenBenhNhan}</td>
+                            <td>${slot.soDienThoai}</td>
+                            <td>-</td>
+                        `;
+                    } else if (slot.trangThai === "completed") {
+                        row.innerHTML = `
+                            <td>${start}</td>
+                            <td>${end}</td>
+                            <td><span class="container__status-paid">💳 ${slot.trangThai}</span></td>
+                            <td>${slot.tenBenhNhan}</td>
+                            <td>${slot.soDienThoai}</td>
+                            <td>-</td>
+                        `;
+                    } else {
+                        row.innerHTML = `
+                            <td>${start}</td>
+                            <td>${end}</td>
+                            <td>${slot.trangThai}</td>
+                            <td>${slot.tenBenhNhan}</td>
+                            <td>${slot.soDienThoai}</td>
+                            <td>-</td>
+                        `;
+                    }
+                } else {
+                    row.innerHTML = `
                         <td>${start}</td>
                         <td>${end}</td>
                         <td>
-                            ${slot.trangThai}
-                            <button class="checkin-btn" onclick="checkInPatient('${slot.slotId}', '${ca}')">
-                                Check-in
+                            Chưa có slot
+                            <button class="container__register-btn" onclick="redirectToRegister('${doctorId}', '${selectedDate}', '${ca}', '${start}')">
+                                Đăng ký
                             </button>
                         </td>
-                        <td>${slot.tenBenhNhan}</td>
-                        <td>${slot.soDienThoai}</td>
+                        <td>---</td>
+                        <td>---</td>
+                        <td>-</td>
                     `;
-					} else if (slot.trangThai === "Đã khám xong") {
-						row.innerHTML = `
-                        <td>${start}</td>
-                        <td>${end}</td>
-                        <td>
-                            <span class="checked-in">✅ ${slot.trangThai}</span>
-                        </td>
-                        <td>${slot.tenBenhNhan}</td>
-                        <td>${slot.soDienThoai}</td>
-                    `;
-					} else if (slot.trangThai === "Đang khám") {
-						row.innerHTML = `
-	<td>${start}</td>
-	<td>${end}</td>
-	<td><span class="status-in-progress">🩺 ${slot.trangThai}</span></td>
-	<td>${slot.tenBenhNhan}</td>
-	<td>${slot.soDienThoai}</td>
-	`;
-					} else if (slot.trangThai === "Đã hủy") {
-						row.innerHTML = `
-	<td>${start}</td>
-	<td>${end}</td>
-	<td><span class="status-cancelled">❌ ${slot.trangThai}</span></td>
-	<td>${slot.tenBenhNhan}</td>
-	<td>${slot.soDienThoai}</td>
-	`;
-					} else {
-						row.innerHTML = `
-	<td>${start}</td>
-	<td>${end}</td>
-	<td>${slot.trangThai}</td>
-	<td>${slot.tenBenhNhan}</td>
-	<td>${slot.soDienThoai}</td>
-	`;
-					}
+                }
+                tbody.appendChild(row);
+            }
+        }
 
-				} else {
-					// Nếu chưa có slot, thêm nút "Đăng ký"
-					row.innerHTML = `
-                    <td>${start}</td>
-                    <td>${end}</td>
-                    <td>
-                        Chưa có slot
-                        <button class="register-btn" onclick="redirectToRegister('${doctorId}', '${selectedDate}', '${ca}', '${start}')">
-                            Đăng ký
-                        </button>
-                    </td>
-                    <td>---</td>
-                    <td>---</td>
-                `;
-				}
-				tbody.appendChild(row);
-			}
-		}
+        function showPaymentModal(slotId, ca) {
+            currentSlotId = slotId;
+            currentCa = ca;
+            const modal = document.getElementById('paymentModal');
+            const chanDoan = document.getElementById('chanDoan');
+            const trieuChung = document.getElementById('trieuChung');
+            const donThuocBody = document.getElementById('donThuocBody');
+            const phieuXetNghiemBody = document.getElementById('phieuXetNghiemBody');
+            const tongTien = document.getElementById('tongTien');
+            const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
 
-		function showNotification(message, type) {
-			const notification = document.getElementById('notification');
-			if (!notification) {
-				console.error('Không tìm thấy phần tử notification!');
-				return;
-			}
-			notification.innerHTML = type === 'success' ? `✅ ${message}` : `❌ ${message}`;
-			notification.className = `notification ${type}`;
-			notification.style.display = 'block';
+            chanDoan.textContent = '---';
+            trieuChung.textContent = '---';
+            donThuocBody.innerHTML = '<tr><td colspan="5" class="container__no-data">Không có đơn thuốc</td></tr>';
+            phieuXetNghiemBody.innerHTML = '<tr><td colspan="2" class="container__no-data">Không có xét nghiệm</td></tr>';
+            tongTien.textContent = '0 VNĐ';
+            confirmPaymentBtn.style.display = 'block';
 
-			// Tự động ẩn sau 3 giây
-			setTimeout(() => {
-				notification.style.display = 'none';
-			}, 2000);
-		}
+            const paymentMethodDiv = document.querySelector('.container__payment-method');
+            paymentMethodDiv.innerHTML = `
+                <label><input type="radio" name="paymentMethod" value="cash" checked> Thanh toán bằng tiền mặt</label>
+                <label><input type="radio" name="paymentMethod" value="creditCard"> Thanh toán bằng Credit Card</label>
+            `;
 
-		function checkInPatient(slotId, ca) {
-			fetch(`/nhanvien/xemlichbacsi/checkin?slotId=${slotId}`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-				.then(response => {
-					if (!response.ok) {
-						throw new Error('Phản hồi không thành công: ' + response.statusText);
-					}
-					return response.json();
-				})
-				.then(data => {
-					if (data.status === 'success') {
-						showNotification(data.message, 'success');
-						// Đợi thông báo hiển thị xong rồi mới làm mới bảng
-						setTimeout(() => {
-							loadSchedule();
-							showPage(ca);
-						}, 3000); // Đợi 3 giây (bằng thời gian hiển thị thông báo)
-					} else {
-						showNotification(data.message, 'error');
-					}
-				})
-				.catch(error => {
-					console.error('Lỗi:', error);
-					showNotification('Đã xảy ra lỗi khi check-in!', 'error');
-				});
-		}
+            fetch(`/nhanvien/xemlichbacsi/payment/details?slotId=${slotId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Phản hồi không thành công');
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) {
+                        Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không tìm thấy chi tiết thanh toán!' });
+                        return;
+                    }
 
-		function redirectToRegister(doctorId, date, ca, startTime) {
-			// Lưu dữ liệu vào sessionStorage
-			sessionStorage.setItem('doctorId', doctorId);
-			sessionStorage.setItem('selectedDate', date);
-			sessionStorage.setItem('selectedCa', ca);
-			sessionStorage.setItem('selectedTime', startTime);
+                    currentHoSoId = data.hoSoId;
+                    chanDoan.textContent = data.chanDoan || 'Không có chẩn đoán';
+                    trieuChung.textContent = data.trieuChung || 'Không có triệu chứng';
 
-			// Lấy thông tin bác sĩ để lưu tên và chuyên khoa
-			fetch(`/nhanvien/xemlichbacsi/doctors-by-specialty?chuyenKhoaId=0`)
-				.then(response => response.json())
-				.then(data => {
-					const doctor = data.find(d => d.bacSiId === doctorId);
-					if (doctor) {
-						sessionStorage.setItem('doctorName', doctor.ten);
-						sessionStorage.setItem('doctorSpecialty', doctor.chuyenKhoa.ten);
-					}
-					// Tạo URL với các tham số và chuyển hướng
-					const url = `/nhanvien/dangkylichkham/buoc4?doctorId=${doctorId}&date=${date}&ca=${ca}&startTime=${startTime}`;
-					window.location.href = url;
-				})
-				.catch(error => {
-					console.error('Lỗi khi lấy thông tin bác sĩ:', error);
-					// Nếu có lỗi, vẫn chuyển hướng nhưng không có thông tin bác sĩ
-					const url = `/nhanvien/dangkylichkham/buoc4?doctorId=${doctorId}&date=${date}&ca=${ca}&startTime=${startTime}`;
-					window.location.href = url;
-				});
-		}
-	</script>
-	<script>
-	// Hàm lấy ca hiện tại đang hiển thị (dựa trên nút đang active)
-	function getCurrentCa() {
-		const activeButton = document.querySelector('.pagination-controls button.active');
-		if (activeButton) {
-			return activeButton.textContent.replace('Ca ', '').trim();
-		}
-		return null;
-	}
+                    let tongTienThuoc = 0, tongTienXetNghiem = 0;
+                    if (data.thuocList && data.thuocList.length > 0) {
+                        tongTienThuoc = data.thuocList.reduce((sum, thuoc) => sum + (thuoc.gia * thuoc.soLuong), 0);
+                    }
+                    if (data.xetNghiemList && data.xetNghiemList.length > 0) {
+                        tongTienXetNghiem = data.xetNghiemList.reduce((sum, xn) => sum + xn.gia, 0);
+                    }
 
-	// Cập nhật lịch định kỳ mỗi 10 giây
-	setInterval(() => {
-		const currentCa = getCurrentCa();
-		if (currentCa) {
-			loadSchedule(); // Gọi lại API để cập nhật dữ liệu fullScheduleData
-			setTimeout(() => {
-				showPage(currentCa); // Sau khi load xong thì hiển thị lại đúng ca đang xem
-			}, 300); // đợi một chút cho dữ liệu kịp cập nhật
-		}
-	}, 5000); // 10000ms = 10 giây
-</script>
+                    if (data.thuocList && data.thuocList.length > 0) {
+                        donThuocBody.innerHTML = '';
+                        data.thuocList.forEach(thuoc => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${thuoc.tenThuoc}</td>
+                                <td>${thuoc.soLuong}</td>
+                                <td>${thuoc.lieu || 'Không xác định'}</td>
+                                <td>${thuoc.tanSuat || 'Không xác định'}</td>
+                                <td>${(thuoc.gia * thuoc.soLuong).toLocaleString('vi-VN')} VNĐ</td>
+                            `;
+                            donThuocBody.appendChild(row);
+                        });
+                    }
 
+                    if (data.xetNghiemList && data.xetNghiemList.length > 0) {
+                        phieuXetNghiemBody.innerHTML = '';
+                        data.xetNghiemList.forEach(xetNghiem => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${xetNghiem.tenXetNghiem || 'Không xác định'}</td>
+                                <td>${xetNghiem.gia.toLocaleString('vi-VN')} VNĐ</td>
+                            `;
+                            phieuXetNghiemBody.appendChild(row);
+                        });
+                    }
+
+                    tongTien.textContent = data.tongTien ? data.tongTien.toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ';
+
+                    if (data.daThanhToan) {
+                        confirmPaymentBtn.disabled = true;
+                        confirmPaymentBtn.textContent = 'Đã thanh toán';
+                        confirmPaymentBtn.classList.add('container__disabled-btn');
+                    } else {
+                        confirmPaymentBtn.disabled = false;
+                        confirmPaymentBtn.textContent = 'Xác nhận thanh toán';
+                        confirmPaymentBtn.classList.remove('container__disabled-btn');
+                    }
+
+                    modal.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Đã xảy ra lỗi khi tải chi tiết thanh toán!'
+                    });
+                });
+        }
+
+        function processPayment() {
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const modal = document.getElementById('paymentModal');
+
+            if (paymentMethod === 'cash') {
+                fetch(`/nhanvien/xemlichbacsi/payment/confirm?hoSoId=${currentHoSoId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công',
+                                text: 'Thanh toán thành công!',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            modal.style.display = 'none';
+                            setTimeout(() => loadSchedule(), 1500);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: data.message
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Lỗi:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Đã xảy ra lỗi khi xử lý thanh toán!'
+                        });
+                    });
+            } else if (paymentMethod === 'creditCard') {
+                fetch(`/nhanvien/xemlichbacsi/payment/credit-card?hoSoId=${currentHoSoId}&paymentMethod=${paymentMethod}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Phản hồi không thành công');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'success') {
+                            const paymentDetails = document.getElementById('paymentDetails');
+                            paymentDetails.innerHTML = `
+                                <h3>Thanh Toán qua Credit Card</h3>
+                                <p>Vui lòng nhấp vào liên kết dưới để hoàn tất thanh toán.</p>
+                                <p><a id="paymentLink" href="${data.payUrl}" target="_blank">Mở liên kết thanh toán</a></p>
+                            `;
+                            window.open(data.payUrl, '_blank');
+
+                            const orderId = data.orderId;
+                            let checkInterval = setInterval(() => {
+                                fetch(`/nhanvien/xemlichbacsi/payment/check-status?orderId=${orderId}`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' }
+                                })
+                                    .then(response => {
+                                        if (!response.ok) throw new Error('Phản hồi không thành công: ' + response.statusText);
+                                        return response.json();
+                                    })
+                                    .then(statusData => {
+                                        if (statusData.status === 'success') {
+                                            clearInterval(checkInterval);
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Thành công',
+                                                text: 'Thanh toán qua Credit Card thành công!',
+                                                timer: 1500,
+                                                showConfirmButton: false
+                                            });
+                                            modal.style.display = 'none';
+                                            setTimeout(() => loadSchedule(), 1500);
+                                        } else if (statusData.status === 'error') {
+                                            clearInterval(checkInterval);
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Lỗi',
+                                                text: statusData.message
+                                            });
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Lỗi khi kiểm tra trạng thái:', error);
+                                        clearInterval(checkInterval);
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Lỗi',
+                                            text: 'Đã xảy ra lỗi khi kiểm tra trạng thái thanh toán!'
+                                        });
+                                    });
+                            }, 3000);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: data.message || 'Không thể tạo đơn hàng!'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Lỗi:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: error.message || 'Đã xảy ra lỗi khi tạo đơn hàng!'
+                        });
+                    });
+            }
+        }
+
+        function checkInPatient(slotId, ca) {
+            fetch(`/nhanvien/xemlichbacsi/checkin?slotId=${slotId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Phản hồi không thành công: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => {
+                            loadSchedule();
+                        }, 1500);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: data.message,
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Đã xảy ra lỗi khi check-in!',
+                    });
+                });
+        }
+
+        function redirectToRegister(doctorId, date, ca, startTime) {
+            sessionStorage.setItem('doctorId', doctorId);
+            sessionStorage.setItem('selectedDate', date);
+            sessionStorage.setItem('selectedCa', ca);
+            sessionStorage.setItem('selectedTime', startTime);
+
+            fetch(`/nhanvien/xemlichbacsi/doctors-by-specialty?chuyenKhoaId=0`)
+                .then(response => response.json())
+                .then(data => {
+                    const doctor = data.find(d => d.bacSiId === doctorId);
+                    if (doctor) {
+                        sessionStorage.setItem('doctorName', doctor.ten);
+                        sessionStorage.setItem('doctorSpecialty', doctor.chuyenKhoa.ten);
+                    }
+                    const url = `/nhanvien/dangkylichkham/buoc4?doctorId=${doctorId}&date=${date}&ca=${ca}&startTime=${startTime}`;
+                    window.location.href = url;
+                })
+                .catch(error => {
+                    console.error('Lỗi khi lấy thông tin bác sĩ:', error);
+                    const url = `/nhanvien/dangkylichkham/buoc4?doctorId=${doctorId}&date=${date}&ca=${ca}&startTime=${startTime}`;
+                    window.location.href = url;
+                });
+        }
+
+        function getCurrentCa() {
+            const activeButton = document.querySelector('.container__pagination-controls button.active');
+            if (activeButton) {
+                return activeButton.textContent.replace('Ca ', '').trim();
+            }
+            return null;
+        }
+
+        // Modal handling
+        const modal = document.getElementById('paymentModal');
+        const closeModal = document.querySelector('.container__modal-close');
+        const cancelBtn = document.getElementById('cancelPaymentBtn');
+        const confirmBtn = document.getElementById('confirmPaymentBtn');
+
+        closeModal.onclick = function () {
+            modal.style.display = 'none';
+        };
+
+        cancelBtn.onclick = function () {
+            modal.style.display = 'none';
+        };
+
+        confirmBtn.onclick = function () {
+            processPayment();
+        };
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        window.onload = function () {
+            initializePage();
+        };
+    </script>
 </body>
-
 </html>
