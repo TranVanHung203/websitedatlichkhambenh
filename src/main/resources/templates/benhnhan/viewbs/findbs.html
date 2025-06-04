@@ -40,13 +40,13 @@
         </div>
 
         <div class="pagination">
-            <a th:href="@{'/findbs?page=' + (${currentPage - 1}) + '&section=' + ${currentSection}}"
+            <a th:href="@{'/findbs?page=' + (${currentPage - 1}) +'&'+ 'section=' + ${currentSection}}"
                 th:if="${bacSiPage.hasPrevious()}" class="page-link">«</a>
             <span th:each="i : ${#numbers.sequence(0, bacSiPage.totalPages - 1)}">
-                <a th:href="@{'/findbs?page=' + ${i} + '&section=' + ${currentSection}}" th:text="${i + 1}"
+                <a th:href="@{'/findbs?page=' + ${i} +'&'+ 'section=' + ${currentSection}}" th:text="${i + 1}"
                     th:class="${currentPage == i} ? 'page-link active' : 'page-link'"></a>
             </span>
-            <a th:href="@{'/findbs?page=' + (${currentPage + 1}) + '&section=' + ${currentSection}}"
+            <a th:href="@{'/findbs?page=' + (${currentPage + 1}) +'&'+ 'section=' + ${currentSection}}"
                 th:if="${bacSiPage.hasNext()}" class="page-link">»</a>
         </div>
     </div>
