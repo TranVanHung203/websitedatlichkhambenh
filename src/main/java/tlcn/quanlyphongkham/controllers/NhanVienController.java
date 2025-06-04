@@ -661,8 +661,8 @@ public class NhanVienController {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // Format as yyyy-MM-dd
 			String ngay = thoiGianTao.format(formatter);
 			String encodedNgay = URLEncoder.encode(ngay, StandardCharsets.UTF_8.name());
-			String redirectUrl = "http://localhost:8080/nhanvien/xemlichbacsi/payment/confirm-momo?idBacSi="+idBacSi+"&ngay="+encodedNgay;
-			String ipnUrl = "http://localhost:8080/nhanvien/xemlichbacsi/payment/momo-ipn";
+			String redirectUrl = "https://websitedatlichkhambenh-mi5p.onrender.com/nhanvien/xemlichbacsi/payment/confirm-momo?idBacSi="+idBacSi+"&ngay="+encodedNgay;
+			String ipnUrl = "https://websitedatlichkhambenh-mi5p.onrender.com/nhanvien/xemlichbacsi/payment/momo-ipn";
 			String requestId = UUID.randomUUID().toString();
 			String orderId = "ORDER_" + hoSoId + "_" + System.currentTimeMillis();
 			String orderInfo = "Thanh toán hồ sơ bệnh " + hoSoId;
