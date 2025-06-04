@@ -118,58 +118,6 @@ public class HoSoBenhService {
 		));
 	}
 
-	public Page<LichSuKhamNhanVienDTO> getLichSuKhamForNhanVien(Pageable pageable) {
-	    Page<Object[]> rawData = hoSoBenhRepository.findLichSuKhamForNhanVienRaw(pageable);
-
-	    return rawData.map(obj -> new LichSuKhamNhanVienDTO(
-	            (String) obj[0], // tenBacSi
-	            (String) obj[1], // tenBenhNhan
-	            (String) obj[2], // dienThoai
-	            (String) obj[3], // ngayKham
-	            (String) obj[4], // chanDoan
-	            (String) obj[5], // trieuChung
-	            (String) obj[6], // thuoc
-	            (String) obj[7], // lieu
-	            (String) obj[8], // tanSuat
-	            (String) obj[9], // soLuong
-	            (BigDecimal) obj[10], // tongTienThuoc
-	            (String) obj[11], // tenXetNghiem
-	            (String) obj[12], // giaXetNghiem
-	            (String) obj[13], // fileKetQua
-	            (BigDecimal) obj[14] // tongTienXetNghiem
-	    ));
-	}
-
-	public Page<LichSuKhamNhanVienDTO> getLichSuKhamForNhanVienWithFilters(String date, String tenBenhNhan,
-			String tenBacSi, Pageable pageable) {
-		// Chuyển hướng đến phương thức mới có tham số dienThoai
-		return getLichSuKhamForNhanVienWithFilters(date, tenBenhNhan, tenBacSi, null, pageable);
-	}
-
-	public Page<LichSuKhamNhanVienDTO> getLichSuKhamForNhanVienWithFilters(String date, String tenBenhNhan,
-	        String tenBacSi, String dienThoai, Pageable pageable) {
-	    Page<Object[]> rawData = hoSoBenhRepository.findLichSuKhamForNhanVienWithFiltersRaw(date, tenBenhNhan, tenBacSi,
-	            dienThoai, pageable);
-
-	    return rawData.map(obj -> new LichSuKhamNhanVienDTO(
-	            (String) obj[0], // tenBacSi
-	            (String) obj[1], // tenBenhNhan
-	            (String) obj[2], // dienThoai
-	            (String) obj[3], // ngayKham
-	            (String) obj[4], // chanDoan
-	            (String) obj[5], // trieuChung
-	            (String) obj[6], // thuoc
-	            (String) obj[7], // lieu
-	            (String) obj[8], // tanSuat
-	            (String) obj[9], // soLuong
-	            (BigDecimal) obj[10], // tongTienThuoc
-	            (String) obj[11], // tenXetNghiem
-	            (String) obj[12], // giaXetNghiem
-	            (String) obj[13], // fileKetQua
-	            (BigDecimal) obj[14] // tongTienXetNghiem
-	    ));
-	}
-
 	public List<HoSoBenh> findByBenhNhanId(String benhNhanId) {
 		// TODO Auto-generated method stub
 		List<HoSoBenh> medicalHistory = hoSoBenhRepository.findByBenhNhanId(benhNhanId);
@@ -177,67 +125,67 @@ public class HoSoBenhService {
 	}
 
 	public PaymentDetailsDTO getPaymentDetailsBySlotId(String slotId) {
-	    List<Object[]> rawResults = hoSoBenhRepository.findPaymentDetailsBySlotId(slotId);
-	    if (rawResults.isEmpty()) {
-	        return null;
-	    }
+		List<Object[]> rawResults = hoSoBenhRepository.findPaymentDetailsBySlotId(slotId);
+		if (rawResults.isEmpty()) {
+			return null;
+		}
 
-	    Object[] obj = rawResults.get(0);
-	    PaymentDetailsDTO dto = new PaymentDetailsDTO();
-	    dto.setHoSoId((String) obj[0]);
-	    dto.setTenBenhNhan((String) obj[1]);
-	    dto.setTenBacSi((String) obj[2]);
-	    dto.setTongTien(obj[3] != null ? new BigDecimal(obj[3].toString()) : BigDecimal.ZERO);
-	    dto.setChanDoan((String) obj[4]);
-	    dto.setTrieuChung((String) obj[5]);
-	    dto.setDaThanhToan((Boolean) obj[6]); // Thêm cột này
+		Object[] obj = rawResults.get(0);
+		PaymentDetailsDTO dto = new PaymentDetailsDTO();
+		dto.setHoSoId((String) obj[0]);
+		dto.setTenBenhNhan((String) obj[1]);
+		dto.setTenBacSi((String) obj[2]);
+		dto.setTongTien(obj[3] != null ? new BigDecimal(obj[3].toString()) : BigDecimal.ZERO);
+		dto.setChanDoan((String) obj[4]);
+		dto.setTrieuChung((String) obj[5]);
+		dto.setDaThanhToan((Boolean) obj[6]); // Thêm cột này
 
-	    // Xử lý donThuocIds
-	    String donThuocIdsStr = (String) obj[7];
-	    if (donThuocIdsStr != null && !donThuocIdsStr.isEmpty()) {
-	        dto.setDonThuocIds(Arrays.asList(donThuocIdsStr.split(",")));
-	    }
+		// Xử lý donThuocIds
+		String donThuocIdsStr = (String) obj[7];
+		if (donThuocIdsStr != null && !donThuocIdsStr.isEmpty()) {
+			dto.setDonThuocIds(Arrays.asList(donThuocIdsStr.split(",")));
+		}
 
-	    // Xử lý thuocList
-	    String thuocListStr = (String) obj[8];
-	    if (thuocListStr != null && !thuocListStr.isEmpty()) {
-	        Arrays.stream(thuocListStr.split("\\|")).forEach(thuocStr -> {
-	            String[] parts = thuocStr.split(":");
-	            if (parts.length == 6) {
-	                PaymentDetailsDTO.Thuoc thuoc = new PaymentDetailsDTO.Thuoc();
-	                thuoc.setDonThuocId(parts[0]);
-	                thuoc.setTenThuoc(parts[1]);
-	                thuoc.setSoLuong(Integer.parseInt(parts[2]));
-	                thuoc.setGia(new BigDecimal(parts[3]));
-	                thuoc.setLieu(parts[4]);
-	                thuoc.setTanSuat(parts[5]);
-	                dto.getThuocList().add(thuoc);
-	            }
-	        });
-	    }
+		// Xử lý thuocList
+		String thuocListStr = (String) obj[8];
+		if (thuocListStr != null && !thuocListStr.isEmpty()) {
+			Arrays.stream(thuocListStr.split("\\|")).forEach(thuocStr -> {
+				String[] parts = thuocStr.split(":");
+				if (parts.length == 6) {
+					PaymentDetailsDTO.Thuoc thuoc = new PaymentDetailsDTO.Thuoc();
+					thuoc.setDonThuocId(parts[0]);
+					thuoc.setTenThuoc(parts[1]);
+					thuoc.setSoLuong(Integer.parseInt(parts[2]));
+					thuoc.setGia(new BigDecimal(parts[3]));
+					thuoc.setLieu(parts[4]);
+					thuoc.setTanSuat(parts[5]);
+					dto.getThuocList().add(thuoc);
+				}
+			});
+		}
 
-	    // Xử lý xetNghiemIds
-	    String xetNghiemIdsStr = (String) obj[9];
-	    if (xetNghiemIdsStr != null && !xetNghiemIdsStr.isEmpty()) {
-	        dto.setXetNghiemIds(Arrays.asList(xetNghiemIdsStr.split(",")));
-	    }
+		// Xử lý xetNghiemIds
+		String xetNghiemIdsStr = (String) obj[9];
+		if (xetNghiemIdsStr != null && !xetNghiemIdsStr.isEmpty()) {
+			dto.setXetNghiemIds(Arrays.asList(xetNghiemIdsStr.split(",")));
+		}
 
-	    // Xử lý xetNghiemList
-	    String xetNghiemListStr = (String) obj[10];
-	    if (xetNghiemListStr != null && !xetNghiemListStr.isEmpty()) {
-	        Arrays.stream(xetNghiemListStr.split("\\|")).forEach(xetNghiemStr -> {
-	            String[] parts = xetNghiemStr.split(":");
-	            if (parts.length == 3) {
-	                PaymentDetailsDTO.XetNghiem xetNghiem = new PaymentDetailsDTO.XetNghiem();
-	                xetNghiem.setXetNghiemId(parts[0]);
-	                xetNghiem.setTenXetNghiem(parts[1]);
-	                xetNghiem.setGia(Integer.parseInt(parts[2]));
-	                dto.getXetNghiemList().add(xetNghiem);
-	            }
-	        });
-	    }
+		// Xử lý xetNghiemList
+		String xetNghiemListStr = (String) obj[10];
+		if (xetNghiemListStr != null && !xetNghiemListStr.isEmpty()) {
+			Arrays.stream(xetNghiemListStr.split("\\|")).forEach(xetNghiemStr -> {
+				String[] parts = xetNghiemStr.split(":");
+				if (parts.length == 3) {
+					PaymentDetailsDTO.XetNghiem xetNghiem = new PaymentDetailsDTO.XetNghiem();
+					xetNghiem.setXetNghiemId(parts[0]);
+					xetNghiem.setTenXetNghiem(parts[1]);
+					xetNghiem.setGia(Integer.parseInt(parts[2]));
+					dto.getXetNghiemList().add(xetNghiem);
+				}
+			});
+		}
 
-	    return dto;
+		return dto;
 	}
     public Page<HoSoBenh> findByBenhNhanId(String benhNhanId, Pageable pageable) {
         return hoSoBenhRepository.findByBenhNhanId(benhNhanId, pageable);
