@@ -160,4 +160,30 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 		    	                                                  @Param("benhNhanId") String benhNhanId,
 		    	                                                  @Param("startDateTime") LocalDateTime startDateTime,
 		    	                                                  @Param("endDateTime") LocalDateTime endDateTime);
+
+		 @Query(value = "SELECT hsb.* FROM ho_so_benh hsb " +
+		            "JOIN benh_nhan bn ON hsb.benh_nhan_id = bn.benh_nhan_id " +
+		            "JOIN bac_si bs ON hsb.bac_si_id = bs.bac_si_id " +
+		            "WHERE (:startDate IS NULL OR hsb.thoi_gian_tao >= :startDate) " +
+		            "AND (:endDate IS NULL OR hsb.thoi_gian_tao <= :endDate) " +
+		            "AND (:patientName IS NULL OR bn.ten LIKE %:patientName%) " +
+		            "AND (:doctorName IS NULL OR bs.ten LIKE %:doctorName%) " +
+		            "AND (:phoneNumber IS NULL OR bn.dien_thoai LIKE %:phoneNumber%)",
+		            countQuery = "SELECT COUNT(*) FROM ho_so_benh hsb " +
+		                    "JOIN benh_nhan bn ON hsb.benh_nhan_id = bn.benh_nhan_id " +
+		                    "JOIN bac_si bs ON hsb.bac_si_id = bs.bac_si_id " +
+		                    "WHERE (:startDate IS NULL OR hsb.thoi_gian_tao >= :startDate) " +
+		                    "AND (:endDate IS NULL OR hsb.thoi_gian_tao <= :endDate) " +
+		                    "AND (:patientName IS NULL OR bn.ten LIKE %:patientName%) " +
+		                    "AND (:doctorName IS NULL OR bs.ten LIKE %:doctorName%) " +
+		                    "AND (:phoneNumber IS NULL OR bn.dien_thoai LIKE %:phoneNumber%)",
+		            nativeQuery = true)
+		    Page<HoSoBenh> findMedicalHistoryWithFilters(
+		            @Param("startDate") LocalDateTime startDate,
+		            @Param("endDate") LocalDateTime endDate,
+		            @Param("patientName") String patientName,
+		            @Param("doctorName") String doctorName,
+		            @Param("phoneNumber") String phoneNumber,
+		            Pageable pageable);
+		  List<HoSoBenh> findByHoSoIdIn(List<String> hoSoIds);
 }

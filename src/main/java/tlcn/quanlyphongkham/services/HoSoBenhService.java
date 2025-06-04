@@ -204,7 +204,19 @@ public class HoSoBenhService {
 	
 		return hoSoBenhRepository.findByIdsAndBenhNhanIdAndDateRange(hoSoIds,benhNhanId,startDateTime,endDateTime);
 	}
-
+	public Page<HoSoBenh> findMedicalHistoryWithFilters(
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            String patientName,
+            String doctorName,
+            String phoneNumber,
+            Pageable pageable) {
+        return hoSoBenhRepository.findMedicalHistoryWithFilters(
+                startDate, endDate, patientName, doctorName, phoneNumber, pageable);
+    }
+	  public List<HoSoBenh> findMedicalHistoryByIds(List<String> hoSoIds) {
+	        return hoSoBenhRepository.findByHoSoIdIn(hoSoIds);
+	    }
 	
 
 }
