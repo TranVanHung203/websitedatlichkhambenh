@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Staff Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .staff-home-container {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0d9488, #8b5cf6);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', sans-serif;
+            padding-top: 140px; /* Adjusted for header's top bar (90px) + nav (50px) */
+            box-sizing: border-box;
+        }
+
+        .welcome-text {
+            text-align: center;
+            color: white;
+            z-index: 10;
+            animation: fadeIn 2s ease-in-out;
+            padding: 1.5rem;
+            max-width: 80%;
+        }
+
+        .welcome-text h1 {
+            font-size: 4rem; /* Slightly smaller for balance */
+            font-weight: 900;
+            text-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+            margin-bottom: 1.2rem;
+            letter-spacing: 1.2px;
+            animation: typing 3s steps(30, end) 1s 1 normal both;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 3px solid white;
+        }
+
+        .welcome-text p {
+            font-size: 1.6rem; /* Adjusted for harmony with header */
+            font-weight: 300;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeIn 2s ease-in-out 2s both;
+        }
+
+        .particles-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .sphere {
+            position: absolute;
+            width: 160px; /* Slightly smaller for balance */
+            height: 160px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle at 30%, rgba(45, 212, 191, 0.5), rgba(139, 92, 246, 0.3));
+            border-radius: 50%;
+            animation: rotateSphere 20s linear infinite;
+            z-index: 5;
+            box-shadow: 0 0 25px rgba(45, 212, 191, 0.6), 0 0 50px rgba(139, 92, 246, 0.4);
+        }
+
+        @keyframes rotateSphere {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @media (max-width: 768px) {
+            .staff-home-container {
+                padding-top: 200px; /* Adjusted for header's taller layout on smaller screens */
+            }
+            .welcome-text h1 {
+                font-size: 2.5rem;
+            }
+            .welcome-text p {
+                font-size: 1.2rem;
+                max-width: 90%;
+            }
+            .sphere {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .staff-home-container {
+                padding-top: 180px;
+            }
+            .welcome-text h1 {
+                font-size: 1.8rem;
+            }
+            .welcome-text p {
+                font-size: 1rem;
+            }
+            .sphere {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{nhanvien/fragments/header :: header}"></div>
+    <div class="staff-home-container">
+        <div id="particles-js" class="particles-container"></div>
+        <div class="sphere"></div>
+        <div class="welcome-text">
+            <h1>Welcome, Staff Member</h1>
+            <p>Your dedication drives healthcare innovation</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 100, density: { enable: true, value_area: 800 } },
+                color: { value: ['#2dd4bf', '#8b5cf6', '#ffffff'] },
+                shape: { type: 'star', stroke: { width: 0, color: '#ffffff' } },
+                opacity: { value: 0.7, random: true },
+                size: { value: 2.5, random: true },
+                line_linked: { enable: false },
+                move: { enable: true, speed: 2, direction: 'none', random: true, straight: false, out_mode: 'out' }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' }, resize: true },
+                modes: { repulse: { distance: 100, duration: 0.4 }, push: { particles_nb: 5 } }
+            },
+            retina_detect: true
+        });
+    </script>
+</body>
+</html>
