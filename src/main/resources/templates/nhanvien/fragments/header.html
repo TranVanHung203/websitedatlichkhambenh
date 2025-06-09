@@ -1,36 +1,47 @@
 <header th:fragment="header">
-  
     <style>
-        .header-container {
-            margin: 0;
-            font-family: 'Arial', sans-serif;
+        /* Ensure global box-sizing for consistency */
+        *, *::before, *::after {
+            box-sizing: border-box;
         }
 
-        .header-container .top-bar {
+        /* Scoped to .header-container to avoid conflicts with xemlichbacsi.css */
+        .header-container {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0; /* Reset padding to prevent inherited shifts */
+            width: 100%;
+            min-height: 150px; /* Ensure minimum height */
+            left: 0; /* Explicitly align to left edge */
+        }
+
+        .header-container__top-bar {
             background: linear-gradient(90deg, #0056b3, #007bff);
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 15px 30px;
-            box-sizing: border-box;
+            margin: 0; /* Reset margin */
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0; /* Ensure alignment to left edge */
             width: 100%;
             z-index: 1000;
+            min-height: 90px;
         }
 
-        .header-container .logo-img {
+        .header-container__logo-img {
             height: 60px;
             transition: transform 0.3s ease;
         }
 
-        .header-container .logo-img:hover {
+        .header-container__logo-img:hover {
             transform: scale(1.05);
         }
 
-        .header-container .contact-info p {
+        .header-container__contact-info p {
             margin: 4px 0;
             font-size: 14px;
             font-weight: 300;
@@ -38,17 +49,20 @@
             opacity: 0.9;
         }
 
-        .header-container nav {
+        .header-container__nav {
             background: linear-gradient(90deg, #0056b3, #007bff);
             padding: 15px 0;
+            margin: 0; /* Reset margin */
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            position: sticky;
+            position: fixed;
             top: 90px;
+            left: 0; /* Ensure alignment to left edge */
             width: 100%;
             z-index: 1000;
+            min-height: 60px;
         }
 
-        .header-container nav ul {
+        .header-container__nav ul {
             list-style: none;
             margin: 0;
             padding: 0 40px;
@@ -58,11 +72,11 @@
             gap: 40px;
         }
 
-        .header-container nav ul li {
+        .header-container__nav ul li {
             margin: 0;
         }
 
-        .header-container nav ul li a {
+        .header-container__nav ul li a {
             text-decoration: none;
             color: white;
             padding: 14px 25px;
@@ -75,12 +89,12 @@
             position: relative;
         }
 
-        .header-container nav ul li a:hover {
+        .header-container__nav ul li a:hover {
             background-color: rgba(255, 255, 255, 0.25);
             color: #fff;
         }
 
-        .header-container nav ul li a::after {
+        .header-container__nav ul li a::after {
             content: '';
             position: absolute;
             width: 0;
@@ -92,11 +106,11 @@
             transform: translateX(-50%);
         }
 
-        .header-container nav ul li a:hover::after {
+        .header-container__nav ul li a:hover::after {
             width: 85%;
         }
 
-        .header-container nav ul li a.logout {
+        .header-container__nav ul li a.header-container__logout {
             background-color: #ff4d4d;
             border-radius: 10px;
             padding: 14px 30px;
@@ -105,13 +119,13 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
-        .header-container nav ul li a.logout:hover {
+        .header-container__nav ul li a.header-container__logout:hover {
             background-color: #e60000;
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
-        .header-container nav ul li a.home-icon svg {
+        .header-container__nav ul li a.header-container__home-icon svg {
             width: 24px;
             height: 24px;
             margin-right: 8px;
@@ -119,48 +133,61 @@
             transition: transform 0.3s ease;
         }
 
-        .header-container nav ul li a.home-icon:hover svg {
+        .header-container__nav ul li a.header-container__home-icon:hover svg {
             transform: scale(1.1);
         }
 
         @media (max-width: 768px) {
-            .header-container .top-bar {
+            .header-container__top-bar {
                 flex-direction: column;
                 align-items: flex-start;
                 padding: 10px 20px;
+                min-height: 140px;
+                position: fixed;
+                top: 0;
+                left: 0; /* Ensure alignment */
+                width: 100%;
             }
-            .header-container .contact-info p {
+
+            .header-container__contact-info p {
                 font-size: 13px;
             }
-            .header-container nav {
+
+            .header-container__nav {
                 top: 140px;
                 padding: 10px 0;
+                min-height: 200px;
+                position: fixed;
+                left: 0; /* Ensure alignment */
+                width: 100%;
             }
-            .header-container nav ul {
+
+            .header-container__nav ul {
                 flex-direction: column;
                 gap: 20px;
                 padding: 0 20px;
             }
-            .header-container nav ul li a {
+
+            .header-container__nav ul li a {
                 padding: 10px 20px;
             }
         }
     </style>
     <div class="header-container">
-        <div class="custom-header top-bar">
-            <div class="logo">
-                <img th:src="@{/images/logobenhvien.png}" alt="Logo" class="logo-img">
+        <div class="header-container__top-bar">
+            <div class="header-container__logo">
+                <img th:src="@{/images/logobenhvien.png}" alt="Logo" class="header-container__logo-img">
             </div>
-            <div class="contact-info">
+            <div class="header-container__contact-info">
                 <p>Số 1 Võ Văn Ngân, Thành Phố Thủ Đức</p>
                 <p>HOTLINE: 0901610273</p>
                 <p>Mail: 21110889@student.hcmute.edu.vn</p>
             </div>
         </div>
-        <nav class="custom-header">
+        <nav class="header-container__nav">
             <ul>
                 <li>
-                    <a th:href="@{/nhanvien/home}" class="home-icon">
+                    <a th:href="@{/nhanvien/home}" class="header-container__home-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                         </svg>
@@ -168,10 +195,86 @@
                     </a>
                 </li>
                 <li><a th:href="@{/nhanvien/dangkylichkham}">Đặt lịch khám</a></li>
-                <li><a th:href="@{/nhanvien/xemlichbacsi}">Xem lịch làm việc bác sĩ</a></li>
+                <li><a th:href="@{/nhanvien/xemlichbacsi}">Xem thứ tự ca khám</a></li>
                 <li><a th:href="@{/nhanvien/xemlichsukhambenh}">Xem đơn thuốc của bệnh nhân</a></li>
-                <li><a th:href="@{/logout}" class="logout">Đăng Xuất</a></li>
+                <li><a th:href="@{/logout}" class="header-container__logout">Đăng Xuất</a></li>
             </ul>
         </nav>
     </div>
+    <script>
+        // Self-contained module to handle header functionality
+        (function () {
+            // Scope all selectors to .header-container
+            const headerContainer = document.querySelector('.header-container');
+            if (!headerContainer) {
+                console.warn('Header container not found');
+                return;
+            }
+
+            // Prevent external scripts from resizing or shifting header
+            function lockHeaderSize() {
+                const topBar = headerContainer.querySelector('.header-container__top-bar');
+                const nav = headerContainer.querySelector('.header-container__nav');
+                if (topBar && nav) {
+                    topBar.style.minHeight = window.innerWidth <= 768 ? '140px' : '90px';
+                    topBar.style.position = 'fixed';
+                    topBar.style.top = '0';
+                    topBar.style.left = '0'; // Explicitly lock to left
+                    topBar.style.width = '100%';
+                    topBar.style.margin = '0';
+                    nav.style.minHeight = window.innerWidth <= 768 ? '200px' : '60px';
+                    nav.style.position = 'fixed';
+                    nav.style.top = window.innerWidth <= 768 ? '140px' : '90px';
+                    nav.style.left = '0'; // Explicitly lock to left
+                    nav.style.width = '100%';
+                    nav.style.margin = '0';
+                    headerContainer.style.width = '100%';
+                    headerContainer.style.left = '0';
+                    headerContainer.style.margin = '0';
+                    // Monitor for inline style changes
+                    const observer = new MutationObserver((mutations) => {
+                        mutations.forEach((mutation) => {
+                            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                console.warn('Header style modified:', mutation.target);
+                                topBar.style.minHeight = window.innerWidth <= 768 ? '140px' : '90px';
+                                topBar.style.position = 'fixed';
+                                topBar.style.top = '0';
+                                topBar.style.left = '0';
+                                topBar.style.width = '100%';
+                                topBar.style.margin = '0';
+                                nav.style.minHeight = window.innerWidth <= 768 ? '200px' : '60px';
+                                nav.style.position = 'fixed';
+                                nav.style.top = window.innerWidth <= 768 ? '140px' : '90px';
+                                nav.style.left = '0';
+                                nav.style.width = '100%';
+                                nav.style.margin = '0';
+                                headerContainer.style.width = '100%';
+                                headerContainer.style.left = '0';
+                                headerContainer.style.margin = '0';
+                            }
+                        });
+                    });
+                    observer.observe(topBar, { attributes: true });
+                    observer.observe(nav, { attributes: true });
+                    observer.observe(headerContainer, { attributes: true });
+                }
+            }
+
+       
+
+            // Initialize header on page load
+            function initHeader() {
+                lockHeaderSize();
+                initNavLinks();
+                window.addEventListener('resize', lockHeaderSize);
+            }
+
+            // Run initialization
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initHeader);
+            } else {
+                initHeader();
+            }
+        })();
+    </script>
 </header>
