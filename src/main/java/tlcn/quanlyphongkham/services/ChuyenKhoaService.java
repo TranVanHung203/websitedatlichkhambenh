@@ -44,6 +44,10 @@ public class ChuyenKhoaService {
     public ChuyenKhoa findById(String chuyenKhoaId) {
         return chuyenKhoaRepository.findById(chuyenKhoaId).orElse(null);
     }
+	public void delete(String chuyenKhoaId) {
+		chuyenKhoaRepository.deleteById(chuyenKhoaId);
+		
+	}
 
    
 }
