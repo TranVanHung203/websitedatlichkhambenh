@@ -1,4 +1,5 @@
-.container {
+/* Scoped to .container to avoid conflicts with headerbenhnhan.css */
+        .container {
             max-width: 900px;
             margin: 0 auto;
             background: #ffffff;
