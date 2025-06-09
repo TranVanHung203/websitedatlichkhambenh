@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -583,6 +584,22 @@ public class AdminController {
         } else {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy loại xét nghiệm để xóa.");
             return "redirect:/admin/qlxn";
+        }
+    }
+    
+    @DeleteMapping("/admin/qlck/delete/{chuyenKhoaId}")
+    @ResponseBody
+    public String deleteChuyenKhoa(@PathVariable String chuyenKhoaId) {
+        try {
+     
+            chuyenKhoaService.delete(chuyenKhoaId);
+            return "success";
+        } catch (DataIntegrityViolationException e) {
+            // Bắt lỗi vi phạm khóa ngoại
+            return "error: Không xóa được vì có dữ liệu liên quan";
+        } catch (Exception e) {
+            // Bắt các lỗi khác
+            return "error: " + e.getMessage();
         }
     }
 }
