@@ -1,24 +1,177 @@
 <header th:fragment="header">
-	<link rel="stylesheet" th:href="@{/css/headernhanvien.css}">
-    
+  
+    <style>
+        .header-container {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
 
-    <div class="custom-header top-bar">
-        <div class="logo">
-            <img th:src="@{/images/logobenhvien.png}" alt="Logo" class="logo-img">
-        </div>
+        .header-container .top-bar {
+            background: linear-gradient(90deg, #0056b3, #007bff);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
 
-        <div class="contact-info">
-            <p>Số 1 Võ Văn Ngân, Thành Phố Thủ Đức</p>
-            <p>HOTLINE: 0901610273</p>
-            <p>Mail: 21110889@student.hcmute.edu.vn</p>
+        .header-container .logo-img {
+            height: 60px;
+            transition: transform 0.3s ease;
+        }
+
+        .header-container .logo-img:hover {
+            transform: scale(1.05);
+        }
+
+        .header-container .contact-info p {
+            margin: 4px 0;
+            font-size: 14px;
+            font-weight: 300;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .header-container nav {
+            background: linear-gradient(90deg, #0056b3, #007bff);
+            padding: 15px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 90px;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .header-container nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .header-container nav ul li {
+            margin: 0;
+        }
+
+        .header-container nav ul li a {
+            text-decoration: none;
+            color: white;
+            padding: 14px 25px;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .header-container nav ul li a:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+
+        .header-container nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: #fff;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .header-container nav ul li a:hover::after {
+            width: 85%;
+        }
+
+        .header-container nav ul li a.logout {
+            background-color: #ff4d4d;
+            border-radius: 10px;
+            padding: 14px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-container nav ul li a.logout:hover {
+            background-color: #e60000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-container nav ul li a.home-icon svg {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            fill: white;
+            transition: transform 0.3s ease;
+        }
+
+        .header-container nav ul li a.home-icon:hover svg {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .header-container .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px 20px;
+            }
+            .header-container .contact-info p {
+                font-size: 13px;
+            }
+            .header-container nav {
+                top: 140px;
+                padding: 10px 0;
+            }
+            .header-container nav ul {
+                flex-direction: column;
+                gap: 20px;
+                padding: 0 20px;
+            }
+            .header-container nav ul li a {
+                padding: 10px 20px;
+            }
+        }
+    </style>
+    <div class="header-container">
+        <div class="custom-header top-bar">
+            <div class="logo">
+                <img th:src="@{/images/logobenhvien.png}" alt="Logo" class="logo-img">
+            </div>
+            <div class="contact-info">
+                <p>Số 1 Võ Văn Ngân, Thành Phố Thủ Đức</p>
+                <p>HOTLINE: 0901610273</p>
+                <p>Mail: 21110889@student.hcmute.edu.vn</p>
+            </div>
         </div>
+        <nav class="custom-header">
+            <ul>
+                <li>
+                    <a th:href="@{/nhanvien/home}" class="home-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                        </svg>
+                        Trang Chủ
+                    </a>
+                </li>
+                <li><a th:href="@{/nhanvien/dangkylichkham}">Đặt lịch khám</a></li>
+                <li><a th:href="@{/nhanvien/xemlichbacsi}">Xem lịch làm việc bác sĩ</a></li>
+                <li><a th:href="@{/nhanvien/xemlichsukhambenh}">Xem đơn thuốc của bệnh nhân</a></li>
+                <li><a th:href="@{/logout}" class="logout">Đăng Xuất</a></li>
+            </ul>
+        </nav>
     </div>
-    <nav class="custom-header">
-        <ul>
-            <li><a th:href="@{/nhanvien/dangkylichkham}">Đặt lịch khám</a></li>
-            <li><a th:href="@{/nhanvien/xemlichbacsi}">Xem lịch làm việc bác sĩ</a></li>
-            <li><a th:href="@{/nhanvien/xemlichsukhambenh}">Xem đơn thuốc của bệnh nhân</a></li>
-            <li><a th:href="@{/logout}" class="logout">Đăng Xuất</a></li>
-        </ul>
-    </nav>
 </header>

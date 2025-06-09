@@ -142,6 +142,11 @@ public class NhanVienController {
 	}
 
 	String nguoiDungId;
+	@GetMapping("/nhanvien/home")
+	public String Home(Model model) {
+		
+		return "nhanvien/home/home"; // Return to Step 1 view
+	}
 
 	@GetMapping("/nhanvien/dangkylichkham")
 	public String registerSchedule(Model model) {
