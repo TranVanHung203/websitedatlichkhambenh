@@ -297,7 +297,7 @@ public class AdminController {
 	public String qlck(@RequestParam(defaultValue = "0") int page,
 	                   @RequestParam(defaultValue = "") String ten,
 	                   Model model) {
-	    int pageSize = 7; // Số chuyên khoa mỗi trang
+	    int pageSize = 1; // Số chuyên khoa mỗi trang
 	    int visiblePages = 4; // Số trang hiển thị trên thanh phân trang
 
 	    Page<ChuyenKhoa> chuyenKhoaPage;
