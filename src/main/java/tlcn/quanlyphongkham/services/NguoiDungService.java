@@ -184,7 +184,7 @@ public class NguoiDungService {
 			bacSi.setDiaChi(themTaiKhoanDTO.getDiaChi());
 			bacSi.setNgaySinh(themTaiKhoanDTO.getNgaySinh());
 			bacSi.setGioiTinh(themTaiKhoanDTO.getGioiTinh());
-			Optional<ChuyenKhoa> chuyenKhoa=chuyenKhoaRepository.findById("0");
+			Optional<ChuyenKhoa> chuyenKhoa=chuyenKhoaRepository.findById(themTaiKhoanDTO.getChuyenKhoaId());
 			bacSi.setChuyenKhoa(chuyenKhoa.get());
 			
 			if ("Nam".equals(themTaiKhoanDTO.getGioiTinh()))
