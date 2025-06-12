@@ -62,10 +62,10 @@
 						<input type="text" id="ten" placeholder="Nhập tên">
 					</div>
 
-					<div class="form-row">
+					<div class="form-row" id="phoneField">
 						<label>Điện thoại:</label>
 						<input type="tel" id="dienThoai" placeholder="Nhập số điện thoại" maxlength="10"
-							pattern="[0-9]{10}" oninput="validatePhoneNumber(this)" required>
+							pattern="[0-9]{10}" oninput="validatePhoneNumber(this)">
 					</div>
 
 					<div class="form-row">
@@ -108,15 +108,29 @@
 	<div id="toast"></div>
 
 	<script>
+		function validatePhoneNumber(input) {
+			// Chỉ cho phép nhập số và giới hạn 10 chữ số
+			input.value = input.value.replace(/[^0-9]/g, '');
+			if (input.value.length > 10) {
+				input.value = input.value.slice(0, 10);
+			}
+		}
+
 		function toggleFields(role) {
 			var doctorPatientFields = document.getElementById("doctorPatientFields");
 			var specialtyField = document.getElementById("specialtyField");
+			var phoneField = document.getElementById("phoneField");
+			var phoneInput = document.getElementById("dienThoai");
 
 			// Show doctor/patient fields for "Bác sĩ" and "Bệnh nhân", hide for "Admin" and "Nhân viên"
 			if (role === 'BacSi' || role === 'BenhNhan') {
 				doctorPatientFields.classList.remove('hidden');
+				phoneField.classList.remove('hidden');
+				phoneInput.setAttribute('required', 'required');
 			} else {
 				doctorPatientFields.classList.add('hidden');
+				phoneField.classList.add('hidden');
+				phoneInput.removeAttribute('required');
 			}
 
 			// Show specialty field only for "Bác sĩ"
@@ -145,12 +159,18 @@
 			const tenDangNhap = document.getElementById("tenDangNhap").value;
 			const matKhau = document.getElementById("matKhau").value;
 
-			const userData = {email, tenDangNhap, matKhau, vaiTro: role};
+			const userData = { email, tenDangNhap, matKhau, vaiTro: role };
 
 			// If the role is 'Bác sĩ' or 'Bệnh nhân', include additional fields
 			if (role === 'BacSi' || role === 'BenhNhan') {
 				userData.ten = document.getElementById("ten").value;
-				userData.dienThoai = document.getElementById("dienThoai").value;
+				const dienThoai = document.getElementById("dienThoai").value;
+				if (dienThoai && dienThoai.length === 10) {
+					userData.dienThoai = dienThoai;
+				} else if (dienThoai) {
+					showToast("Số điện thoại phải đúng 10 chữ số", false);
+					return;
+				}
 				userData.diaChi = document.getElementById("diaChi").value;
 				userData.gioiTinh = document.getElementById("gioiTinh").value;
 				userData.ngaySinh = document.getElementById("ngaySinh").value;
@@ -163,7 +183,7 @@
 
 			fetch('/admin/qltk/add', {
 				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(userData)
 			})
 				.then(response => {
@@ -174,6 +194,7 @@
 						});
 					}
 					return response.json();
+
 				})
 				.then(data => {
 					showToast(data.message || 'Thêm người dùng thành công', true);

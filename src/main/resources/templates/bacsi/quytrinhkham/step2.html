@@ -13,6 +13,25 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Add Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Custom CSS for Select2 to match Bootstrap theme -->
+    <style>
+        .select2-container .select2-selection--single {
+            height: 38px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 38px;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+        .select2-container {
+            width: 100% !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -64,10 +83,14 @@
                     <input type="hidden" name="hoSoId" th:value="${hoSoBenh?.hoSoId}">
                     <div class="form-group">
                         <label for="loaiXetNghiem">Loại xét nghiệm:</label>
-                        <select id="loaiXetNghiem" name="loaiXetNghiemId" required>
+                        <select id="loaiXetNghiem" name="loaiXetNghiemId" class="form-select select2" required>
                             <option value="" disabled selected>Chọn loại xét nghiệm</option>
-                            <option th:if="${loaiXetNghiems != null and not #lists.isEmpty(loaiXetNghiems)}" th:each="loai : ${loaiXetNghiems}" th:value="${loai.id}" th:text="${loai.tenXetNghiem}"></option>
-                            <option th:unless="${loaiXetNghiems != null and not #lists.isEmpty(loaiXetNghiems)}" value="" disabled>Không có xét nghiệm nào</option>
+                            <option th:if="${loaiXetNghiems != null and not #lists.isEmpty(loaiXetNghiems)}" 
+                                    th:each="loai : ${loaiXetNghiems}" 
+                                    th:value="${loai.id}" 
+                                    th:text="${loai.tenXetNghiem}"></option>
+                            <option th:unless="${loaiXetNghiems != null and not #lists.isEmpty(loaiXetNghiems)}" 
+                                    value="" disabled>Không có xét nghiệm nào</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -874,6 +897,38 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Add jQuery and Select2 JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        // Initialize Select2 on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#loaiXetNghiem').select2({
+                placeholder: "Chọn hoặc nhập để tìm kiếm loại xét nghiệm",
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults: function () {
+                        return "Không tìm thấy kết quả";
+                    }
+                }
+            });
+
+            // Ensure form submission includes the selected value
+            $('#xet-nghiem-form').on('submit', function (e) {
+                const select2Value = $('#loaiXetNghiem').val();
+                if (!select2Value) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Cảnh báo',
+                        text: 'Vui lòng chọn loại xét nghiệm.',
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

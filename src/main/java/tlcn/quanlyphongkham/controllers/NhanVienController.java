@@ -598,183 +598,189 @@ public class NhanVienController {
 		}
 	}
 
-	@PostMapping("/nhanvien/xemlichbacsi/payment/credit-card")
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> createMomoPayment(@RequestParam("hoSoId") String hoSoId,
-			@RequestParam(value = "paymentMethod", required = false, defaultValue = "payWithATM") String paymentMethod) {
-		Logger logger = LoggerFactory.getLogger(getClass());
-		Map<String, Object> response = new HashMap<>();
-		try {
-			logger.info("Bắt đầu xử lý thanh toán Momo cho hoSoId: {}, phương thức: {}", hoSoId, paymentMethod);
 
-			// Tìm hồ sơ bệnh
-			HoSoBenh hoSoBenh = hoSoBenhService.findById(hoSoId);
-			
-			if (hoSoBenh == null) {
-				logger.warn("Không tìm thấy hồ sơ bệnh với hoSoId: {}", hoSoId);
-				response.put("status", "error");
-				response.put("message", "Không tìm thấy hồ sơ bệnh!");
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-			}
+@PostMapping("/nhanvien/xemlichbacsi/payment/credit-card")
+@ResponseBody
+public ResponseEntity<Map<String, Object>> createMomoCreditCardPayment(@RequestParam("hoSoId") String hoSoId) {
+    Logger logger = LoggerFactory.getLogger(getClass());
+    Map<String, Object> response = new HashMap<>();
+    try {
+        logger.info("Bắt đầu xử lý thanh toán MoMo bằng thẻ tín dụng cho hoSoId: {}", hoSoId);
 
-			// Kiểm tra trạng thái thanh toán
-			if (hoSoBenh.getDaThanhToan()) {
-				logger.warn("Hồ sơ đã được thanh toán, hoSoId: {}", hoSoId);
-				response.put("status", "error");
-				response.put("message", "Hồ sơ đã được thanh toán!");
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-			}
+        // Tìm hồ sơ bệnh
+        HoSoBenh hoSoBenh = hoSoBenhService.findById(hoSoId);
+        
+        if (hoSoBenh == null) {
+            logger.warn("Không tìm thấy hồ sơ bệnh với hoSoId: {}", hoSoId);
+            response.put("status", "error");
+            response.put("message", "Không tìm thấy hồ sơ bệnh!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
 
-			// Kiểm tra slot thời gian
-			if (hoSoBenh.getSlotThoiGian() == null || hoSoBenh.getSlotThoiGian().getSlotId() == null) {
-				logger.warn("Slot thời gian không tồn tại cho hoSoId: {}", hoSoId);
-				response.put("status", "error");
-				response.put("message", "Slot thời gian không tồn tại!");
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-			}
+        // Kiểm tra trạng thái thanh toán
+        if (hoSoBenh.getDaThanhToan()) {
+            logger.warn("Hồ sơ đã được thanh toán, hoSoId: {}", hoSoId);
+            response.put("status", "error");
+            response.put("message", "Hồ sơ đã được thanh toán!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
 
-			// Lấy chi tiết thanh toán theo slotId
-			PaymentDetailsDTO paymentDetails = hoSoBenhService
-					.getPaymentDetailsBySlotId(hoSoBenh.getSlotThoiGian().getSlotId());
-			if (paymentDetails == null) {
-				logger.warn("Không tìm thấy chi tiết thanh toán cho slotId: {}",
-						hoSoBenh.getSlotThoiGian().getSlotId());
-				response.put("status", "error");
-				response.put("message", "Không tìm thấy chi tiết thanh toán!");
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-			}
+        // Kiểm tra slot thời gian
+        if (hoSoBenh.getSlotThoiGian() == null || hoSoBenh.getSlotThoiGian().getSlotId() == null) {
+            logger.warn("Slot thời gian không tồn tại cho hoSoId: {}", hoSoId);
+            response.put("status", "error");
+            response.put("message", "Slot thời gian không tồn tại!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
 
-			// Lấy tổng tiền từ PaymentDetailsDTO
-			BigDecimal amount = paymentDetails.getTongTien();
-			if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-				logger.warn("Tổng tiền không hợp lệ cho hoSoId: {}", hoSoId);
-				response.put("status", "error");
-				response.put("message", "Tổng tiền không hợp lệ!");
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-			}
+        // Lấy chi tiết thanh toán theo slotId
+        PaymentDetailsDTO paymentDetails = hoSoBenhService
+                .getPaymentDetailsBySlotId(hoSoBenh.getSlotThoiGian().getSlotId());
+        if (paymentDetails == null) {
+            logger.warn("Không tìm thấy chi tiết thanh toán cho slotId: {}",
+                    hoSoBenh.getSlotThoiGian().getSlotId());
+            response.put("status", "error");
+            response.put("message", "Không tìm thấy chi tiết thanh toán!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
 
-			long amountLong = amount.longValue();
-			logger.info("Tổng tiền thanh toán: {}", amountLong);
+        // Lấy tổng tiền từ PaymentDetailsDTO
+        BigDecimal amount = paymentDetails.getTongTien();
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            logger.warn("Tổng tiền không hợp lệ cho hoSoId: {}", hoSoId);
+            response.put("status", "error");
+            response.put("message", "Tổng tiền không hợp lệ!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
 
-			// Thông tin Momo
-			String partnerCode = "MOMOLRJZ20181206"; // Thay bằng partnerCode thực tế từ MoMo
-			String accessKey = "mTCKt9W3eU1m39TW"; // Thay bằng accessKey thực tế
-			String secretKey = "SetA5RDnLHvt51AULf51DyauxUo3kDU6"; // Thay bằng secretKey thực tế
-			String IdBacSi=hoSoBenh.getBacSi().getBacSiId();
-			String idBacSi = URLEncoder.encode(IdBacSi, "UTF-8");
-			LocalDateTime thoiGianTao = hoSoBenh.getThoiGianTao();
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // Format as yyyy-MM-dd
-			String ngay = thoiGianTao.format(formatter);
-			String encodedNgay = URLEncoder.encode(ngay, StandardCharsets.UTF_8.name());
-			String redirectUrl = "https://websitedatlichkhambenh.onrender.com/nhanvien/xemlichbacsi/payment/confirm-momo?idBacSi="+idBacSi+"&ngay="+encodedNgay;
-			String ipnUrl = "https://websitedatlichkhambenh.onrender.com/nhanvien/xemlichbacsi/payment/momo-ipn";
-			String requestId = UUID.randomUUID().toString();
-			String orderId = "ORDER_" + hoSoId + "_" + System.currentTimeMillis();
-			String orderInfo = "Thanh toán hồ sơ bệnh " + hoSoId;
-			String requestType = "payWithCC".equals(paymentMethod) ? "payWithCC" : "payWithATM";
-			String extraData = "";
-			
-			// Tạo chữ ký
-			String rawSignature = "accessKey=" + accessKey + "&amount=" + amountLong + "&extraData=" + extraData
-					+ "&ipnUrl=" + ipnUrl + "&orderId=" + orderId + "&orderInfo=" + orderInfo + "&partnerCode="
-					+ partnerCode + "&redirectUrl=" + redirectUrl + "&requestId=" + requestId + "&requestType="
-					+ requestType ;
+        long amountLong = amount.longValue();
+        logger.info("Tổng tiền thanh toán: {}", amountLong);
 
-			String signature = hmacSha256(rawSignature, secretKey);
+        // Thông tin MoMo (Lấy từ biến môi trường hoặc fallback đến giá trị cung cấp)
+        String partnerCode = System.getenv("MOMO_PARTNER_CODE") != null ? System.getenv("MOMO_PARTNER_CODE") : "MOMO";
+        String accessKey = System.getenv("MOMO_ACCESS_KEY") != null ? System.getenv("MOMO_ACCESS_KEY") : "F8BBA842ECF85";
+        String secretKey = System.getenv("MOMO_SECRET_KEY") != null ? System.getenv("MOMO_SECRET_KEY") : "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+        
+    
 
-			// Tạo request body cho MoMo
-			JSONObject requestBody = new JSONObject();
-			requestBody.put("partnerCode", partnerCode);
-			requestBody.put("partnerName", "Your Partner Name");
-			requestBody.put("storeId", "Your Store ID");
-			requestBody.put("requestId", requestId);
-			requestBody.put("amount", amountLong);
-			requestBody.put("orderId", orderId);
-			requestBody.put("orderInfo", orderInfo);
-			requestBody.put("redirectUrl", redirectUrl);
-			requestBody.put("ipnUrl", ipnUrl);
-			requestBody.put("extraData", extraData);
-			requestBody.put("requestType", requestType);
-			requestBody.put("signature", signature);
-			requestBody.put("idBacSi", idBacSi);
-			requestBody.put("lang", "vi");
+        String idBacSi = URLEncoder.encode(hoSoBenh.getBacSi().getBacSiId(), StandardCharsets.UTF_8.name());
+        LocalDateTime thoiGianTao = hoSoBenh.getThoiGianTao();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String ngay = thoiGianTao.format(formatter);
+        String encodedNgay = URLEncoder.encode(ngay, StandardCharsets.UTF_8.name());
+        String redirectUrl = "http://localhost:8080/nhanvien/xemlichbacsi/payment/confirm-momo?idBacSi=" + idBacSi + "&ngay=" + encodedNgay;
+        String ipnUrl = "http://localhost:8080/nhanvien/xemlichbacsi/payment/momo-ipn";
+        String requestId = UUID.randomUUID().toString();
+        String orderId = "ORDER_" + hoSoId + "_" + System.currentTimeMillis();
+        String orderInfo = "Thanh toán hồ sơ bệnh " + hoSoId;
+        String requestType = "payWithCC";
+        String extraData = "";
 
-			// Gọi API MoMo
-			CloseableHttpClient client = HttpClients.createDefault();
-			HttpPost httpPost = new HttpPost("https://test-payment.momo.vn/v2/gateway/api/create");
-			httpPost.setHeader("Content-Type", "application/json; charset=UTF-8");
-			httpPost.setEntity(new StringEntity(requestBody.toString(), StandardCharsets.UTF_8));
+        // Tạo chữ ký (Đảm bảo thứ tự tham số theo tài liệu MoMo)
+        String rawSignature = "accessKey=" + accessKey +
+                             "&amount=" + amountLong +
+                             "&extraData=" + extraData +
+                             "&ipnUrl=" + ipnUrl +
+                             "&orderId=" + orderId +
+                             "&orderInfo=" + orderInfo +
+                             "&partnerCode=" + partnerCode +
+                             "&redirectUrl=" + redirectUrl +
+                             "&requestId=" + requestId +
+                             "&requestType=" + requestType;
+        logger.debug("Raw Signature String: {}", rawSignature);
 
-			CloseableHttpResponse momoResponse = client.execute(httpPost);
-			int statusCode = momoResponse.getStatusLine().getStatusCode();
-			String responseBody = EntityUtils.toString(momoResponse.getEntity(), StandardCharsets.UTF_8);
+        String signature = hmacSha256(rawSignature, secretKey);
+        logger.debug("Generated Signature: {}", signature);
 
-			logger.info("Momo API Response Status: {}, Body: {}", statusCode, responseBody);
+        // Tạo request body cho MoMo
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("partnerCode", partnerCode);
+        requestBody.put("partnerName", "Test Payment");
+        requestBody.put("storeId", "TestStore");
+        requestBody.put("requestId", requestId);
+        requestBody.put("amount", amountLong);
+        requestBody.put("orderId", orderId);
+        requestBody.put("orderInfo", orderInfo);
+        requestBody.put("redirectUrl", redirectUrl);
+        requestBody.put("ipnUrl", ipnUrl);
+        requestBody.put("extraData", extraData);
+        requestBody.put("requestType", requestType);
+        requestBody.put("signature", signature);
+        requestBody.put("idBacSi", idBacSi);
+        requestBody.put("lang", "vi");
 
-			if (statusCode != 200) {
-				logger.error("Momo API trả về mã trạng thái không phải 200: {}, response: {}", statusCode,
-						responseBody);
-				response.put("status", "error");
-				response.put("message", "Lỗi khi gọi API MoMo: Trạng thái " + statusCode);
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-			}
+        logger.info("MoMo Request Payload: {}", requestBody.toString().replace(secretKey, "****"));
 
-			if (responseBody == null || responseBody.trim().isEmpty()) {
-				logger.error("Momo API trả về response body rỗng");
-				response.put("status", "error");
-				response.put("message", "Phản hồi từ MoMo rỗng!");
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-			}
+        // Gọi API MoMo
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost("https://test-payment.momo.vn/v2/gateway/api/create");
+        httpPost.setHeader("Content-Type", "application/json; charset=UTF-8");
+        httpPost.setEntity(new StringEntity(requestBody.toString(), StandardCharsets.UTF_8));
 
-			JSONObject momoResult;
-			try {
-				momoResult = new JSONObject(responseBody);
-			} catch (Exception e) {
-				logger.error("Không thể phân tích phản hồi MoMo API thành JSON: {}, lỗi: {}", responseBody,
-						e.getMessage());
-				response.put("status", "error");
-				response.put("message", "Phản hồi từ MoMo không hợp lệ: Không thể phân tích JSON!");
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-			}
+        CloseableHttpResponse momoResponse = client.execute(httpPost);
+        int statusCode = momoResponse.getStatusLine().getStatusCode();
+        String responseBody = EntityUtils.toString(momoResponse.getEntity(), StandardCharsets.UTF_8);
 
-			if (momoResult.has("payUrl") && !momoResult.getString("payUrl").isEmpty()) {
-				String payUrl = momoResult.getString("payUrl");
-				logger.info("Tạo đơn hàng MoMo thành công, payUrl: {}", payUrl);
-				response.put("status", "success");
-				response.put("message", "Tạo đơn hàng MoMo thành công!");
-				response.put("payUrl", payUrl);
-				response.put("orderId", orderId);
-				return ResponseEntity.ok(response);
-			} else {
-				String errorMessage = momoResult.optString("message", "Lỗi không xác định");
-				logger.error("Không thể tạo đơn hàng MoMo, phản hồi: {}", responseBody);
-				response.put("status", "error");
-				response.put("message", "Không thể tạo đơn hàng MoMo: " + errorMessage);
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-			}
-		} catch (Exception e) {
-			logger.error("Lỗi khi xử lý thanh toán MoMo cho hoSoId: {}, lỗi: {}", hoSoId, e.getMessage(), e);
-			response.put("status", "error");
-			response.put("message", "Có lỗi xảy ra: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-		}
-	}
+        logger.info("Momo API Response Status: {}, Body: {}", statusCode, responseBody);
 
-	// Hàm tạo chữ ký HMAC SHA256 (không thay đổi)
-	private String hmacSha256(String data, String key) throws Exception {
-		Mac sha256Hmac = Mac.getInstance("HmacSHA256");
-		SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-		sha256Hmac.init(secretKeySpec);
-		byte[] hash = sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-		StringBuilder hexString = new StringBuilder();
-		for (byte b : hash) {
-			String hex = Integer.toHexString(0xff & b);
-			if (hex.length() == 1)
-				hexString.append('0');
-			hexString.append(hex);
-		}
-		return hexString.toString();
-	}
+        if (statusCode != 200) {
+            logger.error("Momo API trả về mã trạng thái không phải 200: {}, response: {}", statusCode, responseBody);
+            response.put("status", "error");
+            response.put("message", "Lỗi khi gọi API MoMo: Trạng thái " + statusCode);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+        if (responseBody == null || responseBody.trim().isEmpty()) {
+            logger.error("Momo API trả về response body rỗng");
+            response.put("status", "error");
+            response.put("message", "Phản hồi từ MoMo rỗng!");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+        JSONObject momoResult;
+        try {
+            momoResult = new JSONObject(responseBody);
+        } catch (Exception e) {
+            logger.error("Không thể phân tích phản hồi MoMo API thành JSON: {}, lỗi: {}", responseBody, e.getMessage());
+            response.put("status", "error");
+            response.put("message", "Phản hồi từ MoMo không hợp lệ: Không thể phân tích JSON!");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+        if (momoResult.has("payUrl") && !momoResult.getString("payUrl").isEmpty()) {
+            String payUrl = momoResult.getString("payUrl");
+            logger.info("Tạo đơn hàng MoMo thành công, payUrl: {}", payUrl);
+            response.put("status", "success");
+            response.put("message", "Tạo đơn hàng MoMo thành công! Vui lòng sử dụng thẻ test MoMo (xem https://developers.momo.vn/#test-instructions) để thanh toán.");
+            response.put("payUrl", payUrl);
+            response.put("orderId", orderId);
+            return ResponseEntity.ok(response);
+        } else {
+            String errorMessage = momoResult.optString("message", "Lỗi không xác định");
+            logger.error("Không thể tạo đơn hàng MoMo, phản hồi: {}", responseBody);
+            response.put("status", "error");
+            response.put("message", "Không thể tạo đơn hàng MoMo: " + errorMessage);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    } catch (Exception e) {
+        logger.error("Lỗi khi xử lý thanh toán MoMo cho hoSoId: {}, lỗi: {}", hoSoId, e.getMessage(), e);
+        response.put("status", "error");
+        response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+}
+
+private String hmacSha256(String data, String key) throws Exception {
+    Mac mac = Mac.getInstance("HmacSHA256");
+    SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+    mac.init(secretKeySpec);
+    byte[] hmacData = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+    StringBuilder result = new StringBuilder();
+    for (byte b : hmacData) {
+        result.append(String.format("%02x", b));
+    }
+    return result.toString();
+}
 
 	@PostMapping("/nhanvien/xemlichbacsi/payment/check-status")
 	@ResponseBody
