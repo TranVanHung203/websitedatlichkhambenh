@@ -35,6 +35,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import tlcn.quanlyphongkham.dtos.LichKhamBenhDTO;
 import tlcn.quanlyphongkham.dtos.NguoiDungDTO;
+import tlcn.quanlyphongkham.dtos.QuanLyCaKhamDTO;
 import tlcn.quanlyphongkham.dtos.ThemTaiKhoanDTO;
 import tlcn.quanlyphongkham.entities.BacSi;
 import tlcn.quanlyphongkham.entities.ChiTietBacSi;
@@ -192,57 +193,63 @@ public class AdminController {
 	}
 
 	@PostMapping("/admin/qlckb/addLichKham")
-	public ResponseEntity<Map<String, Object>> addLichKhamBenh(@RequestBody LichKhamBenh lichKhamBenh) {
-		Map<String, Object> response = new HashMap<>();
+	public ResponseEntity<Map<String, Object>> addLichKhamBenh(@RequestBody QuanLyCaKhamDTO quanLyCaKhamDTO) {
+	    Map<String, Object> response = new HashMap<>();
 
-		try {
-			// Kiểm tra và tìm bác sĩ dựa trên ID
-			if (lichKhamBenh.getBacSi() != null && lichKhamBenh.getBacSi().getBacSiId() != null) {
-				Optional<BacSi> optionalBacSi = bacSiService.findBacSiById(lichKhamBenh.getBacSi().getBacSiId());
+	    try {
+	        // Kiểm tra và tìm bác sĩ dựa trên ID từ DTO
+	        if (quanLyCaKhamDTO.getBacSiId() != null && !quanLyCaKhamDTO.getBacSiId().isEmpty()) {
+	            Optional<BacSi> optionalBacSi = bacSiService.findBacSiById(quanLyCaKhamDTO.getBacSiId());
 
-				if (optionalBacSi.isPresent()) {
-					lichKhamBenh.setBacSi(optionalBacSi.get());
-				} else {
-					response.put("status", "error");
-					response.put("message", "Bác sĩ không tồn tại với ID: " + lichKhamBenh.getBacSi().getBacSiId());
-					return ResponseEntity.ok(response); // Trả về 200 OK cho lỗi này
-				}
-			} else {
-				response.put("status", "error");
-				response.put("message", "ID bác sĩ không hợp lệ");
-				return ResponseEntity.ok(response); // Trả về 200 OK cho lỗi này
-			}
+	            if (optionalBacSi.isPresent()) {
+	                BacSi bacSi = optionalBacSi.get();
 
-			// Kiểm tra trùng lịch khám
-			boolean exists = lichKhamBenhService.existsByNgayThangNamAndCaAndBacSi(lichKhamBenh.getNgayThangNam(),
-					lichKhamBenh.getCa(), lichKhamBenh.getBacSi());
+	                // Kiểm tra trùng lịch khám
+	                boolean exists = lichKhamBenhService.existsByNgayThangNamAndCaAndBacSi(
+	                        quanLyCaKhamDTO.getNgayThangNam(), 
+	                        quanLyCaKhamDTO.getCa(), 
+	                        bacSi
+	                );
 
-			if (exists) {
-				response.put("status", "error");
-				response.put("message", "Lịch khám cho bác sĩ đã tồn tại vào ngày " + lichKhamBenh.getNgayThangNam()
-						+ " và ca " + lichKhamBenh.getCa());
-				return ResponseEntity.status(HttpStatus.CONFLICT).body(response); // Trả về 409 Conflict
-			}
+	                if (exists) {
+	                    response.put("status", "error");
+	                    response.put("message", "Lịch khám cho bác sĩ đã tồn tại vào ngày " + 
+	                            quanLyCaKhamDTO.getNgayThangNam() + " và ca " + quanLyCaKhamDTO.getCa());
+	                    return ResponseEntity.status(HttpStatus.CONFLICT).body(response); // Trả về 409 Conflict
+	                }
 
-			// Tạo UUID cho LichKhamBenh
-			lichKhamBenh.setMaLichKhamBenh(UUID.randomUUID().toString());
+	                // Tạo LichKhamBenh từ DTO
+	                LichKhamBenh lichKhamBenh = new LichKhamBenh();
+	                lichKhamBenh.setBacSi(bacSi);
+	                lichKhamBenh.setCa(quanLyCaKhamDTO.getCa());
+	                lichKhamBenh.setNgayThangNam(quanLyCaKhamDTO.getNgayThangNam());
+	                lichKhamBenh.setMaLichKhamBenh(UUID.randomUUID().toString());
 
-			// Lưu LichKhamBenh
-			lichKhamBenhService.addLichKhamBenh(lichKhamBenh);
+	                // Lưu LichKhamBenh
+	                lichKhamBenhService.addLichKhamBenh(lichKhamBenh);
 
-			// Tạo phản hồi thành công mà không bao gồm thông tin nhạy cảm
-			response.put("status", "success");
-			response.put("message", "Lịch khám đã được thêm thành công");
-			response.put("details", "Bạn có thể kiểm tra lịch khám của bác sĩ tại trang quản lý lịch khám.");
-			return ResponseEntity.ok(response); // Trả về 200 OK cho thành công
-
-		} catch (Exception e) {
-			response.put("status", "error");
-			response.put("message", e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response); // Trả về 500 Internal Server
-																							// Error cho lỗi
-		}
+	                // Tạo phản hồi thành công
+	                response.put("status", "success");
+	                response.put("message", "Lịch khám đã được thêm thành công");
+	                response.put("details", "Bạn có thể kiểm tra lịch khám của bác sĩ tại trang quản lý lịch khám.");
+	                return ResponseEntity.ok(response); // Trả về 200 OK cho thành công
+	            } else {
+	                response.put("status", "error");
+	                response.put("message", "Bác sĩ không tồn tại với ID: " + quanLyCaKhamDTO.getBacSiId());
+	                return ResponseEntity.ok(response); // Trả về 200 OK cho lỗi này
+	            }
+	        } else {
+	            response.put("status", "error");
+	            response.put("message", "ID bác sĩ không hợp lệ");
+	            return ResponseEntity.ok(response); // Trả về 200 OK cho lỗi này
+	        }
+	    } catch (Exception e) {
+	        response.put("status", "error");
+	        response.put("message", e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response); // Trả về 500 Internal Server Error
+	    }
 	}
+
 
 	@DeleteMapping("/admin/qlckb/deleteLichKham/{maLichKhamBenh}")
 	public ResponseEntity<Map<String, Object>> deleteLichKhamBenh(@PathVariable String maLichKhamBenh) {
