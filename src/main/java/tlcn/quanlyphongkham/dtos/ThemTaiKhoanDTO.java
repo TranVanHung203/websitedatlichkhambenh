@@ -17,5 +17,7 @@ public class ThemTaiKhoanDTO {
     private String diaChi;
     private LocalDate ngaySinh;
     private String gioiTinh;
-}
 
+    // Thông tin thêm cho Bác sĩ
+    private String chuyenKhoaId;
+}

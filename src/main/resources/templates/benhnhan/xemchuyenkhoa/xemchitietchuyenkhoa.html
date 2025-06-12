@@ -106,6 +106,10 @@
             100% { opacity: 1; transform: translateX(0); }
         }
 
+        .chitietchuyenkhoa p.description {
+            white-space: pre-wrap; /* Preserve line breaks and wrap text */
+        }
+
         .chitietchuyenkhoa p::before {
             content: '✚'; /* Medical cross for flair */
             position: absolute;
@@ -190,7 +194,7 @@
     <div class="chitietchuyenkhoa">
         <div class="content">
             <h1 th:text="${chuyenKhoa.ten}"></h1>
-            <p th:text="'Mô tả: ' + ${chuyenKhoa.moTa}"></p>
+            <p class="description" th:text="'Mô tả: ' + ${chuyenKhoa.moTa}"></p>
         </div>
     </div>
 
