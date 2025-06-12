@@ -87,7 +87,7 @@ public class WebController {
 		nguoiDung.setMatKhau(encodedPassword);
 		nguoiDung.setEmail(dangKyDTO.getEmail());
 		nguoiDung.setVaiTro("BenhNhan");
-		nguoiDung.setTrangthai("DISABLE");// Gán vai trò mặc định là USER
+		nguoiDung.setTrangthai("INACTIVE");// Gán vai trò mặc định là USER
 
 		nguoiDungService.saveNguoiDung(nguoiDung);
 
@@ -109,7 +109,7 @@ public class WebController {
 
 		// Gửi email xác nhận
 		String emailBody = "Cảm ơn bạn đã đăng ký tài khoản. Vui lòng nhấn vào đường dẫn sau để xác nhận tài khoản của bạn: "
-				+ "https://websitedatlichkhambenh-mi5p.onrender.com/confirm?token=" + token;
+				+ "https://websitedatlichkhambenh.onrender.com/confirm?token=" + token;
 		emailService.sendEmail(nguoiDung.getEmail(), "Xác nhận đăng ký tài khoản", emailBody);
 
 		return "/web/dangky/yeucauxacthuc";
@@ -161,7 +161,7 @@ public class WebController {
 
 			// Gửi email xác nhận với đường dẫn đặt lại mật khẩu
 			String emailBody = "Để đặt lại mật khẩu của bạn, vui lòng nhấn vào đường dẫn sau: "
-					+ "https://websitedatlichkhambenh-mi5p.onrender.com/reset-password?token=" + token;
+					+ "https://websitedatlichkhambenh.onrender.com/reset-password?token=" + token;
 			emailService.sendEmail(nguoiDung.getEmail(), "Đặt lại mật khẩu", emailBody);
 			model.addAttribute("message", "Vui lòng kiểm tra email của bạn để đặt lại mật khẩu.");
 		} else {
