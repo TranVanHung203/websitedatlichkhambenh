@@ -120,7 +120,7 @@
                     <h3>Chọn phương thức thanh toán</h3>
                     <div class="container__payment-method">
                         <label><input type="radio" name="paymentMethod" value="cash" checked> Thanh toán bằng tiền mặt</label>
-                        <label><input type="radio" name="paymentMethod" value="creditCard"> Thanh toán bằng Momo</label>
+                        <label><input type="radio" name="paymentMethod" value="creditCard"> Thanh toán bằng Credit Card</label>
                     </div>
                 </div>
                 <div class="container__modal-footer">
@@ -455,7 +455,7 @@
             const paymentMethodDiv = document.querySelector('.container__payment-method');
             paymentMethodDiv.innerHTML = `
                 <label><input type="radio" name="paymentMethod" value="cash" checked> Thanh toán bằng tiền mặt</label>
-                <label><input type="radio" name="paymentMethod" value="creditCard"> Thanh toán bằng Momo</label>
+                <label><input type="radio" name="paymentMethod" value="creditCard"> Thanh toán bằng Credit Card </label>
             `;
 
             fetch(`/nhanvien/xemlichbacsi/payment/details?slotId=${slotId}`)
