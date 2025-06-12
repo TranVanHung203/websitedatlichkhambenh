@@ -795,7 +795,7 @@ public class NguoiDungController {
 	@GetMapping("/findbs")
 	public String findBacSi(@RequestParam(name = "section", required = false, defaultValue = "all") String section,
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page,
-			@RequestParam(name = "size", required = false, defaultValue = "5") int size,
+			@RequestParam(name = "size", required = false, defaultValue = "6") int size,
 			@RequestParam(name = "doctorName", required = false) String doctorName, // Thêm tham số tìm kiếm theo tên
 																					// bác sĩ
 			Model model) {
