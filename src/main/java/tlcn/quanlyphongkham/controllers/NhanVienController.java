@@ -668,8 +668,8 @@ public ResponseEntity<Map<String, Object>> createMomoCreditCardPayment(@RequestP
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String ngay = thoiGianTao.format(formatter);
         String encodedNgay = URLEncoder.encode(ngay, StandardCharsets.UTF_8.name());
-        String redirectUrl = "http://localhost:8080/nhanvien/xemlichbacsi/payment/confirm-momo?idBacSi=" + idBacSi + "&ngay=" + encodedNgay;
-        String ipnUrl = "http://localhost:8080/nhanvien/xemlichbacsi/payment/momo-ipn";
+        String redirectUrl = "https://websitedatlichkhambenh.onrender.com/nhanvien/xemlichbacsi/payment/confirm-momo?idBacSi=" + idBacSi + "&ngay=" + encodedNgay;
+        String ipnUrl = "https://websitedatlichkhambenh.onrender.com/nhanvien/xemlichbacsi/payment/momo-ipn";
         String requestId = UUID.randomUUID().toString();
         String orderId = "ORDER_" + hoSoId + "_" + System.currentTimeMillis();
         String orderInfo = "Thanh toán hồ sơ bệnh " + hoSoId;
