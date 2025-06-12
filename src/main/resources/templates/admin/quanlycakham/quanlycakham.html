@@ -1,362 +1,337 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Lịch Khám Bệnh</title>
-	<link rel="stylesheet" href="/css/quanlycakham.css"> <!-- Kết nối với file CSS -->
-	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
-	<link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Khám Bệnh</title>
+    <link rel="stylesheet" href="/css/quanlycakham.css">
+    <link th:href="@{/css/headeradmin.css}" rel="stylesheet">
+    <link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
 </head>
-
 <body>
-	<div th:replace="admin/fragments/header :: header"></div>
-	<div th:replace="admin/fragments/sidebar :: sidebar"></div>
-	<div class="outer-container">
-		<div class="container">
-			<h1>Lịch Khám Bệnh</h1>
+    <div th:replace="admin/fragments/header :: header"></div>
+    <div th:replace="admin/fragments/sidebar :: sidebar"></div>
+    <div class="outer-container">
+        <div class="container">
+            <h1>Lịch Khám Bệnh</h1>
+            <div class="header">
+                <div class="date-picker">
+                    <label for="date">Chọn Ngày:</label>
+                    <input type="date" id="date" value="${new Date().toISOString().split('T')[0]}">
+                    <button class="view-button" onclick="loadSchedule()">Xem</button>
+                </div>
+            </div>
+            <div id="schedule-sections">
+                <div class="schedule-section">
+                    <div class="section-header">
+                        <h3>Buổi Sáng (7h30 - 11h30)</h3>
+                        <button class="add-button" onclick="openPopup('popup-add')">+ Thêm Mới</button>
+                    </div>
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Bác Sĩ</th>
+                                <th>Chuyên Khoa</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="morning-schedule"></tbody>
+                    </table>
+                </div>
+                <div class="schedule-section">
+                    <div class="section-header">
+                        <h3>Buổi Chiều (13h - 16h30)</h3>
+                    </div>
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Bác Sĩ</th>
+                                <th>Chuyên Khoa</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="afternoon-schedule"></tbody>
+                    </table>
+                </div>
+                <div class="schedule-section">
+                    <div class="section-header">
+                        <h3>Buổi Ngoài Giờ (17h - 19h30)</h3>
+                    </div>
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Bác Sĩ</th>
+                                <th>Chuyên Khoa</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="evening-schedule"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="delete-confirm-box" class="confirm-box">
+                <p>Bạn có chắc chắn muốn xóa lịch khám này không?</p>
+                <button id="confirm-delete-btn" class="confirm-button">Xác nhận</button>
+                <button onclick="closeConfirmBox()" class="cancel-button">Hủy</button>
+            </div>
+            <div id="popup-add" class="popup">
+                <div class="popup-content">
+                    <span class="close-button" onclick="closePopup('popup-add')">×</span>
+                    <h3>Thêm Lịch Khám</h3>
+                    <label for="add-specialty">Chuyên Khoa:</label>
+                    <select id="add-specialty">
+                        <option value="">Chọn chuyên khoa</option>
+                    </select>
+                    <label for="add-doctor">Bác Sĩ:</label>
+                    <select id="add-doctor">
+                        <option value="">Chọn bác sĩ</option>
+                    </select>
+                    <label for="add-shift">Ca Khám:</label>
+                    <select id="add-shift">
+                        <option value="Sáng">Sáng</option>
+                        <option value="Chiều">Chiều</option>
+                        <option value="Ngoài Giờ">Ngoài Giờ</option>
+                    </select>
+                    <button class="save-button" onclick="saveSchedule()">Thêm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function loadSchedule() {
+            const dateInput = document.getElementById("date").value;
+            if (!dateInput) {
+                showNotification('error', 'Vui lòng chọn ngày!');
+                return;
+            }
+            fetch(`/admin/qlckb/${dateInput}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Không thể lấy dữ liệu");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("morning-schedule").innerHTML = '';
+                    document.getElementById("afternoon-schedule").innerHTML = '';
+                    document.getElementById("evening-schedule").innerHTML = '';
+                    data.forEach(item => {
+                        let scheduleRow = document.createElement('tr');
+                        scheduleRow.innerHTML =
+                            `<td>${item.tenBacSi}</td>
+                             <td>${item.tenChuyenKhoa}</td>
+                             <td>
+                                 <button class="delete-button" onclick="deleteSchedule('${item.maLichKhamBenh}')">Xóa</button>
+                             </td>`;
+                        if (item.caKham === "Sáng") {
+                            document.getElementById("morning-schedule").appendChild(scheduleRow);
+                        } else if (item.caKham === "Chiều") {
+                            document.getElementById("afternoon-schedule").appendChild(scheduleRow);
+                        } else if (item.caKham === "Ngoài Giờ") {
+                            document.getElementById("evening-schedule").appendChild(scheduleRow);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error("Có lỗi xảy ra:", error);
+                    showNotification('error', 'Lỗi khi tải lịch khám');
+                });
+        }
 
-			<div class="header">
-				<div class="date-picker">
-					<label for="date">Chọn Ngày:</label>
-					<input type="date" id="date" value="${new Date().toISOString().split('T')[0]}">
-					<button class="view-button" onclick="loadSchedule()">Xem</button>
-				</div>
-			</div>
+        function openPopup(popupId) {
+            document.getElementById(popupId).style.display = "block";
+            loadSpecialties();
+        }
 
-			<div id="schedule-sections">
-				<div class="schedule-section">
-					<div class="section-header">
-						<h3>Buổi Sáng (7h30 - 11h30)</h3>
-						<button class="add-button" onclick="openPopup('popup-add')">+ Thêm Mới</button>
-					</div>
-					<table class="schedule-table">
-						<thead>
-							<tr>
-								<th>Bác Sĩ</th>
-								<th>Chuyên Khoa</th>
-								<th>Thao Tác</th>
-							</tr>
-						</thead>
-						<tbody id="morning-schedule">
-							<!-- Các lịch khám buổi sáng sẽ được thêm vào đây -->
-						</tbody>
-					</table>
-				</div>
+        function closePopup(popupId) {
+            document.getElementById(popupId).style.display = "none";
+            document.getElementById('add-specialty').value = '';
+            document.getElementById('add-doctor').innerHTML = '<option value="">Chọn bác sĩ</option>';
+        }
 
-				<div class="schedule-section">
-					<div class="section-header">
-						<h3>Buổi Chiều (13h - 16h30)</h3>
+        let specialties = [];
 
-					</div>
-					<table class="schedule-table">
-						<thead>
-							<tr>
-								<th>Bác Sĩ</th>
-								<th>Chuyên Khoa</th>
-								<th>Thao Tác</th>
-							</tr>
-						</thead>
-						<tbody id="afternoon-schedule">
-							<!-- Các lịch khám buổi chiều sẽ được thêm vào đây -->
-						</tbody>
-					</table>
-				</div>
+        function loadSpecialties() {
+            fetch('/chuyenkhoa')
+                .then(response => response.json())
+                .then(data => {
+                    specialties = data;
+                    const specialtySelect = document.getElementById('add-specialty');
+                    specialtySelect.innerHTML = '<option value="">Chọn chuyên khoa</option>';
+                    data.forEach(specialty => {
+                        const option = document.createElement('option');
+                        option.value = specialty.chuyenKhoaId;
+                        option.textContent = specialty.ten;
+                        specialtySelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading specialties:', error);
+                    showNotification('error', 'Lỗi khi tải danh sách chuyên khoa');
+                });
+        }
 
-				<div class="schedule-section">
-					<div class="section-header">
-						<h3>Buổi Ngoài Giờ (17h - 19h30)</h3>
+        document.getElementById('add-specialty').addEventListener('change', function () {
+            const selectedChuyenKhoaId = this.value;
+            if (selectedChuyenKhoaId) {
+                loadDoctors(selectedChuyenKhoaId);
+            } else {
+                document.getElementById('add-doctor').innerHTML = '<option value="">Chọn bác sĩ</option>';
+            }
+        });
 
-					</div>
-					<table class="schedule-table">
-						<thead>
-							<tr>
-								<th>Bác Sĩ</th>
-								<th>Chuyên Khoa</th>
-								<th>Thao Tác</th>
-							</tr>
-						</thead>
-						<tbody id="evening-schedule">
-							<!-- Các lịch khám buổi tối sẽ được thêm vào đây -->
-						</tbody>
-					</table>
-				</div>
-			</div>
-			<!-- Hộp thoại xác nhận xóa -->
-			<div id="delete-confirm-box" class="confirm-box">
-				<p>Bạn có chắc chắn muốn xóa lịch khám này không?</p>
-				<button id="confirm-delete-btn" class="confirm-button">Xác nhận</button>
-				<button onclick="closeConfirmBox()" class="cancel-button">Hủy</button>
-			</div>
+        function loadDoctors(chuyenKhoaId) {
+            fetch(`/bacsi?chuyenKhoaId=${chuyenKhoaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const doctorSelect = document.getElementById('add-doctor');
+                    doctorSelect.innerHTML = '<option value="">Chọn bác sĩ</option>';
+                    data.forEach(doctor => {
+                        const option = document.createElement('option');
+                        option.value = doctor.id;
+                        option.textContent = doctor.ten;
+                        doctorSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading doctors:', error);
+                    showNotification('error', 'Lỗi khi tải danh sách bác sĩ');
+                });
+        }
 
-			<!-- Popup thêm lịch khám -->
-			<div id="popup-add" class="popup">
-				<div class="popup-content">
-					<span class="close-button" onclick="closePopup('popup-add')">&times;</span>
-					<h3>Thêm Lịch Khám</h3>
+        function saveSchedule() {
+            const bacSiId = document.getElementById('add-doctor').value;
+            const ca = document.getElementById('add-shift').value;
+            const ngayThangNam = document.getElementById('date').value;
+            const specialty = document.getElementById('add-specialty').value;
 
-					<label for="add-specialty">Chuyên Khoa:</label>
-					<select id="add-specialty">
-						
-					</select>
+            if (!ngayThangNam) {
+                showNotification('error', 'Vui lòng chọn ngày!');
+                return;
+            }
+            if (!specialty) {
+                showNotification('error', 'Vui lòng chọn chuyên khoa!');
+                return;
+            }
+            if (!bacSiId) {
+                showNotification('error', 'Vui lòng chọn bác sĩ!');
+                return;
+            }
 
-					<label for="add-doctor">Bác Sĩ:</label>
-					<select id="add-doctor">
-						
-						
-					</select>
+            const quanLyCaKham = {
+                bacSiId: bacSiId,
+                ca: ca,
+                ngayThangNam: ngayThangNam
+            };
 
-					<label for="add-shift">Ca Khám:</label>
-					<select id="add-shift">
-						<option value="Sáng">Sáng</option>
-						<option value="Chiều">Chiều</option>
-						<option value="Ngoài Giờ">Ngoài Giờ</option>
-					</select>
+            console.log('Sending payload:', quanLyCaKham); // Debugging
 
-					<button class="save-button">Thêm</button>
-				</div>
-			</div>
+            fetch('/admin/qlckb/addLichKham', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(quanLyCaKham)
+            })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json().then(data => ({ status: response.status, body: data }));
+                })
+                .then(({ status, body }) => {
+                    if (status === 200 && body.status === 'success') {
+                        showNotification('success', 'Thêm lịch khám thành công!');
+                        closePopup('popup-add');
+                        loadSchedule();
+                    } else if (status === 409) {
+                        showNotification('warning', body.message || 'Lịch khám đã tồn tại cho ngày và ca này');
+                    } else {
+                        showNotification('error', body.message || 'Có lỗi xảy ra, vui lòng thử lại');
+                    }
+                })
+                .catch(error => {
+                    console.error('Có lỗi xảy ra:', error);
+                    showNotification('error', 'Lỗi kết nối hoặc xử lý, vui lòng thử lại');
+                });
+        }
 
-		</div>
-	</div>
+        function showNotification(type, message) {
+            const notification = document.createElement('div');
+            notification.classList.add('notification', type);
+            notification.innerText = message;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
 
-	<script>
-		function loadSchedule() {
-			const dateInput = document.getElementById("date").value;
-			if (!dateInput) {
-				alert("Vui lòng chọn ngày!");
-				return;
-			}
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                border-radius: 4px;
+                color: #fff;
+                font-size: 16px;
+                z-index: 1000;
+                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+                opacity: 1;
+                transition: opacity 0.5s ease-out;
+            }
+            .notification.success { background-color: #4CAF50; }
+            .notification.warning { background-color: #FFA500; }
+            .notification.error { background-color: #F44336; }
+            .notification.fade-out { opacity: 0; }
+        `;
+        document.head.appendChild(style);
 
-			fetch(`/admin/qlckb/${dateInput}`)
-				.then(response => {
-					if (!response.ok) {
-						throw new Error("Không thể lấy dữ liệu");
-					}
-					return response.json();
-				})
-				.then(data => {
-					document.getElementById("morning-schedule").innerHTML = '';
-					document.getElementById("afternoon-schedule").innerHTML = '';
-					document.getElementById("evening-schedule").innerHTML = '';
+        let currentScheduleId = null;
 
-					data.forEach(item => {
-						let scheduleRow = document.createElement('tr');
-						scheduleRow.innerHTML =
-							`<td>${item.tenBacSi}</td>
-                    <td>${item.tenChuyenKhoa}</td>
-                    <td>
-                       <button class="delete-button" onclick="deleteSchedule('${item.maLichKhamBenh}')">Xóa</button>
+        function deleteSchedule(scheduleId) {
+            currentScheduleId = scheduleId;
+            openConfirmBox();
+        }
 
-                    </td>`;
+        function openConfirmBox() {
+            document.getElementById("delete-confirm-box").style.display = "block";
+        }
 
-						if (item.caKham === "Sáng") {
-							document.getElementById("morning-schedule").appendChild(scheduleRow);
-						} else if (item.caKham === "Chiều") {
-							document.getElementById("afternoon-schedule").appendChild(scheduleRow);
-						} else if (item.caKham === "Ngoài Giờ") {
-							document.getElementById("evening-schedule").appendChild(scheduleRow);
-						}
-					});
-				})
-				.catch(error => {
-					console.error("Có lỗi xảy ra:", error);
-				});
-		}
+        function closeConfirmBox() {
+            document.getElementById("delete-confirm-box").style.display = "none";
+            currentScheduleId = null;
+        }
 
-		function openPopup(popupId) {
-			document.getElementById(popupId).style.display = "block";
-		}
+        document.getElementById("confirm-delete-btn").addEventListener("click", function () {
+            if (!currentScheduleId) return;
+            fetch(`/admin/qlckb/deleteLichKham/${currentScheduleId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('success', 'Xóa lịch khám thành công!');
+                        loadSchedule();
+                    } else {
+                        showNotification('error', data.message || 'Không thể xóa lịch khám');
+                    }
+                    closeConfirmBox();
+                })
+                .catch(error => {
+                    console.error('Có lỗi xảy ra:', error);
+                    showNotification('error', 'Lỗi kết nối hoặc xử lý, vui lòng thử lại');
+                    closeConfirmBox();
+                });
+        });
 
-		function closePopup(popupId) {
-			document.getElementById(popupId).style.display = "none";
-		}
-		document.querySelectorAll('.add-button').forEach(button => {
-			button.addEventListener('click', () => {
-				openPopup('popup-add');
-				loadSpecialties(0, 'add-doctor');
-			});
-		});
-
-		let specialties = []; // Mảng lưu danh sách chuyên khoa khi tải từ server
-
-		// Load danh sách chuyên khoa từ server khi mở popup
-		function loadSpecialties(specialtySelectId, doctorSelectId) {
-			fetch('/chuyenkhoa')
-				.then(response => response.json())
-				.then(data => {
-					specialties = data; // Lưu dữ liệu chuyên khoa vào mảng
-					const specialtySelect = document.getElementById('add-specialty');
-					specialtySelect.innerHTML = ''; // Xóa các option cũ
-
-					// Điền các chuyên khoa vào select
-					data.forEach(specialty => {
-						const option = document.createElement('option');
-						option.textContent = specialty.ten; // Hiển thị tên chuyên khoa
-						specialtySelect.appendChild(option);
-					});
-
-					// Tự động load bác sĩ cho chuyên khoa đầu tiên
-					
-						loadDoctors(specialties[0].chuyenKhoaId,doctorSelectId); // Gọi loadDoctors với index đầu tiên
-					
-				})
-				.catch(error => console.error('Error loading specialties:', error));
-		}
-
-		// Thay đổi danh sách bác sĩ theo chuyên khoa đã chọn dựa trên index
-		document.getElementById('add-specialty').addEventListener('change', function () {
-			const selectedIndex = this.selectedIndex; // Lấy vị trí (index) chuyên khoa đã chọn
-			loadDoctors(specialties[selectedIndex].chuyenKhoaId,'add-doctor'); // Gọi loadDoctors với index chuyên khoa
-		});
-
-		function loadDoctors(chuyenKhoaId, doctorSelectId) {
-			fetch(`/bacsi?chuyenKhoaId=${chuyenKhoaId}`)
-				.then(response => response.json())
-				.then(data => {
-					const doctorSelect = document.getElementById(doctorSelectId);
-					doctorSelect.innerHTML = '';
-					data.forEach(doctor => {
-						const option = document.createElement('option');
-						option.value = doctor.id;
-						option.textContent = doctor.ten;
-						doctorSelect.appendChild(option);
-					});
-				})
-				.catch(error => console.error('Error loading doctors:', error));
-		}
-
-
-
-		document.querySelector('.save-button').addEventListener('click', function () {
-			const doctor = document.getElementById('add-doctor').value;
-			const shift = document.getElementById('add-shift').value;
-			const dateInput = document.getElementById("date").value;
-
-			const lichKhamBenh = {
-				bacSi: {bacSiId: doctor},
-				ca: shift,
-				ngayThangNam: dateInput
-			};
-
-			fetch('/admin/qlckb/addLichKham', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(lichKhamBenh)
-			})
-				.then(response => {
-					console.log('Response status:', response.status); // Log status
-					return response.json().then(data => ({status: response.status, body: data}));
-				})
-				.then(({status, body}) => {
-					if (status === 200) {
-						showNotification('success', 'Thêm lịch khám thành công!');
-						closePopup('popup-add'); // Đóng popup
-						loadSchedule(); // Tải lại lịch khám với ngày mới
-					} else if (status === 409) {
-						showNotification('warning', body.message || 'Lịch khám đã tồn tại cho ngày và ca này');
-					} else {
-						showNotification('error', body.message || 'Có lỗi xảy ra, vui lòng thử lại');
-					}
-				})
-				.catch(error => {
-					console.error('Có lỗi xảy ra:', error);
-					showNotification('error', 'Lỗi kết nối hoặc xử lý, vui lòng thử lại');
-				});
-		});
-
-		// Hàm hiển thị thông báo
-		function showNotification(type, message) {
-			const notification = document.createElement('div');
-			notification.classList.add('notification', type);
-			notification.innerText = message;
-
-			// Thêm thông báo vào trang
-			document.body.appendChild(notification);
-
-			// Xóa thông báo sau 3 giây
-			setTimeout(() => {
-				notification.remove();
-			}, 3000);
-		}
-
-		// CSS cho thông báo
-		const style = document.createElement('style');
-		style.innerHTML = `
-    .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 10px 20px;
-        border-radius: 4px;
-        color: #fff;
-        font-size: 16px;
-        z-index: 1000;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-        opacity: 1;
-        transition: opacity 0.5s ease-out;
-    }
-    .notification.success { background-color: #4CAF50; } /* Màu xanh cho thành công */
-    .notification.warning { background-color: #FFA500; } /* Màu cam cho cảnh báo */
-    .notification.error { background-color: #F44336; } /* Màu đỏ cho lỗi */
-    .notification.fade-out { opacity: 0; }
-`;
-		document.head.appendChild(style);
-
-		let currentScheduleId = null;
-
-		function deleteSchedule(scheduleId) {
-			currentScheduleId = scheduleId;
-			openConfirmBox();
-		}
-
-		function openConfirmBox() {
-			document.getElementById("delete-confirm-box").style.display = "block";
-		}
-
-		function closeConfirmBox() {
-			document.getElementById("delete-confirm-box").style.display = "none";
-			currentScheduleId = null;
-		}
-
-		document.getElementById("confirm-delete-btn").addEventListener("click", function () {
-			if (!currentScheduleId) return;
-
-			fetch(`/admin/qlckb/deleteLichKham/${currentScheduleId}`, {
-				method: 'DELETE',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-				.then(response => response.json())
-				.then(data => {
-					if (data.success) {
-						showNotification('success', 'Xóa lịch khám thành công!');
-						loadSchedule();
-					} else {
-						showNotification('error', data.message || 'Không thể xóa lịch khám');
-					}
-					closeConfirmBox();
-				})
-				.catch(error => {
-					console.error('Có lỗi xảy ra:', error);
-					showNotification('error', 'Lỗi kết nối hoặc xử lý, vui lòng thử lại');
-					closeConfirmBox();
-				});
-		});
-
-
-
-
-		window.onload = function () {
-			const today = new Date().toISOString().split('T')[0];
-			document.getElementById("date").value = today;
-			loadSchedule();
-		};
-	</script>
+        window.onload = function () {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("date").value = today;
+            loadSchedule();
+        };
+    </script>
 </body>
-
 </html>
