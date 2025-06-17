@@ -29,4 +29,19 @@ public interface XetNghiemRepository extends JpaRepository<XetNghiem, Long> {
 			+ "WHERE (:year IS NULL OR CAST(YEAR(xn.hoSoBenh.slotThoiGian.lichKhamBenh.ngayThangNam) AS string) = :year) "
 			+ "GROUP BY xn.loaiXetNghiem.tenXetNghiem")
 	List<Object[]> findTestUsageByYear(@Param("year") String year);
+
+    @Query("SELECT x FROM XetNghiem x " +
+            "JOIN x.hoSoBenh h " +
+            "JOIN h.benhNhan b " +
+            "WHERE (:tenBenhNhan IS NULL OR LOWER(b.ten) LIKE :tenBenhNhan) " +
+            "AND (:dienThoai IS NULL OR b.dienThoai LIKE :dienThoai) " +
+            "AND (:trangThai IS NULL OR x.trangThai = :trangThai) " +
+            "AND (:thoiGianTao IS NULL OR CAST(h.thoiGianTao AS date) = :thoiGianTao)")
+     List<XetNghiem> findByFilters(
+         @Param("tenBenhNhan") String tenBenhNhan,
+         @Param("dienThoai") String dienThoai,
+         @Param("trangThai") String trangThai,
+         @Param("thoiGianTao") LocalDate thoiGianTao
+     );
+ 
 }

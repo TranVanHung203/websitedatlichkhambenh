@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Upload Kết Quả Xét Nghiệm</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        th, td {
+            text-align: left;
+            vertical-align: middle;
+        }
+        .disabled-checkbox {
+            cursor: not-allowed;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h1 class="text-2xl font-bold mb-4">Quản Lý Upload Kết Quả Xét Nghiệm</h1>
+
+        <!-- Filter Form -->
+        <form th:action="@{/nhanvien/xetnghiem/pending}" method="get" class="mb-4 p-4 bg-white rounded shadow">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium">Tên Bệnh Nhân</label>
+                    <input type="text" name="tenBenhNhan" th:value="${param.tenBenhNhan}"
+                           class="mt-1 p-2 w-full border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Số Điện Thoại</label>
+                    <input type="text" name="dienThoai" th:value="${param.dienThoai}"
+                           class="mt-1 p-2 w-full border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Trạng Thái</label>
+                    <select name="trangThai" class="mt-1 p-2 w-full border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Tất cả</option>
+                        <option value="Chờ kết quả" th:selected="${param.trangThai == 'Chờ kết quả'}">Chờ kết quả</option>
+                        <option value="DaUpload" th:selected="${param.trangThai == 'DaUpload'}">Đã Upload</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Lọc
+                </button>
+            </div>
+        </form>
+
+        <!-- Upload Form -->
+        <form th:action="@{/api/nhanvien/upload-result}" method="post" enctype="multipart/form-data" class="mb-4">
+            <div class="flex items-center space-x-4">
+                <input type="file" name="file" id="fileInput" class="p-2 border rounded"/>
+                <button type="submit" id="uploadButton"
+                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        disabled>
+                    Upload Kết Quả
+                </button>
+            </div>
+            <p th:if="${errorMessage}" class="error-message mt-2" th:text="${errorMessage}"></p>
+            <p th:if="${successMessage}" class="text-green-600 mt-2" th:text="${successMessage}"></p>
+        </form>
+
+        <!-- Tests Table -->
+        <div class="table-container">
+            <table class="min-w-full bg-white border">
+                <thead class="bg-gray-200 sticky top-0">
+                    <tr>
+                        <th class="p-2 border">Chọn</th>
+                        <th class="p-2 border">Tên Bệnh Nhân</th>
+                        <th class="p-2 border">Số Điện Thoại</th>
+                        <th class="p-2 border">Tên Xét Nghiệm</th>
+                        <th class="p-2 border">Trạng Thái</th>
+                        <th class="p-2 border">File Kết Quả</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="test : ${tests}" th:class="${test.trangThai == 'DaUpload'} ? 'bg-gray-50' : ''">
+                        <td class="p-2 border text-center">
+                            <input type="checkbox" th:name="xetNghiemIds" th:value="${test.xetNghiemId}"
+                                   th:disabled="${test.trangThai == 'DaUpload'}"
+                                   th:class="${test.trangThai == 'DaUpload'} ? 'disabled-checkbox' : ''"
+                                   onchange="toggleUploadButton()"/>
+                        </td>
+                        <td class="p-2 border" th:text="${test.tenBenhNhan}"></td>
+                        <td class="p-2 border" th:text="${test.dienThoai}"></td>
+                        <td class="p-2 border" th:text="${test.tenXetNghiem}"></td>
+                        <td class="p-2 border" th:text="${test.trangThai}"></td>
+                        <td class="p-2 border">
+                            <a th:if="${test.fileKetQua}"
+                               th:href="@{/api/nhanvien/files/xetnghiem/{filename}(filename=${test.fileKetQua})}"
+                               target="_blank" class="text-blue-500 hover:underline">
+                                Xem File
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${tests.isEmpty}">
+                        <td colspan="6" class="p-2 border text-center">Không có xét nghiệm nào.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function toggleUploadButton() {
+            const checkboxes = document.querySelectorAll('input[name="xetNghiemIds"]:checked');
+            const fileInput = document.getElementById('fileInput');
+            const uploadButton = document.getElementById('uploadButton');
+            uploadButton.disabled = checkboxes.length === 0 || !fileInput.files.length;
+        }
+
+        // Initialize button state on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleUploadButton();
+            document.getElementById('fileInput').addEventListener('change', toggleUploadButton);
+        });
+    </script>
+</body>
+</html>

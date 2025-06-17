@@ -1,18 +1,14 @@
 <header th:fragment="header">
     <style>
-        /* Ensure global box-sizing for consistency */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-
-        /* Scoped to .header-container to avoid conflicts with xemlichbacsi.css */
+        /* Scoped styles to prevent conflicts with other pages */
         .header-container {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
-            padding: 0; /* Reset padding to prevent inherited shifts */
+            padding: 0;
             width: 100%;
-            min-height: 150px; /* Ensure minimum height */
-            left: 0; /* Explicitly align to left edge */
+            min-height: 150px;
+            left: 0;
+            box-sizing: border-box;
         }
 
         .header-container__top-bar {
@@ -22,14 +18,15 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px 30px;
-            margin: 0; /* Reset margin */
+            margin: 0;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             position: fixed;
             top: 0;
-            left: 0; /* Ensure alignment to left edge */
+            left: 0;
             width: 100%;
             z-index: 1000;
             min-height: 90px;
+            box-sizing: border-box;
         }
 
         .header-container__logo-img {
@@ -52,14 +49,15 @@
         .header-container__nav {
             background: linear-gradient(90deg, #0056b3, #007bff);
             padding: 15px 0;
-            margin: 0; /* Reset margin */
+            margin: 0;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             position: fixed;
             top: 90px;
-            left: 0; /* Ensure alignment to left edge */
+            left: 0;
             width: 100%;
             z-index: 1000;
             min-height: 60px;
+            box-sizing: border-box;
         }
 
         .header-container__nav ul {
@@ -69,7 +67,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 40px;
+            gap: 20px; /* Reduced gap to fit links on one line */
         }
 
         .header-container__nav ul li {
@@ -79,14 +77,15 @@
         .header-container__nav ul li a {
             text-decoration: none;
             color: white;
-            padding: 14px 25px;
+            padding: 12px 15px; /* Reduced padding to save space */
             display: inline-flex;
             align-items: center;
             transition: all 0.3s ease;
             border-radius: 10px;
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 14px; /* Smaller font size */
+            font-weight: 400; /* Lighter font weight */
             position: relative;
+            white-space: nowrap; /* Prevent text wrapping */
         }
 
         .header-container__nav ul li a:hover {
@@ -113,7 +112,7 @@
         .header-container__nav ul li a.header-container__logout {
             background-color: #ff4d4d;
             border-radius: 10px;
-            padding: 14px 30px;
+            padding: 12px 20px; /* Adjusted padding for consistency */
             font-weight: 600;
             transition: all 0.3s ease;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -126,8 +125,8 @@
         }
 
         .header-container__nav ul li a.header-container__home-icon svg {
-            width: 24px;
-            height: 24px;
+            width: 20px; /* Slightly smaller icon */
+            height: 20px;
             margin-right: 8px;
             fill: white;
             transition: transform 0.3s ease;
@@ -145,8 +144,9 @@
                 min-height: 140px;
                 position: fixed;
                 top: 0;
-                left: 0; /* Ensure alignment */
+                left: 0;
                 width: 100%;
+                box-sizing: border-box;
             }
 
             .header-container__contact-info p {
@@ -158,18 +158,24 @@
                 padding: 10px 0;
                 min-height: 200px;
                 position: fixed;
-                left: 0; /* Ensure alignment */
+                left: 0;
                 width: 100%;
+                box-sizing: border-box;
             }
 
             .header-container__nav ul {
                 flex-direction: column;
-                gap: 20px;
+                gap: 15px; /* Smaller gap for mobile */
                 padding: 0 20px;
             }
 
             .header-container__nav ul li a {
-                padding: 10px 20px;
+                padding: 10px 15px; /* Consistent padding for mobile */
+                font-size: 14px; /* Same font size */
+            }
+
+            .header-container__nav ul li a.header-container__logout {
+                padding: 10px 20px; /* Adjusted for mobile */
             }
         }
     </style>
@@ -197,6 +203,7 @@
                 <li><a th:href="@{/nhanvien/dangkylichkham}">Đặt lịch khám</a></li>
                 <li><a th:href="@{/nhanvien/xemlichbacsi}">Xem thứ tự ca khám</a></li>
                 <li><a th:href="@{/nhanvien/xemlichsukhambenh}">Xem đơn thuốc của bệnh nhân</a></li>
+                <li><a th:href="@{/nhanvien/uploadxetnghiem}">Upload Kết Quả Xét Nghiệm</a></li>
                 <li><a th:href="@{/logout}" class="header-container__logout">Đăng Xuất</a></li>
             </ul>
         </nav>
@@ -219,13 +226,13 @@
                     topBar.style.minHeight = window.innerWidth <= 768 ? '140px' : '90px';
                     topBar.style.position = 'fixed';
                     topBar.style.top = '0';
-                    topBar.style.left = '0'; // Explicitly lock to left
+                    topBar.style.left = '0';
                     topBar.style.width = '100%';
                     topBar.style.margin = '0';
                     nav.style.minHeight = window.innerWidth <= 768 ? '200px' : '60px';
                     nav.style.position = 'fixed';
                     nav.style.top = window.innerWidth <= 768 ? '140px' : '90px';
-                    nav.style.left = '0'; // Explicitly lock to left
+                    nav.style.left = '0';
                     nav.style.width = '100%';
                     nav.style.margin = '0';
                     headerContainer.style.width = '100%';
@@ -260,12 +267,9 @@
                 }
             }
 
-       
-
             // Initialize header on page load
             function initHeader() {
                 lockHeaderSize();
-                initNavLinks();
                 window.addEventListener('resize', lockHeaderSize);
             }
 
