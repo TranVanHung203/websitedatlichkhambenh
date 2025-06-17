@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xem Lịch Bác Sĩ</title>
     <link rel="stylesheet" th:href="@{/css/xemlichbacsi.css}">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -17,7 +16,7 @@
     <div th:replace="~{nhanvien/fragments/header :: header}"></div>
 
     <div class="container">
-        <h1 class="container__title">Xem Lịch Làm Việc Của Bác Sĩ</h1>
+        <h1 class="container__title">Xem Thứ Tự Ca Khám Bệnh</h1>
 
         <!-- Chọn chuyên khoa, bác sĩ, ngày và nút reload -->
         <div class="container__doctor-select">
@@ -356,8 +355,11 @@
                             <td>${end}</td>
                             <td>
                                 ${slot.trangThai}
-                                <button class="container__checkin-btn" onclick="checkInPatient('${slot.slotId}', '${ca}')">
+                                <button class="container__checkin-btn" onclick="checkInPatient('${slot.slotId}', '${ca}', 'checked-in')">
                                     Check-in
+                                </button>
+                                <button class="container__cancel-appointment-btn" onclick="checkInPatient('${slot.slotId}', '${ca}', 'cancelled')">
+                                    Hủy ca khám
                                 </button>
                             </td>
                             <td>${slot.tenBenhNhan}</td>
@@ -648,8 +650,8 @@
             }
         }
 
-        function checkInPatient(slotId, ca) {
-            fetch(`/nhanvien/xemlichbacsi/checkin?slotId=${slotId}`, {
+        function checkInPatient(slotId, ca, trangThai) {
+            fetch(`/nhanvien/xemlichbacsi/setStatus?slotId=${slotId}&trangThai=${trangThai}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -687,6 +689,49 @@
                         icon: 'error',
                         title: 'Lỗi',
                         text: 'Đã xảy ra lỗi khi check-in!',
+                    });
+                });
+        }
+
+        function cancelAppointment(slotId, ca) {
+            fetch(`/nhanvien/xemlichbacsi/cancel?slotId=${slotId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Phản hồi không thành công: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: data.message || 'Hủy ca khám thành công!',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => {
+                            loadSchedule();
+                        }, 1500);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: data.message || 'Không thể hủy ca khám!',
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Đã xảy ra lỗi khi hủy ca khám!',
                     });
                 });
         }
