@@ -1,19 +1,18 @@
 package tlcn.quanlyphongkham.repositories;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
 import tlcn.quanlyphongkham.entities.HoSoBenh;
-import tlcn.quanlyphongkham.dtos.HoSoBenhDTO;
-import tlcn.quanlyphongkham.dtos.LichSuKhamDTO;
 
 @Repository
 public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
@@ -186,4 +185,57 @@ public interface HoSoBenhRepository extends JpaRepository<HoSoBenh, String> {
 		            @Param("phoneNumber") String phoneNumber,
 		            Pageable pageable);
 		  List<HoSoBenh> findByHoSoIdIn(List<String> hoSoIds);
+		  
+		  
+		  
+		  @Query("SELECT CAST(hs.slotThoiGian.lichKhamBenh.ngayThangNam AS string) AS timePeriod, " +
+		           "COUNT(DISTINCT hs.benhNhan.id) AS totalPatients, " +
+		           "COUNT(DISTINCT CASE WHEN visitCounts.visitCount > 1 THEN hs.benhNhan.id ELSE NULL END) AS revisitPatients, " +
+		           "COUNT(hs) AS totalVisits " +
+		           "FROM HoSoBenh hs " +
+		           "LEFT JOIN (SELECT hs2.benhNhan.id AS benhNhanId, COUNT(hs2) AS visitCount " +
+		           "           FROM HoSoBenh hs2 " +
+		           "           WHERE (:date IS NULL OR hs2.slotThoiGian.lichKhamBenh.ngayThangNam = :date) " +
+		           "           AND hs2.slotThoiGian IS NOT NULL AND hs2.slotThoiGian.lichKhamBenh IS NOT NULL " +
+		           "           GROUP BY hs2.benhNhan.id) visitCounts ON hs.benhNhan.id = visitCounts.benhNhanId " +
+		           "WHERE (:date IS NULL OR hs.slotThoiGian.lichKhamBenh.ngayThangNam = :date) " +
+		           "AND hs.slotThoiGian IS NOT NULL AND hs.slotThoiGian.lichKhamBenh IS NOT NULL " +
+		           "GROUP BY CAST(hs.slotThoiGian.lichKhamBenh.ngayThangNam AS string)")
+		    List<Object[]> findRevisitRateByDay(@Param("date") LocalDate date);
+
+		    @Query("SELECT CONCAT(CAST(YEAR(hs.slotThoiGian.lichKhamBenh.ngayThangNam) AS string), '-', " +
+		           "LPAD(CAST(MONTH(hs.slotThoiGian.lichKhamBenh.ngayThangNam) AS string), 2, '0')) AS timePeriod, " +
+		           "COUNT(DISTINCT hs.benhNhan.id) AS totalPatients, " +
+		           "COUNT(DISTINCT CASE WHEN visitCounts.visitCount > 1 THEN hs.benhNhan.id ELSE NULL END) AS revisitPatients, " +
+		           "COUNT(hs) AS totalVisits " +
+		           "FROM HoSoBenh hs " +
+		           "LEFT JOIN (SELECT hs2.benhNhan.id AS benhNhanId, COUNT(hs2) AS visitCount " +
+		           "           FROM HoSoBenh hs2 " +
+		           "           WHERE (:month IS NULL OR " +
+		           "                  CONCAT(CAST(YEAR(hs2.slotThoiGian.lichKhamBenh.ngayThangNam) AS string), '-', " +
+		           "                         LPAD(CAST(MONTH(hs2.slotThoiGian.lichKhamBenh.ngayThangNam) AS string), 2, '0')) = :month) " +
+		           "           AND hs2.slotThoiGian IS NOT NULL AND hs2.slotThoiGian.lichKhamBenh IS NOT NULL " +
+		           "           GROUP BY hs2.benhNhan.id) visitCounts ON hs.benhNhan.id = visitCounts.benhNhanId " +
+		           "WHERE (:month IS NULL OR " +
+		           "       CONCAT(CAST(YEAR(hs.slotThoiGian.lichKhamBenh.ngayThangNam) AS string), '-', " +
+		           "              LPAD(CAST(MONTH(hs.slotThoiGian.lichKhamBenh.ngayThangNam) AS string), 2, '0')) = :month) " +
+		           "AND hs.slotThoiGian IS NOT NULL AND hs.slotThoiGian.lichKhamBenh IS NOT NULL " +
+		           "GROUP BY CONCAT(CAST(YEAR(hs.slotThoiGian.lichKhamBenh.ngayThangNam) AS string), '-', " +
+		           "                LPAD(CAST(MONTH(hs.slotThoiGian.lichKhamBenh.ngayThangNam) AS string), 2, '0'))")
+		    List<Object[]> findRevisitRateByMonth(@Param("month") String month);
+
+		    @Query("SELECT CAST(YEAR(hs.slotThoiGian.lichKhamBenh.ngayThangNam) AS string) AS timePeriod, " +
+		           "COUNT(DISTINCT hs.benhNhan.id) AS totalPatients, " +
+		           "COUNT(DISTINCT CASE WHEN visitCounts.visitCount > 1 THEN hs.benhNhan.id ELSE NULL END) AS revisitPatients, " +
+		           "COUNT(hs) AS totalVisits " +
+		           "FROM HoSoBenh hs " +
+		           "LEFT JOIN (SELECT hs2.benhNhan.id AS benhNhanId, COUNT(hs2) AS visitCount " +
+		           "           FROM HoSoBenh hs2 " +
+		           "           WHERE (:year IS NULL OR CAST(YEAR(hs2.slotThoiGian.lichKhamBenh.ngayThangNam) AS string) = :year) " +
+		           "           AND hs2.slotThoiGian IS NOT NULL AND hs2.slotThoiGian.lichKhamBenh IS NOT NULL " +
+		           "           GROUP BY hs2.benhNhan.id) visitCounts ON hs.benhNhan.id = visitCounts.benhNhanId " +
+		           "WHERE (:year IS NULL OR CAST(YEAR(hs.slotThoiGian.lichKhamBenh.ngayThangNam) AS string) = :year) " +
+		           "AND hs.slotThoiGian IS NOT NULL AND hs.slotThoiGian.lichKhamBenh IS NOT NULL " +
+		           "GROUP BY CAST(YEAR(hs.slotThoiGian.lichKhamBenh.ngayThangNam) AS string)")
+		    List<Object[]> findRevisitRateByYear(@Param("year") String year);
 }

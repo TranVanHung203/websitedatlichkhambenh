@@ -48,6 +48,7 @@ import tlcn.quanlyphongkham.services.ChuyenKhoaService;
 import tlcn.quanlyphongkham.services.LichKhamBenhService;
 import tlcn.quanlyphongkham.services.LoaiXetNghiemService;
 import tlcn.quanlyphongkham.services.NguoiDungService;
+import tlcn.quanlyphongkham.services.StatisticsService;
 import tlcn.quanlyphongkham.services.ThuocService;
 
 @Controller
@@ -60,6 +61,9 @@ public class AdminController {
 	private BacSiService bacSiService;
 	@Autowired
 	private ChuyenKhoaService chuyenKhoaService;
+
+	@Autowired
+	private StatisticsService statisticsService;
 
 	@Autowired
 	private ThuocService thuocService;
@@ -136,39 +140,40 @@ public class AdminController {
 	}
 
 	@PostMapping("/admin/qltk/add")
-    public ResponseEntity<Map<String, String>> themNguoiDung(@RequestBody ThemTaiKhoanDTO themTaiKhoanDTO) {
-        Map<String, String> response = new HashMap<>();
+	public ResponseEntity<Map<String, String>> themNguoiDung(@RequestBody ThemTaiKhoanDTO themTaiKhoanDTO) {
+		Map<String, String> response = new HashMap<>();
 
-        // Kiểm tra nếu email hoặc tên đăng nhập đã tồn tại
-        boolean emailExists = nguoiDungService.emailExists(themTaiKhoanDTO.getEmail());
-        boolean usernameExists = nguoiDungService.usernameExists(themTaiKhoanDTO.getTenDangNhap());
+		// Kiểm tra nếu email hoặc tên đăng nhập đã tồn tại
+		boolean emailExists = nguoiDungService.emailExists(themTaiKhoanDTO.getEmail());
+		boolean usernameExists = nguoiDungService.usernameExists(themTaiKhoanDTO.getTenDangNhap());
 
-        if (emailExists) {
-            response.put("error", "Email đã tồn tại. Vui lòng chọn email khác.");
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
+		if (emailExists) {
+			response.put("error", "Email đã tồn tại. Vui lòng chọn email khác.");
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+		}
 
-        if (usernameExists) {
-            response.put("error", "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.");
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
+		if (usernameExists) {
+			response.put("error", "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.");
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+		}
 
-        // Kiểm tra nếu vai trò là Bác sĩ thì chuyên khoa ID không được để trống
-        if ("BacSi".equals(themTaiKhoanDTO.getVaiTro()) && themTaiKhoanDTO.getChuyenKhoaId() == null) {
-            response.put("error", "Vui lòng chọn chuyên khoa cho bác sĩ.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+		// Kiểm tra nếu vai trò là Bác sĩ thì chuyên khoa ID không được để trống
+		if ("BacSi".equals(themTaiKhoanDTO.getVaiTro()) && themTaiKhoanDTO.getChuyenKhoaId() == null) {
+			response.put("error", "Vui lòng chọn chuyên khoa cho bác sĩ.");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+		}
 
-        // Thêm người dùng mới
-        try {
-            nguoiDungService.themNguoiDung(themTaiKhoanDTO);
-            response.put("message", "Thêm người dùng thành công.");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("error", "Lỗi khi thêm người dùng: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+		// Thêm người dùng mới
+		try {
+			nguoiDungService.themNguoiDung(themTaiKhoanDTO);
+			response.put("message", "Thêm người dùng thành công.");
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			response.put("error", "Lỗi khi thêm người dùng: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		}
 	}
+
 	@GetMapping("/admin/qlckb")
 	public String openFormQuanLyCaKham(Model model) {
 
@@ -194,62 +199,59 @@ public class AdminController {
 
 	@PostMapping("/admin/qlckb/addLichKham")
 	public ResponseEntity<Map<String, Object>> addLichKhamBenh(@RequestBody QuanLyCaKhamDTO quanLyCaKhamDTO) {
-	    Map<String, Object> response = new HashMap<>();
+		Map<String, Object> response = new HashMap<>();
 
-	    try {
-	        // Kiểm tra và tìm bác sĩ dựa trên ID từ DTO
-	        if (quanLyCaKhamDTO.getBacSiId() != null && !quanLyCaKhamDTO.getBacSiId().isEmpty()) {
-	            Optional<BacSi> optionalBacSi = bacSiService.findBacSiById(quanLyCaKhamDTO.getBacSiId());
+		try {
+			// Kiểm tra và tìm bác sĩ dựa trên ID từ DTO
+			if (quanLyCaKhamDTO.getBacSiId() != null && !quanLyCaKhamDTO.getBacSiId().isEmpty()) {
+				Optional<BacSi> optionalBacSi = bacSiService.findBacSiById(quanLyCaKhamDTO.getBacSiId());
 
-	            if (optionalBacSi.isPresent()) {
-	                BacSi bacSi = optionalBacSi.get();
+				if (optionalBacSi.isPresent()) {
+					BacSi bacSi = optionalBacSi.get();
 
-	                // Kiểm tra trùng lịch khám
-	                boolean exists = lichKhamBenhService.existsByNgayThangNamAndCaAndBacSi(
-	                        quanLyCaKhamDTO.getNgayThangNam(), 
-	                        quanLyCaKhamDTO.getCa(), 
-	                        bacSi
-	                );
+					// Kiểm tra trùng lịch khám
+					boolean exists = lichKhamBenhService.existsByNgayThangNamAndCaAndBacSi(
+							quanLyCaKhamDTO.getNgayThangNam(), quanLyCaKhamDTO.getCa(), bacSi);
 
-	                if (exists) {
-	                    response.put("status", "error");
-	                    response.put("message", "Lịch khám cho bác sĩ đã tồn tại vào ngày " + 
-	                            quanLyCaKhamDTO.getNgayThangNam() + " và ca " + quanLyCaKhamDTO.getCa());
-	                    return ResponseEntity.status(HttpStatus.CONFLICT).body(response); // Trả về 409 Conflict
-	                }
+					if (exists) {
+						response.put("status", "error");
+						response.put("message", "Lịch khám cho bác sĩ đã tồn tại vào ngày "
+								+ quanLyCaKhamDTO.getNgayThangNam() + " và ca " + quanLyCaKhamDTO.getCa());
+						return ResponseEntity.status(HttpStatus.CONFLICT).body(response); // Trả về 409 Conflict
+					}
 
-	                // Tạo LichKhamBenh từ DTO
-	                LichKhamBenh lichKhamBenh = new LichKhamBenh();
-	                lichKhamBenh.setBacSi(bacSi);
-	                lichKhamBenh.setCa(quanLyCaKhamDTO.getCa());
-	                lichKhamBenh.setNgayThangNam(quanLyCaKhamDTO.getNgayThangNam());
-	                lichKhamBenh.setMaLichKhamBenh(UUID.randomUUID().toString());
+					// Tạo LichKhamBenh từ DTO
+					LichKhamBenh lichKhamBenh = new LichKhamBenh();
+					lichKhamBenh.setBacSi(bacSi);
+					lichKhamBenh.setCa(quanLyCaKhamDTO.getCa());
+					lichKhamBenh.setNgayThangNam(quanLyCaKhamDTO.getNgayThangNam());
+					lichKhamBenh.setMaLichKhamBenh(UUID.randomUUID().toString());
 
-	                // Lưu LichKhamBenh
-	                lichKhamBenhService.addLichKhamBenh(lichKhamBenh);
+					// Lưu LichKhamBenh
+					lichKhamBenhService.addLichKhamBenh(lichKhamBenh);
 
-	                // Tạo phản hồi thành công
-	                response.put("status", "success");
-	                response.put("message", "Lịch khám đã được thêm thành công");
-	                response.put("details", "Bạn có thể kiểm tra lịch khám của bác sĩ tại trang quản lý lịch khám.");
-	                return ResponseEntity.ok(response); // Trả về 200 OK cho thành công
-	            } else {
-	                response.put("status", "error");
-	                response.put("message", "Bác sĩ không tồn tại với ID: " + quanLyCaKhamDTO.getBacSiId());
-	                return ResponseEntity.ok(response); // Trả về 200 OK cho lỗi này
-	            }
-	        } else {
-	            response.put("status", "error");
-	            response.put("message", "ID bác sĩ không hợp lệ");
-	            return ResponseEntity.ok(response); // Trả về 200 OK cho lỗi này
-	        }
-	    } catch (Exception e) {
-	        response.put("status", "error");
-	        response.put("message", e.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response); // Trả về 500 Internal Server Error
-	    }
+					// Tạo phản hồi thành công
+					response.put("status", "success");
+					response.put("message", "Lịch khám đã được thêm thành công");
+					response.put("details", "Bạn có thể kiểm tra lịch khám của bác sĩ tại trang quản lý lịch khám.");
+					return ResponseEntity.ok(response); // Trả về 200 OK cho thành công
+				} else {
+					response.put("status", "error");
+					response.put("message", "Bác sĩ không tồn tại với ID: " + quanLyCaKhamDTO.getBacSiId());
+					return ResponseEntity.ok(response); // Trả về 200 OK cho lỗi này
+				}
+			} else {
+				response.put("status", "error");
+				response.put("message", "ID bác sĩ không hợp lệ");
+				return ResponseEntity.ok(response); // Trả về 200 OK cho lỗi này
+			}
+		} catch (Exception e) {
+			response.put("status", "error");
+			response.put("message", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response); // Trả về 500 Internal Server
+																							// Error
+		}
 	}
-
 
 	@DeleteMapping("/admin/qlckb/deleteLichKham/{maLichKhamBenh}")
 	public ResponseEntity<Map<String, Object>> deleteLichKhamBenh(@PathVariable String maLichKhamBenh) {
@@ -600,4 +602,49 @@ public class AdminController {
 			return "error: " + e.getMessage();
 		}
 	}
+
+	// ----------
+	@GetMapping("/admin/statistics")
+	public String getStatisticsPage(Model model) {
+		return "admin/statistics/statistics";
+	}
+
+	@GetMapping("/admin/statistics/appointments")
+	public ResponseEntity<Map<String, Map<String, Long>>> getAppointmentStatistics(@RequestParam String period,
+			@RequestParam(required = false) String date, @RequestParam(required = false) String month,
+			@RequestParam(required = false) String year) {
+		Map<String, Map<String, Long>> stats = statisticsService.getAppointmentStatistics(period, date, month, year);
+		return ResponseEntity.ok(stats);
+	}
+
+	@GetMapping("/admin/statistics/revenue")
+	public ResponseEntity<Map<String, Long>> getRevenueStatistics(@RequestParam String period,
+			@RequestParam(required = false) String date, @RequestParam(required = false) String month,
+			@RequestParam(required = false) String year) {
+		Map<String, Long> stats = statisticsService.getRevenueStatistics(period, date, month, year);
+		return ResponseEntity.ok(stats);
+	}
+
+	@GetMapping("/admin/statistics/test-usage")
+	public ResponseEntity<Map<String, Long>> getTestUsageStatistics(@RequestParam String period,
+			@RequestParam(required = false) String date, @RequestParam(required = false) String month,
+			@RequestParam(required = false) String year, @RequestParam String sort) {
+		Map<String, Long> stats = statisticsService.getTestUsageStatistics(period, date, month, year, sort);
+		return ResponseEntity.ok(stats);
+	}
+	   @GetMapping("/admin/statistics/revisit-rate")
+	    public ResponseEntity<?> getRevisitRateStatistics(
+	            @RequestParam String period,
+	            @RequestParam(required = false) String date,
+	            @RequestParam(required = false) String month,
+	            @RequestParam(required = false) String year) {
+	        try {
+	            Map<String, Map<String, Number>> stats = statisticsService.getRevisitRateStatistics(period, date, month, year);
+	            return ResponseEntity.ok(stats);
+	        } catch (Exception e) {
+	            Map<String, String> error = new HashMap<>();
+	            error.put("error", "Failed to fetch revisit rate statistics: " + e.getMessage());
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+	        }
+	    }
 }
