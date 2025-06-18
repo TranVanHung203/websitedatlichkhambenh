@@ -1130,12 +1130,17 @@ public class BacSiController {
             }
             tienThuoc = tienThuoc.add(donThuoc.calculateTongTien());
 
-            // Tổng tiền = Tiền xét nghiệm (đã tính trước) + Tiền thuốc
+            // Lấy giá khám từ bác sĩ
+            BigDecimal giaKham = bacSi.getGiaKham() != null ? bacSi.getGiaKham() : BigDecimal.ZERO;
+
+            // Tổng tiền = Tiền xét nghiệm (đã tính trước) + Tiền thuốc + Giá khám
             Integer tienXetNghiemTruocDo = hoSoBenh.getTongTien() != null ? hoSoBenh.getTongTien() : 0;
-            Integer tongTien = tienXetNghiemTruocDo + tienThuoc.intValue();
+            BigDecimal tongTien = BigDecimal.valueOf(tienXetNghiemTruocDo)
+                    .add(tienThuoc)
+                    .add(giaKham);
 
             // Cập nhật tongTien và trangThai cho HoSoBenh
-            hoSoBenh.setTongTien(tongTien);
+            hoSoBenh.setTongTien(tongTien.intValue());
             hoSoBenh.setTrangThai(true);
             hoSoBenh.addDonThuoc(donThuoc);
             donThuocService.save(donThuoc);

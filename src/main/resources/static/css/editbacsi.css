@@ -53,6 +53,7 @@ label {
 
 input[type="text"],
 input[type="date"],
+input[type="number"],
 select {
     width: 100%;
     padding: 12px 16px;
@@ -62,6 +63,15 @@ select {
     font-size: 16px;
     background-color: #f7fafc;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Ẩn nút tăng/giảm mặc định trên Firefox */
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none; /* Ẩn nút tăng/giảm trên Chrome, Safari, Edge */
 }
 
 select {
@@ -186,6 +196,7 @@ input[type="file"]:focus {
 
     input[type="text"],
     input[type="date"],
+    input[type="number"],
     select {
         font-size: 14px;
     }
