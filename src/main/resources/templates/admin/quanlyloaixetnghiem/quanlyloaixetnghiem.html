@@ -7,7 +7,6 @@
 	<title>Quản Lý Loại Xét Nghiệm</title>
 	<link th:href="@{/css/quanlyloaixetnghiem.css}" rel="stylesheet">
 	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
-	<link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -15,10 +14,8 @@
 <body>
 	<div th:replace="admin/fragments/header :: header"></div>
 
-
 	<!-- Main Content -->
 	<div class="main-content">
-		<h1>Quản lý loại xét nghiệm</h1>
 
 		<!-- Search Form -->
 		<form id="searchForm" method="get" th:action="@{/admin/qlxn}">

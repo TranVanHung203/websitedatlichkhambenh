@@ -8,10 +8,8 @@
 
 /* Main Content Styles */
 .main-content {
-    margin-left: 260px;
-    padding: 40px;
-    padding-top: 100px; /* Avoid overlapping with header */
-    width: calc(100% - 280px);
+    padding: 100px 40px 80px 40px; /* Avoid overlapping with header, adjust for pagination */
+    width: 100%;
     background: linear-gradient(145deg, #e9ecef 0%, #f8f9fa 100%); /* Gradient nền nhẹ */
     min-height: 100vh;
     border-radius: 16px;
@@ -210,9 +208,7 @@ button {
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-content {
-        margin-left: 0;
-        width: 100%;
-        padding: 20px;
+        padding: 80px 20px 60px 20px; /* Adjust for smaller screens and header */
     }
 
     #searchInput {
