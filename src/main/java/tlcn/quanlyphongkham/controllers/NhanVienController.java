@@ -303,87 +303,126 @@ public class NhanVienController {
 	@PostMapping("/nhanvien/dangkylichkham/confirm")
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> confirmBooking(@RequestBody Map<String, String> requestData) {
-		Map<String, String> response = new HashMap<>();
-		try {
-			String doctorId = requestData.get("doctorId");
-			String selectedDate = requestData.get("selectedDate");
-			String selectedTime = requestData.get("selectedTime");
-			String ca = requestData.get("selectedCa");
+	    Map<String, String> response = new HashMap<>();
+	    try {
+	        String doctorId = requestData.get("doctorId");
+	        String selectedDate = requestData.get("selectedDate");
+	        String selectedTime = requestData.get("selectedTime");
+	        String selectedCa = requestData.get("selectedCa");
+	        String patientName = requestData.get("patientName");
+	        String patientPhone = requestData.get("patientPhone");
+	        String patientAddress = requestData.get("patientAddress");
+	        String patientGender = requestData.get("patientGender");
+	        String patientBirthDate = requestData.get("patientBirthDate");
+	        String useExistingPatient = requestData.get("useExistingPatient");
 
-			// Thông tin bệnh nhân
-			String patientName = requestData.get("patientName");
-			String patientPhone = requestData.get("patientPhone");
-			String patientAddress = requestData.get("patientAddress");
-			String patientGender = requestData.get("patientGender");
-			String patientBirthDate = requestData.get("patientBirthDate");
+	        // Validate phone number
+	        if (patientPhone == null || patientPhone.trim().isEmpty()) {
+	            response.put("status", "error");
+	            response.put("message", "Số điện thoại không được để trống!");
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	        }
 
-			// Xử lý định dạng ngày tháng linh hoạt
-			LocalDate selectedDates;
-			try {
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
-				selectedDates = LocalDate.parse(selectedDate, formatter);
-			} catch (DateTimeParseException e) {
-				response.put("status", "error");
-				response.put("message", "Định dạng ngày không hợp lệ!");
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-			}
+	        // Validate required fields
+	        if (doctorId == null || selectedDate == null || selectedTime == null || selectedCa == null ||
+	            patientName == null || patientAddress == null || patientGender == null || patientBirthDate == null) {
+	            response.put("status", "error");
+	            response.put("message", "Vui lòng cung cấp đầy đủ thông tin!");
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	        }
 
-			// Kiểm tra bệnh nhân
-			BenhNhan existingPatient = benhNhanService.findByPhone(patientPhone);
-			BenhNhan benhnhan;
-			if (existingPatient == null) {
-				benhnhan = new BenhNhan();
-				benhnhan.setBenhNhanId(UUID.randomUUID().toString());
-				benhnhan.setTen(patientName);
-				benhnhan.setDienThoai(patientPhone);
-				benhnhan.setDiaChi(patientAddress);
-				benhnhan.setGioiTinh(patientGender);
-				benhnhan.setNgaySinh(LocalDate.parse(patientBirthDate, DateTimeFormatter.ISO_DATE));
+	        // Parse date
+	        LocalDate selectedDates;
+	        try {
+	            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
+	            selectedDates = LocalDate.parse(selectedDate, formatter);
+	        } catch (DateTimeParseException e) {
+	            response.put("status", "error");
+	            response.put("message", "Định dạng ngày không hợp lệ!");
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	        }
 
-				benhNhanService.save(benhnhan);
-			} else {
-				benhnhan = existingPatient;
-			}
+	        // Check for existing patient
+	        BenhNhan benhnhan = null;
+	        if ("true".equals(useExistingPatient)) {
+	            benhnhan = benhNhanService.findByPhone(patientPhone);
+	            if (benhnhan == null) {
+	                response.put("status", "error");
+	                response.put("message", "Không tìm thấy bệnh nhân với số điện thoại này!");
+	                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	            }
+	        } else {
+	            BenhNhan existingPatient = benhNhanService.findByPhone(patientPhone);
+	            if (existingPatient != null) {
+	                response.put("status", "patient_exists");
+	                response.put("message", "Số điện thoại này đã được đăng ký với thông tin trước đó. Bạn có muốn tiếp tục đăng ký với thông tin đã có?");
+	                response.put("patientName", existingPatient.getTen());
+	                response.put("patientAddress", existingPatient.getDiaChi());
+	                response.put("patientGender", existingPatient.getGioiTinh());
+	                response.put("patientBirthDate", existingPatient.getNgaySinh().toString());
+	                return ResponseEntity.status(HttpStatus.OK).body(response);
+	            }
 
-			// Tìm lịch khám bệnh
-			MaLichKhamBenhDTO lichKhamBenh = lichKhamBenhService.findByDoctorIdAndDateAndCa(doctorId, selectedDates,
-					ca);
-			if (lichKhamBenh == null) {
-				response.put("status", "error");
-				response.put("message", "Không tìm thấy lịch khám!");
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-			}
+	            benhnhan = new BenhNhan();
+	            benhnhan.setBenhNhanId(UUID.randomUUID().toString());
+	            benhnhan.setTen(patientName);
+	            benhnhan.setDienThoai(patientPhone);
+	            benhnhan.setDiaChi(patientAddress);
+	            benhnhan.setGioiTinh(patientGender);
+	            try {
+	                benhnhan.setNgaySinh(LocalDate.parse(patientBirthDate, DateTimeFormatter.ISO_DATE));
+	            } catch (DateTimeParseException e) {
+	                response.put("status", "error");
+	                response.put("message", "Định dạng ngày sinh không hợp lệ!");
+	                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	            }
+	            benhNhanService.save(benhnhan);
+	        }
 
-			Optional<LichKhamBenh> lichkham = lichKhamBenhService.findById(lichKhamBenh.getMaLichKhamBenh());
+	        // Find schedule
+	        MaLichKhamBenhDTO lichKhamBenh = lichKhamBenhService.findByDoctorIdAndDateAndCa(doctorId, selectedDates, selectedCa);
+	        if (lichKhamBenh == null) {
+	            response.put("status", "error");
+	            response.put("message", "Không tìm thấy lịch khám!");
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	        }
 
-			// Kiểm tra xem slot có tồn tại không
-			SlotThoiGian existingSlot = slotThoiGianService.findExist(calculateStartTime(selectedTime),
-					benhnhan.getBenhNhanId(), lichKhamBenh.getMaLichKhamBenh());
+	        Optional<LichKhamBenh> lichkham = lichKhamBenhService.findById(lichKhamBenh.getMaLichKhamBenh());
+	        if (!lichkham.isPresent()) {
+	            response.put("status", "error");
+	            response.put("message", "Lịch khám không tồn tại!");
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	        }
 
-			if (existingSlot == null) {
-				SlotThoiGian slotThoiGian = new SlotThoiGian();
-				slotThoiGian.setSlotId(UUID.randomUUID().toString());
-				slotThoiGian.setLichKhamBenh(lichkham.get());
-				slotThoiGian.setThoiGianBatDau(calculateStartTime(selectedTime));
-				slotThoiGian.setThoiGianKetThuc(calculateEndTime(selectedTime));
-				slotThoiGian.setTrangThai("pending");
-				slotThoiGian.setBenhNhan(benhnhan);
+	        // Check for existing slot
+	        SlotThoiGian existingSlot = slotThoiGianService.findExist(calculateStartTime(selectedTime), benhnhan.getBenhNhanId(), lichKhamBenh.getMaLichKhamBenh());
+	        if (existingSlot != null) {
+	            response.put("status", "failure");
+	            response.put("message", "Khung giờ này đã được đặt, vui lòng chọn khung giờ khác.");
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	        }
 
-				slotThoiGianService.save(slotThoiGian);
+	        // Create new slot
+	        SlotThoiGian slotThoiGian = new SlotThoiGian();
+	        slotThoiGian.setSlotId(UUID.randomUUID().toString());
+	        slotThoiGian.setLichKhamBenh(lichkham.get());
+	        slotThoiGian.setThoiGianBatDau(calculateStartTime(selectedTime));
+	        slotThoiGian.setThoiGianKetThuc(calculateEndTime(selectedTime));
+	        slotThoiGian.setTrangThai("pending");
+	        slotThoiGian.setBenhNhan(benhnhan);
+	        slotThoiGianService.save(slotThoiGian);
 
-				response.put("status", "success");
-				response.put("message", "Lịch khám đã được xác nhận thành công!");
-				return ResponseEntity.ok(response);
-			} else {
-				response.put("status", "failure");
-				response.put("message", "Khung giờ này đã được đặt, vui lòng chọn khung giờ khác.");
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-			}
-		} catch (Exception e) {
-			response.put("status", "error");
-			response.put("message", "Có lỗi xảy ra: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-		}
+	        // Create redirect URL
+	        String redirectUrl = "/nhanvien/xemlichbacsi?doctorId=" + doctorId + "&date=" + selectedDate;
+	        response.put("status", "success");
+	        response.put("message", "Lịch khám đã được xác nhận thành công!");
+	        response.put("redirectUrl", redirectUrl);
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        response.put("status", "error");
+	        response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	    }
 	}
 
 	@GetMapping("/nhanvien/xemlichbacsi")
