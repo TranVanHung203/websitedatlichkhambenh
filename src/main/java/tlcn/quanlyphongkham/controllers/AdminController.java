@@ -70,6 +70,11 @@ public class AdminController {
 
 	@Autowired
 	private LoaiXetNghiemService loaiXetNghiemService;
+	
+	@GetMapping("/admin/home")
+	public String home(Model model) {
+		return "admin/home/home"; // Your Thymeleaf template
+	}
 
 	@GetMapping("/admin/qltk")
 	public String getAllNguoiDung(Model model, @RequestParam(defaultValue = "1") int page,

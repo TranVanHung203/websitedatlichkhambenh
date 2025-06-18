@@ -1,205 +1,255 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Header Fragment</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	<title>Admin Header Fragment</title>
 </head>
+
 <body>
-    <!-- Admin Header Fragment -->
-    <header class="admin-header" th:fragment="header">
-        <style>
-            /* Admin Header Styles */
-            .admin-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                background: #ffffff;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-                padding: 16px 32px;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                z-index: 1000;
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                box-sizing: border-box;
-                height: 64px;
-            }
+	<!-- Admin Header Fragment -->
+	<header class="admin-header" th:fragment="header">
+		<style>
+			/* Admin Header Styles */
+			.admin-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				background: #ffffff;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+				padding: 16px 32px;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				z-index: 1000;
+				font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+				box-sizing: border-box;
+				height: 64px;
+			}
 
-            /* Logo Styles */
-            .admin-header .admin-header-logo {
-                flex: 0 0 auto;
-            }
+			/* Logo Styles */
+			.admin-header .admin-header-logo {
+				flex: 0 0 auto;
+			}
 
-            .admin-header .admin-header-logo h1 {
-                font-size: 1.5rem;
-                font-weight: 700;
-                color: #111827;
-                margin: 0;
-                line-height: 1.2;
-            }
+			.admin-header .admin-header-logo h1 {
+				font-size: 1.5rem;
+				font-weight: 700;
+				color: #111827;
+				margin: 0;
+				line-height: 1.2;
+			}
 
-            .admin-header .admin-header-logo h1 a {
-                text-decoration: none;
-                color: inherit;
-                cursor: pointer;
-                transition: opacity 0.3s ease;
-            }
+			.admin-header .admin-header-logo h1 a {
+				text-decoration: none;
+				color: inherit;
+				cursor: pointer;
+				transition: opacity 0.3s ease, transform 0.3s ease;
+			}
 
-            .admin-header .admin-header-logo h1 a:hover {
-                opacity: 0.9;
-            }
+			.admin-header .admin-header-logo h1 a:hover {
+				opacity: 0.9;
+				transform: scale(1.05);
+			}
 
-            /* Navigation Styles */
-            .admin-header .admin-header-nav {
-                flex: 1;
-                display: flex;
-                justify-content: flex-end;
-            }
+			/* Navigation Styles */
+			.admin-header .admin-header-nav {
+				flex: 1;
+				display: flex;
+				justify-content: flex-end;
+			}
 
-            .admin-header .admin-header-nav ul {
-                display: flex;
-                list-style: none;
-                margin: 0;
-                padding: 0;
-                align-items: center;
-                gap: 12px;
-            }
+			.admin-header .admin-header-nav ul {
+				display: flex;
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				align-items: center;
+				gap: 12px;
+			}
 
-            .admin-header .admin-header-nav ul li {
-                margin: 0;
-            }
+			.admin-header .admin-header-nav ul li {
+				margin: 0;
+				position: relative;
+			}
 
-            .admin-header .admin-header-nav ul li a {
-                text-decoration: none;
-                font-size: 14px;
-                font-weight: 500;
-                color: #374151;
-                padding: 8px 16px;
-                border-radius: 8px;
-                transition: all 0.3s ease;
-                display: inline-block;
-                line-height: 1.5;
-            }
+			.admin-header .admin-header-nav ul li a {
+				text-decoration: none;
+				font-size: 14px;
+				font-weight: 500;
+				color: #374151;
+				padding: 10px 20px;
+				border-radius: 8px;
+				transition: all 0.3s ease;
+				display: inline-block;
+				line-height: 1.5;
+				position: relative;
+				overflow: hidden;
+				z-index: 1;
+			}
 
-            .admin-header .admin-header-nav ul li a:hover {
-                color: #2563eb;
-                background: #f1f5f9;
-            }
+			.admin-header .admin-header-nav ul li a::before {
+				content: '';
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 0;
+				height: 0;
+				background: linear-gradient(45deg, #bfdbfe, #93c5fd);
+				border-radius: 50%;
+				transform: translate(-50%, -50%);
+				transition: width 0.6s ease, height 0.6s ease;
+				z-index: -1;
+			}
 
-            .admin-header .admin-header-nav ul li a.active {
-                color: #2563eb;
-                background: #eff6ff;
-                font-weight: 600;
-            }
+			.admin-header .admin-header-nav ul li a:hover::before {
+				width: 200%;
+				height: 200%;
+			}
 
-            .admin-header .admin-header-nav ul li a[href="/logout"] {
-                color: #dc2626;
-            }
+			.admin-header .admin-header-nav ul li a:hover {
+				color: #1e40af;
+				text-shadow: 0 0 5px rgba(29, 78, 216, 0.3);
+				transform: translateY(-2px);
+				box-shadow: 0 4px 15px rgba(147, 197, 253, 0.3);
+			}
 
-            .admin-header .admin-header-nav ul li a[href="/logout"]:hover {
-                color: #b91c1c;
-                background: #fef2f2;
-            }
+			.admin-header .admin-header-nav ul li a.active {
+				color: #1e40af;
+				background: linear-gradient(45deg, #bfdbfe, #93c5fd);
+				font-weight: 600;
+				box-shadow: 0 2px 10px rgba(147, 197, 253, 0.4);
+				text-shadow: 0 0 5px rgba(29, 78, 216, 0.2);
+			}
 
-            /* Hamburger Menu */
-            .admin-header .admin-hamburger {
-                display: none;
-                font-size: 24px;
-                color: #374151;
-                cursor: pointer;
-                background: none;
-                border: none;
-                padding: 8px;
-                transition: color 0.3s ease;
-            }
+			.admin-header .admin-header-nav ul li a[href="/logout"] {
+				color: #dc2626;
+			}
 
-            .admin-header .admin-hamburger:hover {
-                color: #2563eb;
-            }
+			.admin-header .admin-header-nav ul li a[href="/logout"]::before {
+				background: linear-gradient(45deg, #fecaca, #fca5a5);
+			}
 
-            /* Responsive Design */
-            @media (max-width: 768px) {
-                .admin-header {
-                    padding: 12px 24px;
-                    height: auto;
-                }
+			.admin-header .admin-header-nav ul li a[href="/logout"]:hover {
+				color: #991b1b;
+				text-shadow: 0 0 5px rgba(220, 38, 38, 0.3);
+			}
 
-                .admin-header .admin-header-logo h1 {
-                    font-size: 1.25rem;
-                }
+			.admin-header .admin-header-nav ul li a[href="/logout"]:hover::before {
+				width: 200%;
+				height: 200%;
+			}
 
-                .admin-header .admin-header-nav {
-                    display: none;
-                    width: 100%;
-                    order: 3;
-                }
+			/* Hamburger Menu */
+			.admin-header .admin-hamburger {
+				display: none;
+				font-size: 24px;
+				color: #374151;
+				cursor: pointer;
+				background: none;
+				border: none;
+				padding: 8px;
+				transition: color 0.3s ease, transform 0.3s ease;
+			}
 
-                .admin-header .admin-header-nav.active {
-                    display: block;
-                    margin-top: 12px;
-                }
+			.admin-header .admin-hamburger:hover {
+				color: #1e40af;
+				transform: rotate(90deg);
+			}
 
-                .admin-header .admin-header-nav ul {
-                    flex-direction: column;
-                    align-items: flex-start;
-                    gap: 8px;
-                    padding: 8px 0;
-                }
+			/* Responsive Design */
+			@media (max-width: 768px) {
+				.admin-header {
+					padding: 12px 24px;
+					height: auto;
+				}
 
-                .admin-header .admin-header-nav ul li {
-                    width: 100%;
-                }
+				.admin-header .admin-header-logo h1 {
+					font-size: 1.25rem;
+				}
 
-                .admin-header .admin-header-nav ul li a {
-                    padding: 10px 16px;
-                    font-size: 15px;
-                    width: 100%;
-                    box-sizing: border-box;
-                }
+				.admin-header .admin-header-nav {
+					display: none;
+					width: 100%;
+					order: 3;
+				}
 
-                .admin-header .admin-hamburger {
-                    display: block;
-                }
-            }
-        </style>
+				.admin-header .admin-header-nav.active {
+					display: block;
+					margin-top: 12px;
+				}
 
-        <div class="admin-header-logo">
-            <h1><a th:href="@{/admin}" href="/admin">Admin Dashboard</a></h1>
-        </div>
-        <button class="admin-hamburger">☰</button>
-        <nav class="admin-header-nav">
-            <ul>
-                <li><a th:href="@{/admin/qltk}" href="/admin/qltk">Quản lý người dùng</a></li>
-                <li><a th:href="@{/admin/qlbs}" href="/admin/qlbs">Quản lý bác sĩ</a></li>
-                <li><a th:href="@{/admin/qlck}" href="/admin/qlck">Quản lý chuyên khoa</a></li>
-                <li><a th:href="@{/admin/qlt}" href="/admin/qlt">Quản lý thuốc</a></li>
-                <li><a th:href="@{/admin/qlckb}" href="/admin/qlckb">Quản lý ca khám bệnh</a></li>
-                <li><a th:href="@{/admin/qlxn}" href="/admin/qlxn">Quản lý loại xét nghiệm</a></li>
-                <li><a th:href="@{/admin/statistics}" href="/admin/statistics">Thống kê</a></li>
-                <li><a th:href="@{/logout}" href="/logout">Đăng xuất</a></li>
-            </ul>
-        </nav>
+				.admin-header .admin-header-nav ul {
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 8px;
+					padding: 8px 0;
+				}
 
-        <script>
-            // Hamburger menu toggle
-            document.addEventListener('DOMContentLoaded', () => {
-                const hamburger = document.querySelector('.admin-hamburger');
-                const nav = document.querySelector('.admin-header-nav');
-                hamburger.addEventListener('click', () => {
-                    nav.classList.toggle('active');
-                });
+				.admin-header .admin-header-nav ul li {
+					width: 100%;
+				}
 
-                // Highlight active menu item
-                const currentPath = window.location.pathname;
-                document.querySelectorAll('.admin-header-nav ul li a').forEach(item => {
-                    if (item.getAttribute('href') === currentPath) {
-                        item.classList.add('active');
-                    }
-                });
-            });
-        </script>
-    </header>
+				.admin-header .admin-header-nav ul li a {
+					padding: 12px 20px;
+					font-size: 15px;
+					width: 100%;
+					box-sizing: border-box;
+				}
+
+				.admin-header .admin-hamburger {
+					display: block;
+				}
+
+				.admin-header .admin-header-nav ul li a i {
+					margin-right: 8px;
+				}
+			}
+		</style>
+
+		<div class="admin-header-logo">
+			<h1><a th:href="@{/admin/home}" href="/admin/home">Admin Dashboard</a></h1>
+		</div>
+		<button class="admin-hamburger">☰</button>
+		<nav class="admin-header-nav">
+			<ul>\
+				<li><a th:href="@{/admin/statistics}" href="/admin/statistics"><i class="fas fa-chart-bar"></i> Thống
+						Kê</a></li>
+				<li><a th:href="@{/admin/qltk}" href="/admin/qltk"><i class="fas fa-users"></i> Người Dùng</a></li>
+				<li><a th:href="@{/admin/qlbs}" href="/admin/qlbs"><i class="fas fa-user-md"></i> Bác Sĩ</a></li>
+				<li><a th:href="@{/admin/qlck}" href="/admin/qlck"><i class="fas fa-stethoscope"></i> Chuyên Khoa</a>
+				</li>
+				<li><a th:href="@{/admin/qlt}" href="/admin/qlt"><i class="fas fa-pills"></i> Thuốc</a></li>
+				<li><a th:href="@{/admin/qlckb}" href="/admin/qlckb"><i class="fas fa-calendar-check"></i> Ca Khám
+						Bệnh</a></li>
+				<li><a th:href="@{/admin/qlxn}" href="/admin/qlxn"><i class="fas fa-vial"></i> Loại Xét Nghiệm</a></li>
+
+				<li><a th:href="@{/logout}" href="/logout"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a></li>
+			</ul>
+		</nav>
+
+		<script>
+			// Hamburger menu toggle
+			document.addEventListener('DOMContentLoaded', () => {
+				const hamburger = document.querySelector('.admin-hamburger');
+				const nav = document.querySelector('.admin-header-nav');
+				hamburger.addEventListener('click', () => {
+					nav.classList.toggle('active');
+				});
+
+				// Highlight active menu item
+				const currentPath = window.location.pathname;
+				document.querySelectorAll('.admin-header-nav ul li a').forEach(item => {
+					if (item.getAttribute('href') === currentPath) {
+						item.classList.add('active');
+					}
+				});
+			});
+		</script>
+	</header>
 </body>
+
 </html>

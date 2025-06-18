@@ -18,11 +18,8 @@ body {
 
 /* Main Content Styles */
 .main-content {
-    margin-left: 230px;
-    padding: 40px;
-    padding-top: 100px;
-    padding-bottom: 80px;
-    width: calc(100% - 250px);
+    padding: 100px 40px 80px 40px;
+    width: 100%;
     min-height: calc(100vh - 80px);
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
@@ -431,10 +428,7 @@ table select:focus {
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-content {
-        margin-left: 0;
-        width: 100%;
-        padding: 20px;
-        padding-bottom: 60px;
+        padding: 80px 20px 60px 20px;
     }
 
     #searchInput {
