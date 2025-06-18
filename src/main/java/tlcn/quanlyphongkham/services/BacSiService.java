@@ -117,16 +117,25 @@ public class BacSiService {
 	}
 
 	public EditProfileBSDTO getProfile(String bacSiId) {
-		Optional<BacSi> bacSiOpt = bacSiRepository.findById(bacSiId);
-		if (bacSiOpt.isPresent()) {
-			BacSi bacSi = bacSiOpt.get();
-			return new EditProfileBSDTO(bacSi.getBacSiId(), bacSi.getTen(), bacSi.getNgaySinh(), bacSi.getGioiTinh(),
-					bacSi.getDienThoai(), bacSi.getDiaChi(), bacSi.getNguoiDung().getEmail(),
-					bacSi.getNguoiDung().getTenDangNhap(), bacSi.getChuyenKhoa().getChuyenKhoaId(),
-					bacSi.getUrlAvatar());
-		}
-		return null;
-	}
+        Optional<BacSi> bacSiOpt = bacSiRepository.findById(bacSiId);
+        if (bacSiOpt.isPresent()) {
+            BacSi bacSi = bacSiOpt.get();
+            return new EditProfileBSDTO(
+                bacSi.getBacSiId(), 
+                bacSi.getTen(), 
+                bacSi.getNgaySinh(), 
+                bacSi.getGioiTinh(),
+                bacSi.getDienThoai(), 
+                bacSi.getDiaChi(), 
+                bacSi.getNguoiDung().getEmail(),
+                bacSi.getNguoiDung().getTenDangNhap(), 
+                bacSi.getChuyenKhoa().getChuyenKhoaId(),
+                bacSi.getUrlAvatar(),
+                bacSi.getGiaKham() // Thêm trường giá khám
+            );
+        }
+        return null;
+    }
 
 	// Lấy thông tin chi tiết của bác sĩ
 	public ChiTietBacSiDTO getDetail(String bacSiId) {
@@ -143,30 +152,34 @@ public class BacSiService {
 
 	// Cập nhật thông tin cá nhân
 	public String updateProfile(EditProfileBSDTO profileDTO) {
-		Optional<BacSi> bacSiOpt = bacSiRepository.findById(profileDTO.getBacSiId());
-		if (bacSiOpt.isPresent()) {
-			BacSi bacSi = bacSiOpt.get();
-			bacSi.setTen(profileDTO.getTen());
-			bacSi.setNgaySinh(profileDTO.getNgaySinh());
-			bacSi.setGioiTinh(profileDTO.getGioiTinh());
-			bacSi.setDienThoai(profileDTO.getDienThoai());
-			bacSi.setDiaChi(profileDTO.getDiaChi());
-			if(profileDTO.getAvatarurl()!=null)
-				bacSi.setUrlAvatar(profileDTO.getAvatarurl());
+        Optional<BacSi> bacSiOpt = bacSiRepository.findById(profileDTO.getBacSiId());
+        if (bacSiOpt.isPresent()) {
+            BacSi bacSi = bacSiOpt.get();
+            bacSi.setTen(profileDTO.getTen());
+            bacSi.setNgaySinh(profileDTO.getNgaySinh());
+            bacSi.setGioiTinh(profileDTO.getGioiTinh());
+            bacSi.setDienThoai(profileDTO.getDienThoai());
+            bacSi.setDiaChi(profileDTO.getDiaChi());
+            if (profileDTO.getAvatarurl() != null) {
+                bacSi.setUrlAvatar(profileDTO.getAvatarurl());
+            }
+            if (profileDTO.getGiaKham() != null) {
+                bacSi.setGiaKham(profileDTO.getGiaKham()); // Cập nhật giá khám
+            }
 
-			bacSi.getNguoiDung().setEmail(profileDTO.getEmail());
-			bacSi.getNguoiDung().setTenDangNhap(profileDTO.getTenDangNhap());
+            bacSi.getNguoiDung().setEmail(profileDTO.getEmail());
+            bacSi.getNguoiDung().setTenDangNhap(profileDTO.getTenDangNhap());
 
-			ChuyenKhoa chuyenKhoa = chuyenKhoaRepository.findById(profileDTO.getChuyenKhoaId())
-					.orElseThrow(() -> new RuntimeException("Specialty not found"));
+            ChuyenKhoa chuyenKhoa = chuyenKhoaRepository.findById(profileDTO.getChuyenKhoaId())
+                    .orElseThrow(() -> new RuntimeException("Specialty not found"));
 
-			// Set the ChuyenKhoa to the BacSi entity
-			bacSi.setChuyenKhoa(chuyenKhoa);
-			bacSiRepository.save(bacSi);
-			return "Cập nhật thông tin cá nhân thành công!";
-		}
-		return "Không tìm thấy bác sĩ.";
-	}
+            // Set the ChuyenKhoa to the BacSi entity
+            bacSi.setChuyenKhoa(chuyenKhoa);
+            bacSiRepository.save(bacSi);
+            return "Cập nhật thông tin cá nhân thành công!";
+        }
+        return "Không tìm thấy bác sĩ.";
+    }
 
 	// Cập nhật thông tin chi tiết
 	public String updateDetail(ChiTietBacSiDTO detailDTO) {

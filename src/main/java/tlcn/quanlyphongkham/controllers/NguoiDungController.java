@@ -831,30 +831,32 @@ public class NguoiDungController {
 	}
 
 	@GetMapping("/chitietbacsi/{bacSiId}")
-	public String viewChiTietBacSi(@PathVariable("bacSiId") String bacSiId,
-	                               @RequestParam(value = "ngay", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngay,
-	                               Model model) {
-	    BacSi bacSi = bacSiService.findById(bacSiId);
-	    if (bacSi == null) {
-	        model.addAttribute("errorMessage", "Bác sĩ không tồn tại");
-	        return "error";
-	    }
+    public String viewChiTietBacSi(@PathVariable("bacSiId") String bacSiId,
+                                   @RequestParam(value = "ngay", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngay,
+                                   Model model) {
+        BacSi bacSi = bacSiService.findById(bacSiId);
+        if (bacSi == null) {
+            model.addAttribute("errorMessage", "Bác sĩ không tồn tại");
+            return "error";
+        }
 
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-	    model.addAttribute("formattedDate", bacSi.getNgaySinh() != null ? bacSi.getNgaySinh().format(formatter) : "Không có thông tin");
+        // Debug giaKham
+        System.out.println("Controller - BacSi ID: " + bacSiId + ", giaKham: " + bacSi.getGiaKham());
 
-	    if (ngay == null) {
-	        ngay = LocalDate.now();
-	    }
-	    List<LichKhamBenh> lichKhamBenhList = lichKhamBenhService.findByBacSiAndNgay(bacSi, ngay);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        model.addAttribute("formattedDate", bacSi.getNgaySinh() != null ? bacSi.getNgaySinh().format(formatter) : "Không có thông tin");
 
-	    model.addAttribute("bacSi", bacSi);
-	    model.addAttribute("lichKhamBenhList", lichKhamBenhList);
-	    model.addAttribute("selectedDate", ngay);
+        if (ngay == null) {
+            ngay = LocalDate.now();
+        }
+        List<LichKhamBenh> lichKhamBenhList = lichKhamBenhService.findByBacSiAndNgay(bacSi, ngay);
 
-	    return "benhnhan/viewbs/chitietbs";
-	}
+        model.addAttribute("bacSi", bacSi);
+        model.addAttribute("lichKhamBenhList", lichKhamBenhList);
+        model.addAttribute("selectedDate", ngay);
 
+        return "benhnhan/viewbs/chitietbs";
+    }
 
 	@GetMapping("/user/dangkylichkham")
     public String registerSchedule(Model model) {

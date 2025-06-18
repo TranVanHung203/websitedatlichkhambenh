@@ -61,7 +61,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/chat/msgbn").hasRole("BenhNhan") 
                         .requestMatchers("/chat/msgbs").hasRole("BacSi") 
                         .requestMatchers("/home", "/view/schedule", "/findbs", "/departments/**", "/chitietbacsi/**", "/user/dangkylichkham").permitAll()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
