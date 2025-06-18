@@ -26,6 +26,10 @@
 			transform: translateY(-5px);
 		}
 
+		.card:hover {
+			transform: translateY(-5px);
+		}
+
 		.chart-container {
 			max-width: 800px;
 			margin: 0 auto;
@@ -93,7 +97,6 @@
 
 		<div class="flex justify-center mb-6">
 			<div class="tab" onclick="switchTab('revenue')">Thống kê doanh thu</div>
-
 			<div class="tab active" onclick="switchTab('appointments')">Thống kê ca khám</div>
 			<div class="tab" onclick="switchTab('testUsage')">Thống kê sử dụng xét nghiệm</div>
 			<div class="tab" onclick="switchTab('revisitRate')">Thống kê tỷ lệ tái khám</div>
@@ -274,7 +277,7 @@
 			const data = await fetchData(url);
 			const labels = Object.keys(data);
 			const revisitRateData = labels.map(label => data[label].revisitRate || 0);
-			const totalPatientsData = labels.map(label => data[label].totalPatients || 0);
+			const totalPatientsData = labels.map(label => data[label].total全都logtotalPatients || 0);
 			const revisitPatientsData = labels.map(label => data[label].revisitPatients || 0);
 			const averageRevisitCountData = labels.map(label => data[label].averageRevisitCount || 0);
 
@@ -286,33 +289,30 @@
 			const ctx = document.getElementById('statisticsChart').getContext('2d');
 			if (statisticsChart) statisticsChart.destroy();
 			statisticsChart = new Chart(ctx, {
-				type: 'line',
+				type: 'bar',
 				data: {
 					labels: labels,
 					datasets: [
 						{
 							label: 'Chờ xử lý',
 							data: pendingData,
-							backgroundColor: colorPalette[0].replace('0.6', '0.4'), // Lighter fill
+							backgroundColor: colorPalette[0],
 							borderColor: getBorderColor(colorPalette[0]),
-							fill: true,
-							tension: 0.4
+							borderWidth: 1
 						},
 						{
 							label: 'Đã check-in',
 							data: checkedInData,
-							backgroundColor: colorPalette[1].replace('0.6', '0.4'),
+							backgroundColor: colorPalette[1],
 							borderColor: getBorderColor(colorPalette[1]),
-							fill: true,
-							tension: 0.4
+							borderWidth: 1
 						},
 						{
 							label: 'Hoàn thành',
 							data: completedData,
-							backgroundColor: colorPalette[2].replace('0.6', '0.4'),
+							backgroundColor: colorPalette[2],
 							borderColor: getBorderColor(colorPalette[2]),
-							fill: true,
-							tension: 0.4
+							borderWidth: 1
 						}
 					]
 				},
@@ -325,6 +325,7 @@
 							title: {display: true, text: 'Số lượng ca khám'}
 						},
 						x: {
+							stacked: true,
 							title: {display: true, text: period === 'day' ? 'Ngày' : period === 'month' ? 'Tháng' : 'Năm'}
 						}
 					},
