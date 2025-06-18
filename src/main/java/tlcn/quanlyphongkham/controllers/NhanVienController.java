@@ -1,12 +1,14 @@
 package tlcn.quanlyphongkham.controllers;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.Normalizer;
-import java.text.SimpleDateFormat;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -16,13 +18,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
@@ -39,11 +39,14 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -54,12 +57,25 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
+
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
 
 import tlcn.quanlyphongkham.dtos.BacSiDTO;
 import tlcn.quanlyphongkham.dtos.LichBacSiDTO;
@@ -82,19 +98,7 @@ import tlcn.quanlyphongkham.services.LoaiXetNghiemService;
 import tlcn.quanlyphongkham.services.NguoiDungService;
 import tlcn.quanlyphongkham.services.PhieuXetNghiemService;
 import tlcn.quanlyphongkham.services.SlotThoiGianService;
-
-import com.itextpdf.io.font.PdfEncodings;
-import com.itextpdf.io.font.constants.StandardFonts;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.properties.TextAlignment;
-import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.ByteArrayResource;
+import tlcn.quanlyphongkham.services.XetNghiemService;
 
 @Controller
 public class NhanVienController {
@@ -126,6 +130,11 @@ public class NhanVienController {
 	@Autowired
 	private LoaiXetNghiemService loaiXetNghiemService;
 
+	@Autowired
+	private XetNghiemService xetNghiemService;
+	@Value("${file.upload-dir:${user.dir}/uploads/xetnghiem}")
+	private String uploadDir;
+
 	public String getNguoiDungId() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication != null && authentication.isAuthenticated()) {
@@ -142,9 +151,10 @@ public class NhanVienController {
 	}
 
 	String nguoiDungId;
+
 	@GetMapping("/nhanvien/home")
 	public String Home(Model model) {
-		
+
 		return "nhanvien/home/home"; // Return to Step 1 view
 	}
 
@@ -438,58 +448,58 @@ public class NhanVienController {
 			String ca = lich.getCa();
 			List<String> timeList = timeFrames.getOrDefault(ca, new ArrayList<>());
 			List<SlotThoiGian> existingSlots = lich.getSlotThoiGian();
-			
+
 			if (existingSlots == null || existingSlots.isEmpty()) {
-			    LichBacSiDTO dto = new LichBacSiDTO();
-			    
-			    dto.setNgayThangNam(date);
-			    dto.setCaKham(ca);
-			    dto.setThoiGianBatDau("---");
-			    dto.setThoiGianKetThuc("---");
-			    dto.setTrangThai("Chưa có slot");
-			    dto.setTenBenhNhan("---");
-			    dto.setSoDienThoai("---");
-			    dto.setDaThanhToan(false); // Default to 0 since no HoSoBenh exists
-			    result.add(dto);
+				LichBacSiDTO dto = new LichBacSiDTO();
+
+				dto.setNgayThangNam(date);
+				dto.setCaKham(ca);
+				dto.setThoiGianBatDau("---");
+				dto.setThoiGianKetThuc("---");
+				dto.setTrangThai("Chưa có slot");
+				dto.setTenBenhNhan("---");
+				dto.setSoDienThoai("---");
+				dto.setDaThanhToan(false); // Default to 0 since no HoSoBenh exists
+				result.add(dto);
 			} else {
-			    for (SlotThoiGian slot : existingSlots) {
-			        LichBacSiDTO dto = new LichBacSiDTO();
-			        dto.setNgayThangNam(date);
-			        dto.setCaKham(ca);
-			        dto.setThoiGianBatDau(slot.getThoiGianBatDau().toString());
-			        dto.setThoiGianKetThuc(slot.getThoiGianKetThuc().toString());
+				for (SlotThoiGian slot : existingSlots) {
+					LichBacSiDTO dto = new LichBacSiDTO();
+					dto.setNgayThangNam(date);
+					dto.setCaKham(ca);
+					dto.setThoiGianBatDau(slot.getThoiGianBatDau().toString());
+					dto.setThoiGianKetThuc(slot.getThoiGianKetThuc().toString());
 
-			        String trangThai = slot.getTrangThai();
-			        if ("checked-in".equals(trangThai)) {
-			            dto.setTrangThai("Đang khám");
-			        } else if ("pending".equals(trangThai)) {
-			            dto.setTrangThai("Đang chờ");
-			        } else if ("completed".equals(trangThai)) {
-			            dto.setTrangThai("Đã khám xong");
-			        } else if ("cancelled".equals(trangThai)) {
-			            dto.setTrangThai("Đã hủy");
-			        } else if (trangThai != null && !trangThai.isBlank()) {
-			            dto.setTrangThai("Đã đặt");
-			        } else {
-			            dto.setTrangThai("Chưa đặt");
-			        }
+					String trangThai = slot.getTrangThai();
+					if ("checked-in".equals(trangThai)) {
+						dto.setTrangThai("Đang khám");
+					} else if ("pending".equals(trangThai)) {
+						dto.setTrangThai("Đang chờ");
+					} else if ("completed".equals(trangThai)) {
+						dto.setTrangThai("Đã khám xong");
+					} else if ("cancelled".equals(trangThai)) {
+						dto.setTrangThai("Đã hủy");
+					} else if (trangThai != null && !trangThai.isBlank()) {
+						dto.setTrangThai("Đã đặt");
+					} else {
+						dto.setTrangThai("Chưa đặt");
+					}
 
-			        if (List.of("Đã đặt", "Đã khám xong", "Đang khám", "Đang chờ", "Đã hủy")
-			                .contains(dto.getTrangThai()) && slot.getBenhNhan() != null) {
-			            BenhNhan benhNhan = slot.getBenhNhan();
-			            dto.setTenBenhNhan(benhNhan.getTen() != null ? benhNhan.getTen() : "Không xác định");
-			            dto.setSoDienThoai(
-			                    benhNhan.getDienThoai() != null ? benhNhan.getDienThoai() : "Không xác định");
-			        } else {
-			            dto.setTenBenhNhan("---");
-			            dto.setSoDienThoai("---");
-			        }
+					if (List.of("Đã đặt", "Đã khám xong", "Đang khám", "Đang chờ", "Đã hủy")
+							.contains(dto.getTrangThai()) && slot.getBenhNhan() != null) {
+						BenhNhan benhNhan = slot.getBenhNhan();
+						dto.setTenBenhNhan(benhNhan.getTen() != null ? benhNhan.getTen() : "Không xác định");
+						dto.setSoDienThoai(
+								benhNhan.getDienThoai() != null ? benhNhan.getDienThoai() : "Không xác định");
+					} else {
+						dto.setTenBenhNhan("---");
+						dto.setSoDienThoai("---");
+					}
 
-			        dto.setSlotId(slot.getSlotId());
-			        // Set daThanhToan with null check for hoSoBenh
-			        dto.setDaThanhToan(slot.getHoSoBenh() != null ? slot.getHoSoBenh().getDaThanhToan() : false);
-			        result.add(dto);
-			    }
+					dto.setSlotId(slot.getSlotId());
+					// Set daThanhToan with null check for hoSoBenh
+					dto.setDaThanhToan(slot.getHoSoBenh() != null ? slot.getHoSoBenh().getDaThanhToan() : false);
+					result.add(dto);
+				}
 			}
 		}
 
@@ -515,9 +525,9 @@ public class NhanVienController {
 		};
 	}
 
-	@PostMapping("/nhanvien/xemlichbacsi/checkin")
+	@PostMapping("/nhanvien/xemlichbacsi/setStatus")
 	@ResponseBody
-	public ResponseEntity<Map<String, String>> checkInPatient(@RequestParam("slotId") String slotId) {
+	public ResponseEntity<Map<String, String>> checkInPatient(@RequestParam("slotId") String slotId,@RequestParam("trangThai") String trangThai) {
 		Map<String, String> response = new HashMap<>();
 		try {
 			SlotThoiGian slot = slotThoiGianService.findById(slotId);
@@ -533,11 +543,14 @@ public class NhanVienController {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 			}
 
-			slot.setTrangThai("checked-in");
+			slot.setTrangThai(trangThai);
 			slotThoiGianService.save(slot);
 
 			response.put("status", "success");
-			response.put("message", "Check-in thành công!");
+			if(trangThai.equals("checked-in"))
+				response.put("message", "Check-in thành công!");
+			else
+				response.put("message", "Cancelled thành công!");
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
 			response.put("status", "error");
@@ -560,6 +573,7 @@ public class NhanVienController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 	}
+
 //Thanh toán cho tiền mặt
 	@PostMapping("/nhanvien/xemlichbacsi/payment/confirm")
 	@ResponseBody
@@ -600,16 +614,15 @@ public class NhanVienController {
 
 	@PostMapping("/nhanvien/xemlichbacsi/payment/credit-card")
 	@ResponseBody
-	public ResponseEntity<Map<String, Object>> createMomoPayment(@RequestParam("hoSoId") String hoSoId,
-			@RequestParam(value = "paymentMethod", required = false, defaultValue = "payWithATM") String paymentMethod) {
+	public ResponseEntity<Map<String, Object>> createMomoCreditCardPayment(@RequestParam("hoSoId") String hoSoId) {
 		Logger logger = LoggerFactory.getLogger(getClass());
 		Map<String, Object> response = new HashMap<>();
 		try {
-			logger.info("Bắt đầu xử lý thanh toán Momo cho hoSoId: {}, phương thức: {}", hoSoId, paymentMethod);
+			logger.info("Bắt đầu xử lý thanh toán MoMo bằng thẻ tín dụng cho hoSoId: {}", hoSoId);
 
 			// Tìm hồ sơ bệnh
 			HoSoBenh hoSoBenh = hoSoBenhService.findById(hoSoId);
-			
+
 			if (hoSoBenh == null) {
 				logger.warn("Không tìm thấy hồ sơ bệnh với hoSoId: {}", hoSoId);
 				response.put("status", "error");
@@ -656,37 +669,43 @@ public class NhanVienController {
 			long amountLong = amount.longValue();
 			logger.info("Tổng tiền thanh toán: {}", amountLong);
 
-			// Thông tin Momo
-			String partnerCode = "MOMOLRJZ20181206"; // Thay bằng partnerCode thực tế từ MoMo
-			String accessKey = "mTCKt9W3eU1m39TW"; // Thay bằng accessKey thực tế
-			String secretKey = "SetA5RDnLHvt51AULf51DyauxUo3kDU6"; // Thay bằng secretKey thực tế
-			String IdBacSi=hoSoBenh.getBacSi().getBacSiId();
-			String idBacSi = URLEncoder.encode(IdBacSi, "UTF-8");
+			// Thông tin MoMo (Lấy từ biến môi trường hoặc fallback đến giá trị cung cấp)
+			String partnerCode = System.getenv("MOMO_PARTNER_CODE") != null ? System.getenv("MOMO_PARTNER_CODE")
+					: "MOMO";
+			String accessKey = System.getenv("MOMO_ACCESS_KEY") != null ? System.getenv("MOMO_ACCESS_KEY")
+					: "F8BBA842ECF85";
+			String secretKey = System.getenv("MOMO_SECRET_KEY") != null ? System.getenv("MOMO_SECRET_KEY")
+					: "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+
+			String idBacSi = URLEncoder.encode(hoSoBenh.getBacSi().getBacSiId(), StandardCharsets.UTF_8.name());
 			LocalDateTime thoiGianTao = hoSoBenh.getThoiGianTao();
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // Format as yyyy-MM-dd
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			String ngay = thoiGianTao.format(formatter);
 			String encodedNgay = URLEncoder.encode(ngay, StandardCharsets.UTF_8.name());
-			String redirectUrl = "http://localhost:8080/nhanvien/xemlichbacsi/payment/confirm-momo?idBacSi="+idBacSi+"&ngay="+encodedNgay;
+			String redirectUrl = "http://localhost:8080/nhanvien/xemlichbacsi/payment/confirm-momo?idBacSi=" + idBacSi
+					+ "&ngay=" + encodedNgay;
 			String ipnUrl = "http://localhost:8080/nhanvien/xemlichbacsi/payment/momo-ipn";
 			String requestId = UUID.randomUUID().toString();
 			String orderId = "ORDER_" + hoSoId + "_" + System.currentTimeMillis();
 			String orderInfo = "Thanh toán hồ sơ bệnh " + hoSoId;
-			String requestType = "payWithCC".equals(paymentMethod) ? "payWithCC" : "payWithATM";
+			String requestType = "payWithCC";
 			String extraData = "";
-			
-			// Tạo chữ ký
+
+			// Tạo chữ ký (Đảm bảo thứ tự tham số theo tài liệu MoMo)
 			String rawSignature = "accessKey=" + accessKey + "&amount=" + amountLong + "&extraData=" + extraData
 					+ "&ipnUrl=" + ipnUrl + "&orderId=" + orderId + "&orderInfo=" + orderInfo + "&partnerCode="
 					+ partnerCode + "&redirectUrl=" + redirectUrl + "&requestId=" + requestId + "&requestType="
-					+ requestType ;
+					+ requestType;
+			logger.debug("Raw Signature String: {}", rawSignature);
 
 			String signature = hmacSha256(rawSignature, secretKey);
+			logger.debug("Generated Signature: {}", signature);
 
 			// Tạo request body cho MoMo
 			JSONObject requestBody = new JSONObject();
 			requestBody.put("partnerCode", partnerCode);
-			requestBody.put("partnerName", "Your Partner Name");
-			requestBody.put("storeId", "Your Store ID");
+			requestBody.put("partnerName", "Test Payment");
+			requestBody.put("storeId", "TestStore");
 			requestBody.put("requestId", requestId);
 			requestBody.put("amount", amountLong);
 			requestBody.put("orderId", orderId);
@@ -698,6 +717,8 @@ public class NhanVienController {
 			requestBody.put("signature", signature);
 			requestBody.put("idBacSi", idBacSi);
 			requestBody.put("lang", "vi");
+
+			logger.info("MoMo Request Payload: {}", requestBody.toString().replace(secretKey, "****"));
 
 			// Gọi API MoMo
 			CloseableHttpClient client = HttpClients.createDefault();
@@ -741,7 +762,8 @@ public class NhanVienController {
 				String payUrl = momoResult.getString("payUrl");
 				logger.info("Tạo đơn hàng MoMo thành công, payUrl: {}", payUrl);
 				response.put("status", "success");
-				response.put("message", "Tạo đơn hàng MoMo thành công!");
+				response.put("message",
+						"Tạo đơn hàng MoMo thành công! Vui lòng sử dụng thẻ test MoMo (xem https://developers.momo.vn/#test-instructions) để thanh toán.");
 				response.put("payUrl", payUrl);
 				response.put("orderId", orderId);
 				return ResponseEntity.ok(response);
@@ -760,20 +782,16 @@ public class NhanVienController {
 		}
 	}
 
-	// Hàm tạo chữ ký HMAC SHA256 (không thay đổi)
 	private String hmacSha256(String data, String key) throws Exception {
-		Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+		Mac mac = Mac.getInstance("HmacSHA256");
 		SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-		sha256Hmac.init(secretKeySpec);
-		byte[] hash = sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-		StringBuilder hexString = new StringBuilder();
-		for (byte b : hash) {
-			String hex = Integer.toHexString(0xff & b);
-			if (hex.length() == 1)
-				hexString.append('0');
-			hexString.append(hex);
+		mac.init(secretKeySpec);
+		byte[] hmacData = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+		StringBuilder result = new StringBuilder();
+		for (byte b : hmacData) {
+			result.append(String.format("%02x", b));
 		}
-		return hexString.toString();
+		return result.toString();
 	}
 
 	@PostMapping("/nhanvien/xemlichbacsi/payment/check-status")
@@ -820,42 +838,35 @@ public class NhanVienController {
 	}
 
 	@GetMapping("nhanvien/xemlichbacsi/payment/confirm-momo")
-    public RedirectView confirmMomoPayment(
-            @RequestParam("partnerCode") String partnerCode,
-            @RequestParam("orderId") String orderId,
-            @RequestParam("requestId") String requestId,
-            @RequestParam("amount") String amount,
-            @RequestParam("orderInfo") String orderInfo,
-            @RequestParam("orderType") String orderType,
-            @RequestParam("transId") String transId,
-            @RequestParam("resultCode") String resultCode,
-            @RequestParam("message") String message,
-            @RequestParam("idBacSi") String idBacSi,
-            @RequestParam("responseTime") String responseTime,
-            @RequestParam("extraData") String extraData,
-            @RequestParam("signature") String signature,
-            @RequestParam("ngay") String ngay) {
+	public RedirectView confirmMomoPayment(@RequestParam("partnerCode") String partnerCode,
+			@RequestParam("orderId") String orderId, @RequestParam("requestId") String requestId,
+			@RequestParam("amount") String amount, @RequestParam("orderInfo") String orderInfo,
+			@RequestParam("orderType") String orderType, @RequestParam("transId") String transId,
+			@RequestParam("resultCode") String resultCode, @RequestParam("message") String message,
+			@RequestParam("idBacSi") String idBacSi, @RequestParam("responseTime") String responseTime,
+			@RequestParam("extraData") String extraData, @RequestParam("signature") String signature,
+			@RequestParam("ngay") String ngay) {
 
-        // Extract hoSoId from orderId
-        String hoSoId = extractHoSoIdFromOrderId(orderId);
+		// Extract hoSoId from orderId
+		String hoSoId = extractHoSoIdFromOrderId(orderId);
 
-        // Encode query parameters
-        String encodedIdBacSi = URLEncoder.encode(idBacSi, StandardCharsets.UTF_8);
-        String encodedNgay = URLEncoder.encode(ngay, StandardCharsets.UTF_8);
+		// Encode query parameters
+		String encodedIdBacSi = URLEncoder.encode(idBacSi, StandardCharsets.UTF_8);
+		String encodedNgay = URLEncoder.encode(ngay, StandardCharsets.UTF_8);
 
-        // Base redirect URL
-        String redirectUrl = "/nhanvien/xemlichbacsi?doctorId=" + encodedIdBacSi + "&date=" + encodedNgay;
+		// Base redirect URL
+		String redirectUrl = "/nhanvien/xemlichbacsi?doctorId=" + encodedIdBacSi + "&date=" + encodedNgay;
 
-        if ("0".equals(resultCode)) {
-            // Update payment status
-            updatePaymentStatus(hoSoId);
-            return new RedirectView(redirectUrl);
-        } else {
-            // Append error message for failed payment
-            redirectUrl += "&error=" + URLEncoder.encode("Thanh toan that bai", StandardCharsets.UTF_8);
-            return new RedirectView(redirectUrl);
-        }
-    }
+		if ("0".equals(resultCode)) {
+			// Update payment status
+			updatePaymentStatus(hoSoId);
+			return new RedirectView(redirectUrl);
+		} else {
+			// Append error message for failed payment
+			redirectUrl += "&error=" + URLEncoder.encode("Thanh toan that bai", StandardCharsets.UTF_8);
+			return new RedirectView(redirectUrl);
+		}
+	}
 
 	// Hàm trích xuất hoSoId từ orderId (tùy chỉnh theo định dạng của bạn)
 	private String extractHoSoIdFromOrderId(String orderId) {
@@ -1042,216 +1053,301 @@ public class NhanVienController {
 
 	@GetMapping("/nhanvien/xemlichsukhambenh/download-pdf")
 	public ResponseEntity<?> downloadMedicalHistoryPdf(
-	        @RequestParam(value = "hoSoIds", required = false) String hoSoIds) {
-	    try {
-	        if (hoSoIds == null || hoSoIds.trim().isEmpty()) {
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-	                    .body(Collections.singletonMap("error", "Vui lòng chọn ít nhất một bản ghi"));
-	        }
-	        // Parse hoSoIds as strings
-	        List<String> selectedIds = Arrays.stream(hoSoIds.split(","))
-	                .map(String::trim)
-	                .filter(id -> !id.isEmpty())
-	                .collect(Collectors.toList());
+			@RequestParam(value = "hoSoIds", required = false) String hoSoIds) {
+		try {
+			if (hoSoIds == null || hoSoIds.trim().isEmpty()) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+						.body(Collections.singletonMap("error", "Vui lòng chọn ít nhất một bản ghi"));
+			}
+			// Parse hoSoIds as strings
+			List<String> selectedIds = Arrays.stream(hoSoIds.split(",")).map(String::trim).filter(id -> !id.isEmpty())
+					.collect(Collectors.toList());
 
-	        if (selectedIds.isEmpty()) {
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-	                    .body(Collections.singletonMap("error", "Danh sách ID trống sau khi xử lý"));
-	        }
+			if (selectedIds.isEmpty()) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+						.body(Collections.singletonMap("error", "Danh sách ID trống sau khi xử lý"));
+			}
 
+			// Fetch selected medical history records
+			List<HoSoBenh> medicalHistory = hoSoBenhService.findMedicalHistoryByIds(selectedIds);
 
-	        // Fetch selected medical history records
-	        List<HoSoBenh> medicalHistory = hoSoBenhService.findMedicalHistoryByIds(selectedIds);
+			if (medicalHistory.isEmpty()) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND)
+						.body(Collections.singletonMap("error", "Không tìm thấy bản ghi nào với ID đã chọn"));
+			}
 
-	        if (medicalHistory.isEmpty()) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-	                    .body(Collections.singletonMap("error", "Không tìm thấy bản ghi nào với ID đã chọn"));
-	        }
+			// Initialize PDF document
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PdfWriter writer = new PdfWriter(baos);
+			PdfDocument pdf = new PdfDocument(writer);
+			Document document = new Document(pdf);
 
-	        // Initialize PDF document
-	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	        PdfWriter writer = new PdfWriter(baos);
-	        PdfDocument pdf = new PdfDocument(writer);
-	        Document document = new Document(pdf);
+			// Load a font that supports Vietnamese
+			PdfFont font;
+			try {
+				font = PdfFontFactory.createFont("/fonts/BeVietnamPro-Regular.ttf", PdfEncodings.IDENTITY_H,
+						PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+			} catch (Exception e1) {
+				try {
+					font = PdfFontFactory.createFont("C:/Windows/Fonts/arial.ttf", PdfEncodings.IDENTITY_H,
+							PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+				} catch (Exception e2) {
+					try {
+						font = PdfFontFactory.createFont("C:/Windows/Fonts/times.ttf", PdfEncodings.IDENTITY_H,
+								PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+					} catch (Exception e3) {
+						font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+					}
+				}
+			}
+			document.setFont(font);
 
-	        // Load a font that supports Vietnamese
-	        PdfFont font;
-	        try {
-	            font = PdfFontFactory.createFont("/fonts/BeVietnamPro-Regular.ttf", PdfEncodings.IDENTITY_H,
-	                    PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-	        } catch (Exception e1) {
-	            try {
-	                font = PdfFontFactory.createFont("C:/Windows/Fonts/arial.ttf", PdfEncodings.IDENTITY_H,
-	                        PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-	            } catch (Exception e2) {
-	                try {
-	                    font = PdfFontFactory.createFont("C:/Windows/Fonts/times.ttf", PdfEncodings.IDENTITY_H,
-	                            PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-	                } catch (Exception e3) {
-	                    font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-	                }
-	            }
-	        }
-	        document.setFont(font);
+			// Adding title
+			document.add(new Paragraph("Lịch Sử Khám Bệnh").setFontSize(18).setBold()
+					.setTextAlignment(TextAlignment.CENTER));
 
-	        // Adding title
-	        document.add(new Paragraph("Lịch Sử Khám Bệnh").setFontSize(18).setBold()
-	                .setTextAlignment(TextAlignment.CENTER));
+			// Formatter for dates
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-	        // Formatter for dates
-	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+			for (HoSoBenh hsb : medicalHistory) {
+				Hibernate.initialize(hsb.getBenhNhan());
+				Hibernate.initialize(hsb.getBacSi());
+				Hibernate.initialize(hsb.getDonThuocs());
+				Hibernate.initialize(hsb.getXetNghiems());
+				Hibernate.initialize(hsb.getVitalSigns());
 
-	        for (HoSoBenh hsb : medicalHistory) {
-	            Hibernate.initialize(hsb.getBenhNhan());
-	            Hibernate.initialize(hsb.getBacSi());
-	            Hibernate.initialize(hsb.getDonThuocs());
-	            Hibernate.initialize(hsb.getXetNghiems());
-	            Hibernate.initialize(hsb.getVitalSigns());
+				// General info
+				document.add(new Paragraph("Khám ngày: "
+						+ (hsb.getThoiGianTao() != null ? hsb.getThoiGianTao().format(formatter) : "Không có")));
+				document.add(new Paragraph("Bệnh nhân: "
+						+ (hsb.getBenhNhan() != null
+								? hsb.getBenhNhan().getTen() + " ("
+										+ (hsb.getBenhNhan().getDienThoai() != null ? hsb.getBenhNhan().getDienThoai()
+												: "Không có")
+										+ ")"
+								: "Không có")));
+				document.add(new Paragraph(
+						"Bác sĩ: " + (hsb.getBacSi() != null ? hsb.getBacSi().getTen() : "Chưa chỉ định")));
+				document.add(
+						new Paragraph("Chẩn đoán: " + (hsb.getChanDoan() != null ? hsb.getChanDoan() : "Chưa có")));
+				document.add(new Paragraph(
+						"Triệu chứng: " + (hsb.getTrieuChung() != null ? hsb.getTrieuChung() : "Chưa có")));
+				document.add(new Paragraph("Tổng tiền: "
+						+ (hsb.getTongTien() != null ? String.format("%,d VNĐ", hsb.getTongTien().longValue())
+								: "Chưa tính")));
+				document.add(new Paragraph(
+						"Đã thanh toán: " + (hsb.getDaThanhToan() != null && hsb.getDaThanhToan() ? "Có" : "Chưa")));
 
-	            // General info
-	            document.add(new Paragraph("Khám ngày: "
-	                    + (hsb.getThoiGianTao() != null ? hsb.getThoiGianTao().format(formatter) : "Không có")));
-	            document.add(new Paragraph("Bệnh nhân: "
-	                    + (hsb.getBenhNhan() != null
-	                            ? hsb.getBenhNhan().getTen() + " ("
-	                                    + (hsb.getBenhNhan().getDienThoai() != null ? hsb.getBenhNhan().getDienThoai()
-	                                            : "Không có")
-	                                    + ")"
-	                            : "Không có")));
-	            document.add(new Paragraph(
-	                    "Bác sĩ: " + (hsb.getBacSi() != null ? hsb.getBacSi().getTen() : "Chưa chỉ định")));
-	            document.add(
-	                    new Paragraph("Chẩn đoán: " + (hsb.getChanDoan() != null ? hsb.getChanDoan() : "Chưa có")));
-	            document.add(new Paragraph(
-	                    "Triệu chứng: " + (hsb.getTrieuChung() != null ? hsb.getTrieuChung() : "Chưa có")));
-	            document.add(new Paragraph("Tổng tiền: "
-	                    + (hsb.getTongTien() != null ? String.format("%,d VNĐ", hsb.getTongTien().longValue())
-	                            : "Chưa tính")));
-	            document.add(new Paragraph(
-	                    "Đã thanh toán: " + (hsb.getDaThanhToan() != null && hsb.getDaThanhToan() ? "Có" : "Chưa")));
+				// Vital Signs
+				document.add(new Paragraph("Dấu hiệu sinh tồn").setBold());
+				if (hsb.getVitalSigns() != null && !hsb.getVitalSigns().isEmpty()) {
+					Table table = new Table(6);
+					table.addCell(new Paragraph("Thời gian").setFont(font));
+					table.addCell(new Paragraph("Nhiệt độ").setFont(font));
+					table.addCell(new Paragraph("Chiều cao").setFont(font));
+					table.addCell(new Paragraph("Cân nặng").setFont(font));
+					table.addCell(new Paragraph("Huyết áp").setFont(font));
+					table.addCell(new Paragraph("Ghi chú").setFont(font));
+					for (var vs : hsb.getVitalSigns()) {
+						table.addCell(new Paragraph(
+								vs.getThoiGianTao() != null ? vs.getThoiGianTao().format(formatter) : "Không có")
+								.setFont(font));
+						table.addCell(new Paragraph(
+								vs.getTemperature() != null && vs.getTemperature() != 0.0f ? vs.getTemperature() + " °C"
+										: "Không có")
+								.setFont(font));
+						table.addCell(new Paragraph(
+								vs.getHeight() != null && vs.getHeight() != 0.0f ? vs.getHeight() + " cm" : "Không có")
+								.setFont(font));
+						table.addCell(new Paragraph(
+								vs.getWeight() != null && vs.getWeight() != 0.0f ? vs.getWeight() + " kg" : "Không có")
+								.setFont(font));
+						table.addCell(new Paragraph(vs.getBloodPressureSys() != null && vs.getBloodPressureDia() != null
+								? vs.getBloodPressureSys() + "/" + vs.getBloodPressureDia() + " mmHg"
+								: "Không có").setFont(font));
+						table.addCell(new Paragraph(vs.getNotes() != null ? vs.getNotes() : "Không có").setFont(font));
+					}
+					document.add(table);
+				} else {
+					document.add(new Paragraph("Không có dữ liệu").setFont(font));
+				}
 
-	            // Vital Signs
-	            document.add(new Paragraph("Dấu hiệu sinh tồn").setBold());
-	            if (hsb.getVitalSigns() != null && !hsb.getVitalSigns().isEmpty()) {
-	                Table table = new Table(6);
-	                table.addCell(new Paragraph("Thời gian").setFont(font));
-	                table.addCell(new Paragraph("Nhiệt độ").setFont(font));
-	                table.addCell(new Paragraph("Chiều cao").setFont(font));
-	                table.addCell(new Paragraph("Cân nặng").setFont(font));
-	                table.addCell(new Paragraph("Huyết áp").setFont(font));
-	                table.addCell(new Paragraph("Ghi chú").setFont(font));
-	                for (var vs : hsb.getVitalSigns()) {
-	                    table.addCell(new Paragraph(
-	                            vs.getThoiGianTao() != null ? vs.getThoiGianTao().format(formatter) : "Không có")
-	                            .setFont(font));
-	                    table.addCell(new Paragraph(
-	                            vs.getTemperature() != null && vs.getTemperature() != 0.0f ? vs.getTemperature() + " °C"
-	                                    : "Không có")
-	                            .setFont(font));
-	                    table.addCell(new Paragraph(
-	                            vs.getHeight() != null && vs.getHeight() != 0.0f ? vs.getHeight() + " cm" : "Không có")
-	                            .setFont(font));
-	                    table.addCell(new Paragraph(
-	                            vs.getWeight() != null && vs.getWeight() != 0.0f ? vs.getWeight() + " kg" : "Không có")
-	                            .setFont(font));
-	                    table.addCell(new Paragraph(vs.getBloodPressureSys() != null && vs.getBloodPressureDia() != null
-	                            ? vs.getBloodPressureSys() + "/" + vs.getBloodPressureDia() + " mmHg"
-	                            : "Không có").setFont(font));
-	                    table.addCell(new Paragraph(vs.getNotes() != null ? vs.getNotes() : "Không có").setFont(font));
-	                }
-	                document.add(table);
-	            } else {
-	                document.add(new Paragraph("Không có dữ liệu").setFont(font));
-	            }
+				// Prescriptions
+				document.add(new Paragraph("Đơn thuốc").setBold());
+				if (hsb.getDonThuocs() != null && !hsb.getDonThuocs().isEmpty()) {
+					Table table = new Table(5);
+					table.addCell(new Paragraph("Đơn thuốc").setFont(font));
+					table.addCell(new Paragraph("Thuốc").setFont(font));
+					table.addCell(new Paragraph("Liều").setFont(font));
+					table.addCell(new Paragraph("Tần suất").setFont(font));
+					table.addCell(new Paragraph("Số lượng").setFont(font));
+					for (var dt : hsb.getDonThuocs()) {
+						Hibernate.initialize(dt.getDonThuocThuocs());
+						if (dt.getDonThuocThuocs() != null && !dt.getDonThuocThuocs().isEmpty()) {
+							for (var dtt : dt.getDonThuocThuocs()) {
+								table.addCell(new Paragraph(
+										"#" + (dt.getDonThuocId() != null ? dt.getDonThuocId() : "Không có"))
+										.setFont(font));
+								table.addCell(
+										new Paragraph(dtt.getThuoc() != null ? dtt.getThuoc().getTen() : "Không có")
+												.setFont(font));
+								table.addCell(new Paragraph(dtt.getLieu() != null ? dtt.getLieu() : "Không có")
+										.setFont(font));
+								table.addCell(new Paragraph(dtt.getTanSuat() != null ? dtt.getTanSuat() : "Không có")
+										.setFont(font));
+								table.addCell(new Paragraph(
+										dtt.getSoLuong() != 0 ? String.valueOf(dtt.getSoLuong()) : "Không có")
+										.setFont(font));
+							}
+						} else {
+							table.addCell(
+									new Paragraph("#" + (dt.getDonThuocId() != null ? dt.getDonThuocId() : "Không có"))
+											.setFont(font));
+							table.addCell(new Paragraph("Không có").setFont(font));
+							table.addCell(new Paragraph("Không có").setFont(font));
+							table.addCell(new Paragraph("Không có").setFont(font));
+							table.addCell(new Paragraph("Không có").setFont(font));
+						}
+					}
+					document.add(table);
+				} else {
+					document.add(new Paragraph("Không có dữ liệu").setFont(font));
+				}
 
-	            // Prescriptions
-	            document.add(new Paragraph("Đơn thuốc").setBold());
-	            if (hsb.getDonThuocs() != null && !hsb.getDonThuocs().isEmpty()) {
-	                Table table = new Table(5);
-	                table.addCell(new Paragraph("Đơn thuốc").setFont(font));
-	                table.addCell(new Paragraph("Thuốc").setFont(font));
-	                table.addCell(new Paragraph("Liều").setFont(font));
-	                table.addCell(new Paragraph("Tần suất").setFont(font));
-	                table.addCell(new Paragraph("Số lượng").setFont(font));
-	                for (var dt : hsb.getDonThuocs()) {
-	                    Hibernate.initialize(dt.getDonThuocThuocs());
-	                    if (dt.getDonThuocThuocs() != null && !dt.getDonThuocThuocs().isEmpty()) {
-	                        for (var dtt : dt.getDonThuocThuocs()) {
-	                            table.addCell(new Paragraph(
-	                                    "#" + (dt.getDonThuocId() != null ? dt.getDonThuocId() : "Không có"))
-	                                    .setFont(font));
-	                            table.addCell(
-	                                    new Paragraph(dtt.getThuoc() != null ? dtt.getThuoc().getTen() : "Không có")
-	                                            .setFont(font));
-	                            table.addCell(new Paragraph(dtt.getLieu() != null ? dtt.getLieu() : "Không có")
-	                                    .setFont(font));
-	                            table.addCell(new Paragraph(dtt.getTanSuat() != null ? dtt.getTanSuat() : "Không có")
-	                                    .setFont(font));
-	                            table.addCell(new Paragraph(
-	                                    dtt.getSoLuong() != 0 ? String.valueOf(dtt.getSoLuong()) : "Không có")
-	                                    .setFont(font));
-	                        }
-	                    } else {
-	                        table.addCell(
-	                                new Paragraph("#" + (dt.getDonThuocId() != null ? dt.getDonThuocId() : "Không có"))
-	                                        .setFont(font));
-	                        table.addCell(new Paragraph("Không có").setFont(font));
-	                        table.addCell(new Paragraph("Không có").setFont(font));
-	                        table.addCell(new Paragraph("Không có").setFont(font));
-	                        table.addCell(new Paragraph("Không có").setFont(font));
-	                    }
-	                }
-	                document.add(table);
-	            } else {
-	                document.add(new Paragraph("Không có dữ liệu").setFont(font));
-	            }
+				// Tests
+				document.add(new Paragraph("Xét nghiệm").setBold());
+				if (hsb.getXetNghiems() != null && !hsb.getXetNghiems().isEmpty()) {
+					Table table = new Table(4);
+					table.addCell(new Paragraph("Loại xét nghiệm").setFont(font));
+					table.addCell(new Paragraph("Giá").setFont(font));
+					table.addCell(new Paragraph("Trạng thái").setFont(font));
+					table.addCell(new Paragraph("Ghi chú").setFont(font));
+					for (var xn : hsb.getXetNghiems()) {
+						table.addCell(new Paragraph(
+								xn.getLoaiXetNghiem() != null ? xn.getLoaiXetNghiem().getTenXetNghiem() : "Không có")
+								.setFont(font));
+						table.addCell(
+								new Paragraph(xn.getLoaiXetNghiem() != null && xn.getLoaiXetNghiem().getGia() != null
+										? String.format("%,d VNĐ", xn.getLoaiXetNghiem().getGia().longValue())
+										: "Không có").setFont(font));
+						table.addCell(new Paragraph(xn.getTrangThai() != null ? xn.getTrangThai() : "Không có")
+								.setFont(font));
+						table.addCell(
+								new Paragraph(xn.getGhiChu() != null ? xn.getGhiChu() : "Không có").setFont(font));
+					}
+					document.add(table);
+				} else {
+					document.add(new Paragraph("Không có dữ liệu").setFont(font));
+				}
 
-	            // Tests
-	            document.add(new Paragraph("Xét nghiệm").setBold());
-	            if (hsb.getXetNghiems() != null && !hsb.getXetNghiems().isEmpty()) {
-	                Table table = new Table(4);
-	                table.addCell(new Paragraph("Loại xét nghiệm").setFont(font));
-	                table.addCell(new Paragraph("Giá").setFont(font));
-	                table.addCell(new Paragraph("Trạng thái").setFont(font));
-	                table.addCell(new Paragraph("Ghi chú").setFont(font));
-	                for (var xn : hsb.getXetNghiems()) {
-	                    table.addCell(new Paragraph(
-	                            xn.getLoaiXetNghiem() != null ? xn.getLoaiXetNghiem().getTenXetNghiem() : "Không có")
-	                            .setFont(font));
-	                    table.addCell(
-	                            new Paragraph(xn.getLoaiXetNghiem() != null && xn.getLoaiXetNghiem().getGia() != null
-	                                    ? String.format("%,d VNĐ", xn.getLoaiXetNghiem().getGia().longValue())
-	                                    : "Không có").setFont(font));
-	                    table.addCell(new Paragraph(xn.getTrangThai() != null ? xn.getTrangThai() : "Không có")
-	                            .setFont(font));
-	                    table.addCell(
-	                            new Paragraph(xn.getGhiChu() != null ? xn.getGhiChu() : "Không có").setFont(font));
-	                }
-	                document.add(table);
-	            } else {
-	                document.add(new Paragraph("Không có dữ liệu").setFont(font));
-	            }
+				document.add(new Paragraph("----------------------------------------")
+						.setTextAlignment(TextAlignment.CENTER));
+			}
 
-	            document.add(new Paragraph("----------------------------------------")
-	                    .setTextAlignment(TextAlignment.CENTER));
-	        }
+			document.close();
 
-	        document.close();
+			// Prepare PDF response
+			ByteArrayResource resource = new ByteArrayResource(baos.toByteArray());
+			HttpHeaders headers = new HttpHeaders();
+			headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=lich-su-kham-benh.pdf");
+			headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
+			headers.add(HttpHeaders.PRAGMA, "no-cache");
+			headers.add(HttpHeaders.EXPIRES, "0");
 
-	        // Prepare PDF response
-	        ByteArrayResource resource = new ByteArrayResource(baos.toByteArray());
-	        HttpHeaders headers = new HttpHeaders();
-	        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=lich-su-kham-benh.pdf");
-	        headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
-	        headers.add(HttpHeaders.PRAGMA, "no-cache");
-	        headers.add(HttpHeaders.EXPIRES, "0");
+			return ResponseEntity.ok().headers(headers).contentLength(baos.size())
+					.contentType(MediaType.APPLICATION_PDF).body(resource);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Collections.singletonMap("error", "Không thể tạo PDF: " + e.getMessage()));
+		}
+	}
 
-	        return ResponseEntity.ok().headers(headers).contentLength(baos.size())
-	                .contentType(MediaType.APPLICATION_PDF).body(resource);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(Collections.singletonMap("error", "Không thể tạo PDF: " + e.getMessage()));
-	    }
+	// ----------------------------
+	@GetMapping("nhanvien/uploadxetnghiem")
+    public String getPendingXetNghiem(
+            @RequestParam(required = false) String tenBenhNhan,
+            @RequestParam(required = false) String dienThoai,
+            @RequestParam(required = false) String trangThai,
+            @RequestParam(required = false) LocalDate thoiGianTao,
+            Model model) {
+        try {
+            List<Map<String, Object>> pendingTests = xetNghiemService.getPendingXetNghiem(
+                tenBenhNhan, dienThoai, trangThai, thoiGianTao);
+            // Format thoiGianTao for each test
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            for (Map<String, Object> test : pendingTests) {
+                LocalDate date = (LocalDate) test.get("thoiGianTao");
+                test.put("thoiGianTaoFormatted", date != null ? date.format(formatter) : "");
+            }
+            model.addAttribute("tests", pendingTests != null ? pendingTests : new ArrayList<>());
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Lỗi khi tải danh sách xét nghiệm: " + e.getMessage());
+            model.addAttribute("tests", new ArrayList<>());
+        }
+        return "nhanvien/uploadxetnghiem/uploadxetnghiem";
+    }
+
+	@GetMapping("nhanvien/doctors-by-specialty")
+	@ResponseBody
+	public String getDortor(@RequestParam String chuyenKhoaId) {
+		List<BacSiDTO> bacSiList = bacSiService.getBacSiByChuyenKhoa(chuyenKhoaId);
+
+		if (bacSiList == null || bacSiList.isEmpty()) {
+			System.out.println("Không tìm thấy bác sĩ cho chuyên khoa: " + chuyenKhoaId);
+			return "<option value=''>Không có bác sĩ</option>";
+		}
+
+		StringBuilder options = new StringBuilder();
+		for (BacSiDTO bacSi : bacSiList) {
+			options.append("<option value='").append(bacSi.getId()).append("'>").append(bacSi.getTen())
+					.append("</option>");
+		}
+
+		return options.toString();
+	}
+
+	@PostMapping("nhanvien/upload-result")
+	public String uploadKetQua(@RequestParam("xetNghiemIds") List<Long> xetNghiemIds,
+			@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+		try {
+			if (file == null || file.isEmpty()) {
+				redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn file để upload.");
+				return "redirect:/nhanvien/xetnghiem/pending";
+			}
+			if (xetNghiemIds == null || xetNghiemIds.isEmpty()) {
+				redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn ít nhất một xét nghiệm.");
+				return "redirect:/nhanvien/xetnghiem/pending";
+			}
+			String filePath = xetNghiemService.uploadKetQua(xetNghiemIds, file);
+			redirectAttributes.addFlashAttribute("successMessage", "Tệp đã được tải lên thành công!");
+			return "redirect:/nhanvien/uploadxetnghiem";
+		} catch (IOException e) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi lưu file: " + e.getMessage());
+			return "redirect:/nhanvien/uploadxetnghiem";
+		} catch (IllegalArgumentException e) {
+			redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+			return "redirect:/nhanvien/uploadxetnghiem";
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("errorMessage",
+					"Lỗi không xác định khi upload file: " + e.getMessage());
+			return "redirect:/nhanvien/uploadxetnghiem";
+		}
+	}
+
+	@GetMapping("nhanvien/files/xetnghiem/{filename:.+}")
+	public ResponseEntity<Resource> serveFile(@PathVariable String filename) throws IOException {
+		Path filePath = Paths.get(uploadDir).resolve(filename);
+		File file = filePath.toFile();
+		if (!file.exists()) {
+			return ResponseEntity.notFound().build();
+		}
+		Resource resource = new FileSystemResource(file);
+		String contentType = Files.probeContentType(filePath);
+		if (contentType == null) {
+			contentType = "application/octet-stream";
+		}
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + filename)
+				.contentType(MediaType.parseMediaType(contentType)).body(resource);
 	}
 }

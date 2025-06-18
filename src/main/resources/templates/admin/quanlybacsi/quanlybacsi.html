@@ -7,18 +7,15 @@
     <title>Quản Lý Bác Sĩ</title>
     <link th:href="@{/css/quanlybacsi.css}" rel="stylesheet">
     <link th:href="@{/css/headeradmin.css}" rel="stylesheet">
-    <link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
     <div th:replace="admin/fragments/header :: header"></div>
-    <div th:replace="admin/fragments/sidebar :: sidebar"></div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <h1>Quản lý bác sĩ</h1>
 
         <!-- Success and Error Messages -->
         <div th:if="${message}" class="success-message">

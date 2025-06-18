@@ -42,7 +42,7 @@ public class XetNghiem implements Serializable {
             this.thoiGianTao = LocalDateTime.now().withNano(0);
         }
         if (this.trangThai == null) {
-            this.trangThai = "Cho";
+            this.trangThai = "Chờ kết quả";
         }
     }
 }

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Upload Kết Quả Xét Nghiệm</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .table-container {
+            max-height: 600px;
+            overflow-y: auto;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            text-align: left;
+            vertical-align: middle;
+            padding: 12px;
+        }
+        th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+            color: #374151;
+        }
+        tr:hover {
+            background-color: #f9fafb;
+        }
+        .disabled-checkbox {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 8px;
+        }
+        .success-message {
+            color: #16a34a;
+            font-size: 0.875rem;
+            margin-top: 8px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+        .btn-primary {
+            background-color: #2563eb;
+            transition: background-color 0.2s ease;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: #1d4ed8;
+        }
+        .btn-primary:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .validation-message {
+            display: none;
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 8px;
+        }
+        .date-column {
+            background-color: #eff6ff;
+            color: #1e40af;
+            font-weight: 500;
+        }
+        .text-gray-800 {
+            color: #1f2937;
+        }
+        .bg-blue-600 {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div th:replace="~{nhanvien/fragments/header :: header}"></div>
+    <div class="container mx-auto p-6 pt-16">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-gray-800">Quản Lý Upload Kết Quả Xét Nghiệm</h1>
+            <div class="mt-2 h-1 w-32 mx-auto bg-blue-600"></div>
+        </div>
+
+        <!-- Filter Form -->
+        <div class="card mb-6">
+            <form th:action="@{/nhanvien/uploadxetnghiem}" method="get">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tên Bệnh Nhân</label>
+                        <input type="text" name="tenBenhNhan" th:value="${param.tenBenhNhan}"
+                               class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Số Điện Thoại</label>
+                        <input type="text" name="dienThoai" th:value="${param.dienThoai}"
+                               class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Trạng Thái</label>
+                        <select name="trangThai" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                            <option value="Chờ kết quả" th:selected="${param.trangThai == 'Chờ kết quả'}">Chờ kết quả</option>
+                            <option value="DaUpload" th:selected="${param.trangThai == 'DaUpload'}">Đã Upload</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ngày Tạo</label>
+                        <input type="date" name="thoiGianTao" th:value="${param.thoiGianTao}"
+                               class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn-primary text-white px-4 py-2 rounded">
+                        Lọc
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="card mb-6">
+            <form id="uploadForm" th:action="@{/nhanvien/upload-result}" method="post" enctype="multipart/form-data">
+                <div class="flex flex-col space-y-4">
+                    <div class="flex items-center space-x-4">
+                        <input type="file" name="file" id="fileInput" accept=".doc,.docx,.txt,.pdf" class="p-2 border border-gray-300 rounded"/>
+                        <button type="submit" id="uploadButton"
+                                class="btn-primary text-white px-4 py-2 rounded disabled:bg-gray-400"
+                                disabled>
+                            Upload Kết Quả
+                        </button>
+                    </div>
+                    <p id="validationMessage" class="validation-message">Vui lòng chọn tệp (PDF, DOC, DOCX, TXT) và ít nhất một xét nghiệm.</p>
+                    <p th:if="${successMessage}" class="success-message" th:text="${successMessage}"></p>
+                    <p th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></p>
+                </div>
+                <!-- Tests Table with Checkboxes Inside Form -->
+                <div class="table-container mt-4">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-100 sticky top-0">
+                            <tr>
+                                <th class="p-3 border-b text-gray-700">Chọn</th>
+                                <th class="p-3 border-b text-gray-700">Tên Bệnh Nhân</th>
+                                <th class="p-3 border-b text-gray-700">Số Điện Thoại</th>
+                                <th class="p-3 border-b text-gray-700">Tên Xét Nghiệm</th>
+                                <th class="p-3 border-b text-gray-700">Ngày Tạo</th>
+                                <th class="p-3 border-b text-gray-700">Trạng Thái</th>
+                                <th class="p-3 border-b text-gray-700">File Kết Quả</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="test : ${tests}" th:class="${test.trangThai == 'DaUpload'} ? 'bg-gray-50' : ''">
+                                <td class="p-3 border-b text-center">
+                                    <input type="checkbox" th:name="xetNghiemIds" th:value="${test.xetNghiemId}"
+                                           th:disabled="${test.trangThai == 'DaUpload'}"
+                                           th:class="${test.trangThai == 'DaUpload'} ? 'disabled-checkbox' : ''"
+                                           onchange="toggleUploadButton()"/>
+                                </td>
+                                <td class="p-3 border-b" th:text="${test.tenBenhNhan}"></td>
+                                <td class="p-3 border-b" th:text="${test.dienThoai}"></td>
+                                <td class="p-3 border-b" th:text="${test.tenXetNghiem}"></td>
+                                <td class="p-3 border-b date-column" th:text="${test.thoiGianTaoFormatted}"></td>
+                                <td class="p-3 border-b" th:text="${test.trangThai}"></td>
+                                <td class="p-3 border-b">
+                                    <a th:if="${test.fileKetQua}"
+                                       th:href="@{/nhanvien/files/xetnghiem/{filename}(filename=${test.fileKetQua})}"
+                                       target="_blank" class="text-blue-600 hover:underline">
+                                        Xem File
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${tests == null or tests.isEmpty}">
+                                <td colspan="7" class="text-center p-4 text-gray-600">
+                                    Không có xét nghiệm nào.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay flex">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        function toggleUploadButton() {
+            const checkboxes = document.querySelectorAll('input[name="xetNghiemIds"]:checked');
+            const fileInput = document.getElementById('fileInput');
+            const uploadButton = document.getElementById('uploadButton');
+            const validationMessage = document.getElementById('validationMessage');
+            const isValid = checkboxes.length > 0 && fileInput.files.length > 0;
+            uploadButton.disabled = !isValid;
+            validationMessage.style.display = isValid ? 'none' : 'block';
+        }
+
+        // Show loading spinner during form submission
+        document.getElementById('uploadForm').addEventListener('submit', () => {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        });
+
+        // Initialize button state
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleUploadButton();
+            document.getElementById('fileInput').addEventListener('change', toggleUploadButton);
+        });
+    </script>
+</body>
+</html>

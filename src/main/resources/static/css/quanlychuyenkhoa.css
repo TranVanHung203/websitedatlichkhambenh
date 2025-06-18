@@ -8,11 +8,8 @@
 
 /* Main Content Styles */
 .main-content {
-    margin-left: 230px;
-    padding: 40px;
-    padding-top: 100px; /* Avoid overlapping with header */
-    padding-bottom: 80px; /* Ensure pagination doesn't overlap content */
-    width: calc(100% - 250px);
+    padding: 100px 40px 80px 40px; /* Avoid overlapping with header, adjust for pagination */
+    width: 100%;
     background: linear-gradient(145deg, #e9ecef 0%, #f8f9fa 100%); /* Gradient nền nhẹ */
     min-height: 100vh;
     border-radius: 16px;
@@ -118,13 +115,22 @@ table td {
 
 table th:nth-child(2),
 table td:nth-child(2) {
-    width: 50%;
     text-align: left;
+    max-width: 0; /* Đảm bảo không cố định chiều rộng */
+    overflow: hidden; /* Ẩn nội dung vượt quá */
+    text-overflow: ellipsis; /* Thêm dấu ... */
+    white-space: nowrap; /* Ngăn xuống dòng tự nhiên */
+}
+
+table td:nth-child(2) {
+    word-break: break-word; /* Cho phép xuống dòng nếu cần */
+    max-width: 500px; /* Giới hạn chiều rộng tối đa để hiển thị */
 }
 
 table th:nth-child(3),
 table td:nth-child(3) {
     text-align: center;
+    white-space: nowrap; /* Ngăn cột Thao Tác bị xuống dòng */
 }
 
 table th {
@@ -161,6 +167,7 @@ button, a.btn-edit {
     transition: all 0.3s ease;
     display: inline-block;
     text-decoration: none;
+    margin-right: 10px; /* Khoảng cách giữa các nút */
 }
 
 button:focus, a.btn-edit:focus {
@@ -201,6 +208,21 @@ button:focus, a.btn-edit:focus {
 
 .btn-edit:focus {
     box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+}
+
+.btn-delete {
+    background: linear-gradient(90deg, #dc3545 0%, #ff4d4d 100%); /* Đỏ gradient */
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.btn-delete:focus {
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
 }
 
 /* Pagination Styles */
@@ -255,10 +277,7 @@ button:focus, a.btn-edit:focus {
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-content {
-        margin-left: 0;
-        width: 100%;
-        padding: 20px;
-        padding-bottom: 60px; /* Adjust for pagination */
+        padding: 80px 20px 60px 20px; /* Adjust for smaller screens and header */
     }
 
     #searchInput {
@@ -275,7 +294,8 @@ button:focus, a.btn-edit:focus {
     }
 
     .btn-add,
-    .btn-edit {
+    .btn-edit,
+    .btn-delete {
         font-size: 13px;
         padding: 10px 16px;
     }

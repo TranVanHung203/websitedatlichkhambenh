@@ -13,11 +13,10 @@ body {
 
 /* Outer Container Styles */
 .outer-container {
-    margin-left: 230px;
     margin-top: 80px; /* Avoid overlapping with header */
     padding: 40px;
     min-height: calc(100vh - 80px);
-    width: calc(100% - 250px);
+    width: 100%;
 }
 
 /* Container Styles */
@@ -314,8 +313,7 @@ button:focus {
 /* Responsive Design */
 @media (max-width: 768px) {
     .outer-container {
-        margin-left: 0;
-        width: 100%;
+        margin-top: 80px; /* Adjust for smaller screens and header */
         padding: 20px;
     }
 

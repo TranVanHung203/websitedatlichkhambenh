@@ -2,159 +2,208 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link th:href="@{/css/quanlytaikhoan.css}" rel="stylesheet">
-    <link th:href="@{/css/headeradmin.css}" rel="stylesheet">
-    <link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin Dashboard</title>
+	<link th:href="@{/css/themtaikhoan.css}" rel="stylesheet">
+	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
 </head>
 
 <body>
 
-    <div th:replace="admin/fragments/header :: header"></div>
-    <div th:replace="admin/fragments/sidebar :: sidebar"></div>
+	<div th:replace="admin/fragments/header :: header"></div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <h1>Quản lý tài khoản người dùng</h1>
 
-        <!-- Form to Add New User -->
-        <div class="form-container">
-            <h2>Thêm người dùng mới</h2>
+	<!-- Main Content -->
+	<div class="main-content">
 
-            <form id="userForm" onsubmit="saveUser(event)">
-                <div class="form-row radio-group">
-                    <label>Chọn vai trò:</label>
-                    <div class="role-options">
-                        <input type="radio" name="role" value="Admin" onclick="toggleFields('Admin')" checked> Admin
-                        <input type="radio" name="role" value="BacSi" onclick="toggleFields('BacSi')"> Bác sĩ
-                        <input type="radio" name="role" value="BenhNhan" onclick="toggleFields('BenhNhan')"> Bệnh nhân
-                        <input type="radio" name="role" value="NhanVien" onclick="toggleFields('NhanVien')"> Nhân viên
-                    </div>
-                </div>
+		<!-- Form to Add New User -->
+		<div class="form-container">
+			<h2>Thêm người dùng mới</h2>
 
-                <div class="form-row">
-                    <label>Email:</label>
-                    <input type="email" id="email" placeholder="Nhập email" required>
-                </div>
+			<form id="userForm" onsubmit="saveUser(event)">
+				<div class="form-row radio-group">
+					<label>Chọn vai trò:</label>
+					<div class="role-options">
+						<input type="radio" name="role" value="Admin" id="roleAdmin" onclick="toggleFields('Admin')"
+							checked>
+						<label for="roleAdmin">Admin</label>
+						<input type="radio" name="role" value="BacSi" id="roleBacSi" onclick="toggleFields('BacSi')">
+						<label for="roleBacSi">Bác sĩ</label>
+						<input type="radio" name="role" value="BenhNhan" id="roleBenhNhan"
+							onclick="toggleFields('BenhNhan')">
+						<label for="roleBenhNhan">Bệnh nhân</label>
+						<input type="radio" name="role" value="NhanVien" id="roleNhanVien"
+							onclick="toggleFields('NhanVien')">
+						<label for="roleNhanVien">Nhân viên</label>
+					</div>
+				</div>
 
-                <div class="form-row">
-                    <label>Tên đăng nhập:</label>
-                    <input type="text" id="tenDangNhap" placeholder="Nhập tên đăng nhập" required>
-                </div>
+				<div class="form-row">
+					<label>Email:</label>
+					<input type="email" id="email" placeholder="Nhập email" required>
+				</div>
 
-                <div class="form-row">
-                    <label>Mật khẩu:</label>
-                    <input type="password" id="matKhau" placeholder="Nhập mật khẩu" required>
-                </div>
+				<div class="form-row">
+					<label>Tên đăng nhập:</label>
+					<input type="text" id="tenDangNhap" placeholder="Nhập tên đăng nhập" required>
+				</div>
 
-                <div id="doctorPatientFields">
-                    <div class="form-row">
-                        <label>Tên:</label>
-                        <input type="text" id="ten" placeholder="Nhập tên">
-                    </div>
+				<div class="form-row">
+					<label>Mật khẩu:</label>
+					<input type="password" id="matKhau" placeholder="Nhập mật khẩu" required>
+				</div>
 
-                    <div class="form-row">
-                        <label>Điện thoại:</label>
-                        <input type="tel" id="dienThoai" placeholder="Nhập số điện thoại">
-                    </div>
+				<div id="doctorPatientFields" class="hidden">
+					<div class="form-row">
+						<label>Tên:</label>
+						<input type="text" id="ten" placeholder="Nhập tên">
+					</div>
 
-                    <div class="form-row">
-                        <label>Địa chỉ:</label>
-                        <input type="text" id="diaChi" placeholder="Nhập địa chỉ">
-                    </div>
+					<div class="form-row" id="phoneField">
+						<label>Điện thoại:</label>
+						<input type="tel" id="dienThoai" placeholder="Nhập số điện thoại" maxlength="10"
+							pattern="[0-9]{10}" oninput="validatePhoneNumber(this)">
+					</div>
 
-                    <div class="form-row">
-                        <label>Giới tính:</label>
-                        <select id="gioiTinh">
-                            <option value="Nam">Nam</option>
-                            <option value="Nữ">Nữ</option>
-                            <option value="Khác">Khác</option>
-                        </select>
-                    </div>
+					<div class="form-row">
+						<label>Địa chỉ:</label>
+						<input type="text" id="diaChi" placeholder="Nhập địa chỉ">
+					</div>
 
-                    <div class="form-row">
-                        <label>Ngày sinh:</label>
-                        <input type="date" id="ngaySinh">
-                    </div>
-                </div>
+					<div class="form-row">
+						<label>Giới tính:</label>
+						<select id="gioiTinh">
+							<option value="Nam">Nam</option>
+							<option value="Nữ">Nữ</option>
+							<option value="Khác">Khác</option>
+						</select>
+					</div>
 
-                <div class="form-actions">
-                    <button type="submit">Lưu</button>
-                </div>
-            </form>
-        </div>
-    </div>
+					<div class="form-row">
+						<label>Ngày sinh:</label>
+						<input type="date" id="ngaySinh">
+					</div>
 
-    <!-- Toast notification -->
-    <div id="toast"></div>
+					<div class="form-row hidden" id="specialtyField">
+						<label>Chuyên khoa:</label>
+						<select id="chuyenKhoa">
+							<option value="">Chọn chuyên khoa</option>
+							<option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.chuyenKhoaId}"
+								th:text="${chuyenKhoa.ten}"></option>
+						</select>
+					</div>
+				</div>
 
-    <script>
-        function toggleFields(role) {
-            var doctorPatientFields = document.getElementById("doctorPatientFields");
+				<div class="form-actions">
+					<button type="submit">Lưu</button>
+				</div>
+			</form>
+		</div>
+	</div>
 
-            // Hide fields for "Admin" and "Nhân viên" roles
-            if (role === 'Admin' || role === 'NhanVien') {
-                doctorPatientFields.style.display = 'none';
-            } else {
-                doctorPatientFields.style.display = 'block';
-            }
-        }
+	<!-- Toast notification -->
+	<div id="toast"></div>
 
-        function showToast(message, isSuccess = true) {
-            const toast = document.getElementById("toast");
-            toast.textContent = message;
-            toast.style.backgroundColor = isSuccess ? "#4CAF50" : "#f44336";
-            toast.className = "show";
-            setTimeout(() => {
-                toast.className = toast.className.replace("show", "");
-            }, 4000);
-        }
+	<script>
+		function validatePhoneNumber(input) {
+			// Chỉ cho phép nhập số và giới hạn 10 chữ số
+			input.value = input.value.replace(/[^0-9]/g, '');
+			if (input.value.length > 10) {
+				input.value = input.value.slice(0, 10);
+			}
+		}
 
-        function saveUser(event) {
-            event.preventDefault();
+		function toggleFields(role) {
+			var doctorPatientFields = document.getElementById("doctorPatientFields");
+			var specialtyField = document.getElementById("specialtyField");
+			var phoneField = document.getElementById("phoneField");
+			var phoneInput = document.getElementById("dienThoai");
 
-            const role = document.querySelector('input[name="role"]:checked').value;
-            const email = document.getElementById("email").value;
-            const tenDangNhap = document.getElementById("tenDangNhap").value;
-            const matKhau = document.getElementById("matKhau").value;
+			// Show doctor/patient fields for "Bác sĩ" and "Bệnh nhân", hide for "Admin" and "Nhân viên"
+			if (role === 'BacSi' || role === 'BenhNhan') {
+				doctorPatientFields.classList.remove('hidden');
+				phoneField.classList.remove('hidden');
+				phoneInput.setAttribute('required', 'required');
+			} else {
+				doctorPatientFields.classList.add('hidden');
+				phoneField.classList.add('hidden');
+				phoneInput.removeAttribute('required');
+			}
 
-            const userData = { email, tenDangNhap, matKhau, vaiTro: role };
+			// Show specialty field only for "Bác sĩ"
+			if (role === 'BacSi') {
+				specialtyField.classList.remove('hidden');
+			} else {
+				specialtyField.classList.add('hidden');
+			}
+		}
 
-            // If the role is 'Bác sĩ' or 'Bệnh nhân', include additional fields
-            if (role === 'BacSi' || role === 'BenhNhan') {
-                userData.ten = document.getElementById("ten").value;
-                userData.dienThoai = document.getElementById("dienThoai").value;
-                userData.diaChi = document.getElementById("diaChi").value;
-                userData.gioiTinh = document.getElementById("gioiTinh").value;
-                userData.ngaySinh = document.getElementById("ngaySinh").value;
-            }
+		function showToast(message, isSuccess = true) {
+			const toast = document.getElementById("toast");
+			toast.textContent = message;
+			toast.style.backgroundColor = isSuccess ? "#4CAF50" : "#f44336";
+			toast.className = "show";
+			setTimeout(() => {
+				toast.className = toast.className.replace("show", "");
+			}, 4000);
+		}
 
-            fetch('/admin/qltk/add', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(userData)
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(errData => {
-                            const errMessage = errData.error || 'Thêm người dùng thất bại';
-                            throw new Error(errMessage);
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    showToast(data.message || 'Thêm người dùng thành công', true);
-                    document.getElementById("userForm").reset();
-                    toggleFields('Admin');
-                })
-                .catch(error => {
-                    showToast(error.message, false);
-                });
-        }
-    </script>
+		function saveUser(event) {
+			event.preventDefault();
+
+			const role = document.querySelector('input[name="role"]:checked').value;
+			const email = document.getElementById("email").value;
+			const tenDangNhap = document.getElementById("tenDangNhap").value;
+			const matKhau = document.getElementById("matKhau").value;
+
+			const userData = { email, tenDangNhap, matKhau, vaiTro: role };
+
+			// If the role is 'Bác sĩ' or 'Bệnh nhân', include additional fields
+			if (role === 'BacSi' || role === 'BenhNhan') {
+				userData.ten = document.getElementById("ten").value;
+				const dienThoai = document.getElementById("dienThoai").value;
+				if (dienThoai && dienThoai.length === 10) {
+					userData.dienThoai = dienThoai;
+				} else if (dienThoai) {
+					showToast("Số điện thoại phải đúng 10 chữ số", false);
+					return;
+				}
+				userData.diaChi = document.getElementById("diaChi").value;
+				userData.gioiTinh = document.getElementById("gioiTinh").value;
+				userData.ngaySinh = document.getElementById("ngaySinh").value;
+			}
+
+			// If the role is 'Bác sĩ', include specialty ID
+			if (role === 'BacSi') {
+				userData.chuyenKhoaId = document.getElementById("chuyenKhoa").value;
+			}
+
+			fetch('/admin/qltk/add', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(userData)
+			})
+				.then(response => {
+					if (!response.ok) {
+						return response.json().then(errData => {
+							const errMessage = errData.error || 'Thêm người dùng thất bại';
+							throw new Error(errMessage);
+						});
+					}
+					return response.json();
+
+				})
+				.then(data => {
+					showToast(data.message || 'Thêm người dùng thành công', true);
+					document.getElementById("userForm").reset();
+					toggleFields('Admin');
+				})
+				.catch(error => {
+					showToast(error.message, false);
+				});
+		}
+	</script>
 </body>
 
 </html>

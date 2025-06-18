@@ -7,17 +7,14 @@
     <title>Quản Lý Chuyên Khoa</title>
     <link th:href="@{/css/quanlychuyenkhoa.css}" rel="stylesheet">
     <link th:href="@{/css/headeradmin.css}" rel="stylesheet">
-    <link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
     <div th:replace="admin/fragments/header :: header"></div>
-    <div th:replace="admin/fragments/sidebar :: sidebar"></div>
 
     <div class="main-content">
-        <h1>Quản lý chuyên khoa</h1>
 
         <!-- Success and Error Messages -->
         <div th:if="${message}" class="success-message">
@@ -53,8 +50,10 @@
                     <td th:text="${chuyenKhoa.ten}"></td>
                     <td th:text="${chuyenKhoa.moTa}"></td>
                     <td>
+                        <div class="chuyenKhoaId" th:text="${chuyenKhoa.chuyenKhoaId}" style="display: none;"></div>
                         <a th:href="@{/admin/qlck/edit-chuyenkhoa/{chuyenKhoaId}(chuyenKhoaId=${chuyenKhoa.chuyenKhoaId})}"
                             class="btn-edit">Chỉnh Sửa</a>
+                        <button class="btn-delete" data-chuyenkhoa-id="${chuyenKhoa.chuyenKhoaId}">Xóa</button>
                     </td>
                 </tr>
             </tbody>
@@ -106,11 +105,50 @@
             }
             if (error) {
                 Swal.fire({
-                    icon: 'error',
                     title: 'Lỗi',
+                    icon: 'error',
                     text: error
                 });
             }
+
+            // Xử lý xóa chuyên khoa
+            $('.btn-delete').on('click', function () {
+                var chuyenkhoaId = $(this).closest('tr').find('.chuyenKhoaId').text();
+                Swal.fire({
+                    title: 'Bạn có chắc?',
+                    text: 'Bạn sẽ không thể khôi phục chuyên khoa này!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Xóa',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/admin/qlck/delete/' + chuyenkhoaId,
+                            type: 'DELETE',
+                            success: function (response) {
+                                Swal.fire(
+                                    'Đã xóa!',
+                                    'Chuyên khoa đã được xóa thành công.',
+                                    'success'
+                                ).then(() => {
+                                    location.reload(); // Tải lại trang sau khi xóa thành công
+                                });
+                            },
+                            error: function (xhr) {
+                                var errorMessage = xhr.responseText || 'Không thể xóa chuyên khoa.';
+                                Swal.fire(
+                                    'Lỗi!',
+                                    errorMessage,
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            });
         });
     </script>
 </body>
