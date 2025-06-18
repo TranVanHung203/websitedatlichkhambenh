@@ -109,6 +109,13 @@
                         </tbody>
                     </table>
 
+                    <!-- Giá khám bác sĩ -->
+                    <h3>Giá Khám Bác Sĩ</h3>
+                    <div class="container__total" id="giaKham">
+                        <strong>Giá khám:</strong>
+                        <span id="giaKhamValue">0 VNĐ</span>
+                    </div>
+
                     <!-- Tổng tiền -->
                     <div class="container__total">
                         <strong>Tổng tiền:</strong>
@@ -445,6 +452,7 @@
             const donThuocBody = document.getElementById('donThuocBody');
             const phieuXetNghiemBody = document.getElementById('phieuXetNghiemBody');
             const tongTien = document.getElementById('tongTien');
+            const giaKhamValue = document.getElementById('giaKhamValue');
             const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
 
             chanDoan.textContent = '---';
@@ -452,6 +460,7 @@
             donThuocBody.innerHTML = '<tr><td colspan="5" class="container__no-data">Không có đơn thuốc</td></tr>';
             phieuXetNghiemBody.innerHTML = '<tr><td colspan="2" class="container__no-data">Không có xét nghiệm</td></tr>';
             tongTien.textContent = '0 VNĐ';
+            giaKhamValue.textContent = '0 VNĐ';
             confirmPaymentBtn.style.display = 'block';
 
             const paymentMethodDiv = document.querySelector('.container__payment-method');
@@ -510,6 +519,8 @@
                         });
                     }
 
+                    const giaKham = data.tongTien ? (data.tongTien - tongTienThuoc - tongTienXetNghiem) : 0;
+                    giaKhamValue.textContent = giaKham.toLocaleString('vi-VN') + ' VNĐ';
                     tongTien.textContent = data.tongTien ? data.tongTien.toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ';
 
                     if (data.daThanhToan) {

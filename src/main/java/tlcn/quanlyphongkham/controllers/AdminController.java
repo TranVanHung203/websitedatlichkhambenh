@@ -401,36 +401,42 @@ public class AdminController {
 
 	@PostMapping("/admin/qlbs/update/{bacSiId}")
 	public String updateDoctor(@PathVariable("bacSiId") String bacSiId, @ModelAttribute BacSi updatedDoctor,
-			@ModelAttribute ChiTietBacSi updatedChiTiet,
-			@RequestParam(value = "avatar", required = false) MultipartFile avatarFile,
-			@RequestParam(value = "redirect", required = false) String redirectPage) {
-		try {
-			// Kiểm tra và lưu file ảnh nếu có
-			if (avatarFile != null && !avatarFile.isEmpty()) {
-				String uploadDir = "uploads/";
-				Path uploadPath = Paths.get(uploadDir);
-				if (!Files.exists(uploadPath)) {
-					Files.createDirectories(uploadPath);
-				}
-				String fileName = UUID.randomUUID().toString() + "_" + avatarFile.getOriginalFilename();
-				Path filePath = uploadPath.resolve(fileName);
-				Files.copy(avatarFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-				updatedDoctor.setUrlAvatar("/uploads/" + fileName);
-			}
+	        @ModelAttribute ChiTietBacSi updatedChiTiet,
+	        @RequestParam(value = "avatar", required = false) MultipartFile avatarFile,
+	        @RequestParam(value = "redirect", required = false) String redirectPage) {
+	    try {
+	        // Lấy bác sĩ hiện tại để giữ các giá trị không thay đổi
+	        BacSi existingDoctor = bacSiService.getDoctorById(bacSiId);
 
-			// Cập nhật thông tin bác sĩ và chi tiết bác sĩ
-			bacSiService.updateDoctor(bacSiId, updatedDoctor, updatedChiTiet);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "error";
-		}
+	        // Kiểm tra và lưu file ảnh nếu có
+	        if (avatarFile != null && !avatarFile.isEmpty()) {
+	            String uploadDir = "uploads/";
+	            Path uploadPath = Paths.get(uploadDir);
+	            if (!Files.exists(uploadPath)) {
+	                Files.createDirectories(uploadPath);
+	            }
+	            String fileName = UUID.randomUUID().toString() + "_" + avatarFile.getOriginalFilename();
+	            Path filePath = uploadPath.resolve(fileName);
+	            Files.copy(avatarFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+	            updatedDoctor.setUrlAvatar("/uploads/" + fileName);
+	        } else {
+	            // Giữ nguyên URL avatar cũ nếu không thay đổi ảnh
+	            updatedDoctor.setUrlAvatar(existingDoctor.getUrlAvatar());
+	        }
 
-		// Kiểm tra nếu cần chuyển hướng đến trang edit chi tiết
-		if ("edit-details".equals(redirectPage)) {
-			return "redirect:/admin/qlbs/edit-chitiet/" + bacSiId;
-		}
+	        // Cập nhật thông tin bác sĩ và chi tiết bác sĩ (giaKham được xử lý trong service)
+	        bacSiService.updateDoctor(bacSiId, updatedDoctor, updatedChiTiet);
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return "error";
+	    }
 
-		return "redirect:/admin/qlbs";
+	    // Kiểm tra nếu cần chuyển hướng đến trang edit chi tiết
+	    if ("edit-details".equals(redirectPage)) {
+	        return "redirect:/admin/qlbs/edit-chitiet/" + bacSiId;
+	    }
+
+	    return "redirect:/admin/qlbs";
 	}
 
 	@PostMapping("/admin/delete-thuoc")

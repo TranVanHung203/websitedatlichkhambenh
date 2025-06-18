@@ -71,6 +71,10 @@ public class BacSiService {
 	        if (updatedDoctor.getNgaySinh() != null) {
 	            existingDoctor.setNgaySinh(updatedDoctor.getNgaySinh());
 	        }
+	        // Cập nhật giá khám nếu có giá mới
+	        if (updatedDoctor.getGiaKham() != null) {
+	            existingDoctor.setGiaKham(updatedDoctor.getGiaKham());
+	        }
 
 	        // Cập nhật avatar nếu có ảnh mới
 	        if (updatedDoctor.getUrlAvatar() != null && !updatedDoctor.getUrlAvatar().isEmpty()) {
