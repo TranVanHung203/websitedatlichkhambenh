@@ -77,11 +77,11 @@ public class ChatbotService {
                     +" \"Sáng\": [\"07:30\", \"08:00\", \"08:30\", \"09:00\", \"09:30\", \"10:00\", \"10:30\", \"11:00\"],\r\n"
                     + "                \"Chiều\": [\"13:00\", \"13:30\", \"14:00\", \"14:30\", \"15:00\", \"15:30\", \"16:00\"],\r\n"
                     + "                \"Ngoài Giờ\": [\"17:00\", \"17:30\", \"18:00\", \"18:30\", \"19:00\"]"
-                    +"ca nào nào trong danh sách booked tức là đã có người đặt thì không hiển thị cho người dùng xem nữa"
+                    +"ca nào nào trong danh sách booked tức là đã có người đặt thì không hiển thị cho người dùng xem và bảo ca đó đã có người đặt"
                     +getAllDoctorsSchedulesForCurrentMonth()
                     + "\n\nNgười dùng vừa hỏi: \"" + userInput + "\"\n\n"
                     + "Vui lòng:\n"
-                    + "- Trả lời ngắn gọn, dễ hiểu, lịch sự và chính xác. Khi tư vấn cho người bệnh bác sĩ trong một chuyên khoa rất nhiều, hãy đề xuất cho hết đừng có một người mà đề xuất miết\n"
+                    + "- Trả lời ngắn gọn, dễ hiểu, lịch sự và chính xác. Khi tư vấn cho người bệnh bác sĩ trong một chuyên khoa rất nhiều, hãy đề xuất cho hết đừng có một người mà đề xuất miết, một lần để xuất 4- 5 người thôi\n"
                     + "- Chỉ trả lời các câu hỏi liên quan đến **lĩnh vực y tế** như: bệnh lý, khám chữa bệnh, bác sĩ, chi phí khám, triệu chứng, lời khuyên sức khỏe...\n"
                     + "- Có thể sử dụng thông tin từ danh sách bác sĩ ở trên nếu phù hợp.\n"
                     + "- Nếu câu hỏi không thuộc lĩnh vực y tế (ví dụ: thể thao, công nghệ, thời tiết, giải trí...), hãy trả lời rằng bạn chỉ hỗ trợ các vấn đề y tế và không thể tư vấn ngoài lĩnh vực.\n"
@@ -107,7 +107,7 @@ public class ChatbotService {
                 + bacSiInfo
                 + "\n\nNgười dùng vừa hỏi: \"" + userInput + "\"\n\n"
                 + "Vui lòng:\n"
-                + "- Trả lời ngắn gọn, dễ hiểu, lịch sự và chính xác. Khi tư vấn cho người bệnh bác sĩ trong một chuyên khoa rất nhiều, hãy đề xuất cho hết đừng có một người mà đề xuất miết\n"
+                + "- Trả lời ngắn gọn, dễ hiểu, lịch sự và chính xác. Khi tư vấn cho người bệnh bác sĩ trong một chuyên khoa rất nhiều, hãy đề xuất cho hết đừng có một người mà đề xuất miết, một lần để xuất 4- 5 người thôi\n"
                 + "- Chỉ trả lời các câu hỏi liên quan đến **lĩnh vực y tế** như: bệnh lý, khám chữa bệnh, bác sĩ, chi phí khám, triệu chứng, lời khuyên sức khỏe...\n"
                 + "- Có thể sử dụng thông tin từ danh sách bác sĩ ở trên nếu phù hợp.\n"
                 + "- Nếu câu hỏi không thuộc lĩnh vực y tế (ví dụ: thể thao, công nghệ, thời tiết, giải trí...), hãy trả lời rằng bạn chỉ hỗ trợ các vấn đề y tế và không thể tư vấn ngoài lĩnh vực.\n"

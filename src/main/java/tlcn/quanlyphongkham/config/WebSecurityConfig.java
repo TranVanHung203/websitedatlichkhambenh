@@ -60,7 +60,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/chat/msgbn").hasRole("BenhNhan") 
                         .requestMatchers("/chat/msgbs").hasRole("BacSi") 
-                        .requestMatchers("/home", "/view/schedule", "/findbs", "/departments/**", "/chitietbacsi/**", "/user/dangkylichkham").permitAll()
+                        .requestMatchers("/home", "/view/schedule", "/findbs", "/departments/**", "/chitietbacsi/**", "/user/dangkylichkham","/chatbot/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
