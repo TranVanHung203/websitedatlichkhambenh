@@ -953,7 +953,7 @@ public class NguoiDungController {
 
 		// Trả về thông tin slot đã đặt và các ca khám
 		result.put("bookedSlots", bookedSlots);
-
+		
 		return result;
 	}
 

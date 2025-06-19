@@ -1,5 +1,6 @@
 package tlcn.quanlyphongkham.repositories;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -31,4 +32,11 @@ public interface BacSiRepository extends JpaRepository<BacSi, String> {
 	BacSi findByNguoiDung_NguoiDungId(String nguoiDungId);
 
 	List<BacSi> findByChuyenKhoaChuyenKhoaId(String chuyenKhoaId);
+
+	  List<BacSi> findByChuyenKhoa_TenContainingIgnoreCaseAndGiaKhamBetween(String tenChuyenKhoa, BigDecimal giaKhamMin, BigDecimal giaKhamMax);
+
+	
+
+	  List<BacSi> findByTenContainingIgnoreCaseAndGiaKhamBetween(String ten, BigDecimal minPrice, BigDecimal maxPrice);
+	  long count();
 }

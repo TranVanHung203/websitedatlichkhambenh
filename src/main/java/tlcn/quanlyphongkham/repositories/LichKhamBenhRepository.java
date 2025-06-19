@@ -64,4 +64,10 @@ public interface LichKhamBenhRepository extends JpaRepository<LichKhamBenh, Stri
 	    @Query(value = "UPDATE lich_kham_benh SET trang_thai = :trangThai WHERE ma_lich_id = :id", nativeQuery = true)
 	    void updateTrangThai(@Param("id") String id, @Param("trangThai") boolean trangThai);
 
+	   @Query("SELECT l FROM LichKhamBenh l WHERE l.bacSi.bacSiId = :doctorId AND l.ngayThangNam BETWEEN :startDate AND :endDate")
+	    List<LichKhamBenh> findByBacSiIdAndNgayThangNamBetween(
+	            @Param("doctorId") String doctorId,
+	            @Param("startDate") LocalDate startOfMonth,
+	            @Param("endDate") LocalDate endOfMonth);
+
 }

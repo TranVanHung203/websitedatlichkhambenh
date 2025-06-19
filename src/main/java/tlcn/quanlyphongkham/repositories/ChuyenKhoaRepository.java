@@ -1,5 +1,7 @@
 package tlcn.quanlyphongkham.repositories;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,5 +18,8 @@ public interface ChuyenKhoaRepository extends JpaRepository<ChuyenKhoa, String> 
 
 	@Query("SELECT ck FROM ChuyenKhoa ck WHERE ck.ten LIKE %:ten%")
 	Page<ChuyenKhoa> findByTenContaining(@Param("ten") String ten, Pageable pageable);
+	
+	List<ChuyenKhoa> findAll();
+	long count();
 
 }
