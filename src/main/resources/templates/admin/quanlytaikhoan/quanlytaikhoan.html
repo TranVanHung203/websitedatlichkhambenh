@@ -5,9 +5,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Admin Dashboard</title>
-	<link th:href="@{/css/quanlytaikhoan.css}" rel="stylesheet">	
 	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
-	<link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
+	<link th:href="@{/css/quanlytaikhoan.css}" rel="stylesheet">
 
 	<!-- SweetAlert2 for beautiful popups -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -16,17 +15,14 @@
 <body>
 
 	<div th:replace="admin/fragments/header :: header"></div>
-	<div th:replace="admin/fragments/sidebar :: sidebar"></div>
 
 	<!-- Main Content -->
 	<div class="main-content">
-		<h1>Quản lý tài khoản người dùng</h1>
 
 		<!-- Search Box -->
 		<form action="#" th:action="@{/admin/qltk}" method="get">
 			<input type="text" id="searchInput" name="search" placeholder="Tìm kiếm tài khoản người dùng..."
 				th:value="${search}" onkeyup="filterTable()" autocomplete="off" />
-
 		</form>
 		<button class="btn-add" onclick="window.location.href='/admin/qltk/add'">Add New User</button>
 		<!-- User Table -->

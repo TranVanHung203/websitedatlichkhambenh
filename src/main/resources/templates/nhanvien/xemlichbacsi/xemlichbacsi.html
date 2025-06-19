@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xem Lịch Bác Sĩ</title>
     <link rel="stylesheet" th:href="@{/css/xemlichbacsi.css}">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -17,7 +16,7 @@
     <div th:replace="~{nhanvien/fragments/header :: header}"></div>
 
     <div class="container">
-        <h1 class="container__title">Xem Lịch Làm Việc Của Bác Sĩ</h1>
+        <h1 class="container__title">Xem Thứ Tự Ca Khám Bệnh</h1>
 
         <!-- Chọn chuyên khoa, bác sĩ, ngày và nút reload -->
         <div class="container__doctor-select">
@@ -109,6 +108,13 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <!-- Giá khám bác sĩ -->
+                    <h3>Giá Khám Bác Sĩ</h3>
+                    <div class="container__total" id="giaKham">
+                        <strong>Giá khám:</strong>
+                        <span id="giaKhamValue">0 VNĐ</span>
+                    </div>
 
                     <!-- Tổng tiền -->
                     <div class="container__total">
@@ -356,8 +362,11 @@
                             <td>${end}</td>
                             <td>
                                 ${slot.trangThai}
-                                <button class="container__checkin-btn" onclick="checkInPatient('${slot.slotId}', '${ca}')">
+                                <button class="container__checkin-btn" onclick="checkInPatient('${slot.slotId}', '${ca}', 'checked-in')">
                                     Check-in
+                                </button>
+                                <button class="container__cancel-appointment-btn" onclick="checkInPatient('${slot.slotId}', '${ca}', 'cancelled')">
+                                    Hủy ca khám
                                 </button>
                             </td>
                             <td>${slot.tenBenhNhan}</td>
@@ -443,6 +452,7 @@
             const donThuocBody = document.getElementById('donThuocBody');
             const phieuXetNghiemBody = document.getElementById('phieuXetNghiemBody');
             const tongTien = document.getElementById('tongTien');
+            const giaKhamValue = document.getElementById('giaKhamValue');
             const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
 
             chanDoan.textContent = '---';
@@ -450,12 +460,13 @@
             donThuocBody.innerHTML = '<tr><td colspan="5" class="container__no-data">Không có đơn thuốc</td></tr>';
             phieuXetNghiemBody.innerHTML = '<tr><td colspan="2" class="container__no-data">Không có xét nghiệm</td></tr>';
             tongTien.textContent = '0 VNĐ';
+            giaKhamValue.textContent = '0 VNĐ';
             confirmPaymentBtn.style.display = 'block';
 
             const paymentMethodDiv = document.querySelector('.container__payment-method');
             paymentMethodDiv.innerHTML = `
                 <label><input type="radio" name="paymentMethod" value="cash" checked> Thanh toán bằng tiền mặt</label>
-                <label><input type="radio" name="paymentMethod" value="creditCard"> Thanh toán bằng Credit Card </label>
+                <label><input type="radio" name="paymentMethod" value="creditCard"> Thanh toán bằng Credit Card</label>
             `;
 
             fetch(`/nhanvien/xemlichbacsi/payment/details?slotId=${slotId}`)
@@ -508,6 +519,8 @@
                         });
                     }
 
+                    const giaKham = data.tongTien ? (data.tongTien - tongTienThuoc - tongTienXetNghiem) : 0;
+                    giaKhamValue.textContent = giaKham.toLocaleString('vi-VN') + ' VNĐ';
                     tongTien.textContent = data.tongTien ? data.tongTien.toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ';
 
                     if (data.daThanhToan) {
@@ -648,8 +661,8 @@
             }
         }
 
-        function checkInPatient(slotId, ca) {
-            fetch(`/nhanvien/xemlichbacsi/checkin?slotId=${slotId}`, {
+        function checkInPatient(slotId, ca, trangThai) {
+            fetch(`/nhanvien/xemlichbacsi/setStatus?slotId=${slotId}&trangThai=${trangThai}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -687,6 +700,49 @@
                         icon: 'error',
                         title: 'Lỗi',
                         text: 'Đã xảy ra lỗi khi check-in!',
+                    });
+                });
+        }
+
+        function cancelAppointment(slotId, ca) {
+            fetch(`/nhanvien/xemlichbacsi/cancel?slotId=${slotId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Phản hồi không thành công: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: data.message || 'Hủy ca khám thành công!',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => {
+                            loadSchedule();
+                        }, 1500);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: data.message || 'Không thể hủy ca khám!',
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Đã xảy ra lỗi khi hủy ca khám!',
                     });
                 });
         }

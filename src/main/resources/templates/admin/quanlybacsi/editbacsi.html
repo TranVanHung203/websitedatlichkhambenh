@@ -1,77 +1,84 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Doctor</title>
-    <link th:href="@{/css/editbacsi.css}" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Edit Doctor</title>
+	<link th:href="@{/css/editbacsi.css}" rel="stylesheet">
 </head>
+
 <body>
-    <div class="main-content">
-        <h1>Chỉnh sửa thông tin bác sĩ</h1>
+	<div class="main-content">
+		<h1>Chỉnh sửa thông tin bác sĩ</h1>
 
-       
+		<form id="editDoctorForm" th:action="@{'/admin/qlbs/update/' + ${doctor.bacSiId}}" th:object="${doctor}"
+			method="post" enctype="multipart/form-data">
+			<label for="avatar">Ảnh đại diện:</label>
+			<div>
+				<img id="previewAvatar" th:src="@{${doctor.urlAvatar}}" alt="Avatar"
+					style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+			</div>
+			<input type="file" id="avatar" name="avatar" accept="image/*">
 
-        <form id="editDoctorForm" th:action="@{'/admin/qlbs/update/' + ${doctor.bacSiId}}" th:object="${doctor}" method="post" enctype="multipart/form-data">
-            <label for="avatar">Ảnh đại diện:</label>
-            <div>
-                <img id="previewAvatar" th:src="@{${doctor.urlAvatar}}" alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
-            </div>
-            <input type="file" id="avatar" name="avatar" accept="image/*">
+			<label for="ten">Tên:</label>
+			<input type="text" id="ten" th:field="*{ten}" required />
 
-            <label for="ten">Tên:</label>
-            <input type="text" id="ten" th:field="*{ten}" required />
+			<label for="gioiTinh">Giới Tính:</label>
+			<select id="gioiTinh" th:field="*{gioiTinh}">
+				<option value="Nam">Nam</option>
+				<option value="Nữ">Nữ</option>
+				<option value="Khác">Khác</option>
+			</select>
 
-            <label for="gioiTinh">Giới Tính:</label>
-            <select id="gioiTinh" th:field="*{gioiTinh}">
-                <option value="Nam">Nam</option>
-                <option value="Nữ">Nữ</option>
-                <option value="Khác">Khác</option>
-            </select>
+			<label for="ngaySinh">Ngày Sinh:</label>
+			<input type="date" id="ngaySinh" name="ngaySinh" th:value="${formattedDate}" required />
 
-            <label for="ngaySinh">Ngày Sinh:</label>
-            <input type="date" id="ngaySinh" name="ngaySinh" th:value="${formattedDate}" required />
+			<label for="diaChi">Địa Chỉ:</label>
+			<input type="text" id="diaChi" th:field="*{diaChi}" required />
 
-            <label for="diaChi">Địa Chỉ:</label>
-            <input type="text" id="diaChi" th:field="*{diaChi}" required />
+			<label for="dienThoai">Số Điện Thoại:</label>
+			<input type="text" id="dienThoai" th:field="*{dienThoai}" required />
 
-            <label for="dienThoai">Số Điện Thoại:</label>
-            <input type="text" id="dienThoai" th:field="*{dienThoai}" required />
+			<label for="chuyenKhoa">Chuyên Khoa:</label>
+			<select id="chuyenKhoa" th:field="*{chuyenKhoa.chuyenKhoaId}">
+				<option th:each="chuyenKhoa : ${chuyenKhoas}" th:value="${chuyenKhoa.chuyenKhoaId}"
+					th:text="${chuyenKhoa.ten}"></option>
+			</select>
 
-            <label for="chuyenKhoa">Chuyên Khoa:</label>
-            <select id="chuyenKhoa" th:field="*{chuyenKhoa.chuyenKhoaId}">
-                <option th:each="chuyenKhoa : ${chuyenKhoas}" th:value="${chuyenKhoa.chuyenKhoaId}" th:text="${chuyenKhoa.ten}"></option>
-            </select>
+			<label for="giaKham">Giá khám:</label>
+			<input type="number" id="giaKham"
+				th:value="${#numbers.formatDecimal(doctor.giaKham != null ? doctor.giaKham : 0, 0, '0')}" name="giaKham"
+				step="0.01" min="0" required />
 
-            <div class="button-group">
-                <button type="submit" class="btn btn-primary">Cập Nhật Thông Tin</button>
-                <button type="button" class="btn btn-success" id="btnContinueEdit">Tiếp Tục Chỉnh Sửa</button>
-            </div>
+			<div class="button-group">
+				<button type="submit" class="btn btn-primary">Cập Nhật Thông Tin</button>
+				<button type="button" class="btn btn-success" id="btnContinueEdit">Tiếp Tục Chỉnh Sửa</button>
+			</div>
 
-            <a href="/admin/qlbs" class="btn-back">Quay lại danh sách bác sĩ</a>
-        </form>
-    </div>
+			<a href="/admin/qlbs" class="btn-back">Quay lại danh sách bác sĩ</a>
+		</form>
+	</div>
 
-    <script>
-        document.getElementById("btnContinueEdit").addEventListener("click", function () {
-            let form = document.getElementById("editDoctorForm");
-            let actionUrl = form.action + "?redirect=edit-details";
-            form.action = actionUrl;
-            form.submit();
-        });
+	<script>
+		document.getElementById("btnContinueEdit").addEventListener("click", function () {
+			let form = document.getElementById("editDoctorForm");
+			let actionUrl = form.action + "?redirect=edit-details";
+			form.action = actionUrl;
+			form.submit();
+		});
 
-        document.getElementById("avatar").addEventListener("change", function (event) {
-            var file = event.target.files[0];
-            if (file) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    document.getElementById("previewAvatar").src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-      
-    </script>
+		document.getElementById("avatar").addEventListener("change", function (event) {
+			var file = event.target.files[0];
+			if (file) {
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					document.getElementById("previewAvatar").src = e.target.result;
+				};
+				reader.readAsDataURL(file);
+			}
+		});
+	</script>
 </body>
+
 </html>

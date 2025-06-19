@@ -401,3 +401,14 @@ body {
     font-weight: 600;
     border-color: #2b6cb0; /* Darker blue for active state */
 }
+.gia-kham-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.gia-kham-section h3 {
+    font-size: 1.5rem;
+}

@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -252,23 +253,31 @@ public class BacSiController {
 
 	@GetMapping("/bacsi/editprofile")
 	public String editProfile(Model model) {
-		nguoiDungId = getNguoiDungId();
-		BacSi bacSi = bacSiService.findByNguoiDungId(nguoiDungId);
-		String bacSiId = bacSi.getBacSiId(); // Example, replace with dynamic ID
+	    nguoiDungId = getNguoiDungId();
+	    BacSi bacSi = bacSiService.findByNguoiDungId(nguoiDungId);
+	    String bacSiId = bacSi.getBacSiId();
 
-		// Fetch personal info and details
-		EditProfileBSDTO personalInfo = bacSiService.getProfile(bacSiId);
-		ChiTietBacSiDTO detailInfo = bacSiService.getDetail(bacSiId);
+	    // Fetch personal info and details
+	    EditProfileBSDTO personalInfo = bacSiService.getProfile(bacSiId);
+	    ChiTietBacSiDTO detailInfo = bacSiService.getDetail(bacSiId);
 
-		// Fetch available specialties
-		List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa();
-		System.out.println("Avatar URL: " + personalInfo.getAvatarurl());
+	    // Format giaKham
+	    if (personalInfo.getGiaKham() != null) {
+	        DecimalFormat formatter = new DecimalFormat("#,###");
+	        String formattedGiaKham = formatter.format(personalInfo.getGiaKham());
+	        model.addAttribute("formattedGiaKham", formattedGiaKham);
+	    } else {
+	        model.addAttribute("formattedGiaKham", ""); // Default nếu null
+	    }
 
-		model.addAttribute("personalInfo", personalInfo);
-		model.addAttribute("detailInfo", detailInfo);
-		model.addAttribute("chuyenKhoaList", chuyenKhoaList);
+	    // Fetch available specialties
+	    List<ChuyenKhoa> chuyenKhoaList = chuyenKhoaService.getAllChuyenKhoa();
 
-		return "bacsi/chinhsuathongtinbs/chinhsuathongtinbs"; // Your Thymeleaf template
+	    model.addAttribute("personalInfo", personalInfo);
+	    model.addAttribute("detailInfo", detailInfo);
+	    model.addAttribute("chuyenKhoaList", chuyenKhoaList);
+
+	    return "bacsi/chinhsuathongtinbs/chinhsuathongtinbs"; // Your Thymeleaf template
 	}
 
 	
@@ -1130,12 +1139,17 @@ public class BacSiController {
             }
             tienThuoc = tienThuoc.add(donThuoc.calculateTongTien());
 
-            // Tổng tiền = Tiền xét nghiệm (đã tính trước) + Tiền thuốc
+            // Lấy giá khám từ bác sĩ
+            BigDecimal giaKham = bacSi.getGiaKham() != null ? bacSi.getGiaKham() : BigDecimal.ZERO;
+
+            // Tổng tiền = Tiền xét nghiệm (đã tính trước) + Tiền thuốc + Giá khám
             Integer tienXetNghiemTruocDo = hoSoBenh.getTongTien() != null ? hoSoBenh.getTongTien() : 0;
-            Integer tongTien = tienXetNghiemTruocDo + tienThuoc.intValue();
+            BigDecimal tongTien = BigDecimal.valueOf(tienXetNghiemTruocDo)
+                    .add(tienThuoc)
+                    .add(giaKham);
 
             // Cập nhật tongTien và trangThai cho HoSoBenh
-            hoSoBenh.setTongTien(tongTien);
+            hoSoBenh.setTongTien(tongTien.intValue());
             hoSoBenh.setTrangThai(true);
             hoSoBenh.addDonThuoc(donThuoc);
             donThuocService.save(donThuoc);

@@ -429,7 +429,96 @@
                     timer: 5000
                 });
             }
+        });function calculateTotalsPerRecord() {
+    // Select all record cards
+    const records = document.querySelectorAll('.record-card');
+
+    records.forEach((record, index) => {
+        let totalThuoc = 0;
+        let totalXetNghiem = 0;
+        let tongTien = 0;
+
+        // Get the tab ID suffix for this record
+        const tabId = record.querySelector('.nav-tabs').id.split('-')[1];
+
+        // Find tongTien by checking <p> tags with <strong>Tổng tiền:</strong>
+        const pElements = record.querySelectorAll('p strong');
+        for (let p of pElements) {
+            if (p.textContent.trim() === 'Tổng tiền:') {
+                const tongTienSpan = p.nextElementSibling;
+                if (tongTienSpan) {
+                    const tongTienText = tongTienSpan.textContent.trim();
+                    console.log(`Hồ sơ ${index + 1} - Raw tongTien: "${tongTienText}"`);
+                    if (tongTienText !== 'Không có') {
+                        tongTien = parseFloat(tongTienText.replace(/VNĐ|,/g, '').trim());
+                        console.log(`Hồ sơ ${index + 1} - Parsed tongTien: ${tongTien}`);
+                    }
+                }
+                break;
+            }
+        }
+
+        // Calculate total for prescriptions (donThuocs)
+        const prescriptionRows = record.querySelectorAll(`#prescription-${tabId} tbody tr`);
+        prescriptionRows.forEach(row => {
+            const tongTienCell = row.querySelector('td:last-child').textContent.trim();
+            console.log(`Hồ sơ ${index + 1} - Raw tongTienThuoc: "${tongTienCell}"`);
+            if (tongTienCell !== 'Không có') {
+                const cleanValue = tongTienCell.replace(/VNĐ|,/g, '').trim();
+                const tongTienThuoc = parseFloat(cleanValue) * 1000; // Chuyển từ nghìn thành VNĐ
+                console.log(`Hồ sơ ${index + 1} - Parsed tongTienThuoc: ${tongTienThuoc}`);
+                if (!isNaN(tongTienThuoc)) {
+                    totalThuoc += tongTienThuoc;
+                }
+            }
         });
+
+        // Calculate total for tests (xetNghiems)
+        const testRows = record.querySelectorAll(`#test-${tabId} tbody tr`);
+        testRows.forEach(row => {
+            const giaCell = row.querySelector('td:nth-child(2)').textContent.trim();
+            console.log(`Hồ sơ ${index + 1} - Raw giaXetNghiem: "${giaCell}"`);
+            if (giaCell !== 'Không có') {
+                const cleanValue = giaCell.replace(/VNĐ|,/g, '').trim();
+                const gia = parseFloat(cleanValue);
+                console.log(`Hồ sơ ${index + 1} - Parsed giaXetNghiem: ${gia}`);
+                if (!isNaN(gia)) {
+                    totalXetNghiem += gia;
+                }
+            }
+        });
+
+        // Calculate giaKham
+        const giaKham = tongTien - (totalThuoc + totalXetNghiem);
+        const formattedGiaKham = isNaN(giaKham) || giaKham < 0 ? '0' : giaKham.toLocaleString('vi-VN');
+
+        // Add or update giaKham <p> tag
+        let giaKhamP = record.querySelector('p.gia-kham');
+        if (!giaKhamP) {
+            giaKhamP = document.createElement('p');
+            giaKhamP.className = 'gia-kham';
+            giaKhamP.innerHTML = `<strong>Giá khám:</strong> <span>${formattedGiaKham} VNĐ</span>`;
+            const tongTienP = Array.from(record.querySelectorAll('p strong')).find(
+                strong => strong.textContent.trim() === 'Tổng tiền:'
+            )?.parentNode;
+            if (tongTienP) {
+                tongTienP.parentNode.insertBefore(giaKhamP, tongTienP.nextSibling);
+            }
+        } else {
+            giaKhamP.querySelector('span').textContent = `${formattedGiaKham} VNĐ`;
+        }
+
+        // Log totals for this record
+        console.log(`Hồ sơ ${index + 1}:`);
+        console.log(`  Tổng tiền thuốc: ${totalThuoc.toLocaleString('vi-VN')} VNĐ`);
+        console.log(`  Tổng tiền xét nghiệm: ${totalXetNghiem.toLocaleString('vi-VN')} VNĐ`);
+        console.log(`  Giá khám: ${formattedGiaKham} VNĐ`);
+    });
+}
+
+// Run the function after the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', calculateTotalsPerRecord);
+
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <div th:replace="benhnhan/fragments/footer :: footer"></div>

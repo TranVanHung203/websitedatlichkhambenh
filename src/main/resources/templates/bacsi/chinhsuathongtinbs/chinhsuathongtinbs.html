@@ -70,6 +70,17 @@
 							</option>
 						</select>
 					</div>
+					<div class="form-group">
+    <label for="giaKham">Giá khám (VND)</label>
+    <!-- Input hiển thị định dạng giá trị -->
+    <input type="text" id="giaKhamFormatted" name="giaKhamFormatted" 
+           th:value="${formattedGiaKham}" 
+           placeholder="Nhập giá khám">
+    <!-- Input ẩn chứa giá trị thực -->
+    <input type="hidden" id="giaKham" name="giaKham" 
+           th:value="${personalInfo.giaKham}">
+</div>
+
 
 					<!-- Avatar upload -->
 					<div class="form-group">
@@ -80,13 +91,10 @@
 					<!-- Display current avatar -->
 					<div class="form-group">
 						<label>Hình ảnh hiện tại</label><br>
-						
-						
 						<img id="current-avatar"
-							th:src="${personalInfo.avatarurl != null ? personalInfo.avatarurl : '/uploads/f9dcf22c-ca7f-4259-b193-ff5de5f23563-IMG_1666.JPG'}"
+							th:src="${personalInfo.avatarurl != null ? personalInfo.avatarurl : '/Uploads/f9dcf22c-ca7f-4259-b193-ff5de5f23563-IMG_1666.JPG'}"
 							alt="Avatar hiện tại"
 							style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
-
 					</div>
 
 					<button type="submit" class="btn">Lưu thông tin cá nhân</button>
@@ -194,6 +202,13 @@
 				img.src = savedUrl; // Thiết lập ảnh từ URL đã lưu
 			}
 		}
+document.getElementById('giaKhamFormatted').addEventListener('input', function () {
+    let input = this.value.replace(/\./g, ''); // Loại bỏ dấu chấm cũ
+    if (!isNaN(input) && input !== '') {
+        this.value = parseInt(input).toLocaleString('vi-VN'); // Thêm dấu chấm
+        document.getElementById('giaKham').value = input; // Cập nhật giá trị thực
+    }
+});
 
 		// Gọi loadSavedAvatar khi trang được tải
 		window.addEventListener('DOMContentLoaded', loadSavedAvatar);

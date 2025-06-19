@@ -24,7 +24,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         // Redirect based on role
         if (role.equals("ROLE_Admin")) {
-            response.sendRedirect("/admin/qltk");  // Redirect to admin dashboard
+            response.sendRedirect("/admin/home");  // Redirect to admin dashboard
         } else if (role.equals("ROLE_BenhNhan")) {
             response.sendRedirect("/home");  // Redirect to user homepage
         } else if (role.equals("ROLE_BacSi")) {

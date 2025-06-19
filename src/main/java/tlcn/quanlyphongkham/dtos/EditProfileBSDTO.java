@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -22,4 +23,5 @@ public class EditProfileBSDTO {
     private String tenDangNhap;
     private String chuyenKhoaId; 
     private String avatarurl; 
+    private BigDecimal giaKham; // Thêm trường giá khám
 }

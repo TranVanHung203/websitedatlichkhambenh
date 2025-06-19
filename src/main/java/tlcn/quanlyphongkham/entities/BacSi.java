@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -56,6 +57,9 @@ public class BacSi implements Serializable {
 
     @Column(name = "url_avatar", columnDefinition = "nvarchar(100)")
     private String urlAvatar;
+
+    @Column(name = "gia_kham", nullable = false, precision = 19, scale = 4)
+    private BigDecimal giaKham;
 
     @OneToOne(mappedBy = "bacSi", cascade = CascadeType.ALL)
     @JsonIgnore // Prevent serialization recursion

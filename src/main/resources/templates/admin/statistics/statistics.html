@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Thống Kê Ca Khám, Doanh Thu, Sử Dụng Xét Nghiệm & Tỷ Lệ Tái Khám</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+	<style>
+		body {
+			background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+			min-height: 100vh;
+			font-family: 'Inter', sans-serif;
+		}
+
+		.card {
+			background: white;
+			border-radius: 1rem;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			transition: transform 0.3s ease;
+		}
+
+		.card:hover {
+			transform: translateY(-5px);
+		}
+
+		.card:hover {
+			transform: translateY(-5px);
+		}
+
+		.chart-container {
+			max-width: 800px;
+			margin: 0 auto;
+		}
+
+		.date-picker {
+			border: 1px solid #e2e8f0;
+			border-radius: 0.5rem;
+			padding: 0.5rem;
+			background: white;
+		}
+
+		.date-picker:focus {
+			outline: none;
+			border-color: #6366f1;
+			box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+		}
+
+		.tab {
+			padding: 0.5rem 1rem;
+			cursor: pointer;
+			border-bottom: 2px solid transparent;
+			transition: all 0.3s ease;
+		}
+
+		.tab.active {
+			border-bottom: 2px solid #6366f1;
+			color: #6366f1;
+			font-weight: bold;
+		}
+
+		.error-message {
+			background: #fee2e2;
+			color: #dc2626;
+			padding: 1rem;
+			border-radius: 0.5rem;
+			margin-bottom: 1rem;
+			display: none;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div th:replace="admin/fragments/header :: header"></div>
+
+	<div class="container mx-auto p-6">
+		<h1 class="text-3xl font-bold text-center mb-8 text-indigo-800">Thống Kê Ca Khám, Doanh Thu, Sử Dụng Xét Nghiệm
+			& Tỷ Lệ Tái Khám</h1>
+
+		<div class="mb-6 flex justify-center space-x-4">
+			<select id="periodSelect" onchange="updateStatistics()"
+				class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+				<option value="day">Theo ngày</option>
+				<option value="month">Theo tháng</option>
+				<option value="year">Theo năm</option>
+			</select>
+			<input type="date" id="datePicker" onchange="updateStatistics()" class="date-picker">
+			<select id="sortOrder" onchange="updateStatistics()"
+				class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 hidden" data-tab="testUsage">
+				<option value="desc">Giảm dần</option>
+				<option value="asc">Tăng dần</option>
+			</select>
+		</div>
+
+		<div class="flex justify-center mb-6">
+			<div class="tab" onclick="switchTab('revenue')">Thống kê doanh thu</div>
+			<div class="tab active" onclick="switchTab('appointments')">Thống kê ca khám</div>
+			<div class="tab" onclick="switchTab('testUsage')">Thống kê sử dụng xét nghiệm</div>
+			<div class="tab" onclick="switchTab('revisitRate')">Thống kê tỷ lệ tái khám</div>
+		</div>
+
+		<div id="errorContainer" class="error-message"></div>
+
+		<div id="appointmentsSection">
+			<div class="card p-6 chart-container">
+				<canvas id="statisticsChart"></canvas>
+			</div>
+			<div class="card p-6 mt-6">
+				<h2 class="text-xl font-semibold mb-4 text-indigo-800">Chi tiết thống kê ca khám</h2>
+				<table class="w-full text-left">
+					<thead>
+						<tr class="bg-indigo-100">
+							<th class="p-3">Thời gian</th>
+							<th class="p-3">Chờ xử lý</th>
+							<th class="p-3">Đã check-in</th>
+							<th class="p-3">Hoàn thành</th>
+						</tr>
+					</thead>
+					<tbody id="statisticsTable"></tbody>
+				</table>
+			</div>
+		</div>
+
+		<div id="revenueSection" class="hidden">
+			<div class="card p-6 chart-container">
+				<canvas id="revenueChart"></canvas>
+			</div>
+			<div class="card p-6 mt-6">
+				<h2 class="text-xl font-semibold mb-4 text-indigo-800">Chi tiết thống kê doanh thu</h2>
+				<table class="w-full text-left">
+					<thead>
+						<tr class="bg-indigo-100">
+							<th class="p-3">Thời gian</th>
+							<th class="p-3">Doanh thu (VNĐ)</th>
+						</tr>
+					</thead>
+					<tbody id="revenueTable"></tbody>
+				</table>
+			</div>
+		</div>
+
+		<div id="testUsageSection" class="hidden">
+			<div class="card p-6 chart-container">
+				<canvas id="testUsageChart"></canvas>
+			</div>
+			<div class="card p-6 mt-6">
+				<h2 class="text-xl font-semibold mb-4 text-indigo-800">Chi tiết thống kê sử dụng xét nghiệm</h2>
+				<table class="w-full text-left">
+					<thead>
+						<tr class="bg-indigo-100">
+							<th class="p-3">Loại xét nghiệm</th>
+							<th class="p-3">Số lần sử dụng</th>
+						</tr>
+					</thead>
+					<tbody id="testUsageTable"></tbody>
+				</table>
+			</div>
+		</div>
+
+		<div id="revisitRateSection" class="hidden">
+			<div class="card p-6 chart-container">
+				<canvas id="revisitRateChart"></canvas>
+			</div>
+			<div class="card p-6 mt-6">
+				<h2 class="text-xl font-semibold mb-4 text-indigo-800">Chi tiết thống kê tỷ lệ tái khám</h2>
+				<table class="w-full text-left">
+					<thead>
+						<tr class="bg-indigo-100">
+							<th class="p-3">Thời gian</th>
+							<th class="p-3">Tỷ lệ tái khám (%)</th>
+							<th class="p-3">Số bệnh nhân</th>
+							<th class="p-3">Số tái khám</th>
+							<th class="p-3">Số lần khám TB</th>
+						</tr>
+					</thead>
+					<tbody id="revisitRateTable"></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		let statisticsChart, revenueChart, testUsageChart, revisitRateChart;
+
+		// Dynamic color palette for test types and other datasets
+		const colorPalette = [
+			'rgba(59, 130, 246, 0.6)',  // Blue
+			'rgba(34, 197, 94, 0.6)',   // Green
+			'rgba(236, 72, 153, 0.6)',  // Pink
+			'rgba(255, 206, 86, 0.6)',  // Yellow
+			'rgba(75, 192, 192, 0.6)',  // Teal
+			'rgba(139, 92, 246, 0.6)',  // Purple
+			'rgba(234, 179, 8, 0.6)',   // Amber
+			'rgba(239, 68, 68, 0.6)',   // Red
+			'rgba(168, 85, 247, 0.6)',  // Indigo
+			'rgba(16, 185, 129, 0.6)'   // Emerald
+		];
+
+		function getBorderColor(bgColor) {
+			return bgColor.replace('0.6', '1');
+		}
+
+		function showError(message) {
+			const errorContainer = document.getElementById('errorContainer');
+			errorContainer.textContent = message;
+			errorContainer.style.display = 'block';
+			setTimeout(() => errorContainer.style.display = 'none', 5000);
+		}
+
+		async function fetchData(url) {
+			try {
+				const response = await fetch(url);
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new Error(errorData.error || 'Lỗi không xác định');
+				}
+				return await response.json();
+			} catch (error) {
+				showError(`Lỗi: ${error.message}`);
+				return {};
+			}
+		}
+
+		async function loadStatistics(period, date) {
+			let url = `/admin/statistics/appointments?period=${period}`;
+			if (date && period === 'day') url += `&date=${date}`;
+			else if (date && period === 'month') url += `&month=${date.substring(0, 7)}`;
+			else if (date && period === 'year') url += `&year=${date.substring(0, 4)}`;
+
+			const data = await fetchData(url);
+			const labels = Object.keys(data);
+			const pendingData = labels.map(label => data[label]['pending'] || 0);
+			const checkedInData = labels.map(label => data[label]['checked-in'] || 0);
+			const completedData = labels.map(label => data[label]['completed'] || 0);
+
+			updateStatisticsChart(labels, pendingData, checkedInData, completedData, period);
+			updateStatisticsTable(data);
+		}
+
+		async function loadRevenue(period, date) {
+			let url = `/admin/statistics/revenue?period=${period}`;
+			if (date && period === 'day') url += `&date=${date}`;
+			else if (date && period === 'month') url += `&month=${date.substring(0, 7)}`;
+			else if (date && period === 'year') url += `&year=${date.substring(0, 4)}`;
+
+			const data = await fetchData(url);
+			const labels = Object.keys(data);
+			const revenueData = labels.map(label => data[label] || 0);
+
+			updateRevenueChart(labels, revenueData, period);
+			updateRevenueTable(data);
+		}
+
+		async function loadTestUsage(period, date, sortOrder) {
+			let url = `/admin/statistics/test-usage?period=${period}&sort=${sortOrder}`;
+			if (date && period === 'day') url += `&date=${date}`;
+			else if (date && period === 'month') url += `&month=${date.substring(0, 7)}`;
+			else if (date && period === 'year') url += `&year=${date.substring(0, 4)}`;
+
+			const data = await fetchData(url);
+			const labels = Object.keys(data);
+			const usageData = labels.map(label => data[label] || 0);
+
+			updateTestUsageChart(labels, usageData, period);
+			updateTestUsageTable(data);
+		}
+
+		async function loadRevisitRate(period, date) {
+			let url = `/admin/statistics/revisit-rate?period=${period}`;
+			if (date && period === 'day') url += `&date=${date}`;
+			else if (date && period === 'month') url += `&month=${date.substring(0, 7)}`;
+			else if (date && period === 'year') url += `&year=${date.substring(0, 4)}`;
+
+			const data = await fetchData(url);
+			const labels = Object.keys(data);
+			const revisitRateData = labels.map(label => data[label].revisitRate || 0);
+			const totalPatientsData = labels.map(label => data[label].total全都logtotalPatients || 0);
+			const revisitPatientsData = labels.map(label => data[label].revisitPatients || 0);
+			const averageRevisitCountData = labels.map(label => data[label].averageRevisitCount || 0);
+
+			updateRevisitRateChart(labels, revisitRateData, period);
+			updateRevisitRateTable(data);
+		}
+
+		function updateStatisticsChart(labels, pendingData, checkedInData, completedData, period) {
+			const ctx = document.getElementById('statisticsChart').getContext('2d');
+			if (statisticsChart) statisticsChart.destroy();
+			statisticsChart = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: labels,
+					datasets: [
+						{
+							label: 'Chờ xử lý',
+							data: pendingData,
+							backgroundColor: colorPalette[0],
+							borderColor: getBorderColor(colorPalette[0]),
+							borderWidth: 1
+						},
+						{
+							label: 'Đã check-in',
+							data: checkedInData,
+							backgroundColor: colorPalette[1],
+							borderColor: getBorderColor(colorPalette[1]),
+							borderWidth: 1
+						},
+						{
+							label: 'Hoàn thành',
+							data: completedData,
+							backgroundColor: colorPalette[2],
+							borderColor: getBorderColor(colorPalette[2]),
+							borderWidth: 1
+						}
+					]
+				},
+				options: {
+					responsive: true,
+					scales: {
+						y: {
+							stacked: true,
+							beginAtZero: true,
+							title: {display: true, text: 'Số lượng ca khám'}
+						},
+						x: {
+							stacked: true,
+							title: {display: true, text: period === 'day' ? 'Ngày' : period === 'month' ? 'Tháng' : 'Năm'}
+						}
+					},
+					plugins: {
+						legend: {position: 'top'},
+						title: {display: true, text: `Thống kê ca khám theo ${period === 'day' ? 'ngày' : period === 'month' ? 'tháng' : 'năm'}`}
+					}
+				}
+			});
+		}
+
+		function updateRevenueChart(labels, revenueData, period) {
+			const ctx = document.getElementById('revenueChart').getContext('2d');
+			if (revenueChart) revenueChart.destroy();
+			revenueChart = new Chart(ctx, {
+				type: 'line',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Doanh thu (VNĐ)',
+						data: revenueData,
+						borderColor: colorPalette[3],
+						backgroundColor: colorPalette[3].replace('0.6', '0.3'),
+						fill: true,
+						tension: 0.4
+					}]
+				},
+				options: {
+					responsive: true,
+					scales: {
+						y: {
+							beginAtZero: true,
+							title: {display: true, text: 'Doanh thu (VNĐ)'},
+							ticks: {
+								callback: function (value) {
+									return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(value);
+								}
+							}
+						},
+						x: {
+							title: {display: true, text: period === 'day' ? 'Ngày' : period === 'month' ? 'Tháng' : 'Năm'}
+						}
+					},
+					plugins: {
+						legend: {position: 'top'},
+						title: {display: true, text: `Thống kê doanh thu theo ${period === 'day' ? 'ngày' : period === 'month' ? 'tháng' : 'năm'}`}
+					}
+				}
+			});
+		}
+
+		function updateTestUsageChart(labels, usageData, period) {
+			const ctx = document.getElementById('testUsageChart').getContext('2d');
+			if (testUsageChart) testUsageChart.destroy();
+			testUsageChart = new Chart(ctx, {
+				type: 'doughnut',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Số lần sử dụng',
+						data: usageData,
+						backgroundColor: labels.map((_, i) => colorPalette[i % colorPalette.length]),
+						borderColor: labels.map((_, i) => getBorderColor(colorPalette[i % colorPalette.length])),
+						borderWidth: 1
+					}]
+				},
+				options: {
+					responsive: true,
+					plugins: {
+						legend: {position: 'top'},
+						title: {display: true, text: `Thống kê sử dụng xét nghiệm theo ${period === 'day' ? 'ngày' : period === 'month' ? 'tháng' : 'năm'}`}
+					}
+				}
+			});
+		}
+
+		function updateRevisitRateChart(labels, revisitRateData, period) {
+			const ctx = document.getElementById('revisitRateChart').getContext('2d');
+			if (revisitRateChart) revisitRateChart.destroy();
+			revisitRateChart = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Tỷ lệ tái khám (%)',
+						data: revisitRateData,
+						backgroundColor: colorPalette[4],
+						borderColor: getBorderColor(colorPalette[4]),
+						borderWidth: 1
+					}]
+				},
+				options: {
+					responsive: true,
+					scales: {
+						y: {
+							beginAtZero: true,
+							max: 100,
+							title: {display: true, text: 'Tỷ lệ tái khám (%)'},
+							ticks: {callback: value => value + '%'}
+						},
+						x: {
+							title: {display: true, text: period === 'day' ? 'Ngày' : period === 'month' ? 'Tháng' : 'Năm'}
+						}
+					},
+					plugins: {
+						legend: {position: 'top'},
+						title: {display: true, text: `Tỷ lệ tái khám theo ${period === 'day' ? 'ngày' : period === 'month' ? 'tháng' : 'năm'}`}
+					}
+				}
+			});
+		}
+
+		function updateStatisticsTable(data) {
+			const tbody = document.getElementById('statisticsTable');
+			tbody.innerHTML = '';
+			for (const [time, stats] of Object.entries(data)) {
+				const row = document.createElement('tr');
+				row.innerHTML = `
+                    <td class="p-3">${time}</td>
+                    <td class="p-3">${stats['pending'] || 0}</td>
+                    <td class="p-3">${stats['checked-in'] || 0}</td>
+                    <td class="p-3">${stats['completed'] || 0}</td>
+                `;
+				tbody.appendChild(row);
+			}
+		}
+
+		function updateRevenueTable(data) {
+			const tbody = document.getElementById('revenueTable');
+			tbody.innerHTML = '';
+			for (const [time, revenue] of Object.entries(data)) {
+				const row = document.createElement('tr');
+				row.innerHTML = `
+                    <td class="p-3">${time}</td>
+                    <td class="p-3">${new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(revenue)}</td>
+                `;
+				tbody.appendChild(row);
+			}
+		}
+
+		function updateTestUsageTable(data) {
+			const tbody = document.getElementById('testUsageTable');
+			tbody.innerHTML = '';
+			for (const [testType, count] of Object.entries(data)) {
+				const row = document.createElement('tr');
+				row.innerHTML = `
+                    <td class="p-3">${testType}</td>
+                    <td class="p-3">${count}</td>
+                `;
+				tbody.appendChild(row);
+			}
+		}
+
+		function updateRevisitRateTable(data) {
+			const tbody = document.getElementById('revisitRateTable');
+			tbody.innerHTML = '';
+			for (const [time, stats] of Object.entries(data)) {
+				const row = document.createElement('tr');
+				row.innerHTML = `
+                    <td class="p-3">${time}</td>
+                    <td class="p-3">${stats.revisitRate.toFixed(2)}%</td>
+                    <td class="p-3">${stats.totalPatients}</td>
+                    <td class="p-3">${stats.revisitPatients}</td>
+                    <td class="p-3">${stats.averageRevisitCount.toFixed(2)}</td>
+                `;
+				tbody.appendChild(row);
+			}
+		}
+
+		function switchTab(tab) {
+			document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+			document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+
+			document.getElementById('appointmentsSection').classList.toggle('hidden', tab !== 'appointments');
+			document.getElementById('revenueSection').classList.toggle('hidden', tab !== 'revenue');
+			document.getElementById('testUsageSection').classList.toggle('hidden', tab !== 'testUsage');
+			document.getElementById('revisitRateSection').classList.toggle('hidden', tab !== 'revisitRate');
+			document.getElementById('sortOrder').classList.toggle('hidden', tab !== 'testUsage');
+
+			updateStatistics();
+		}
+
+		function updateStatistics() {
+			const period = document.getElementById('periodSelect').value;
+			const date = document.getElementById('datePicker').value;
+			const sortOrder = document.getElementById('sortOrder').value;
+			loadStatistics(period, date);
+			loadRevenue(period, date);
+			loadTestUsage(period, date, sortOrder);
+			loadRevisitRate(period, date);
+		}
+
+		// Set default date to today and load statistics
+		document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
+		updateStatistics();
+	</script>
+</body>
+
+</html>

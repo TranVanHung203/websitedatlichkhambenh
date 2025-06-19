@@ -2,130 +2,129 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Bác Sĩ</title>
-    <link th:href="@{/css/quanlybacsi.css}" rel="stylesheet">
-    <link th:href="@{/css/headeradmin.css}" rel="stylesheet">
-    <link th:href="@{/css/sidebaradmin.css}" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Quản Lý Bác Sĩ</title>
+	<link th:href="@{/css/quanlybacsi.css}" rel="stylesheet">
+	<link th:href="@{/css/headeradmin.css}" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
-    <div th:replace="admin/fragments/header :: header"></div>
-    <div th:replace="admin/fragments/sidebar :: sidebar"></div>
+	<div th:replace="admin/fragments/header :: header"></div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <h1>Quản lý bác sĩ</h1>
+	<!-- Main Content -->
+	<div class="main-content">
 
-        <!-- Success and Error Messages -->
-        <div th:if="${message}" class="success-message">
-            <p th:text="${message}"></p>
-        </div>
-        <div th:if="${error}" class="error-message">
-            <p th:text="${error}"></p>
-        </div>
+		<!-- Success and Error Messages -->
+		<div th:if="${message}" class="success-message">
+			<p th:text="${message}"></p>
+		</div>
+		<div th:if="${error}" class="error-message">
+			<p th:text="${error}"></p>
+		</div>
 
-        <!-- Search Form -->
-        <form th:action="@{/admin/qlbs}" method="get" id="searchForm">
-            <input type="number" name="search" id="searchInput" placeholder="Tìm kiếm bác sĩ theo số điện thoại"
-                th:value="${search}" oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
-            <button type="submit" style="display:none;">Search</button>
-        </form>
+		<!-- Search Form -->
+		<form th:action="@{/admin/qlbs}" method="get" id="searchForm">
+			<input type="number" name="search" id="searchInput" placeholder="Tìm kiếm bác sĩ theo số điện thoại"
+				th:value="${search}" oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
+			<button type="submit" style="display:none;">Search</button>
+		</form>
 
-        <!-- No Results Message -->
-        <div th:if="${noResults}" class="no-results-message">
-            <p>Không tìm thấy bác sĩ nào với số điện thoại đã nhập.</p>
-        </div>
+		<!-- No Results Message -->
+		<div th:if="${noResults}" class="no-results-message">
+			<p>Không tìm thấy bác sĩ nào với số điện thoại đã nhập.</p>
+		</div>
 
-        <table th:if="${!noResults}">
-            <thead>
-                <tr>
-                    <th>Avatar</th>
-                    <th>Tên</th>
-                    <th>Giới tính</th>
-                    <th>Ngày sinh</th>
-                    <th>Địa chỉ</th>
-                    <th>Số điện thoại</th>
-                    <th>Chuyên khoa</th>
-                    <th>Bằng cấp</th>
-                    <th>Hành động</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="doctor : ${doctors}">
-                    <td>
-                        <img th:src="@{${doctor.urlAvatar}}" alt="Avatar">
-                    </td>
-                    <td th:text="${doctor.ten}"></td>
-                    <td th:text="${doctor.gioiTinh}"></td>
-                    <td th:text="${doctor.ngaySinh}"></td>
-                    <td th:text="${doctor.diaChi}"></td>
-                    <td th:text="${doctor.dienThoai}"></td>
-                    <td>
-                        <span th:if="${doctor.chuyenKhoa == null}">Không có</span>
-                        <span th:if="${doctor.chuyenKhoa != null}" th:text="${doctor.chuyenKhoa.ten}"></span>
-                    </td>
-                    <td th:text="${doctor.chiTietBacSi.bangCap}"></td>
-                    <td>
-                        <a th:href="@{/admin/qlbs/edit-bacsi/{bacSiId}(bacSiId=${doctor.bacSiId})}"
-                            class="btn-edit">Chỉnh Sửa</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+		<table th:if="${!noResults}">
+			<thead>
+				<tr>
+					<th>Avatar</th>
+					<th>Tên</th>
+					<th>Giới tính</th>
+					<th>Ngày sinh</th>
+					<th>Địa chỉ</th>
+					<th>Số điện thoại</th>
+					<th>Chuyên khoa</th>
+					<th>Giá khám</th>
+					<th>Hành động</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="doctor : ${doctors}">
+					<td>
+						<img th:src="@{${doctor.urlAvatar}}" alt="Avatar">
+					</td>
+					<td th:text="${doctor.ten}"></td>
+					<td th:text="${doctor.gioiTinh}"></td>
+					<td th:text="${doctor.ngaySinh}"></td>
+					<td th:text="${doctor.diaChi}"></td>
+					<td th:text="${doctor.dienThoai}"></td>
+					<td>
+						<span th:if="${doctor.chuyenKhoa == null}">Không có</span>
+						<span th:if="${doctor.chuyenKhoa != null}" th:text="${doctor.chuyenKhoa.ten}"></span>
+					</td>
+					<td
+						th:text="${doctor.giaKham != null and doctor.giaKham.doubleValue() != 0.0 ? #numbers.formatDecimal(doctor.giaKham, 0, '0') : '0'} + ' VND'">
+					</td>
+					<td>
+						<a th:href="@{/admin/qlbs/edit-bacsi/{bacSiId}(bacSiId=${doctor.bacSiId})}"
+							class="btn-edit">Chỉnh Sửa</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 
-        <!-- Pagination -->
-        <div class="pagination">
-            <a th:if="${currentPage > 0}" th:href="@{/admin/qlbs(page=${currentPage - 1}, search=${search})}"
-                class="prev">Trang trước</a>
+		<!-- Pagination -->
+		<div class="pagination">
+			<a th:if="${currentPage > 0}" th:href="@{/admin/qlbs(page=${currentPage - 1}, search=${search})}"
+				class="prev">Trang trước</a>
 
-            <span th:each="i : ${#numbers.sequence(startPage, endPage)}">
-                <a th:href="@{/admin/qlbs(page=${i}, search=${search})}" th:text="${i + 1}"
-                    th:classappend="${i == currentPage ? 'active' : ''}"></a>
-            </span>
+			<span th:each="i : ${#numbers.sequence(startPage, endPage)}">
+				<a th:href="@{/admin/qlbs(page=${i}, search=${search})}" th:text="${i + 1}"
+					th:classappend="${i == currentPage ? 'active' : ''}"></a>
+			</span>
 
-            <a th:if="${currentPage < totalPages - 1}"
-                th:href="@{/admin/qlbs(page=${currentPage + 1}, search=${search})}" class="next">Trang sau</a>
-        </div>
+			<a th:if="${currentPage < totalPages - 1}"
+				th:href="@{/admin/qlbs(page=${currentPage + 1}, search=${search})}" class="next">Trang sau</a>
+		</div>
 
-    </div>
+	</div>
 
-    <script>
-        $(document).ready(function () {
-            $('#searchInput').on('input', function () {
-                var searchQuery = $(this).val();
-                var url = '/admin/qlbs?page=0&search=' + searchQuery;
+	<script>
+		$(document).ready(function () {
+			$('#searchInput').on('input', function () {
+				var searchQuery = $(this).val();
+				var url = '/admin/qlbs?page=0&search=' + searchQuery;
 
-                $.get(url, function (data) {
-                    var content = $(data).find('.main-content').html();
-                    $('.main-content').html(content);
-                });
-            });
+				$.get(url, function (data) {
+					var content = $(data).find('.main-content').html();
+					$('.main-content').html(content);
+				});
+			});
 
-            // Hiển thị thông báo SweetAlert2 nếu có
-            const message = /*[[${message}]]*/ '';
-            const error = /*[[${error}]]*/ '';
-            if (message) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công',
-                    text: message,
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            }
-            if (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: error
-                });
-            }
-        });
-    </script>
+			// Hiển thị thông báo SweetAlert2 nếu có
+			const message = /*[[${message}]]*/ '';
+			const error = /*[[${error}]]*/ '';
+			if (message) {
+				Swal.fire({
+					icon: 'success',
+					title: 'Thành công',
+					text: message,
+					showConfirmButton: false,
+					timer: 1500
+				});
+			}
+			if (error) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Lỗi',
+					text: error
+				});
+			}
+		});
+	</script>
 </body>
 
 </html>
