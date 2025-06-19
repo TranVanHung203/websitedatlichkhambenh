@@ -615,35 +615,60 @@ public class AdminController {
 	}
 
 	// ----------
-	@GetMapping("/admin/statistics")
-	public String getStatisticsPage(Model model) {
-		return "admin/statistics/statistics";
-	}
+	 @GetMapping("/admin/statistics")
+	    public String getStatisticsPage(Model model) {
+	        return "admin/statistics/statistics";
+	    }
 
-	@GetMapping("/admin/statistics/appointments")
-	public ResponseEntity<Map<String, Map<String, Long>>> getAppointmentStatistics(@RequestParam String period,
-			@RequestParam(required = false) String date, @RequestParam(required = false) String month,
-			@RequestParam(required = false) String year) {
-		Map<String, Map<String, Long>> stats = statisticsService.getAppointmentStatistics(period, date, month, year);
-		return ResponseEntity.ok(stats);
-	}
+	 @GetMapping("/admin/statistics/appointments")
+	    public ResponseEntity<?> getAppointmentStatistics(
+	            @RequestParam String period,
+	            @RequestParam(required = false) String date,
+	            @RequestParam(required = false) String month,
+	            @RequestParam(required = false) String year) {
+	        try {
+	            Map<String, Map<String, Long>> stats = statisticsService.getAppointmentStatistics(period, date, month, year);
+	            return ResponseEntity.ok(stats);
+	        } catch (Exception e) {
+	            Map<String, String> error = new HashMap<>();
+	            error.put("error", "Failed to fetch appointment statistics: " + e.getMessage());
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+	        }
+	    }
 
-	@GetMapping("/admin/statistics/revenue")
-	public ResponseEntity<Map<String, Long>> getRevenueStatistics(@RequestParam String period,
-			@RequestParam(required = false) String date, @RequestParam(required = false) String month,
-			@RequestParam(required = false) String year) {
-		Map<String, Long> stats = statisticsService.getRevenueStatistics(period, date, month, year);
-		return ResponseEntity.ok(stats);
-	}
+	    @GetMapping("/admin/statistics/revenue")
+	    public ResponseEntity<?> getRevenueStatistics(
+	            @RequestParam String period,
+	            @RequestParam(required = false) String date,
+	            @RequestParam(required = false) String month,
+	            @RequestParam(required = false) String year) {
+	        try {
+	            Map<String, Long> stats = statisticsService.getRevenueStatistics(period, date, month, year);
+	            return ResponseEntity.ok(stats);
+	        } catch (Exception e) {
+	            Map<String, String> error = new HashMap<>();
+	            error.put("error", "Failed to fetch revenue statistics: " + e.getMessage());
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+	        }
+	    }
 
-	@GetMapping("/admin/statistics/test-usage")
-	public ResponseEntity<Map<String, Long>> getTestUsageStatistics(@RequestParam String period,
-			@RequestParam(required = false) String date, @RequestParam(required = false) String month,
-			@RequestParam(required = false) String year, @RequestParam String sort) {
-		Map<String, Long> stats = statisticsService.getTestUsageStatistics(period, date, month, year, sort);
-		return ResponseEntity.ok(stats);
-	}
-	   @GetMapping("/admin/statistics/revisit-rate")
+	    @GetMapping("/admin/statistics/test-usage")
+	    public ResponseEntity<?> getTestUsageStatistics(
+	            @RequestParam String period,
+	            @RequestParam(required = false) String date,
+	            @RequestParam(required = false) String month,
+	            @RequestParam(required = false) String year) {
+	        try {
+	            Map<String, Map<String, Long>> stats = statisticsService.getTestUsageStatistics(period, date, month, year);
+	            return ResponseEntity.ok(stats);
+	        } catch (Exception e) {
+	            Map<String, String> error = new HashMap<>();
+	            error.put("error", "Failed to fetch test usage statistics: " + e.getMessage());
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+	        }
+	    }
+
+	    @GetMapping("/admin/statistics/revisit-rate")
 	    public ResponseEntity<?> getRevisitRateStatistics(
 	            @RequestParam String period,
 	            @RequestParam(required = false) String date,
@@ -651,6 +676,7 @@ public class AdminController {
 	            @RequestParam(required = false) String year) {
 	        try {
 	            Map<String, Map<String, Number>> stats = statisticsService.getRevisitRateStatistics(period, date, month, year);
+	            System.out.println("cc");
 	            return ResponseEntity.ok(stats);
 	        } catch (Exception e) {
 	            Map<String, String> error = new HashMap<>();

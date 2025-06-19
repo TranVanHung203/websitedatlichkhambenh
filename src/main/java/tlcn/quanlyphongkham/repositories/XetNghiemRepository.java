@@ -17,13 +17,12 @@ public interface XetNghiemRepository extends JpaRepository<XetNghiem, Long> {
 			+ "GROUP BY xn.loaiXetNghiem.tenXetNghiem")
 	List<Object[]> findTestUsageByDay(@Param("date") LocalDate date);
 
-	@Query("SELECT xn.loaiXetNghiem.tenXetNghiem, COUNT(xn) " + "FROM XetNghiem xn " + "WHERE (:month IS NULL OR "
-			+ "CONCAT(YEAR(xn.hoSoBenh.slotThoiGian.lichKhamBenh.ngayThangNam), '-', "
-			+ "CASE WHEN MONTH(xn.hoSoBenh.slotThoiGian.lichKhamBenh.ngayThangNam) < 10 "
-			+ "THEN CONCAT('0', MONTH(xn.hoSoBenh.slotThoiGian.lichKhamBenh.ngayThangNam)) "
-			+ "ELSE CAST(MONTH(xn.hoSoBenh.slotThoiGian.lichKhamBenh.ngayThangNam) AS string) END) = :month) "
-			+ "GROUP BY xn.loaiXetNghiem.tenXetNghiem")
-	List<Object[]> findTestUsageByMonth(@Param("month") String month);
+	@Query("SELECT xn.loaiXetNghiem.tenXetNghiem, COUNT(xn), " +
+		       "MONTH(xn.hoSoBenh.slotThoiGian.lichKhamBenh.ngayThangNam) " +
+		       "FROM XetNghiem xn " +
+		       "WHERE (:year IS NULL OR CAST(YEAR(xn.hoSoBenh.slotThoiGian.lichKhamBenh.ngayThangNam) AS string) = :year) " +
+		       "GROUP BY xn.loaiXetNghiem.tenXetNghiem, MONTH(xn.hoSoBenh.slotThoiGian.lichKhamBenh.ngayThangNam)")
+		List<Object[]> findTestUsageByYearAndMonth(@Param("year") String year);
 
 	@Query("SELECT xn.loaiXetNghiem.tenXetNghiem, COUNT(xn) " + "FROM XetNghiem xn "
 			+ "WHERE (:year IS NULL OR CAST(YEAR(xn.hoSoBenh.slotThoiGian.lichKhamBenh.ngayThangNam) AS string) = :year) "

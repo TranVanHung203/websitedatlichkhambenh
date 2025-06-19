@@ -197,7 +197,7 @@
                                 <td class="p-3 border-b" th:text="${test.trangThai}"></td>
                                 <td class="p-3 border-b">
                                     <a th:if="${test.fileKetQua}"
-                                       th:href="@{/nhanvien/files/xetnghiem/{filename}(filename=${test.fileKetQua})}"
+                                       th:href="@{/nhanvien{filename}(filename=${test.fileKetQua})}"
                                        target="_blank" class="text-blue-600 hover:underline">
                                         Xem File
                                     </a>
