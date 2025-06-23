@@ -134,41 +134,5 @@ public class SucKhoeDuLieuController {
         return "redirect:/health-chart?chiSo=" + chiSo + "&time=" + time;
     }
 
-    @Scheduled(cron = "0 0 8 * * ?") // 8:00 AM hàng ngày
-    public void sendDailyReminderEmails() {
-        try {
-            List<NguoiDung> benhNhans = nguoiDungService.findByVaiTro("benhNhan");
-            System.out.println("Sending daily reminders to " + benhNhans.size() + " patients");
-            for (NguoiDung benhNhan : benhNhans) {
-                if (benhNhan.getEmail() == null || benhNhan.getEmail().isEmpty()) {
-                    System.err.println("Skipping patient ID " + benhNhan.getNguoiDungId() + ": No email configured");
-                    continue;
-                }
-                String userEmail = benhNhan.getEmail();
-                System.out.println("Preparing to send reminder email to: " + userEmail);
-
-                MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-                String subject = "Nhắc nhở: Cập nhật chỉ số sức khỏe hôm nay";
-                StringBuilder body = new StringBuilder();
-                body.append("<h2>Nhắc nhở Cập nhật Sức khỏe</h2>")
-                    .append("<p>Xin chào, </p>")
-                    .append("<p>Hãy cập nhật chỉ số sức khỏe của bạn (huyết áp, đường huyết, hoặc cân nặng) để theo dõi tình trạng sức khỏe hàng ngày.</p>")
-                    .append("<p><a href='http://localhost:8080/health-chart'>Cập nhật ngay tại đây</a></p>")
-                    .append("<p>Nếu bạn cần hỗ trợ, vui lòng liên hệ bác sĩ qua hệ thống chat.</p>")
-                    .append("<p>Trân trọng</p>");
-
-                helper.setTo(userEmail);
-                helper.setSubject(subject);
-                helper.setText(body.toString(), true);
-            
-
-                mailSender.send(message);
-                System.out.println("Sent reminder email to: " + userEmail + ", subject: " + subject);
-            }
-        } catch (MessagingException e) {
-            System.err.println("Failed to send reminder emails: " + e.getMessage());
-        }
-    }
+   
 }
